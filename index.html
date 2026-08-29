@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="ur" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>محفلِ درود — Contest</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,"Noto Naskh Arabic",sans-serif;background:#f4f8f5;color:#173b2d}
+header{background:linear-gradient(135deg,#0b5d45,#13805f);color:white;padding:24px 18px;text-align:center}
+h1{margin:0 0 8px;font-size:32px}.sub{opacity:.9}
+.wrap{max-width:900px;margin:20px auto;padding:0 14px}
+.card{background:white;border-radius:18px;padding:20px;margin:16px 0;box-shadow:0 7px 25px #00000012}
+.target{font-size:22px;line-height:2;text-align:center;background:#f0f8f3;border-radius:14px;padding:16px;font-weight:bold;color:#0b5d45}
+.count{font-size:52px;font-weight:800;text-align:center;margin:10px;color:#0b5d45}
+button{border:0;border-radius:12px;padding:14px 20px;font-size:18px;cursor:pointer;font-weight:700}
+.start{background:#0b6b4d;color:#fff;width:100%}
+.stop{background:#eee;color:#333;margin-top:10px;width:100%}
+.auth-btn{background:#e0a96d;color:#fff;margin-bottom:15px;width:100%}
+.status{text-align:center;margin:14px 0;font-weight:700;font-size:16px;min-height:25px}
+.transcript{direction:rtl;text-align:center;background:#fafafa;border:1px solid #ddd;border-radius:12px;padding:12px;min-height:48px;font-size:18px}
+table{width:100%;border-collapse:collapse}td,th{padding:12px;border-bottom:1px solid #eee;text-align:center}
+.badge{display:inline-block;padding:5px 12px;border-radius:20px;background:#e4f4ec;color:#0b5d45;font-weight:bold}
+.user-box{text-align:center;margin-bottom:15px;font-weight:bold}
+footer{text-align:center;color:#777;padding:20px}
+</style>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+</head>
+<body>
+
+<header>
+<h1>🕌 محفلِ درود</h1>
+<div class="sub">روزانہ درود شریف مقابلہ و لائیو لیڈر بورڈ</div>
+</header>
+
+<div class="wrap">
+  <div class="card" id="authCard">
+    <div class="user-box" id="userInfo">مقابلے میں حصہ لینے کے لیے لاگ ان کریں</div>
+    <button class="auth-btn" id="loginBtn">🔑 Google سے لاگ ان کریں</button>
+  </div>
+
+  <div class="card">
+    <div class="target" id="targetText">اللَّهُمَّ صَلِّ عَلَىٰ مُحَمَّدٍ وَعَلَىٰ آلِ مُحَمَّدٍ</div>
+    <div class="count" id="count">0</div>
+    <div style="text-align:center"><span class="badge">آپ کی تصدیق شدہ تعداد</span></div>
+    <br>
+    <button class="start" id="start" disabled>🎙️ درود پڑھنا شروع کریں</button>
+    <button class="stop" id="stop">⏹️ روکیں</button>
+    <div class="status" id="status">لاگ ان ہونے کا انتظار ہے...</div>
+    <div class="transcript" id="transcript">آپ کی آواز یہاں نظر آئے گی...</div>
+  </div>
+
+  <div class="card">
+    <h2>🏆 لائیو Leaderboard</h2>
+    <table>
+      <thead><tr><th>Rank</th><th>صارف</th><th>کل درود</th></tr></thead>
+      <tbody id="board">
+        <tr><td colspan="3">ڈیٹا لوڈ ہو رہا ہے...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<footer>محفلِ درود — Contest Web App</footer>
+
+<script>
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+  databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT_ID.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.database();
+
+let currentUser = null;
+let userCount = 0;
+
+const loginBtn = document.getElementById("loginBtn");
+const userInfo = document.getElementById("userInfo");
+
+loginBtn.onclick = () => {
+  const provider = new firebase.auth.GoogleAuthProvider();
+  auth.signInWithPopup(provider).catch(err => alert("Login Error: " + err.message));
+};
+
+auth.onAuthStateChanged(user => {
+  if (user) {
+    currentUser = user;
+    userInfo.textContent = `خوش آمدید: ${user.displayName}`;
+    loginBtn.style.display = "none";
+    document.getElementById("start").disabled = false;
+    document.getElementById("status").textContent = "تیار ہے! بٹن دبا کر پڑھنا شروع کریں۔";
+    loadUserScore(user.uid);
+  } else {
+    currentUser = null;
+    userInfo.textContent = "مقابلے میں حصہ لینے کے لیے لاگ ان کریں";
+    loginBtn.style.display = "block";
+    document.getElementById("start").disabled = true;
+  }
+});
+
+function loadUserScore(uid) {
+  db.ref('users/' + uid).on('value', snapshot => {
+    const data = snapshot.val();
+    if (data) {
+      userCount = data.count || 0;
+      document.getElementById("count").textContent = userCount;
+    }
+  });
+}
+
+function updateScore() {
+  if (!currentUser) return;
+  userCount++;
+  document.getElementById("count").textContent = userCount;
+  db.ref('users/' + currentUser.uid).set({
+    name: currentUser.displayName,
+    count: userCount
+  });
+}
+
+// Advanced Recognition & Normalization
+function cleanArabicText(text) {
+  return text
+    .replace(/[\u064B-\u0652]/g, "") // Full Arabic Diacritics/Zabar Zer
+    .replace(/[إأآا]/g, "ا")
+    .replace(/ى/g, "ي")
+    .replace(/ؤ/g, "و")
+    .replace(/ئ/g, "ي")
+    .replace(/[،؛,:.!؟]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function verifyDarood(spokenText) {
+  const cleanSpoken = cleanArabicText(spokenText);
+  // Important keywords check
+  const hasAllah = cleanSpoken.includes("اللهم") || cleanSpoken.includes("الله");
+  const hasSalli = cleanSpoken.includes("صل") || cleanSpoken.includes("صلي") || cleanSpoken.includes("صلى");
+  const hasMuhammad = cleanSpoken.includes("محمد");
+
+  return (hasAllah || hasSalli) && hasMuhammad;
+}
+
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let recognition = null;
+let listening = false;
+
+if (SR) {
+  recognition = new SR();
+  recognition.lang = "ar-SA"; // Arabic
+  recognition.continuous = false;
+  recognition.interimResults = true;
+
+  recognition.onstart = () => {
+    listening = true;
+    document.getElementById("status").textContent = "🎙️ سن رہا ہوں... درود شریف پڑھیں";
+    document.getElementById("start").disabled = true;
+  };
+
+  recognition.onresult = (e) => {
+    let transcript = "";
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      transcript += e.results[i][0].transcript;
+    }
+    
+    document.getElementById("transcript").textContent = transcript;
+
+    if (e.results[0].isFinal) {
+      if (verifyDarood(transcript)) {
+        updateScore();
+        document.getElementById("status").textContent = "✅ درود شریف درست پڑھا گیا! گنتی بڑھ گئی۔";
+        document.getElementById("status").style.color = "green";
+      } else {
+        document.getElementById("status").textContent = "❌ غلط یا نامکمل! دوبارہ واضح پڑھیں۔";
+        document.getElementById("status").style.color = "red";
+      }
+    }
+  };
+
+  recognition.onerror = (e) => {
+    document.getElementById("status").textContent = "⚠️ Mic error: " + e.error + " (Allow mic access)";
+    document.getElementById("status").style.color = "orange";
+  };
+
+  recognition.onend = () => {
+    listening = false;
+    document.getElementById("start").disabled = false;
+  };
+} else {
+  document.getElementById("status").textContent = "⚠️ Chrome या Edge ब्राउज़र का उपयोग करें।";
+}
+
+document.getElementById("start").onclick = () => {
+  if (recognition && currentUser) {
+    try { 
+      recognition.start(); 
+    } catch(e){
+      recognition.stop();
+    }
+  }
+};
+
+document.getElementById("stop").onclick = () => {
+  if (recognition && listening) recognition.stop();
+  document.getElementById("status").textContent = "روک دیا گیا۔";
+  document.getElementById("status").style.color = "#333";
+};
+
+db.ref('users').orderByChild('count').limitToLast(10).on('value', snapshot => {
+  const board = document.getElementById("board");
+  board.innerHTML = "";
+  let list = [];
+  snapshot.forEach(child => {
+    list.push(child.val());
+  });
+  list.reverse();
+
+  const medals = ["🥇", "🥈", "🥉"];
+  list.forEach((u, index) => {
+    const rank = medals[index] || (index + 1);
+    const row = `<tr><td>${rank}</td><td>${u.name}</td><td>${u.count}</td></tr>`;
+    board.innerHTML += row;
+  });
+});
+</script>
+</body>
+</html>
