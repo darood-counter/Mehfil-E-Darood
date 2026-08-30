@@ -24,9 +24,13 @@
     .arabic-text { font-size: 22px; color: #1b5e20; font-weight: bold; line-height: 1.8; }
     .translation { font-size: 14px; color: #555; margin-top: 8px; line-height: 1.5; }
 
-    /* User Profile */
+    /* User Profile & Payment Box */
     .user-header { display: flex; justify-content: space-between; align-items: center; background: #f9f9f9; padding: 8px 12px; border-radius: 8px; margin-bottom: 15px; }
     .logout-btn { background-color: #d32f2f; color: white; border: none; padding: 5px 10px; font-size: 12px; border-radius: 4px; cursor: pointer; }
+    
+    .profile-box { background: #f1f8e9; border: 1px solid #c5e1a5; padding: 12px; border-radius: 8px; margin-bottom: 15px; text-align: right; }
+    .profile-box input, .profile-box select { width: 100%; padding: 8px; margin: 5px 0 10px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+    .save-profile-btn { background-color: #2e7d32; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; }
 
     /* Voice Verification Button */
     .mic-btn { background-color: #2e7d32; color: white; border: none; width: 150px; height: 150px; border-radius: 50%; font-size: 18px; font-weight: bold; cursor: pointer; box-shadow: 0 6px 15px rgba(46, 125, 50, 0.4); margin: 15px 0; outline: none; transition: all 0.3s; }
@@ -60,7 +64,7 @@
     <div class="nav-tabs">
       <button class="tab-btn active" id="mainTabBtn" onclick="showTab('mainTab')">عام تسبیح</button>
       <button class="tab-btn" id="compTabBtn" onclick="showTab('compTab')">🎯 رینڈم مقابلہ</button>
-      <button class="tab-btn" id="rewardTabBtn" onclick="showTab('rewardTab')">🎁 انعامات (Rewards)</button>
+      <button class="tab-btn" id="rewardTabBtn" onclick="showTab('rewardTab')">🎁 انعامات اور پیمنٹ</button>
     </div>
 
     <!-- Auth Section -->
@@ -76,6 +80,25 @@
         <button class="logout-btn" id="logoutBtn">لاگ آؤٹ</button>
       </div>
 
+      <!-- User Payment & Profile Details Box -->
+      <div class="profile-box">
+        <h4 style="margin: 0 0 8px 0; color: #2e7d32;">📱 انعام کی وصولی کی تفصیلات (JazzCash / EasyPaisa)</h4>
+        <label style="font-size: 12px; color: #555;">اکاؤنٹ ہولڈر کا نام:</label>
+        <input type="text" id="accName" placeholder="اپنا پورا نام لکھیں">
+        
+        <label style="font-size: 12px; color: #555;">موبایل نمبر (JazzCash / EasyPaisa):</label>
+        <input type="text" id="accNumber" placeholder="03XXXXXXXXX">
+        
+        <label style="font-size: 12px; color: #555;">اکاؤنٹ کی قسم:</label>
+        <select id="accType">
+          <option value="JazzCash">JazzCash (جاز کیش)</option>
+          <option value="EasyPaisa">EasyPaisa (ایزی پیسہ)</option>
+        </select>
+        
+        <button class="save-profile-btn" id="saveProfileBtn">تفصیلات محفوظ کریں</button>
+        <div id="profileStatus" style="font-size: 12px; margin-top: 5px; color: #2e7d32; text-align: center;"></div>
+      </div>
+
       <!-- Darood Card -->
       <div class="darood-card">
         <div class="arabic-text">
@@ -89,7 +112,7 @@
 
       <!-- TAB 1: General Tasbeeh -->
       <div id="mainTab">
-        <button class="mic-btn" id="countBtn">🎤 بول کر پڑھیں<br><span style="font-size: 13px;">(7 سیکنڈ چیَک)</span></button>
+        <button class="mic-btn" id="countBtn">🎤 بول کر پڑھیں</button>
         <div id="statusMsg" class="status-msg" style="color: #2e7d32;"></div>
         <div style="font-size: 18px; color: #1b5e20;">آپ کی کل پڑھائی: <b id="userTotal">0</b></div>
 
@@ -106,7 +129,7 @@
           <div class="comp-title">🔥 آج کا رینڈم چیلنج</div>
           <p id="compDescription" style="margin: 5px 0; color: #555;">چیلنج کا ڈیٹا لوڈ ہو رہا ہے...</p>
           <div class="reward-box" id="rewardDescription">
-            🎁 <b>انعام (Reward):</b> لوڈ ہو رہا ہے...
+            🎁 <b>انعام (Cash Prize):</b> لوڈ ہو رہا ہے...
           </div>
         </div>
 
@@ -123,22 +146,22 @@
 
       <!-- TAB 3: Rewards & Schemes Info -->
       <div id="rewardTab" class="hidden" style="text-align: right;">
-        <h3 style="color: #2e7d32; text-align: center;">🎁 انعامات اور اسکیمز کی تفصیل</h3>
-        <p style="color: #555; font-size: 14px; text-align: center;">محفلِ درود میں مقابلے جیتنے والے احباب کے لیے درج ذیل انعامی اسکیمیں رکھی گئی ہیں:</p>
+        <h3 style="color: #2e7d32; text-align: center;">🎁 نقد انعامات (Cash Prizes) اور اسکیمز</h3>
+        <p style="color: #555; font-size: 14px; text-align: center;">مقابلے جیتنے والے احباب کو انعام کی رقم براہِ راست ان کے درج کردہ **JazzCash** یا **EasyPaisa** اکاؤنٹ میں بھیجی جاتی ہے:</p>
         
         <div style="background: #e8f5e9; border-right: 4px solid #2e7d32; padding: 12px; margin-bottom: 10px; border-radius: 4px;">
-          <b>⭐ اسکیم 1: ہفتہ وار اسپیشل انعام</b>
-          <p style="margin: 5px 0 0 0; font-size: 13px; color: #333;">ہر ہفتے کے آخر میں پہلے نمبر پر آنے والے خوش نصیب کو اسلامی کتاب یا ہدیہ ارسال کیا جائے گا۔</p>
+          <b>⭐ اسکیم 1: روزانہ کا کیش انعام</b>
+          <p style="margin: 5px 0 0 0; font-size: 13px; color: #333;">آج کے رینڈم چیلنج میں پہلے نمبر پر آنے والے فاتح کو <b>1,000 روپے</b> نقد انعام دیا جائے گا۔</p>
         </div>
 
         <div style="background: #fff3e0; border-right: 4px solid #ff9800; padding: 12px; margin-bottom: 10px; border-radius: 4px;">
-          <b>⭐ اسکیم 2: ماہانہ درود چیمپئن (تسمیع / شیلڈ)</b>
-          <p style="margin: 5px 0 0 0; font-size: 13px; color: #333;">پورے مہینے میں سب سے زیادہ درود پاک پڑھنے والے صارف کو خصوصی "ڈجیٹل سرٹیفکیٹ اور اعزازی شیلڈ" دی جائے گی۔</p>
+          <b>⭐ اسکیم 2: ہفتہ وار بمپر پرائز</b>
+          <p style="margin: 5px 0 0 0; font-size: 13px; color: #333;">ہفتے کے آخر میں ٹاپ پوزیشن حاصل کرنے والے خوش نصیب کے لیے <b>5,000 روپے</b> کا کیش انعام رکھا گیا ہے۔</p>
         </div>
 
         <div style="background: #e3f2fd; border-right: 4px solid #1976d2; padding: 12px; margin-bottom: 10px; border-radius: 4px;">
-          <b>⭐ اسکیم 3: رینڈم قرعہ اندازی (Lucky Draw)</b>
-          <p style="margin: 5px 0 0 0; font-size: 13px; color: #333;">روزانہ کے چیلنج میں کم از کم 50 درود پڑھنے والے تمام صارفین میں سے قرعہ اندازی کے ذریعے ایک فاتح چنا جائے گا۔</p>
+          <b>⭐ اسکیم 3: لکی ڈرا کیش اسکیم</b>
+          <p style="margin: 5px 0 0 0; font-size: 13px; color: #333;">کم از کم 100 درود شریف پڑھنے والے تمام ممبران میں قرعہ اندازی کے ذریعے <b>500 روپے</b> کا انعام نکالا جائے گا۔</p>
         </div>
       </div>
 
@@ -167,29 +190,29 @@
 
     let currentUser = null;
 
-    // Random Competitions & Rewards Data
+    // Competitions & Cash Prizes Data
     const competitionData = [
       {
         desc: "جمعہ مبارک اسپیشل چیلنج - سب سے زیادہ درود شریف پڑھیں!",
-        reward: "پہلا انعام: خصوصی اسلامی کتب کا تحفہ + ہفتے کا چیمپئن ٹائٹل"
+        reward: "پہلا انعام: 1,000 روپے نقد (JazzCash / EasyPaisa)"
       },
       {
         desc: "100 درود کا کوئیک اسپریڈ چیلنج!",
-        reward: "لکی ڈرا کے ذریعے ایک فاتح کو اعزازی شیلڈ"
+        reward: "لکی ڈرا کے ذریعے فاتح کو: 500 روپے نقد"
       },
       {
         desc: "شبِ جمعہ چیلنج - ٹاپ 3 میں شامل ہوں!",
-        reward: "ٹاپ 3 فاتحین کے لیے ڈیجیٹل اسناد (Certificates)"
+        reward: "پہلا انعام: 1,500 روپے نقد"
       },
       {
         desc: "روزانہ کا درودِ پاک چیلنج",
-        reward: "آج کے دن سب سے زیادہ پڑھنے والے کے لیے خصوصی دعا اور نام لیڈر بورڈ پر نمایاں"
+        reward: "آج کا پہلا انعام: 1,000 روپے نقد"
       }
     ];
 
     const todayIndex = new Date().getDate() % competitionData.length;
     document.getElementById("compDescription").innerText = competitionData[todayIndex].desc;
-    document.getElementById("rewardDescription").innerHTML = `🎁 <b>انعام (Reward):</b> ${competitionData[todayIndex].reward}`;
+    document.getElementById("rewardDescription").innerHTML = `🎁 <b>انعام (Cash Prize):</b> ${competitionData[todayIndex].reward}`;
 
     // Tab Switching Function
     function showTab(tabId) {
@@ -220,9 +243,15 @@
         document.getElementById("userInfo").classList.remove("hidden");
         document.getElementById("userName").innerText = user.displayName;
 
+        // Load User Count & Profile Info
         db.ref("users/" + user.uid).on("value", snapshot => {
           const data = snapshot.val();
           document.getElementById("userTotal").innerText = data ? (data.count || 0) : 0;
+          if (data) {
+            if(data.accName) document.getElementById("accName").value = data.accName;
+            if(data.accNumber) document.getElementById("accNumber").value = data.accNumber;
+            if(data.accType) document.getElementById("accType").value = data.accType;
+          }
         });
 
         db.ref("competitions/comp_" + todayIndex + "/" + user.uid).on("value", snapshot => {
@@ -245,6 +274,35 @@
       }
     });
 
+    // Save Profile / Payment Details
+    document.getElementById("saveProfileBtn").onclick = () => {
+      if (!currentUser) return;
+      const name = document.getElementById("accName").value.trim();
+      const number = document.getElementById("accNumber").value.trim();
+      const type = document.getElementById("accType").value;
+
+      if (!name || !number) {
+        document.getElementById("profileStatus").style.color = "#d32f2f";
+        document.getElementById("profileStatus").innerText = "براہِ کرم نام اور نمبر دونوں درج کریں۔";
+        return;
+      }
+
+      db.ref("users/" + currentUser.uid).update({
+        accName: name,
+        accNumber: number,
+        accType: type,
+        name: currentUser.displayName
+      }, (error) => {
+        if (!error) {
+          document.getElementById("profileStatus").style.color = "#2e7d32";
+          document.getElementById("profileStatus").innerText = "✓ آپ کی پیمنٹ کی تفصیلات محفوظ ہو گئیں!";
+        } else {
+          document.getElementById("profileStatus").style.color = "#d32f2f";
+          document.getElementById("profileStatus").innerText = "خرابی پیش آئی، دوبارہ کوشش کریں۔";
+        }
+      });
+    };
+
     db.ref("status").on("value", snapshot => {
       document.getElementById("onlineCount").innerText = snapshot.numChildren() || 0;
     });
@@ -259,7 +317,7 @@
       btn.disabled = true;
       btn.classList.add("recording");
       status.style.color = "#d32f2f";
-      status.innerText = "سُن رہا ہے... (7 سیکنڈ میں درود شریف پڑھیں)";
+      status.innerText = "سُن رہا ہے... (درود شریف پڑھیں)";
 
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
