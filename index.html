@@ -10,8 +10,8 @@
     h1 { color: #1b5e20; margin-bottom: 5px; }
 
     /* Navigation Tabs */
-    .nav-tabs { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
-    .tab-btn { background: #e0e0e0; color: #333; border: none; padding: 10px 20px; border-radius: 20px; font-weight: bold; cursor: pointer; font-size: 15px; }
+    .nav-tabs { display: flex; justify-content: center; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+    .tab-btn { background: #e0e0e0; color: #333; border: none; padding: 8px 15px; border-radius: 20px; font-weight: bold; cursor: pointer; font-size: 14px; }
     .tab-btn.active { background: #2e7d32; color: white; }
 
     /* Live Badge */
@@ -33,13 +33,13 @@
     .mic-btn:disabled { background-color: #9e9e9e; cursor: not-allowed; box-shadow: none; }
     .mic-btn.recording { background-color: #d32f2f; animation: pulse 1s infinite; }
 
-    .status-msg { font-weight: bold; font-size: 14px; margin: 8px 0; min-height: 20px; }
-
+    .status-msg { font-weight: bold; font-size: 14px; margin: 8px 0; min-height: 25px; line-height: 1.4; }
     .login-btn { background-color: #2e7d32; color: white; border: none; padding: 12px 24px; font-size: 16px; border-radius: 6px; cursor: pointer; }
 
     /* Competition Box */
-    .comp-box { background: #fff3e0; border: 2px dashed #ff9800; border-radius: 10px; padding: 15px; margin: 15px 0; }
+    .comp-box { background: #fff3e0; border: 2px dashed #ff9800; border-radius: 10px; padding: 15px; margin: 15px 0; text-align: right; }
     .comp-title { font-size: 18px; color: #e65100; font-weight: bold; }
+    .reward-box { background: #e8f5e9; border: 1px solid #81c784; border-radius: 8px; padding: 10px; margin-top: 10px; color: #1b5e20; font-size: 14px; }
 
     table { width: 100%; border-collapse: collapse; margin-top: 15px; }
     th, td { border: 1px solid #ddd; padding: 8px; text-align: center; font-size: 14px; }
@@ -60,6 +60,7 @@
     <div class="nav-tabs">
       <button class="tab-btn active" id="mainTabBtn" onclick="showTab('mainTab')">عام تسبیح</button>
       <button class="tab-btn" id="compTabBtn" onclick="showTab('compTab')">🎯 رینڈم مقابلہ</button>
+      <button class="tab-btn" id="rewardTabBtn" onclick="showTab('rewardTab')">🎁 انعامات (Rewards)</button>
     </div>
 
     <!-- Auth Section -->
@@ -104,6 +105,9 @@
         <div class="comp-box">
           <div class="comp-title">🔥 آج کا رینڈم چیلنج</div>
           <p id="compDescription" style="margin: 5px 0; color: #555;">چیلنج کا ڈیٹا لوڈ ہو رہا ہے...</p>
+          <div class="reward-box" id="rewardDescription">
+            🎁 <b>انعام (Reward):</b> لوڈ ہو رہا ہے...
+          </div>
         </div>
 
         <button class="mic-btn" style="background-color: #ff9800;" id="compCountBtn">🎤 مقابلے کے لیے بولیں</button>
@@ -115,6 +119,27 @@
           <thead><tr><th>رینک</th><th>صارف</th><th>مقابلہ اسکور</th></tr></thead>
           <tbody id="compBoard"><tr><td colspan="3">لوڈ ہو رہا ہے...</td></tr></tbody>
         </table>
+      </div>
+
+      <!-- TAB 3: Rewards & Schemes Info -->
+      <div id="rewardTab" class="hidden" style="text-align: right;">
+        <h3 style="color: #2e7d32; text-align: center;">🎁 انعامات اور اسکیمز کی تفصیل</h3>
+        <p style="color: #555; font-size: 14px; text-align: center;">محفلِ درود میں مقابلے جیتنے والے احباب کے لیے درج ذیل انعامی اسکیمیں رکھی گئی ہیں:</p>
+        
+        <div style="background: #e8f5e9; border-right: 4px solid #2e7d32; padding: 12px; margin-bottom: 10px; border-radius: 4px;">
+          <b>⭐ اسکیم 1: ہفتہ وار اسپیشل انعام</b>
+          <p style="margin: 5px 0 0 0; font-size: 13px; color: #333;">ہر ہفتے کے آخر میں پہلے نمبر پر آنے والے خوش نصیب کو اسلامی کتاب یا ہدیہ ارسال کیا جائے گا۔</p>
+        </div>
+
+        <div style="background: #fff3e0; border-right: 4px solid #ff9800; padding: 12px; margin-bottom: 10px; border-radius: 4px;">
+          <b>⭐ اسکیم 2: ماہانہ درود چیمپئن (تسمیع / شیلڈ)</b>
+          <p style="margin: 5px 0 0 0; font-size: 13px; color: #333;">پورے مہینے میں سب سے زیادہ درود پاک پڑھنے والے صارف کو خصوصی "ڈجیٹل سرٹیفکیٹ اور اعزازی شیلڈ" دی جائے گی۔</p>
+        </div>
+
+        <div style="background: #e3f2fd; border-right: 4px solid #1976d2; padding: 12px; margin-bottom: 10px; border-radius: 4px;">
+          <b>⭐ اسکیم 3: رینڈم قرعہ اندازی (Lucky Draw)</b>
+          <p style="margin: 5px 0 0 0; font-size: 13px; color: #333;">روزانہ کے چیلنج میں کم از کم 50 درود پڑھنے والے تمام صارفین میں سے قرعہ اندازی کے ذریعے ایک فاتح چنا جائے گا۔</p>
+        </div>
       </div>
 
     </div>
@@ -142,26 +167,44 @@
 
     let currentUser = null;
 
-    // Random Competitions
-    const randomChallenges = [
-      "جمعہ مبارک اسپیشل چیلنج - سب سے زیادہ درود شریف پڑھیں!",
-      "100 درود کا کوئیک اسپریڈ چیلنج!",
-      "شبِ جمعہ چیلنج - ٹاپ 3 میں شامل ہوں!",
-      "روزانہ کا درودِ پاک چیلنج"
+    // Random Competitions & Rewards Data
+    const competitionData = [
+      {
+        desc: "جمعہ مبارک اسپیشل چیلنج - سب سے زیادہ درود شریف پڑھیں!",
+        reward: "پہلا انعام: خصوصی اسلامی کتب کا تحفہ + ہفتے کا چیمپئن ٹائٹل"
+      },
+      {
+        desc: "100 درود کا کوئیک اسپریڈ چیلنج!",
+        reward: "لکی ڈرا کے ذریعے ایک فاتح کو اعزازی شیلڈ"
+      },
+      {
+        desc: "شبِ جمعہ چیلنج - ٹاپ 3 میں شامل ہوں!",
+        reward: "ٹاپ 3 فاتحین کے لیے ڈیجیٹل اسناد (Certificates)"
+      },
+      {
+        desc: "روزانہ کا درودِ پاک چیلنج",
+        reward: "آج کے دن سب سے زیادہ پڑھنے والے کے لیے خصوصی دعا اور نام لیڈر بورڈ پر نمایاں"
+      }
     ];
-    const todayIndex = new Date().getDate() % randomChallenges.length;
-    document.getElementById("compDescription").innerText = randomChallenges[todayIndex];
+
+    const todayIndex = new Date().getDate() % competitionData.length;
+    document.getElementById("compDescription").innerText = competitionData[todayIndex].desc;
+    document.getElementById("rewardDescription").innerHTML = `🎁 <b>انعام (Reward):</b> ${competitionData[todayIndex].reward}`;
 
     // Tab Switching Function
     function showTab(tabId) {
       document.getElementById("mainTab").classList.add("hidden");
       document.getElementById("compTab").classList.add("hidden");
+      document.getElementById("rewardTab").classList.add("hidden");
+      
       document.getElementById("mainTabBtn").classList.remove("active");
       document.getElementById("compTabBtn").classList.remove("active");
+      document.getElementById("rewardTabBtn").classList.remove("active");
 
       document.getElementById(tabId).classList.remove("hidden");
       if(tabId === 'mainTab') document.getElementById("mainTabBtn").classList.add("active");
       if(tabId === 'compTab') document.getElementById("compTabBtn").classList.add("active");
+      if(tabId === 'rewardTab') document.getElementById("rewardTabBtn").classList.add("active");
     }
 
     // Auth Handlers
@@ -206,69 +249,74 @@
       document.getElementById("onlineCount").innerText = snapshot.numChildren() || 0;
     });
 
-    // --- 7 Seconds & First/Last Word Voice Recognition ---
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-
-    function verifyAndCount(buttonId, statusId, isComp = false) {
+    // --- 7 Seconds Voice Check ---
+    async function verifyAndCount(buttonId, statusId, isComp = false) {
       if (!currentUser) return;
 
       const btn = document.getElementById(buttonId);
       const status = document.getElementById(statusId);
 
-      if (!SpeechRecognition) {
-        status.style.color = "#d32f2f";
-        status.innerText = "آپ کا براؤزر وائس ریکگنیشن کی اجازت نہیں دیتا (Chrome استعمال کریں)۔";
-        return;
-      }
-
-      const recognition = new SpeechRecognition();
-      recognition.lang = 'ar-SA';
-      recognition.continuous = true;
-      recognition.interimResults = true;
-
       btn.disabled = true;
       btn.classList.add("recording");
       status.style.color = "#d32f2f";
-      status.innerText = "سُن رہا ہے... (7 سیکنڈ میں پورا درود پڑھیں)";
+      status.innerText = "سُن رہا ہے... (7 سیکنڈ میں درود شریف پڑھیں)";
 
-      let capturedText = "";
-      recognition.start();
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const analyser = audioContext.createAnalyser();
+        const microphone = audioContext.createMediaStreamSource(stream);
+        microphone.connect(analyser);
 
-      recognition.onresult = (event) => {
-        for (let i = event.resultIndex; i < event.results.length; ++i) {
-          capturedText += " " + event.results[i][0].transcript;
-        }
-      };
+        analyser.fftSize = 256;
+        const dataArray = new Uint8Array(analyser.frequencyBinCount);
+        
+        let hasSpoken = false;
+        let checkDuration = 7000;
+        let startTime = Date.now();
 
-      // 7 Seconds Timer
-      setTimeout(() => {
-        recognition.stop();
+        const checkAudio = setInterval(() => {
+          analyser.getByteFrequencyData(dataArray);
+          let sum = 0;
+          for (let i = 0; i < dataArray.length; i++) sum += dataArray[i];
+          let average = sum / dataArray.length;
+
+          if (average > 10) { 
+            hasSpoken = true;
+          }
+
+          if (Date.now() - startTime >= checkDuration) {
+            clearInterval(checkAudio);
+            stream.getTracks().forEach(track => track.stop());
+            audioContext.close();
+
+            btn.classList.remove("recording");
+            btn.disabled = false;
+
+            if (hasSpoken) {
+              status.style.color = "#2e7d32";
+              status.innerText = "✓ تصدیق شدہ! درود پاک کاؤنٹ ہو گیا۔";
+              
+              const targetPath = isComp ? "competitions/comp_" + todayIndex + "/" + currentUser.uid : "users/" + currentUser.uid;
+              db.ref(targetPath).transaction(current => {
+                if (current) { current.count = (current.count || 0) + 1; current.name = currentUser.displayName; }
+                else { current = { name: currentUser.displayName, count: 1 }; }
+                return current;
+              });
+
+            } else {
+              status.style.color = "#d32f2f";
+              status.innerText = "آپ نے صحیح نہیں پڑھا دوبارہ پڑھیں";
+            }
+          }
+        }, 100);
+
+      } catch (err) {
         btn.classList.remove("recording");
         btn.disabled = false;
-
-        let cleanText = capturedText.replace(/[^\u0600-\u06FF\s]/g, "").trim();
-
-        // Check for First ("اللهم") and Last ("مجيد") Word
-        let hasFirstWord = cleanText.includes("اللهم") || cleanText.includes("اللهم ");
-        let hasLastWord = cleanText.includes("مجيد") || cleanText.includes("مجيد ");
-
-        if (hasFirstWord && hasLastWord) {
-          status.style.color = "#2e7d32";
-          status.innerText = "✓ تصدیق شدہ! درود پاک درست پڑھا گیا۔";
-
-          const targetPath = isComp ? "competitions/comp_" + todayIndex + "/" + currentUser.uid : "users/" + currentUser.uid;
-          db.ref(targetPath).transaction(current => {
-            if (current) { current.count = (current.count || 0) + 1; current.name = currentUser.displayName; }
-            else { current = { name: currentUser.displayName, count: 1 }; }
-            return current;
-          });
-
-        } else {
-          status.style.color = "#d32f2f";
-          status.innerText = "❌ تلفظ نامکمل ہے۔ شروع میں 'اللّٰہم' اور آخر میں 'مجید' لازمی پڑھیں۔";
-        }
-
-      }, 7000); // 7000ms = 7 سیکنڈ
+        status.style.color = "#d32f2f";
+        status.innerText = "براہِ کرم مائیک کی اجازت (Mic Permission) دیں۔";
+      }
     }
 
     document.getElementById("countBtn").onclick = () => verifyAndCount("countBtn", "statusMsg", false);
