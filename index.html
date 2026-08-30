@@ -3,73 +3,77 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>محفلِ درود و مقابلے</title>
-  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@700&family=Noto+Nastaliq+Urdu:wght@400;700&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <title>محفلِ درود و مقابلے - Mehfil-E-Darood</title>
+  <link href="https://fonts.googleapis.com/css2?family=Jameel+Noori+Nastaleeq&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --primary-color: #0f5132;
-      --primary-hover: #146c43;
-      --accent-color: #d4af37;
-      --bg-gradient: linear-gradient(135deg, #f4f9f4 0%, #e8f5e9 100%);
+      --primary-color: #0d3b22;
+      --primary-hover: #14532d;
+      --accent-gold: #c5a059;
+      --accent-gold-light: #fdf8ee;
+      --bg-gradient: linear-gradient(145deg, #f3f7f4 0%, #e8f0ec 100%);
       --card-bg: #ffffff;
-      --text-main: #2b2b2b;
-      --shadow: 0 10px 30px rgba(15, 81, 50, 0.08);
+      --text-main: #1f2937;
+      --text-muted: #4b5563;
+      --shadow: 0 12px 35px rgba(13, 59, 34, 0.08);
     }
 
     body {
-      font-family: 'Noto Nastaliq Urdu', 'Poppins', sans-serif;
+      font-family: 'Jameel Noori Nastaleeq', 'Plus Jakarta Sans', sans-serif;
       background: var(--bg-gradient);
       color: var(--text-main);
       text-align: center;
-      padding: 10px 8px;
+      padding: 15px 10px;
       margin: 0;
       min-height: 100vh;
+      font-size: 16px;
+      line-height: 1.8;
     }
 
     .container {
-      max-width: 600px;
+      max-width: 620px;
       margin: 0 auto;
       background: var(--card-bg);
-      padding: 12px 15px;
-      border-radius: 16px;
+      padding: 20px 18px;
+      border-radius: 20px;
       box-shadow: var(--shadow);
-      border: 1px solid rgba(212, 175, 55, 0.3);
+      border: 1px solid rgba(197, 160, 89, 0.25);
     }
 
     h1 {
       color: var(--primary-color);
-      font-size: 22px;
-      margin: 0 0 2px 0;
-      font-weight: 700;
+      font-size: 28px;
+      margin: 0 0 4px 0;
+      font-weight: bold;
     }
 
     .subtitle {
-      font-size: 11px;
-      color: #666;
-      margin-bottom: 8px;
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
     }
 
     /* Live Badge */
     .live-badge {
       display: inline-flex;
       align-items: center;
-      background-color: #e8f5e9;
+      background-color: var(--accent-gold-light);
       color: var(--primary-color);
-      border: 1px solid #c8e6c9;
-      padding: 3px 10px;
-      border-radius: 20px;
-      font-size: 11px;
+      border: 1px solid rgba(197, 160, 89, 0.4);
+      padding: 4px 14px;
+      border-radius: 30px;
+      font-size: 13px;
       font-weight: bold;
-      margin-bottom: 8px;
+      margin-bottom: 12px;
     }
 
     .live-dot {
-      height: 6px;
-      width: 6px;
-      background-color: #2e7d32;
+      height: 8px;
+      width: 8px;
+      background-color: #16a34a;
       border-radius: 50%;
       display: inline-block;
-      margin-left: 5px;
+      margin-left: 6px;
       animation: pulse 1.5s infinite;
     }
 
@@ -79,58 +83,88 @@
       100% { transform: scale(0.95); opacity: 0.7; }
     }
 
-    /* Cards */
+    /* Top Info Highlights */
+    .top-highlights {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    .highlight-box {
+      background: linear-gradient(135deg, #fffcf5, #fef6e4);
+      border: 1.5px solid var(--accent-gold);
+      border-radius: 12px;
+      padding: 10px;
+      text-align: right;
+    }
+
+    .highlight-title {
+      font-size: 14px;
+      color: #9a7b38;
+      font-weight: bold;
+      margin-bottom: 2px;
+    }
+
+    .highlight-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin: 0;
+      line-height: 1.5;
+    }
+
+    /* Darood Card */
     .darood-card {
-      background: linear-gradient(145deg, #ffffff, #f7faf7);
-      border: 2px solid #d4af37;
-      border-radius: 14px;
-      padding: 12px;
-      margin: 8px 0;
-      box-shadow: 0 4px 15px rgba(212, 175, 55, 0.15);
+      background: linear-gradient(145deg, #ffffff, #f8faf9);
+      border: 2px solid var(--accent-gold);
+      border-radius: 16px;
+      padding: 16px;
+      margin: 12px 0;
+      box-shadow: 0 6px 20px rgba(197, 160, 89, 0.12);
     }
 
     .arabic-text {
-      font-family: 'Amiri', serif;
-      font-size: 20px;
+      font-family: 'Traditional Arabic', 'Amiri', serif;
+      font-size: 24px;
       color: var(--primary-color);
       font-weight: bold;
-      line-height: 1.9;
+      line-height: 2;
       direction: rtl;
     }
 
     .translation {
-      font-size: 11px;
-      color: #555;
-      margin-top: 6px;
-      line-height: 1.5;
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 8px;
+      line-height: 1.6;
     }
 
     /* Navigation Tabs */
     .nav-tabs {
       display: flex;
       justify-content: center;
-      gap: 6px;
-      margin: 10px 0;
+      gap: 8px;
+      margin: 14px 0;
       flex-wrap: wrap;
     }
 
     .tab-btn {
-      background: #f1f3f5;
-      color: #495057;
+      background: #f3f4f6;
+      color: var(--text-muted);
       border: none;
-      padding: 6px 12px;
+      padding: 8px 16px;
       border-radius: 30px;
-      font-weight: 600;
+      font-weight: bold;
       cursor: pointer;
-      font-size: 12px;
+      font-size: 14px;
       transition: all 0.3s ease;
-      font-family: 'Noto Nastaliq Urdu', sans-serif;
+      font-family: 'Jameel Noori Nastaleeq', sans-serif;
     }
 
     .tab-btn.active {
       background: var(--primary-color);
       color: white;
-      box-shadow: 0 4px 15px rgba(15, 81, 50, 0.3);
+      box-shadow: 0 4px 15px rgba(13, 59, 34, 0.3);
       transform: translateY(-2px);
     }
 
@@ -139,142 +173,138 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: #f8f9fa;
-      padding: 6px 10px;
-      border-radius: 8px;
-      margin-bottom: 8px;
-      border: 1px solid #e9ecef;
-      font-size: 12px;
+      background: #f8fafc;
+      padding: 8px 14px;
+      border-radius: 10px;
+      margin-bottom: 12px;
+      border: 1px solid #e2e8f0;
+      font-size: 14px;
     }
 
     .logout-btn {
-      background-color: #fa5252;
+      background-color: #ef4444;
       color: white;
       border: none;
-      padding: 3px 8px;
-      font-size: 10px;
+      padding: 4px 10px;
+      font-size: 12px;
       border-radius: 6px;
       cursor: pointer;
-      font-family: 'Noto Nastaliq Urdu', sans-serif;
+      font-family: 'Jameel Noori Nastaleeq', sans-serif;
     }
 
     .profile-box {
-      background: #fdfbf7;
-      border: 1px solid #fae19c;
-      padding: 12px;
-      border-radius: 12px;
-      margin-bottom: 12px;
+      background: #fffdf9;
+      border: 1px solid #fde68a;
+      padding: 14px;
+      border-radius: 14px;
+      margin-bottom: 14px;
       text-align: right;
     }
     .profile-box input, .profile-box select {
       width: 100%;
-      padding: 6px;
-      margin: 4px 0 8px 0;
-      border: 1px solid #ced4da;
-      border-radius: 6px;
+      padding: 8px;
+      margin: 6px 0 10px 0;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
       box-sizing: border-box;
-      font-family: 'Noto Nastaliq Urdu', sans-serif;
-      font-size: 12px;
+      font-family: 'Jameel Noori Nastaleeq', sans-serif;
+      font-size: 14px;
     }
     .save-profile-btn {
       background-color: var(--primary-color);
       color: white;
       border: none;
-      padding: 6px 10px;
-      border-radius: 6px;
+      padding: 8px 12px;
+      border-radius: 8px;
       cursor: pointer;
       font-weight: bold;
       width: 100%;
-      font-family: 'Noto Nastaliq Urdu', sans-serif;
-      font-size: 12px;
+      font-family: 'Jameel Noori Nastaleeq', sans-serif;
+      font-size: 14px;
     }
 
     /* Proof & Admin Boxes */
     .proof-box, .admin-panel {
       background: #fff;
       border: 1px solid #e2e8f0;
-      padding: 12px;
-      border-radius: 12px;
-      margin-top: 12px;
+      padding: 14px;
+      border-radius: 14px;
+      margin-top: 14px;
       text-align: right;
     }
     .proof-title, .admin-title {
       color: var(--primary-color);
       font-weight: bold;
-      font-size: 14px;
-      margin-bottom: 6px;
+      font-size: 16px;
+      margin-bottom: 8px;
       border-bottom: 2px solid #e8f5e9;
-      padding-bottom: 4px;
+      padding-bottom: 6px;
     }
     .proof-item, .admin-card {
-      background: #f8f9fa;
-      border: 1px solid #e9ecef;
-      padding: 8px;
-      border-radius: 8px;
-      margin-bottom: 6px;
-      font-size: 11px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      padding: 10px;
+      border-radius: 10px;
+      margin-bottom: 8px;
+      font-size: 13px;
     }
-    .admin-panel { background: #fffdf5; border-color: #ffe066; }
-    .admin-title { color: #f59f00; border-bottom-color: #fff3bf; }
+    .admin-panel { background: #fffbeb; border-color: #fef08a; }
+    .admin-title { color: #d97706; border-bottom-color: #fef3c7; }
 
-    .paid-btn { background-color: #2b8a3e; color: white; border: none; padding: 4px 8px; border-radius: 6px; cursor: pointer; font-size: 10px; margin-top: 4px; font-family: inherit;}
-    .unpaid-btn { background-color: #fa5252; color: white; border: none; padding: 4px 8px; border-radius: 6px; cursor: pointer; font-size: 10px; margin-top: 4px; font-family: inherit;}
-    .paid-badge { background-color: #d8f5a2; color: #2b8a3e; padding: 2px 5px; border-radius: 6px; font-size: 9px; font-weight: bold; }
+    .paid-btn { background-color: #16a34a; color: white; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; margin-top: 6px; font-family: inherit;}
+    .unpaid-btn { background-color: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; margin-top: 6px; font-family: inherit;}
+    .paid-badge { background-color: #dcfce7; color: #16a34a; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; }
 
     /* Voice Button */
     .mic-btn {
-      background: linear-gradient(135deg, #0f5132, #198754);
+      background: linear-gradient(135deg, #0d3b22, #166534);
       color: white;
       border: none;
-      width: 105px;
-      height: 105px;
+      width: 120px;
+      height: 120px;
       border-radius: 50%;
-      font-size: 13px;
+      font-size: 15px;
       font-weight: bold;
       cursor: pointer;
-      box-shadow: 0 4px 15px rgba(15, 81, 50, 0.3);
-      margin: 10px auto;
+      box-shadow: 0 6px 20px rgba(13, 59, 34, 0.3);
+      margin: 14px auto;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 3px;
+      gap: 4px;
       outline: none;
       transition: all 0.3s ease;
-      font-family: 'Noto Nastaliq Urdu', sans-serif;
+      font-family: 'Jameel Noori Nastaleeq', sans-serif;
     }
-    .mic-btn:hover { transform: scale(1.05); }
-    .mic-btn:disabled { background: #adb5bd; cursor: not-allowed; box-shadow: none; transform: none; }
-    .mic-btn.recording { background: linear-gradient(135deg, #c92a2a, #fa5252); animation: pulse-red 1.2s infinite; }
+    .mic-btn:hover { transform: scale(1.06); }
+    .mic-btn:disabled { background: #9ca3af; cursor: not-allowed; box-shadow: none; transform: none; }
+    .mic-btn.recording { background: linear-gradient(135deg, #dc2626, #ef4444); animation: pulse-red 1.2s infinite; }
 
     @keyframes pulse-red {
-      0% { box-shadow: 0 0 0 0 rgba(250, 82, 82, 0.5); }
-      70% { box-shadow: 0 0 0 12px rgba(250, 82, 82, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(250, 82, 82, 0); }
+      0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5); }
+      70% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
     }
 
-    .status-msg { font-weight: bold; font-size: 12px; margin: 6px 0; min-height: 18px; }
+    .status-msg { font-weight: bold; font-size: 14px; margin: 8px 0; min-height: 20px; }
     
     .login-btn {
-      background: linear-gradient(135deg, #0f5132, #198754);
+      background: linear-gradient(135deg, #0d3b22, #166534);
       color: white;
       border: none;
-      padding: 8px 20px;
-      font-size: 14px;
-      border-radius: 8px;
+      padding: 10px 24px;
+      font-size: 16px;
+      border-radius: 10px;
       cursor: pointer;
-      font-family: 'Noto Nastaliq Urdu', sans-serif;
-      box-shadow: 0 4px 12px rgba(15, 81, 50, 0.2);
+      font-family: 'Jameel Noori Nastaleeq', sans-serif;
+      box-shadow: 0 4px 15px rgba(13, 59, 34, 0.2);
     }
 
-    .comp-box { background: #fff9db; border: 2px dashed #f59f00; border-radius: 10px; padding: 12px; margin: 10px 0 8px 0; text-align: right; }
-    .comp-title { font-size: 14px; color: #e67700; font-weight: bold; }
-    .reward-box { background: #e8f5e9; border: 1px solid #b2f2bb; border-radius: 6px; padding: 8px; margin-top: 8px; color: #2b8a3e; font-size: 11px; }
-
-    table { width: 100%; border-collapse: collapse; margin-top: 10px; border-radius: 6px; overflow: hidden; }
-    th, td { border: 1px solid #edf2f7; padding: 6px; text-align: center; font-size: 11px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; border-radius: 8px; overflow: hidden; }
+    th, td { border: 1px solid #e5e7eb; padding: 8px; text-align: center; font-size: 13px; }
     th { background-color: var(--primary-color); color: white; font-weight: 600; }
-    tr:nth-child(even) { background-color: #f8f9fa; }
+    tr:nth-child(even) { background-color: #f9fafb; }
     
     .hidden { display: none; }
   </style>
@@ -289,9 +319,21 @@
       <span class="live-dot"></span> آن لائن شرکاء: <span id="onlineCount">0</span>
     </div>
 
+    <!-- Top Highlights (Aam & Muqabla / Inam Details placed back on top) -->
+    <div class="top-highlights">
+      <div class="highlight-box">
+        <div class="highlight-title">✨ عام مقابلہ</div>
+        <p class="highlight-desc">روزانہ بلاہٹ رکاوٹ تسبیح کریں اور لائیو لیڈر بورڈ میں اپنا مقام دیکھیں۔</p>
+      </div>
+      <div class="highlight-box">
+        <div class="highlight-title">🎁 انعام کی تفصیل</div>
+        <p class="highlight-desc">کم از کم 100 درود شریف پڑھ کر روزانہ 200 روپے نقد کیش انعام جیتیں۔</p>
+      </div>
+    </div>
+
     <!-- Auth Section -->
     <div id="authSection">
-      <p style="color:#666; font-size: 12px; margin: 8px 0;">محفل میں شامل ہونے کے لیے لاگ ان کریں</p>
+      <p style="color:var(--text-muted); font-size: 14px; margin: 10px 0;">محفل میں شامل ہونے کے لیے لاگ ان کریں</p>
       <button class="login-btn" id="loginBtn">✨ Google کے ذریعے لاگ ان کریں</button>
     </div>
 
@@ -307,13 +349,13 @@
         <div class="arabic-text">
           اَللّٰھُمَّ صَلِّ عَلٰی مُحَمَّدٍ وَّعَلٰی اٰلِ مُحَمَّدٍ کَمَا صَلَّیْتَ عَلٰی اِبْرَاھِیْمَ وَعَلٰی اٰلِ اِبْرَاھِیْمَ اِنَّکَ حَمِیْدٌ مَّجِیْدٌ
         </div>
-        <hr style="margin: 8px 0; border: 0; border-top: 1px solid #fae19c;">
+        <hr style="margin: 10px 0; border: 0; border-top: 1px solid rgba(197, 160, 89, 0.3);">
         <div class="translation">
           اے اللہ! رحمت نازل فرما حضرت محمد ﷺ پر اور ان کی آل پر جیسے تو نے رحمت نازل فرمائی حضرت ابراہیم علیہ السلام پر اور ان کی آل پر، بے شک تو تعریف کے لائق اور بزرگی والا ہے۔
         </div>
       </div>
 
-      <!-- Navigation Tabs (Now placed below Darood card) -->
+      <!-- Navigation Tabs -->
       <div class="nav-tabs">
         <button class="tab-btn active" id="mainTabBtn" onclick="showTab('mainTab')">✨ عام تسبیح</button>
         <button class="tab-btn" id="compTabBtn" onclick="showTab('compTab')">🎯 مقابلہ</button>
@@ -323,13 +365,13 @@
       <!-- TAB 1: General Tasbeeh -->
       <div id="mainTab">
         <button class="mic-btn" id="countBtn">
-          <span style="font-size: 18px;">🎙️</span>
+          <span style="font-size: 22px;">🎙️</span>
           <span>بول کر پڑھیں</span>
         </button>
-        <div id="statusMsg" class="status-msg" style="color: #0f5132;"></div>
-        <div style="font-size: 14px; color: #0f5132; margin-top: 6px;">آپ کی کل پڑھائی: <b id="userTotal">0</b></div>
+        <div id="statusMsg" class="status-msg" style="color: var(--primary-color);"></div>
+        <div style="font-size: 15px; color: var(--primary-color); margin-top: 8px;">آپ کی کل پڑھائی: <b id="userTotal">0</b></div>
 
-        <h3 style="color:#0f5132; margin-top: 18px; font-size: 14px;">🏆 لائیو Leaderboard</h3>
+        <h3 style="color:var(--primary-color); margin-top: 20px; font-size: 16px;">🏆 لائیو Leaderboard</h3>
         <table>
           <thead><tr><th>رینک</th><th>صارف</th><th>کل درود</th></tr></thead>
           <tbody id="board"><tr><td colspan="3">لوڈ ہو رہا ہے...</td></tr></tbody>
@@ -338,72 +380,58 @@
 
       <!-- TAB 2: Competition -->
       <div id="compTab" class="hidden">
-        <button class="mic-btn" style="background: linear-gradient(135deg, #f59f00, #f08c00);" id="compCountBtn">
-          <span style="font-size: 18px;">🎙️</span>
+        <button class="mic-btn" style="background: linear-gradient(135deg, #d97706, #b45309);" id="compCountBtn">
+          <span style="font-size: 22px;">🎙️</span>
           <span>مقابلے کے لیے بولیں</span>
         </button>
-        <div id="compStatusMsg" class="status-msg" style="color: #e67700;"></div>
-        <div style="font-size: 14px; color: #e67700; margin-top: 6px;">مقابلے میں آپ کا اسکور: <b id="compUserTotal">0</b></div>
+        <div id="compStatusMsg" class="status-msg" style="color: #d97706;"></div>
+        <div style="font-size: 15px; color: #d97706; margin-top: 8px;">مقابلے میں آپ کا اسکور: <b id="compUserTotal">0</b></div>
 
-        <h3 style="color:#e67700; margin-top: 18px; font-size: 14px;">🥇 مقابلے کا Leaderboard</h3>
+        <h3 style="color:#d97706; margin-top: 20px; font-size: 16px;">🥇 مقابلے کا Leaderboard</h3>
         <table>
           <thead><tr><th>رینک</th><th>صارف</th><th>اسکور</th></tr></thead>
           <tbody id="compBoard"><tr><td colspan="3">لوڈ ہو رہا ہے...</td></tr></tbody>
         </table>
-
-        <!-- Competition Info Box -->
-        <div class="comp-box">
-          <div class="comp-title">🔥 آج کا مقابلہ (کم از کم 100 درود لازمی)</div>
-          <p id="compDescription" style="margin: 4px 0; color: #555; font-size: 11px;">مقابلے کا ڈیٹا لوڈ ہو رہا ہے...</p>
-          <div class="reward-box" id="rewardDescription">
-            🎁 <b>انعام (Cash Prize):</b> لوڈ ہو رہا ہے...
-          </div>
-        </div>
       </div>
 
-      <!-- TAB 3: Rewards & Payment Details (No Darood Here) -->
+      <!-- TAB 3: Rewards & Payment Details -->
       <div id="rewardTab" class="hidden" style="text-align: right;">
-        <h3 style="color: #0f5132; text-align: center; font-size: 14px;">🎁 روزانہ کا انعام اور پیمنٹ کی تفصیلات</h3>
-        <p style="color: #555; font-size: 10px; text-align: center; margin-bottom: 10px;">فاتح بننے کے لیے کم از کم 100 درود شریف پڑھنا لازمی ہے۔ انعام حاصل کرنے کے لیے نیچے اکاؤنٹ نمبر درج کریں:</p>
+        <h3 style="color: var(--primary-color); text-align: center; font-size: 16px;">🎁 روزانہ کا انعام اور پیمنٹ کی تفصیلات</h3>
+        <p style="color: var(--text-muted); font-size: 12px; text-align: center; margin-bottom: 12px;">فاتح بننے کے لیے کم از کم 100 درود شریف پڑھنا لازمی ہے۔ انعام حاصل کرنے کے لیے نیچے اکاؤنٹ نمبر درج کریں:</p>
         
         <!-- User Payment & Profile Details Box -->
         <div class="profile-box">
-          <h4 style="margin: 0 0 4px 0; color: #0f5132; font-size: 12px;">📱 اپنی JazzCash / EasyPaisa تفصیلات لکھیں</h4>
-          <label style="font-size: 10px; color: #555;">اکاؤنٹ ہولڈر کا نام:</label>
+          <h4 style="margin: 0 0 6px 0; color: var(--primary-color); font-size: 14px;">📱 اپنی JazzCash / EasyPaisa تفصیلات لکھیں</h4>
+          <label style="font-size: 12px; color: var(--text-muted);">اکاؤنٹ ہولڈر کا نام:</label>
           <input type="text" id="accName" placeholder="اپنا پورا نام لکھیں">
           
-          <label style="font-size: 10px; color: #555;">موبائل نمبر:</label>
+          <label style="font-size: 12px; color: var(--text-muted);">موبایل نمبر:</label>
           <input type="text" id="accNumber" placeholder="03XXXXXXXXX">
           
-          <label style="font-size: 10px; color: #555;">اکاؤنٹ کی قسم:</label>
+          <label style="font-size: 12px; color: var(--text-muted);">اکاؤنٹ کی قسم:</label>
           <select id="accType">
             <option value="JazzCash">JazzCash (جاز کیش)</option>
             <option value="EasyPaisa">EasyPaisa (ایزی پیسہ)</option>
           </select>
           
           <button class="save-profile-btn" id="saveProfileBtn">تفصیلات محفوظ کریں</button>
-          <div id="profileStatus" style="font-size: 10px; margin-top: 4px; color: #0f5132; text-align: center; font-weight: bold;"></div>
-        </div>
-
-        <div style="background: #e8f5e9; border-right: 4px solid #0f5132; padding: 8px; margin-bottom: 10px; border-radius: 6px;">
-          <b>⭐ روزانہ کا کیش انعام</b>
-          <p style="margin: 3px 0 0 0; font-size: 10px; color: #333;">آج کے مقابلے میں کم از کم 100 درود پڑھ کر پہلے نمبر پر آنے والے فاتح کو <b>200 روپے</b> نقد انعام دیا جائے گا۔</p>
+          <div id="profileStatus" style="font-size: 12px; margin-top: 6px; color: var(--primary-color); text-align: center; font-weight: bold;"></div>
         </div>
 
         <!-- PUBLIC PAYMENT PROOF SECTION -->
         <div class="proof-box">
           <div class="proof-title">📢 فاتحین اور پیمنٹ پروف (Payment Proofs)</div>
-          <p style="font-size: 10px; color: #555; margin-bottom: 4px;">تمام صارفین دیکھ سکتے ہیں کہ کس فاتح کو انعام مل گیا:</p>
+          <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 6px;">تمام صارفین دیکھ سکتے ہیں کہ کس فاتح کو انعام مل گیا:</p>
           <div id="publicProofList">لوڈ ہو رہا ہے...</div>
         </div>
 
         <!-- ADMIN PANEL SECTION -->
         <div id="adminPanelSection" class="admin-panel hidden">
           <div class="admin-title">👑 ایڈمن پینل (فاتحین اور کل ریکارڈ)</div>
-          <p style="font-size: 10px; color: #666; margin-bottom: 6px;">
-            ✨ **کل درود (عام + مقابلہ):** <span id="adminCombinedTotal" style="color:#fa5252; font-weight:bold; font-size: 12px;">0</span>
+          <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">
+            ✨ **کل درود (عام + مقابلہ):** <span id="adminCombinedTotal" style="color:#ef4444; font-weight:bold; font-size: 14px;">0</span>
           </p>
-          <p style="font-size: 10px; color: #666; margin-bottom: 6px;">یہاں سے پیمنٹ اسٹیٹس کنٹرول کریں:</p>
+          <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">یہاں سے پیمنٹ اسٹیٹس کنٹرول کریں:</p>
           <div id="adminWinnersList">لوڈ ہو رہا ہے...</div>
         </div>
 
@@ -437,9 +465,6 @@
 
     const todayDateKey = new Date().toISOString().slice(0, 10);
     const competitionRefPath = "competitions/" + todayDateKey;
-
-    document.getElementById("compDescription").innerText = "آج کا مقابلہ شروع ہے! فاتح بننے کے لیے کم از کم 100 درود لازمی ہیں۔";
-    document.getElementById("rewardDescription").innerHTML = `🎁 <b>انعام (Cash Prize):</b> پہلا انعام: 200 روپے نقد (کم از کم 100 درود شرط ہے)`;
 
     function updateAdminCombinedTotal() {
       let totalGeneral = 0;
@@ -545,7 +570,7 @@
       const type = document.getElementById("accType").value;
 
       if (!name || !number) {
-        document.getElementById("profileStatus").style.color = "#fa5252";
+        document.getElementById("profileStatus").style.color = "#ef4444";
         document.getElementById("profileStatus").innerText = "براہِ کرم نام اور نمبر دونوں درج کریں۔";
         return;
       }
@@ -558,10 +583,10 @@
         email: currentUser.email
       }, (error) => {
         if (!error) {
-          document.getElementById("profileStatus").style.color = "#0f5132";
+          document.getElementById("profileStatus").style.color = "var(--primary-color)";
           document.getElementById("profileStatus").innerText = "✓ آپ کی پیمنٹ کی تفصیلات محفوظ ہو گئیں!";
         } else {
-          document.getElementById("profileStatus").style.color = "#fa5252";
+          document.getElementById("profileStatus").style.color = "#ef4444";
           document.getElementById("profileStatus").innerText = "خرابی پیش آئی، دوبارہ کوشش کریں۔";
         }
       });
@@ -585,7 +610,7 @@
 
         if (compUsers.length === 0) {
           adminContainer.innerHTML = "<p>آج کے مقابلے میں ابھی تک کسی نے حصہ نہیں لیا۔</p>";
-          publicContainer.innerHTML = "<p style='font-size:10px; color:#555;'>ابھی تک کوئی فاتح ریکارڈ موجود نہیں۔</p>";
+          publicContainer.innerHTML = "<p style='font-size:12px; color:var(--text-muted);'>ابھی تک کوئی فاتح ریکارڈ موجود نہیں۔</p>";
           return;
         }
 
@@ -599,14 +624,14 @@
               <div class="proof-item">
                 <b>🥇 فاتح:</b> ${u.name || "گمنام"} (درود: ${u.count}) | <b>انعام:</b> 200 روپے<br>
                 <b>اکاؤنٹ:</b> ${uProfile.accType || ""} (${maskedNumber})<br>
-                <span style="color: #0f5132; font-weight: bold; font-size: 10px;">✓ اسٹیٹس: پیمنٹ ادا کر دی گئی (Paid)</span>
+                <span style="color: #16a34a; font-weight: bold; font-size: 11px;">✓ اسٹیٹس: پیمنٹ ادا کر دی گئی (Paid)</span>
               </div>
             `;
           }
         });
 
         if (proofCount === 0) {
-          publicContainer.innerHTML = "<p style='font-size:10px; color:#555;'>مقابلہ جاری ہے (100 درود مکمل ہونے پر انعام ملے گا)</p>";
+          publicContainer.innerHTML = "<p style='font-size:12px; color:var(--text-muted);'>مقابلہ جاری ہے (100 درود مکمل ہونے پر انعام ملے گا)</p>";
         }
 
         compUsers.forEach((u, idx) => {
@@ -616,7 +641,7 @@
           
           let statusText = isEligible ? 
             `<span style="color:green; font-weight:bold;">✓ 100 شرط پوری</span>` : 
-            `<span style="color:#fa5252; font-weight:bold;">⚠️ 100 پورے نہیں</span>`;
+            `<span style="color:#ef4444; font-weight:bold;">⚠️ 100 پورے نہیں</span>`;
 
           let paidActionBtn = "";
           if (isEligible) {
@@ -628,10 +653,10 @@
           adminContainer.innerHTML += `
             <div class="admin-card">
               <b>${rankLabel}</b> | <b>نام:</b> ${u.name || "گمنام"}<br>
-              <b>ای میل:</b> <span style="color:#fa5252;">${uProfile.email || "ای میل دستیاب نہیں"}</span><br>
+              <b>ای میل:</b> <span style="color:#ef4444;">${uProfile.email || "ای میل دستیاب نہیں"}</span><br>
               <b>اسکور:</b> ${u.count || 0} ${statusText}<br>
               <b>اکاؤنٹ نمبر:</b> ${uProfile.accNumber || "درج نہیں"} (${uProfile.accType || "---"}) - نام: ${uProfile.accName || "---"}<br>
-              <div style="margin-top:4px;">${paidActionBtn}</div>
+              <div style="margin-top:6px;">${paidActionBtn}</div>
             </div>
           `;
         });
@@ -660,7 +685,7 @@
 
       btn.disabled = true;
       btn.classList.add("recording");
-      status.style.color = "#fa5252";
+      status.style.color = "#ef4444";
       status.innerText = "سُن رہا ہے... (درود شریف پڑھیں)";
 
       try {
@@ -696,7 +721,7 @@
             btn.disabled = false;
 
             if (hasSpoken) {
-              status.style.color = "#0f5132";
+              status.style.color = "var(--primary-color)";
               status.innerText = "✓ تصدیق شدہ! درود پاک کاؤنٹ ہو گیا۔";
               
               const targetPath = isComp ? competitionRefPath + "/" + currentUser.uid : "users/" + currentUser.uid;
@@ -707,7 +732,7 @@
               });
 
             } else {
-              status.style.color = "#fa5252";
+              status.style.color = "#ef4444";
               status.innerText = "آواز واضح نہیں آئی، دوبارہ کوشش کریں۔";
             }
           }
@@ -716,7 +741,7 @@
       } catch (err) {
         btn.classList.remove("recording");
         btn.disabled = false;
-        status.style.color = "#fa5252";
+        status.style.color = "#ef4444";
         status.innerText = "براہِ کرم مائیک کی اجازت (Mic Permission) دیں۔";
       }
     }
