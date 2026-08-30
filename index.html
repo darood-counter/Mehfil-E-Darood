@@ -1,88 +1,83 @@
+
 <!DOCTYPE html>
 <html lang="ur" dir="rtl">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>محفلِ درود - Mehfil-E-Darood</title>
+  <title>محفلِ درود - Digital Tasbeeh</title>
   <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #f4f6f9;
-      color: #333;
-      text-align: center;
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f6f9; color: #333; text-align: center; padding: 20px; margin: 0; }
+    .container { max-width: 600px; margin: 0 auto; background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+    h1 { color: #1b5e20; margin-bottom: 5px; }
+    
+    /* Darood Card Styling */
+    .darood-card {
+      background: #f0f7f4;
+      border: 2px solid #2e7d32;
+      border-radius: 10px;
       padding: 20px;
-      margin: 0;
+      margin: 20px 0;
     }
-    .container {
-      max-width: 600px;
-      margin: 0 auto;
-      background: #fff;
-      padding: 25px;
-      border-radius: 12px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    }
-    h1 { color: #1b5e20; margin-bottom: 10px; }
-    h2 { color: #2e7d32; }
-    button {
+    .arabic-text { font-size: 28px; color: #1b5e20; font-weight: bold; line-height: 1.8; margin-bottom: 8px; }
+    .translation { font-size: 15px; color: #555; }
+
+    /* Tasbeeh Button */
+    .tasbeeh-btn {
       background-color: #2e7d32;
       color: white;
       border: none;
-      padding: 10px 20px;
-      font-size: 16px;
-      border-radius: 6px;
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      font-size: 20px;
+      font-weight: bold;
       cursor: pointer;
-      margin: 5px;
-      transition: background 0.3s;
+      box-shadow: 0 6px 20px rgba(46, 125, 50, 0.4);
+      transition: transform 0.1s, background-color 0.2s;
+      margin: 15px 0;
+      outline: none;
     }
-    button:hover { background-color: #1b5e20; }
-    input[type="number"] {
-      padding: 10px;
-      width: 120px;
-      font-size: 16px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      text-align: center;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-    }
-    th, td {
-      border: 1px solid #ddd;
-      padding: 10px;
-      text-align: center;
-    }
+    .tasbeeh-btn:active { transform: scale(0.92); background-color: #1b5e20; }
+    
+    .login-btn { background-color: #2e7d32; color: white; border: none; padding: 12px 24px; font-size: 16px; border-radius: 6px; cursor: pointer; }
+    
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
     th { background-color: #2e7d32; color: white; }
     .hidden { display: none; }
-    footer { margin-top: 30px; font-size: 14px; color: #777; }
+    .total-display { font-size: 22px; color: #1b5e20; margin-top: 10px; }
   </style>
 </head>
 <body>
 
   <div class="container">
     <h1>محفلِ درود 🌸</h1>
-    <p>درود پاک کا تحفہ بارگاہِ رسالت میں پیش کریں</p>
+    <p style="color:#666; margin-top:0;">ایک بار درود پاک پڑھیں اور بٹن دبا کر شامل کریں</p>
 
     <!-- Login Section -->
     <div id="authSection">
-      <button id="loginBtn">Google کے ذریعے لاگ ان کریں</button>
+      <button class="login-btn" id="loginBtn">Google کے ذریعے لاگ ان کریں</button>
     </div>
 
-    <!-- User Info Section -->
+    <!-- Tasbeeh Section -->
     <div id="userInfo" class="hidden">
       <p>خوش آمدید، <b id="userName"></b>!</p>
-      <div style="margin: 15px 0;">
-        <input type="number" id="daroodCountInput" placeholder="تعداد درج کریں" min="1">
-        <button id="addCountBtn">شامل کریں</button>
+
+      <div class="darood-card">
+        <div class="arabic-text">اَللّٰھُمَّ صَلِّ عَلٰی مُحَمَّدٍ وَّاٰلِ مُحَمَّدٍ</div>
+        <div class="translation">اے اللہ! محمد اور آلِ محمد پر رحمت نازل فرما۔</div>
       </div>
-      <p>آپ کی کل پڑھائی: <b id="userTotal">0</b></p>
+
+      <!-- Main Counter Button -->
+      <button class="tasbeeh-btn" id="countBtn">پڑھ لیا<br><span style="font-size: 28px;">+1</span></button>
+
+      <div class="total-display">آپ کی کل پڑھائی: <b id="userTotal">0</b></div>
     </div>
 
     <hr style="margin: 25px 0; border: 0; border-top: 1px solid #eee;">
 
     <!-- Leaderboard -->
-    <h2>🏆 لائیو Leaderboard</h2>
+    <h2 style="color:#2e7d32;">🏆 لائیو Leaderboard</h2>
     <table>
       <thead>
         <tr>
@@ -93,24 +88,16 @@
       </thead>
       <tbody id="board">
         <tr><td colspan="3">ڈیٹا لوڈ ہو رہا ہے...</td></tr>
-    // Google Login (Redirect Method for Mobile)
-loginBtn.onclick = () => {
-  const provider = new firebase.auth.GoogleAuthProvider();
-  auth.signInWithRedirect(provider);
-};
+      </tbody>
+    </table>
+  </div>
 
-// Handle Redirect Result after Login
-auth.getRedirectResult().catch(error => {
-  if (error.code) {
-    alert("لاگ ان میں مسئلہ ہے: " + error.message);
-  }
-});
+  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 
   <script>
-    // Firebase Configuration
     const firebaseConfig = {
       apiKey: "AIzaSyB3PjjiQM2IqKmIQJ4d4YOwcc10RiG47FI",
       authDomain: "mehfil-e-darood.firebaseapp.com",
@@ -118,11 +105,9 @@ auth.getRedirectResult().catch(error => {
       projectId: "mehfil-e-darood",
       storageBucket: "mehfil-e-darood.firebasestorage.app",
       messagingSenderId: "876052619750",
-      appId: "1:876052619750:web:889b37737240756ba5f627",
-      measurementId: "G-KFT3VXZM37"
+      appId: "1:876052619750:web:889b37737240756ba5f627"
     };
 
-    // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.database();
@@ -134,19 +119,15 @@ auth.getRedirectResult().catch(error => {
     const userInfo = document.getElementById("userInfo");
     const userNameDisplay = document.getElementById("userName");
     const userTotalDisplay = document.getElementById("userTotal");
-    const daroodCountInput = document.getElementById("daroodCountInput");
-    const addCountBtn = document.getElementById("addCountBtn");
+    const countBtn = document.getElementById("countBtn");
     const boardTable = document.getElementById("board");
 
-    // Google Login
+    // Login (Popup)
     loginBtn.onclick = () => {
       const provider = new firebase.auth.GoogleAuthProvider();
-      auth.signInWithPopup(provider).catch(error => {
-        alert("لاگ ان نہیں ہو سکا: " + error.message);
-      });
+      auth.signInWithPopup(provider).catch(e => alert("لاگ ان نہیں ہو سکا: " + e.message));
     };
 
-    // Track Auth State
     auth.onAuthStateChanged(user => {
       if (user) {
         currentUser = user;
@@ -154,7 +135,6 @@ auth.getRedirectResult().catch(error => {
         userInfo.classList.remove("hidden");
         userNameDisplay.innerText = user.displayName;
 
-        // Fetch User Total
         db.ref("users/" + user.uid).on("value", snapshot => {
           const data = snapshot.val();
           userTotalDisplay.innerText = data ? (data.count || 0) : 0;
@@ -166,37 +146,28 @@ auth.getRedirectResult().catch(error => {
       }
     });
 
-    // Add Darood Count
-    addCountBtn.onclick = () => {
-      const val = parseInt(daroodCountInput.value);
-      if (!val || val <= 0) {
-        alert("براہ کرم درست تعداد درج کریں۔");
-        return;
-      }
+    // Increment Counter (+1)
+    countBtn.onclick = () => {
       if (!currentUser) return;
 
       const userRef = db.ref("users/" + currentUser.uid);
       userRef.transaction(current => {
         if (current) {
-          current.count = (current.count || 0) + val;
+          current.count = (current.count || 0) + 1;
           current.name = currentUser.displayName;
         } else {
-          current = { name: currentUser.displayName, count: val };
+          current = { name: currentUser.displayName, count: 1 };
         }
         return current;
-      }).then(() => {
-        daroodCountInput.value = "";
       });
     };
 
-    // Live Leaderboard
+    // Leaderboard Live Update
     db.ref("users").orderByChild("count").on("value", snapshot => {
       boardTable.innerHTML = "";
       let users = [];
-      snapshot.forEach(child => {
-        users.push(child.val());
-      });
-      users.reverse(); // Highest first
+      snapshot.forEach(child => { users.push(child.val()); });
+      users.reverse();
 
       if (users.length === 0) {
         boardTable.innerHTML = "<tr><td colspan='3'>ابھی تک کوئی ڈیٹا موجود نہیں ہے۔</td></tr>";
