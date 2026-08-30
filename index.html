@@ -24,13 +24,20 @@
     .arabic-text { font-size: 22px; color: #1b5e20; font-weight: bold; line-height: 1.8; }
     .translation { font-size: 14px; color: #555; margin-top: 8px; line-height: 1.5; }
 
-    /* User Profile & Payment Box inside Reward Tab */
+    /* User Profile & Payment Box */
     .user-header { display: flex; justify-content: space-between; align-items: center; background: #f9f9f9; padding: 8px 12px; border-radius: 8px; margin-bottom: 15px; }
     .logout-btn { background-color: #d32f2f; color: white; border: none; padding: 5px 10px; font-size: 12px; border-radius: 4px; cursor: pointer; }
     
     .profile-box { background: #f1f8e9; border: 1px solid #c5e1a5; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: right; }
     .profile-box input, .profile-box select { width: 100%; padding: 8px; margin: 5px 0 10px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
     .save-profile-btn { background-color: #2e7d32; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; }
+
+    /* Admin Panel Styling */
+    .admin-panel { background: #fffde7; border: 2px solid #fbc02d; padding: 15px; border-radius: 8px; margin-top: 20px; text-align: right; }
+    .admin-title { color: #f57f17; font-weight: bold; font-size: 16px; margin-bottom: 10px; border-bottom: 1px solid #ffe082; padding-bottom: 5px; }
+    .admin-card { background: #fff; border: 1px solid #ffe082; padding: 10px; border-radius: 6px; margin-bottom: 10px; font-size: 13px; }
+    .paid-btn { background-color: #388e3c; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 11px; margin-top: 5px; }
+    .paid-badge { background-color: #c8e6c9; color: #1b5e20; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; }
 
     /* Voice Verification Button */
     .mic-btn { background-color: #2e7d32; color: white; border: none; width: 150px; height: 150px; border-radius: 50%; font-size: 18px; font-weight: bold; cursor: pointer; box-shadow: 0 6px 15px rgba(46, 125, 50, 0.4); margin: 15px 0; outline: none; transition: all 0.3s; }
@@ -116,7 +123,7 @@
           <tbody id="compBoard"><tr><td colspan="3">لوڈ ہو رہا ہے...</td></tr></tbody>
         </table>
 
-        <!-- Competition Info Box moved to the bottom -->
+        <!-- Competition Info Box -->
         <div class="comp-box">
           <div class="comp-title">🔥 آج کا مقابلہ</div>
           <p id="compDescription" style="margin: 5px 0; color: #555;">مقابلے کا ڈیٹا لوڈ ہو رہا ہے...</p>
@@ -154,6 +161,14 @@
           <b>⭐ روزانہ کا کیش انعام</b>
           <p style="margin: 5px 0 0 0; font-size: 13px; color: #333;">آج کے مقابلے میں پہلے نمبر پر آنے والے فاتح کو <b>200 روپے</b> نقد انعام دیا جائے گا۔</p>
         </div>
+
+        <!-- ADMIN PANEL SECTION (Visible only to kamran7078127@gmail.com) -->
+        <div id="adminPanelSection" class="admin-panel hidden">
+          <div class="admin-title">👑 ایڈمن پینل (فاتحین اور پیمنٹ ریکارڈ)</div>
+          <p style="font-size: 12px; color: #666; margin-bottom: 10px;">یہاں آپ آج اور پچھلے 30 دنوں کے فاتحین کی تفصیلات اور پیمنٹ کا اسٹیٹس دیکھ اور اپڈیٹ کر سکتے ہیں:</p>
+          <div id="adminWinnersList">لوڈ ہو رہا ہے...</div>
+        </div>
+
       </div>
 
     </div>
@@ -180,13 +195,11 @@
     const db = firebase.database();
 
     let currentUser = null;
+    const ADMIN_EMAIL = "kamran7078127@gmail.com";
 
     // Competition Data with 200 Rs Prize
     const competitionData = [
-      {
-        desc: "آج کا درود شریف پڑھنے کا مقابلہ - سب سے آگے رہیں!",
-        reward: "پہلا انعام: 200 روپے نقد (JazzCash / EasyPaisa)"
-      }
+      { desc: "آج کا درود شریف پڑھنے کا مقابلہ - سب سے آگے رہیں!", reward: "پہلا انعام: 200 روپے نقد (JazzCash / EasyPaisa)" }
     ];
 
     const todayIndex = new Date().getDate() % competitionData.length;
@@ -221,6 +234,14 @@
         document.getElementById("authSection").classList.add("hidden");
         document.getElementById("userInfo").classList.remove("hidden");
         document.getElementById("userName").innerText = user.displayName;
+
+        // Check if user is Admin
+        if (user.email === ADMIN_EMAIL) {
+          document.getElementById("adminPanelSection").classList.remove("hidden");
+          loadAdminData();
+        } else {
+          document.getElementById("adminPanelSection").classList.add("hidden");
+        }
 
         // Load User Count & Profile Info
         db.ref("users/" + user.uid).on("value", snapshot => {
@@ -278,6 +299,81 @@
         } else {
           document.getElementById("profileStatus").style.color = "#d32f2f";
           document.getElementById("profileStatus").innerText = "خرابی پیش آئی، دوبارہ کوشش کریں۔";
+        }
+      });
+    };
+
+    // Load Admin Panel Data (Winners for competitions and user payment records)
+    function loadAdminData() {
+      const adminContainer = document.getElementById("adminWinnersList");
+      
+      // Fetch today's competition leaderboard and users profile data
+      db.ref("competitions/comp_" + todayIndex).orderByChild("count").on("value", compSnapshot => {
+        db.ref("users").on("value", userSnapshot => {
+          adminContainer.innerHTML = "";
+          
+          let compUsers = [];
+          compSnapshot.forEach(child => {
+            compUsers.push({ uid: child.key, ...child.val() });
+          });
+          compUsers.reverse(); // Highest score first
+
+          if (compUsers.length === 0) {
+            adminContainer.innerHTML = "<p>آج کے مقابلے میں ابھی تک کسی نے حصہ نہیں لیا۔</p>";
+            return;
+          }
+
+          let topWinner = compUsers[0];
+          let allUsersData = userSnapshot.val() || {};
+          let winnerProfile = allUsersData[topWinner.uid] || {};
+
+          let paymentStatusHtml = winnerProfile.paid ? 
+            `<span class="paid-badge">✓ پیمنٹ بھیج دی گئی (Paid)</span>` : 
+            `<button class="paid-btn" onclick="markAsPaid('${topWinner.uid}')">پیمنٹ بھیج دی گئی کلک کریں</button>`;
+
+          adminContainer.innerHTML += `
+            <div class="admin-card" style="border-right: 4px solid #ff9800;">
+              <b>🔥 آج کا فاتح (Winner):</b> ${topWinner.name || "گمنام"} (اسکور: ${topWinner.count || 0})<br>
+              <b>📱 اکاؤنٹ کا نام:</b> ${winnerProfile.accName || "درج نہیں کیا"}<br>
+              <b>📞 نمبر اور قسم:</b> ${winnerProfile.accNumber || "درج نہیں کیا"} (${winnerProfile.accType || "---"})<br>
+              <b>💳 پیمنٹ اسٹیٹس:</b> ${paymentStatusHtml}
+            </div>
+          `;
+
+          // Show past 7/30 days general list or history overview
+          adminContainer.innerHTML += `<hr style="border:0; border-top:1px solid #ffe082; margin:10px 0;"><b>📋 تمام شرکاء کی فہرست (جنہوں نے نمبر درج کیے ہیں):</b>`;
+          
+          let participantsCount = 0;
+          compUsers.forEach((u, idx) => {
+            let uProfile = allUsersData[u.uid] || {};
+            if (uProfile.accNumber) {
+              participantsCount++;
+              let isWinnerRank = idx === 0 ? "🥇 فاتح" : `#${idx+1}`;
+              let uPaidHtml = uProfile.paid ? `<span class="paid-badge">Paid</span>` : `<button class="paid-btn" onclick="markAsPaid('${u.uid}')">Paid کریں</button>`;
+              
+              adminContainer.innerHTML += `
+                <div class="admin-card">
+                  <b>رینک:</b> ${isWinnerRank} | <b>نام:</b> ${u.name} (درود: ${u.count})<br>
+                  <b>نمبر:</b> ${uProfile.accNumber} (${uProfile.accType}) - نام: ${uProfile.accName} | ${uPaidHtml}
+                </div>
+              `;
+            }
+          });
+
+          if (participantsCount === 0) {
+            adminContainer.innerHTML += `<p style="font-size:12px; color:#666;">ابھی تک کسی فاتح یا شریک نے اپنی JazzCash/EasyPaisa تفصیلات درج نہیں کی ہیں۔</p>`;
+          }
+        });
+      });
+    }
+
+    // Function for Admin to mark payment as paid
+    window.markAsPaid = function(userId) {
+      db.ref("users/" + userId).update({ paid: true }, (error) => {
+        if (!error) {
+          alert("پیمنٹ کامیابی کے ساتھ 'Paid' مارک ہو گئی ہے!");
+        } else {
+          alert("خرابی پیش آئی۔");
         }
       });
     };
