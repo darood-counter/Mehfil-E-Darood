@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ur" dir="rtl">
 <head>
@@ -10,6 +9,33 @@
     .container { max-width: 600px; margin: 0 auto; background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
     h1 { color: #1b5e20; margin-bottom: 5px; }
     
+    /* Live Users Badge */
+    .live-badge {
+      display: inline-block;
+      background-color: #e8f5e9;
+      color: #2e7d32;
+      border: 1px solid #a5d6a7;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: bold;
+      margin-bottom: 15px;
+    }
+    .live-dot {
+      height: 10px;
+      width: 10px;
+      background-color: #4caf50;
+      border-radius: 50%;
+      display: inline-block;
+      margin-left: 5px;
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+      0% { transform: scale(0.95); opacity: 0.7; }
+      50% { transform: scale(1.2); opacity: 1; }
+      100% { transform: scale(0.95); opacity: 0.7; }
+    }
+
     /* Darood Card Styling */
     .darood-card {
       background: #f0f7f4;
@@ -18,8 +44,29 @@
       padding: 20px;
       margin: 20px 0;
     }
-    .arabic-text { font-size: 28px; color: #1b5e20; font-weight: bold; line-height: 1.8; margin-bottom: 8px; }
-    .translation { font-size: 15px; color: #555; }
+    .arabic-text { font-size: 22px; color: #1b5e20; font-weight: bold; line-height: 2; margin-bottom: 10px; }
+    .translation { font-size: 14px; color: #555; line-height: 1.6; }
+
+    /* User Profile & Logout */
+    .user-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #f9f9f9;
+      padding: 10px 15px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+    }
+    .logout-btn {
+      background-color: #d32f2f;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      font-size: 13px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .logout-btn:hover { background-color: #b71c1c; }
 
     /* Tasbeeh Button */
     .tasbeeh-btn {
@@ -45,27 +92,42 @@
     th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
     th { background-color: #2e7d32; color: white; }
     .hidden { display: none; }
-    .total-display { font-size: 22px; color: #1b5e20; margin-top: 10px; }
+    .total-display { font-size: 20px; color: #1b5e20; margin-top: 10px; }
   </style>
 </head>
 <body>
 
   <div class="container">
     <h1>محفلِ درود 🌸</h1>
-    <p style="color:#666; margin-top:0;">ایک بار درود پاک پڑھیں اور بٹن دبا کر شامل کریں</p>
+
+    <!-- Live Active Users Count -->
+    <div class="live-badge">
+      <span class="live-dot"></span>
+      اس وقت آن لائن یوزرز: <span id="onlineCount">0</span>
+    </div>
 
     <!-- Login Section -->
     <div id="authSection">
+      <p style="color:#666;">شامل ہونے کے لیے لاگ ان کریں</p>
       <button class="login-btn" id="loginBtn">Google کے ذریعے لاگ ان کریں</button>
     </div>
 
-    <!-- Tasbeeh Section -->
+    <!-- Tasbeeh & User Section -->
     <div id="userInfo" class="hidden">
-      <p>خوش آمدید، <b id="userName"></b>!</p>
+      <div class="user-header">
+        <span>خوش آمدید، <b id="userName"></b>!</span>
+        <button class="logout-btn" id="logoutBtn">لاگ آؤٹ</button>
+      </div>
 
+      <!-- Darood E Ibrahimi -->
       <div class="darood-card">
-        <div class="arabic-text">اَللّٰھُمَّ صَلِّ عَلٰی مُحَمَّدٍ وَّاٰلِ مُحَمَّدٍ</div>
-        <div class="translation">اے اللہ! محمد اور آلِ محمد پر رحمت نازل فرما۔</div>
+        <div class="arabic-text">
+          اَللّٰھُمَّ صَلِّ عَلٰی مُحَمَّدٍ وَّعَلٰی اٰلِ مُحَمَّدٍ کَمَا صَلَّیْتَ عَلٰی اِبْرَاھِیْمَ وَعَلٰی اٰلِ اِبْرَاھِیْمَ اِنَّکَ حَمِیْدٌ مَّجِیْدٌ ؕ اَللّٰھُمَّ بَارِکْ عَلٰی مُحَمَّدٍ وَّعَلٰی اٰلِ مُحَمَّدٍ کَمَا بَارَکْتَ عَلٰی اِبْرَاھِیْمَ وَعَلٰی اٰلِ اِبْرَاھِیْمَ اِنَّکَ حَمِیْدٌ مَّجِیْدٌ
+        </div>
+        <hr style="margin: 12px 0; border: 0; border-top: 1px solid #c8e6c9;">
+        <div class="translation">
+          اے اللہ! رحمت نازل فرما حضرت محمدؐ پر اور ان کی آل پر، جیسے تو نے رحمت نازل فرمائی حضرت ابراہیمؑ پر اور ان کی آل پر، بے شک تو تعریف کے لائق اور بزرگی والا ہے۔
+        </div>
       </div>
 
       <!-- Main Counter Button -->
@@ -76,14 +138,14 @@
 
     <hr style="margin: 25px 0; border: 0; border-top: 1px solid #eee;">
 
-    <!-- Leaderboard -->
-    <h2 style="color:#2e7d32;">🏆 لائیو Leaderboard</h2>
+    <!-- Leaderboard with Ranking -->
+    <h2 style="color:#2e7d32; margin-bottom: 5px;">🏆 لائیو Leaderboard (Ranking)</h2>
     <table>
       <thead>
         <tr>
-          <th>Rank</th>
+          <th>رینک</th>
           <th>صارف</th>
-          <th>کل درود</th>
+          <th>کل درود پاک</th>
         </tr>
       </thead>
       <tbody id="board">
@@ -115,19 +177,33 @@
     let currentUser = null;
 
     const loginBtn = document.getElementById("loginBtn");
+    const logoutBtn = document.getElementById("logoutBtn");
     const authSection = document.getElementById("authSection");
     const userInfo = document.getElementById("userInfo");
     const userNameDisplay = document.getElementById("userName");
     const userTotalDisplay = document.getElementById("userTotal");
     const countBtn = document.getElementById("countBtn");
     const boardTable = document.getElementById("board");
+    const onlineCountDisplay = document.getElementById("onlineCount");
 
-    // Login (Popup)
+    // Presence Tracking (Online Users Counter)
+    const onlineUsersRef = db.ref("status");
+    const connectedRef = db.ref(".info/connected");
+
+    // Login Functionality
     loginBtn.onclick = () => {
       const provider = new firebase.auth.GoogleAuthProvider();
-      auth.signInWithPopup(provider).catch(e => alert("لاگ ان نہیں ہو سکا: " + e.message));
+      auth.signInWithPopup(provider).catch(e => alert("لاگ ان میں مسئلہ: " + e.message));
     };
 
+    // Logout Functionality
+    logoutBtn.onclick = () => {
+      auth.signOut().then(() => {
+        alert("آپ لاگ آؤٹ ہو چکے ہیں۔");
+      });
+    };
+
+    // Auth State Monitor
     auth.onAuthStateChanged(user => {
       if (user) {
         currentUser = user;
@@ -135,15 +211,34 @@
         userInfo.classList.remove("hidden");
         userNameDisplay.innerText = user.displayName;
 
+        // User Data Sync
         db.ref("users/" + user.uid).on("value", snapshot => {
           const data = snapshot.val();
           userTotalDisplay.innerText = data ? (data.count || 0) : 0;
         });
+
+        // Online Status Handle
+        const userStatusRef = db.ref("status/" + user.uid);
+        connectedRef.on("value", snapshot => {
+          if (snapshot.val() === true) {
+            userStatusRef.onDisconnect().remove();
+            userStatusRef.set(true);
+          }
+        });
+
       } else {
+        if (currentUser) {
+          db.ref("status/" + currentUser.uid).remove();
+        }
         currentUser = null;
         authSection.classList.remove("hidden");
         userInfo.classList.add("hidden");
       }
+    });
+
+    // Listen to total online users
+    onlineUsersRef.on("value", snapshot => {
+      onlineCountDisplay.innerText = snapshot.numChildren() || 0;
     });
 
     // Increment Counter (+1)
@@ -162,7 +257,7 @@
       });
     };
 
-    // Leaderboard Live Update
+    // Leaderboard Live Update with Ranking
     db.ref("users").orderByChild("count").on("value", snapshot => {
       boardTable.innerHTML = "";
       let users = [];
@@ -175,10 +270,15 @@
       }
 
       users.forEach((u, index) => {
+        let rankBadge = index + 1;
+        if (index === 0) rankBadge = "🥇 1";
+        else if (index === 1) rankBadge = "🥈 2";
+        else if (index === 2) rankBadge = "🥉 3";
+
         const row = `<tr>
-          <td>${index + 1}</td>
+          <td><b>${rankBadge}</b></td>
           <td>${u.name || "گمنام"}</td>
-          <td>${u.count || 0}</td>
+          <td><b>${u.count || 0}</b></td>
         </tr>`;
         boardTable.innerHTML += row;
       });
