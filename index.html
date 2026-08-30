@@ -1,250 +1,212 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ur" dir="rtl">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>محفلِ درود — Contest</title>
-<style>
-*{box-sizing:border-box}
-body{margin:0;font-family:Arial,"Noto Naskh Arabic",sans-serif;background:#f4f8f5;color:#173b2d}
-header{background:linear-gradient(135deg,#0b5d45,#13805f);color:white;padding:24px 18px;text-align:center}
-h1{margin:0 0 8px;font-size:32px}.sub{opacity:.9}
-.wrap{max-width:900px;margin:20px auto;padding:0 14px}
-.card{background:white;border-radius:18px;padding:20px;margin:16px 0;box-shadow:0 7px 25px #00000012}
-.target{font-size:22px;line-height:2;text-align:center;background:#f0f8f3;border-radius:14px;padding:16px;font-weight:bold;color:#0b5d45}
-.count{font-size:52px;font-weight:800;text-align:center;margin:10px;color:#0b5d45}
-button{border:0;border-radius:12px;padding:14px 20px;font-size:18px;cursor:pointer;font-weight:700}
-.start{background:#0b6b4d;color:#fff;width:100%}
-.stop{background:#eee;color:#333;margin-top:10px;width:100%}
-.auth-btn{background:#e0a96d;color:#fff;margin-bottom:15px;width:100%}
-.status{text-align:center;margin:14px 0;font-weight:700;font-size:16px;min-height:25px}
-.transcript{direction:rtl;text-align:center;background:#fafafa;border:1px solid #ddd;border-radius:12px;padding:12px;min-height:48px;font-size:18px}
-table{width:100%;border-collapse:collapse}td,th{padding:12px;border-bottom:1px solid #eee;text-align:center}
-.badge{display:inline-block;padding:5px 12px;border-radius:20px;background:#e4f4ec;color:#0b5d45;font-weight:bold}
-.user-box{text-align:center;margin-bottom:15px;font-weight:bold}
-footer{text-align:center;color:#777;padding:20px}
-</style>
-
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>محفلِ درود - Mehfil-E-Darood</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4f6f9;
+      color: #333;
+      text-align: center;
+      padding: 20px;
+      margin: 0;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    h1 { color: #1b5e20; margin-bottom: 10px; }
+    h2 { color: #2e7d32; }
+    button {
+      background-color: #2e7d32;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      margin: 5px;
+      transition: background 0.3s;
+    }
+    button:hover { background-color: #1b5e20; }
+    input[type="number"] {
+      padding: 10px;
+      width: 120px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: center;
+    }
+    th { background-color: #2e7d32; color: white; }
+    .hidden { display: none; }
+    footer { margin-top: 30px; font-size: 14px; color: #777; }
+  </style>
 </head>
 <body>
 
-<header>
-<h1>🕌 محفلِ درود</h1>
-<div class="sub">روزانہ درود شریف مقابلہ و لائیو لیڈر بورڈ</div>
-</header>
+  <div class="container">
+    <h1>محفلِ درود 🌸</h1>
+    <p>درود پاک کا تحفہ بارگاہِ رسالت میں پیش کریں</p>
 
-<div class="wrap">
-  <div class="card" id="authCard">
-    <div class="user-box" id="userInfo">مقابلے میں حصہ لینے کے لیے لاگ ان کریں</div>
-    <button class="auth-btn" id="loginBtn">🔑 Google سے لاگ ان کریں</button>
-  </div>
+    <!-- Login Section -->
+    <div id="authSection">
+      <button id="loginBtn">Google کے ذریعے لاگ ان کریں</button>
+    </div>
 
-  <div class="card">
-    <div class="target" id="targetText">اللَّهُمَّ صَلِّ عَلَىٰ مُحَمَّدٍ وَعَلَىٰ آلِ مُحَمَّدٍ</div>
-    <div class="count" id="count">0</div>
-    <div style="text-align:center"><span class="badge">آپ کی تصدیق شدہ تعداد</span></div>
-    <br>
-    <button class="start" id="start" disabled>🎙️ درود پڑھنا شروع کریں</button>
-    <button class="stop" id="stop">⏹️ روکیں</button>
-    <div class="status" id="status">لاگ ان ہونے کا انتظار ہے...</div>
-    <div class="transcript" id="transcript">آپ کی آواز یہاں نظر آئے گی...</div>
-  </div>
+    <!-- User Info Section -->
+    <div id="userInfo" class="hidden">
+      <p>خوش آمدید، <b id="userName"></b>!</p>
+      <div style="margin: 15px 0;">
+        <input type="number" id="daroodCountInput" placeholder="تعداد درج کریں" min="1">
+        <button id="addCountBtn">شامل کریں</button>
+      </div>
+      <p>آپ کی کل پڑھائی: <b id="userTotal">0</b></p>
+    </div>
 
-  <div class="card">
+    <hr style="margin: 25px 0; border: 0; border-top: 1px solid #eee;">
+
+    <!-- Leaderboard -->
     <h2>🏆 لائیو Leaderboard</h2>
     <table>
-      <thead><tr><th>Rank</th><th>صارف</th><th>کل درود</th></tr></thead>
+      <thead>
+        <tr>
+          <th>Rank</th>
+          <th>صارف</th>
+          <th>کل درود</th>
+        </tr>
+      </thead>
       <tbody id="board">
         <tr><td colspan="3">ڈیٹا لوڈ ہو رہا ہے...</td></tr>
       </tbody>
     </table>
+
+    <footer>محفل درود – Contest Web App</footer>
   </div>
-</div>
 
-<footer>محفلِ درود — Contest Web App</footer>
+  <!-- Firebase SDKs (Compat Version) -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 
-<script>
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+  <script>
+    // Firebase Configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyB3PjjiQM2IqKmIQJ4d4YOwcc10RiG47FI",
+      authDomain: "mehfil-e-darood.firebaseapp.com",
+      databaseURL: "https://mehfil-e-darood-default-rtdb.firebaseio.com",
+      projectId: "mehfil-e-darood",
+      storageBucket: "mehfil-e-darood.firebasestorage.app",
+      messagingSenderId: "876052619750",
+      appId: "1:876052619750:web:889b37737240756ba5f627",
+      measurementId: "G-KFT3VXZM37"
+    };
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyB3PjjiQM2IqKmIQJ4d4YOwcc10RiG47FI",
-  authDomain: "mehfil-e-darood.firebaseapp.com",
-  databaseURL: "https://mehfil-e-darood-default-rtdb.firebaseio.com",
-  projectId: "mehfil-e-darood",
-  storageBucket: "mehfil-e-darood.firebasestorage.app",
-  messagingSenderId: "876052619750",
-  appId: "1:876052619750:web:889b37737240756ba5f627",
-  measurementId: "G-KFT3VXZM37"
-};
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+    let currentUser = null;
 
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.database();
+    const loginBtn = document.getElementById("loginBtn");
+    const authSection = document.getElementById("authSection");
+    const userInfo = document.getElementById("userInfo");
+    const userNameDisplay = document.getElementById("userName");
+    const userTotalDisplay = document.getElementById("userTotal");
+    const daroodCountInput = document.getElementById("daroodCountInput");
+    const addCountBtn = document.getElementById("addCountBtn");
+    const boardTable = document.getElementById("board");
 
-let currentUser = null;
-let userCount = 0;
+    // Google Login
+    loginBtn.onclick = () => {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      auth.signInWithPopup(provider).catch(error => {
+        alert("لاگ ان نہیں ہو سکا: " + error.message);
+      });
+    };
 
-const loginBtn = document.getElementById("loginBtn");
-const userInfo = document.getElementById("userInfo");
+    // Track Auth State
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        currentUser = user;
+        authSection.classList.add("hidden");
+        userInfo.classList.remove("hidden");
+        userNameDisplay.innerText = user.displayName;
 
-loginBtn.onclick = () => {
-  const provider = new firebase.auth.GoogleAuthProvider();
-  auth.signInWithPopup(provider).catch(err => alert("Login Error: " + err.message));
-};
-
-auth.onAuthStateChanged(user => {
-  if (user) {
-    currentUser = user;
-    userInfo.textContent = `خوش آمدید: ${user.displayName}`;
-    loginBtn.style.display = "none";
-    document.getElementById("start").disabled = false;
-    document.getElementById("status").textContent = "تیار ہے! بٹن دبا کر پڑھنا شروع کریں۔";
-    loadUserScore(user.uid);
-  } else {
-    currentUser = null;
-    userInfo.textContent = "مقابلے میں حصہ لینے کے لیے لاگ ان کریں";
-    loginBtn.style.display = "block";
-    document.getElementById("start").disabled = true;
-  }
-});
-
-function loadUserScore(uid) {
-  db.ref('users/' + uid).on('value', snapshot => {
-    const data = snapshot.val();
-    if (data) {
-      userCount = data.count || 0;
-      document.getElementById("count").textContent = userCount;
-    }
-  });
-}
-
-function updateScore() {
-  if (!currentUser) return;
-  userCount++;
-  document.getElementById("count").textContent = userCount;
-  db.ref('users/' + currentUser.uid).set({
-    name: currentUser.displayName,
-    count: userCount
-  });
-}
-
-// Advanced Recognition & Normalization
-function cleanArabicText(text) {
-  return text
-    .replace(/[\u064B-\u0652]/g, "") // Full Arabic Diacritics/Zabar Zer
-    .replace(/[إأآا]/g, "ا")
-    .replace(/ى/g, "ي")
-    .replace(/ؤ/g, "و")
-    .replace(/ئ/g, "ي")
-    .replace(/[،؛,:.!؟]/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
-function verifyDarood(spokenText) {
-  const cleanSpoken = cleanArabicText(spokenText);
-  // Important keywords check
-  const hasAllah = cleanSpoken.includes("اللهم") || cleanSpoken.includes("الله");
-  const hasSalli = cleanSpoken.includes("صل") || cleanSpoken.includes("صلي") || cleanSpoken.includes("صلى");
-  const hasMuhammad = cleanSpoken.includes("محمد");
-
-  return (hasAllah || hasSalli) && hasMuhammad;
-}
-
-const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-let recognition = null;
-let listening = false;
-
-if (SR) {
-  recognition = new SR();
-  recognition.lang = "ar-SA"; // Arabic
-  recognition.continuous = false;
-  recognition.interimResults = true;
-
-  recognition.onstart = () => {
-    listening = true;
-    document.getElementById("status").textContent = "🎙️ سن رہا ہوں... درود شریف پڑھیں";
-    document.getElementById("start").disabled = true;
-  };
-
-  recognition.onresult = (e) => {
-    let transcript = "";
-    for (let i = e.resultIndex; i < e.results.length; i++) {
-      transcript += e.results[i][0].transcript;
-    }
-    
-    document.getElementById("transcript").textContent = transcript;
-
-    if (e.results[0].isFinal) {
-      if (verifyDarood(transcript)) {
-        updateScore();
-        document.getElementById("status").textContent = "✅ درود شریف درست پڑھا گیا! گنتی بڑھ گئی۔";
-        document.getElementById("status").style.color = "green";
+        // Fetch User Total
+        db.ref("users/" + user.uid).on("value", snapshot => {
+          const data = snapshot.val();
+          userTotalDisplay.innerText = data ? (data.count || 0) : 0;
+        });
       } else {
-        document.getElementById("status").textContent = "❌ غلط یا نامکمل! دوبارہ واضح پڑھیں۔";
-        document.getElementById("status").style.color = "red";
+        currentUser = null;
+        authSection.classList.remove("hidden");
+        userInfo.classList.add("hidden");
       }
-    }
-  };
+    });
 
-  recognition.onerror = (e) => {
-    document.getElementById("status").textContent = "⚠️ Mic error: " + e.error + " (Allow mic access)";
-    document.getElementById("status").style.color = "orange";
-  };
+    // Add Darood Count
+    addCountBtn.onclick = () => {
+      const val = parseInt(daroodCountInput.value);
+      if (!val || val <= 0) {
+        alert("براہ کرم درست تعداد درج کریں۔");
+        return;
+      }
+      if (!currentUser) return;
 
-  recognition.onend = () => {
-    listening = false;
-    document.getElementById("start").disabled = false;
-  };
-} else {
-  document.getElementById("status").textContent = "⚠️ Chrome या Edge ब्राउज़र का उपयोग करें।";
-}
+      const userRef = db.ref("users/" + currentUser.uid);
+      userRef.transaction(current => {
+        if (current) {
+          current.count = (current.count || 0) + val;
+          current.name = currentUser.displayName;
+        } else {
+          current = { name: currentUser.displayName, count: val };
+        }
+        return current;
+      }).then(() => {
+        daroodCountInput.value = "";
+      });
+    };
 
-document.getElementById("start").onclick = () => {
-  if (recognition && currentUser) {
-    try { 
-      recognition.start(); 
-    } catch(e){
-      recognition.stop();
-    }
-  }
-};
+    // Live Leaderboard
+    db.ref("users").orderByChild("count").on("value", snapshot => {
+      boardTable.innerHTML = "";
+      let users = [];
+      snapshot.forEach(child => {
+        users.push(child.val());
+      });
+      users.reverse(); // Highest first
 
-document.getElementById("stop").onclick = () => {
-  if (recognition && listening) recognition.stop();
-  document.getElementById("status").textContent = "روک دیا گیا۔";
-  document.getElementById("status").style.color = "#333";
-};
+      if (users.length === 0) {
+        boardTable.innerHTML = "<tr><td colspan='3'>ابھی تک کوئی ڈیٹا موجود نہیں ہے۔</td></tr>";
+        return;
+      }
 
-db.ref('users').orderByChild('count').limitToLast(10).on('value', snapshot => {
-  const board = document.getElementById("board");
-  board.innerHTML = "";
-  let list = [];
-  snapshot.forEach(child => {
-    list.push(child.val());
-  });
-  list.reverse();
-
-  const medals = ["🥇", "🥈", "🥉"];
-  list.forEach((u, index) => {
-    const rank = medals[index] || (index + 1);
-    const row = `<tr><td>${rank}</td><td>${u.name}</td><td>${u.count}</td></tr>`;
-    board.innerHTML += row;
-  });
-});
-</script>
+      users.forEach((u, index) => {
+        const row = `<tr>
+          <td>${index + 1}</td>
+          <td>${u.name || "گمنام"}</td>
+          <td>${u.count || 0}</td>
+        </tr>`;
+        boardTable.innerHTML += row;
+      });
+    });
+  </script>
 </body>
 </html>
