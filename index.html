@@ -131,7 +131,7 @@
 
         <!-- Competition Info Box -->
         <div class="comp-box">
-          <div class="comp-title">🔥 آج کا مقابلہ</div>
+          <div class="comp-title">🔥 آج کا مقابلہ (کم از کم 100 درود لازمی)</div>
           <p id="compDescription" style="margin: 5px 0; color: #555;">مقابلے کا ڈیٹا لوڈ ہو رہا ہے...</p>
           <div class="reward-box" id="rewardDescription">
             🎁 <b>انعام (Cash Prize):</b> لوڈ ہو رہا ہے...
@@ -142,7 +142,7 @@
       <!-- TAB 3: Rewards & Payment Details -->
       <div id="rewardTab" class="hidden" style="text-align: right;">
         <h3 style="color: #2e7d32; text-align: center;">🎁 روزانہ کا انعام اور پیمنٹ کی تفصیلات</h3>
-        <p style="color: #555; font-size: 13px; text-align: center; margin-bottom: 15px;">مقابلہ جیتنے پر انعام کی رقم حاصل کرنے کے لیے نیچے اپنا اکاؤنٹ نمبر درج کریں:</p>
+        <p style="color: #555; font-size: 13px; text-align: center; margin-bottom: 15px;">فاتح بننے کے لیے کم از کم 100 درود شریف پڑھنا لازمی ہے۔ انعام حاصل کرنے کے لیے نیچے اکاؤنٹ نمبر درج کریں:</p>
         
         <!-- User Payment & Profile Details Box -->
         <div class="profile-box">
@@ -165,20 +165,20 @@
 
         <div style="background: #e8f5e9; border-right: 4px solid #2e7d32; padding: 12px; margin-bottom: 10px; border-radius: 4px;">
           <b>⭐ روزانہ کا کیش انعام</b>
-          <p style="margin: 5px 0 0 0; font-size: 13px; color: #333;">آج کے مقابلے میں پہلے نمبر پر آنے والے فاتح کو <b>200 روپے</b> نقد انعام دیا جائے گا۔</p>
+          <p style="margin: 5px 0 0 0; font-size: 13px; color: #333;">آج کے مقابلے میں کم از کم 100 درود پڑھ کر پہلے نمبر پر آنے والے فاتح کو <b>200 روپے</b> نقد انعام دیا جائے گا۔</p>
         </div>
 
-        <!-- PUBLIC PAYMENT PROOF SECTION (Visible to all clients) -->
+        <!-- PUBLIC PAYMENT PROOF SECTION -->
         <div class="proof-box">
           <div class="proof-title">📢 فاتحین اور پیمنٹ پروف (Payment Proofs)</div>
           <p style="font-size: 12px; color: #555; margin-bottom: 8px;">یہاں تمام صارفین دیکھ سکتے ہیں کہ کس کس فاتح کو انعام کی رقم کامیابی سے بھیج دی گئی ہے:</p>
           <div id="publicProofList">لوڈ ہو رہا ہے...</div>
         </div>
 
-        <!-- ADMIN PANEL SECTION (Visible only to kamran7078127@gmail.com) -->
+        <!-- ADMIN PANEL SECTION -->
         <div id="adminPanelSection" class="admin-panel hidden">
           <div class="admin-title">👑 ایڈمن پینل (فاتحین اور ای میلز ریکارڈ)</div>
-          <p style="font-size: 12px; color: #666; margin-bottom: 10px;">یہاں صارفین کے نام، ای میل اور ان کی پیمنٹ کا اسٹیٹس کنٹرول کریں:</p>
+          <p style="font-size: 12px; color: #666; margin-bottom: 10px;">فاتح کے لیے کم از کم 100 درود کی شرط لازمی ہے۔ یہاں سے پیمنٹ اسٹیٹس کنٹرول کریں:</p>
           <div id="adminWinnersList">لوڈ ہو رہا ہے...</div>
         </div>
 
@@ -210,14 +210,12 @@
     let currentUser = null;
     const ADMIN_EMAIL = "kamran7078127@gmail.com";
 
-    // Competition Data with 200 Rs Prize
-    const competitionData = [
-      { desc: "آج کا درود شریف پڑھنے کا مقابلہ - سب سے آگے رہیں!", reward: "پہلا انعام: 200 روپے نقد (JazzCash / EasyPaisa)" }
-    ];
+    // Generate today's unique key based on Date (e.g. "2026-05-18") so database resets daily automatically
+    const todayDateKey = new Date().toISOString().slice(0, 10);
+    const competitionRefPath = "competitions/" + todayDateKey;
 
-    const todayIndex = new Date().getDate() % competitionData.length;
-    document.getElementById("compDescription").innerText = competitionData[todayIndex].desc;
-    document.getElementById("rewardDescription").innerHTML = `🎁 <b>انعام (Cash Prize):</b> ${competitionData[todayIndex].reward}`;
+    document.getElementById("compDescription").innerText = "آج کا مقابلہ شروع ہے! فاتح بننے کے لیے کم از کم 100 درود لازمی ہیں۔";
+    document.getElementById("rewardDescription").innerHTML = `🎁 <b>انعام (Cash Prize):</b> پہلا انعام: 200 روپے نقد (کم از کم 100 درود شرط ہے)`;
 
     // Tab Switching Function
     function showTab(tabId) {
@@ -248,20 +246,17 @@
         document.getElementById("userInfo").classList.remove("hidden");
         document.getElementById("userName").innerText = user.displayName;
 
-        // Save user email & name to database automatically on login
         db.ref("users/" + user.uid).update({
           name: user.displayName,
           email: user.email
         });
 
-        // Check if user is Admin
         if (user.email === ADMIN_EMAIL) {
           document.getElementById("adminPanelSection").classList.remove("hidden");
         } else {
           document.getElementById("adminPanelSection").classList.add("hidden");
         }
 
-        // Load User Count & Profile Info
         db.ref("users/" + user.uid).on("value", snapshot => {
           const data = snapshot.val();
           document.getElementById("userTotal").innerText = data ? (data.count || 0) : 0;
@@ -272,7 +267,7 @@
           }
         });
 
-        db.ref("competitions/comp_" + todayIndex + "/" + user.uid).on("value", snapshot => {
+        db.ref(competitionRefPath + "/" + user.uid).on("value", snapshot => {
           const data = snapshot.val();
           document.getElementById("compUserTotal").innerText = data ? (data.count || 0) : 0;
         });
@@ -292,7 +287,6 @@
       }
     });
 
-    // Save Profile / Payment Details
     document.getElementById("saveProfileBtn").onclick = () => {
       if (!currentUser) return;
       const name = document.getElementById("accName").value.trim();
@@ -322,8 +316,8 @@
       });
     };
 
-    // Load Data for Admin Panel & Public Proofs
-    db.ref("competitions/comp_" + todayIndex).orderByChild("count").on("value", compSnapshot => {
+    // Load Data for Admin Panel & Public Proofs (Enforcing 100 Darood Rule)
+    db.ref(competitionRefPath).orderByChild("count").on("value", compSnapshot => {
       db.ref("users").on("value", userSnapshot => {
         const adminContainer = document.getElementById("adminWinnersList");
         const publicContainer = document.getElementById("publicProofList");
@@ -345,16 +339,18 @@
           return;
         }
 
-        // Render Public Proofs for Clients
+        // Filter valid winner who crossed 100 count for public proofs
+        let validWinner = compUsers.find(u => (u.count || 0) >= 100);
         let proofCount = 0;
-        compUsers.forEach((u, idx) => {
+
+        compUsers.forEach((u) => {
           let uProfile = allUsersData[u.uid] || {};
-          if (uProfile.paid) {
+          if (uProfile.paid && (u.count || 0) >= 100) {
             proofCount++;
             let maskedNumber = uProfile.accNumber ? uProfile.accNumber.replace(/.(?=.{4})/g, '*') : '---';
             publicContainer.innerHTML += `
               <div class="proof-item">
-                <b>🥇 فاتح:</b> ${u.name || "گمنام"} | <b>انعام:</b> 200 روپے<br>
+                <b>🥇 فاتح:</b> ${u.name || "گمنام"} (درود: ${u.count}) | <b>انعام:</b> 200 روپے<br>
                 <b>اکاؤنٹ:</b> ${uProfile.accType || ""} (${maskedNumber})<br>
                 <span style="color: #2e7d32; font-weight: bold; font-size: 12px;">✓ اسٹیٹس: پیمنٹ ادا کر دی گئی (Paid)</span>
               </div>
@@ -363,22 +359,31 @@
         });
 
         if (proofCount === 0) {
-          publicContainer.innerHTML = "<p style='font-size:13px; color:#555;'>آج کے مقابلے کے انعامات کی تقسیم ابھی باقی ہے۔</p>";
+          publicContainer.innerHTML = "<p style='font-size:13px; color:#555;'>آج کا مقابلہ جاری ہے (کم از کم 100 درود مکمل ہونے پر انعام ملے گا)</p>";
         }
 
-        // Render Admin Panel Data (with Email)
+        // Render Admin Panel Data with 100 check warning
         compUsers.forEach((u, idx) => {
           let uProfile = allUsersData[u.uid] || {};
-          let isWinnerRank = idx === 0 ? "🥇 آج کا فاتح" : `#${idx+1} رینک`;
-          let paidActionBtn = uProfile.paid ? 
-            `<button class="unpaid-btn" onclick="togglePayment('${u.uid}', false)">Unpaid کریں</button> <span class="paid-badge">Paid ✓</span>` : 
-            `<button class="paid-btn" onclick="togglePayment('${u.uid}', true)">Paid کریں (پیمنٹ بھیج دی)</button>`;
+          let isEligible = (u.count || 0) >= 100;
+          let rankLabel = idx === 0 ? "🥇 ٹاپ پوزیشن" : `#${idx+1} رینک`;
+          
+          let statusText = isEligible ? 
+            `<span style="color:green; font-weight:bold;">✓ 100 کی شرط پوری ہے (اہل)</span>` : 
+            `<span style="color:#d32f2f; font-weight:bold;">⚠️ 100 درود پورے نہیں ہوئے (نااہل)</span>`;
+
+          let paidActionBtn = "";
+          if (isEligible) {
+            paidActionBtn = uProfile.paid ? 
+              `<button class="unpaid-btn" onclick="togglePayment('${u.uid}', false)">Unpaid کریں</button> <span class="paid-badge">Paid ✓</span>` : 
+              `<button class="paid-btn" onclick="togglePayment('${u.uid}', true)">Paid کریں (انعام بھیج دیا)</button>`;
+          }
 
           adminContainer.innerHTML += `
             <div class="admin-card">
-              <b>${isWinnerRank}</b> | <b>نام:</b> ${u.name || "گمنام"}<br>
+              <b>${rankLabel}</b> | <b>نام:</b> ${u.name || "گمنام"}<br>
               <b>ای میل:</b> <span style="color:#d32f2f;">${uProfile.email || "ای میل دستیاب نہیں"}</span><br>
-              <b>اسکور (درود):</b> ${u.count || 0}<br>
+              <b>مقابلہ اسکور:</b> ${u.count || 0} ${statusText}<br>
               <b>اکاؤنٹ نمبر:</b> ${uProfile.accNumber || "درج نہیں کیا"} (${uProfile.accType || "---"}) - نام: ${uProfile.accName || "---"}<br>
               <div style="margin-top:6px;">${paidActionBtn}</div>
             </div>
@@ -387,7 +392,6 @@
       });
     });
 
-    // Toggle Payment Status Function for Admin
     window.togglePayment = function(userId, status) {
       db.ref("users/" + userId).update({ paid: status }, (error) => {
         if (!error) {
@@ -450,7 +454,7 @@
               status.style.color = "#2e7d32";
               status.innerText = "✓ تصدیق شدہ! درود پاک کاؤنٹ ہو گیا۔";
               
-              const targetPath = isComp ? "competitions/comp_" + todayIndex + "/" + currentUser.uid : "users/" + currentUser.uid;
+              const targetPath = isComp ? competitionRefPath + "/" + currentUser.uid : "users/" + currentUser.uid;
               db.ref(targetPath).transaction(current => {
                 if (current) { current.count = (current.count || 0) + 1; current.name = currentUser.displayName; }
                 else { current = { name: currentUser.displayName, count: 1 }; }
@@ -477,7 +481,7 @@
 
     // Leaderboards Render
     db.ref("users").orderByChild("count").on("value", snapshot => renderBoard(snapshot, "board"));
-    db.ref("competitions/comp_" + todayIndex).orderByChild("count").on("value", snapshot => renderBoard(snapshot, "compBoard"));
+    db.ref(competitionRefPath).orderByChild("count").on("value", snapshot => renderBoard(snapshot, "compBoard"));
 
     function renderBoard(snapshot, elementId) {
       const container = document.getElementById(elementId);
