@@ -83,34 +83,33 @@
       100% { transform: scale(0.95); opacity: 0.7; }
     }
 
-    /* Top Info Highlights */
-    .top-highlights {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-bottom: 15px;
+    /* Navigation Tabs placed right at the top after login */
+    .nav-tabs {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin: 10px 0 15px 0;
+      flex-wrap: wrap;
     }
 
-    .highlight-box {
-      background: linear-gradient(135deg, #fffcf5, #fef6e4);
-      border: 1.5px solid var(--accent-gold);
-      border-radius: 12px;
-      padding: 10px;
-      text-align: right;
-    }
-
-    .highlight-title {
-      font-size: 14px;
-      color: #9a7b38;
-      font-weight: bold;
-      margin-bottom: 2px;
-    }
-
-    .highlight-desc {
-      font-size: 12px;
+    .tab-btn {
+      background: #f3f4f6;
       color: var(--text-muted);
-      margin: 0;
-      line-height: 1.5;
+      border: none;
+      padding: 8px 18px;
+      border-radius: 30px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.3s ease;
+      font-family: 'Jameel Noori Nastaleeq', sans-serif;
+    }
+
+    .tab-btn.active {
+      background: var(--primary-color);
+      color: white;
+      box-shadow: 0 4px 15px rgba(13, 59, 34, 0.3);
+      transform: translateY(-2px);
     }
 
     /* Darood Card */
@@ -137,35 +136,6 @@
       color: var(--text-muted);
       margin-top: 8px;
       line-height: 1.6;
-    }
-
-    /* Navigation Tabs */
-    .nav-tabs {
-      display: flex;
-      justify-content: center;
-      gap: 8px;
-      margin: 14px 0;
-      flex-wrap: wrap;
-    }
-
-    .tab-btn {
-      background: #f3f4f6;
-      color: var(--text-muted);
-      border: none;
-      padding: 8px 16px;
-      border-radius: 30px;
-      font-weight: bold;
-      cursor: pointer;
-      font-size: 14px;
-      transition: all 0.3s ease;
-      font-family: 'Jameel Noori Nastaleeq', sans-serif;
-    }
-
-    .tab-btn.active {
-      background: var(--primary-color);
-      color: white;
-      box-shadow: 0 4px 15px rgba(13, 59, 34, 0.3);
-      transform: translateY(-2px);
     }
 
     /* User Header & Profile */
@@ -319,18 +289,6 @@
       <span class="live-dot"></span> آن لائن شرکاء: <span id="onlineCount">0</span>
     </div>
 
-    <!-- Top Highlights (Aam & Muqabla / Inam Details placed back on top) -->
-    <div class="top-highlights">
-      <div class="highlight-box">
-        <div class="highlight-title">✨ عام مقابلہ</div>
-        <p class="highlight-desc">روزانہ بلاہٹ رکاوٹ تسبیح کریں اور لائیو لیڈر بورڈ میں اپنا مقام دیکھیں۔</p>
-      </div>
-      <div class="highlight-box">
-        <div class="highlight-title">🎁 انعام کی تفصیل</div>
-        <p class="highlight-desc">کم از کم 100 درود شریف پڑھ کر روزانہ 200 روپے نقد کیش انعام جیتیں۔</p>
-      </div>
-    </div>
-
     <!-- Auth Section -->
     <div id="authSection">
       <p style="color:var(--text-muted); font-size: 14px; margin: 10px 0;">محفل میں شامل ہونے کے لیے لاگ ان کریں</p>
@@ -344,6 +302,13 @@
         <button class="logout-btn" id="logoutBtn">لاگ آؤٹ</button>
       </div>
 
+      <!-- Navigation Tabs (Moved directly to the top right under login) -->
+      <div class="nav-tabs">
+        <button class="tab-btn active" id="mainTabBtn" onclick="showTab('mainTab')">✨ عام تسبیح</button>
+        <button class="tab-btn" id="compTabBtn" onclick="showTab('compTab')">🎯 مقابلہ</button>
+        <button class="tab-btn" id="rewardTabBtn" onclick="showTab('rewardTab')">🎁 انعام اور پروف</button>
+      </div>
+
       <!-- Darood Card -->
       <div class="darood-card">
         <div class="arabic-text">
@@ -353,13 +318,6 @@
         <div class="translation">
           اے اللہ! رحمت نازل فرما حضرت محمد ﷺ پر اور ان کی آل پر جیسے تو نے رحمت نازل فرمائی حضرت ابراہیم علیہ السلام پر اور ان کی آل پر، بے شک تو تعریف کے لائق اور بزرگی والا ہے۔
         </div>
-      </div>
-
-      <!-- Navigation Tabs -->
-      <div class="nav-tabs">
-        <button class="tab-btn active" id="mainTabBtn" onclick="showTab('mainTab')">✨ عام تسبیح</button>
-        <button class="tab-btn" id="compTabBtn" onclick="showTab('compTab')">🎯 مقابلہ</button>
-        <button class="tab-btn" id="rewardTabBtn" onclick="showTab('rewardTab')">🎁 انعام اور پروف</button>
       </div>
 
       <!-- TAB 1: General Tasbeeh -->
@@ -746,7 +704,7 @@
       }
     }
 
-    document.getElementById("countBtn").onclick = () => verifyAndCount("countBtn", "statusMsg", false);
+    document.getElementById("countBtn").onclick = () =>- verifyAndCount("countBtn", "statusMsg", false);
     document.getElementById("compCountBtn").onclick = () => verifyAndCount("compCountBtn", "compStatusMsg", true);
 
     db.ref("users").orderByChild("count").on("value", snapshot => renderBoard(snapshot, "board"));
