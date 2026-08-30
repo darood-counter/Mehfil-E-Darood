@@ -276,7 +276,7 @@
     th { background-color: var(--primary-color); color: white; font-weight: 600; }
     tr:nth-child(even) { background-color: #f9fafb; }
     
-    .hidden { display: none; }
+    .hidden { display: none !important; }
 
     /* Custom Beautiful Modal Popup */
     .custom-modal {
@@ -336,8 +336,8 @@
   <div id="customModal" class="custom-modal hidden">
     <div class="modal-content">
       <div class="modal-title">🎯 مقابلہ جاری ہے</div>
-      <div class="modal-text">کم از کم 100 درود اور جیتنے والے کو انعام ملے گا۔</div>
-      <button class="modal-ok-btn" onclick="closeModalAndShowComp()">ٹھیک ہے (OK)</button>
+      <div class="modal-text">کم از کم 100 اور جیتنے والے کو انعام</div>
+      <button class="modal-ok-btn" id="modalOkBtn">ٹھیک ہے (OK)</button>
     </div>
   </div>
 
@@ -532,11 +532,11 @@
       document.getElementById("customModal").classList.remove("hidden");
     }
 
-    // Function when clicking OK on the custom popup
-    function closeModalAndShowComp() {
+    // Event listener for the OK button inside modal to close it and show competition tab
+    document.getElementById("modalOkBtn").onclick = function() {
       document.getElementById("customModal").classList.add("hidden");
       showTab('compTab');
-    }
+    };
 
     document.getElementById("loginBtn").onclick = () => {
       auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(e => alert(e.message));
@@ -660,7 +660,7 @@
         });
 
         if (proofCount === 0) {
-          publicContainer.innerHTML = "<p style='font-size:12px; color:var(--text-muted);'>کم از کم 100 درود اور جیتنے والے کو انعام ملے گا۔</p>";
+          publicContainer.innerHTML = "<p style='font-size:12px; color:var(--text-muted);'>کم از کم 100 اور جیتنے والے کو انعام</p>";
         }
 
         compUsers.forEach((u, idx) => {
