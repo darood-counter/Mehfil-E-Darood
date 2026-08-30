@@ -41,7 +41,7 @@
     .login-btn { background-color: #2e7d32; color: white; border: none; padding: 12px 24px; font-size: 16px; border-radius: 6px; cursor: pointer; }
 
     /* Competition Box */
-    .comp-box { background: #fff3e0; border: 2px dashed #ff9800; border-radius: 10px; padding: 15px; margin: 15px 0; text-align: right; }
+    .comp-box { background: #fff3e0; border: 2px dashed #ff9800; border-radius: 10px; padding: 15px; margin: 20px 0 10px 0; text-align: right; }
     .comp-title { font-size: 18px; color: #e65100; font-weight: bold; }
     .reward-box { background: #e8f5e9; border: 1px solid #81c784; border-radius: 8px; padding: 10px; margin-top: 10px; color: #1b5e20; font-size: 14px; }
 
@@ -106,14 +106,6 @@
 
       <!-- TAB 2: Competition -->
       <div id="compTab" class="hidden">
-        <div class="comp-box">
-          <div class="comp-title">🔥 آج کا مقابلہ</div>
-          <p id="compDescription" style="margin: 5px 0; color: #555;">مقابلے کا ڈیٹا لوڈ ہو رہا ہے...</p>
-          <div class="reward-box" id="rewardDescription">
-            🎁 <b>انعام (Cash Prize):</b> لوڈ ہو رہا ہے...
-          </div>
-        </div>
-
         <button class="mic-btn" style="background-color: #ff9800;" id="compCountBtn">🎤 مقابلے کے لیے بولیں</button>
         <div id="compStatusMsg" class="status-msg" style="color: #e65100;"></div>
         <div style="font-size: 18px; color: #e65100;">مقابلے میں آپ کا اسکور: <b id="compUserTotal">0</b></div>
@@ -123,6 +115,15 @@
           <thead><tr><th>رینک</th><th>صارف</th><th>مقابلہ اسکور</th></tr></thead>
           <tbody id="compBoard"><tr><td colspan="3">لوڈ ہو رہا ہے...</td></tr></tbody>
         </table>
+
+        <!-- Competition Info Box moved to the bottom -->
+        <div class="comp-box">
+          <div class="comp-title">🔥 آج کا مقابلہ</div>
+          <p id="compDescription" style="margin: 5px 0; color: #555;">مقابلے کا ڈیٹا لوڈ ہو رہا ہے...</p>
+          <div class="reward-box" id="rewardDescription">
+            🎁 <b>انعام (Cash Prize):</b> لوڈ ہو رہا ہے...
+          </div>
+        </div>
       </div>
 
       <!-- TAB 3: Rewards & Payment Details -->
