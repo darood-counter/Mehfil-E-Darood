@@ -93,13 +93,18 @@
       </thead>
       <tbody id="board">
         <tr><td colspan="3">ڈیٹا لوڈ ہو رہا ہے...</td></tr>
-      </tbody>
-    </table>
+    // Google Login (Redirect Method for Mobile)
+loginBtn.onclick = () => {
+  const provider = new firebase.auth.GoogleAuthProvider();
+  auth.signInWithRedirect(provider);
+};
 
-    <footer>محفل درود – Contest Web App</footer>
-  </div>
-
-  <!-- Firebase SDKs (Compat Version) -->
+// Handle Redirect Result after Login
+auth.getRedirectResult().catch(error => {
+  if (error.code) {
+    alert("لاگ ان میں مسئلہ ہے: " + error.message);
+  }
+});
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
