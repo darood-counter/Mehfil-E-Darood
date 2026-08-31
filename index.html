@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mehfil-E-Darood — Demo V2</title>
+  <title>Mehfil-E-Darood — Final V3</title>
   <link href="https://fonts.googleapis.com/css2?family=Jameel+Noori+Nastaleeq&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -70,19 +70,6 @@
       z-index: 10;
     }
 
-    h1 {
-      color: var(--primary-color);
-      font-size: 24px;
-      margin: 0 0 4px 0;
-      font-weight: bold;
-    }
-
-    .subtitle {
-      font-size: 14px;
-      color: var(--text-muted);
-      margin-bottom: 12px;
-    }
-
     /* Live Badge */
     .live-badge {
       display: inline-flex;
@@ -142,7 +129,7 @@
       border-top: 1px dashed rgba(197, 160, 89, 0.4);
     }
 
-    /* Speaker Button inside Darood Card */
+    /* Speaker Button */
     .speak-btn {
       background: var(--accent-gold-light);
       color: var(--primary-color);
@@ -354,10 +341,6 @@
       margin-top: 10px;
       box-shadow: 0 2px 5px rgba(0,0,0,0.05);
     }
-    .google-btn img {
-      width: 18px;
-      height: 18px;
-    }
     .divider {
       display: flex;
       align-items: center;
@@ -394,7 +377,7 @@
     
     .hidden { display: none !important; }
 
-    /* Bottom Navigation Bar matching reference image */
+    /* Bottom Navigation Bar */
     .bottom-nav {
       position: fixed;
       bottom: 0;
@@ -427,12 +410,12 @@
       font-weight: bold;
     }
 
-    .nav-item svg, .nav-item span.icon {
+    .nav-item span.icon {
       font-size: 18px;
       margin-bottom: 2px;
     }
 
-    /* Custom Beautiful Modal Popup */
+    /* Custom Popup Modal */
     .custom-modal {
       position: fixed;
       top: 0; left: 0; width: 100%; height: 100%;
@@ -486,12 +469,12 @@
 </head>
 <body>
 
-  <!-- Hidden YouTube Player for exact Audio from link -->
+  <!-- Hidden YouTube Player -->
   <div style="display:none;">
     <iframe id="youtubeAudioFrame" width="200" height="200" src="https://www.youtube.com/embed/B1kvwM-2AUc?enablejsapi=1&autoplay=0" allow="autoplay"></iframe>
   </div>
 
-  <!-- Custom Popup Modal (Initially Hidden) -->
+  <!-- Custom Popup Modal -->
   <div id="customModal" class="custom-modal hidden">
     <div class="modal-content">
       <div class="modal-title">🎯 مقابلہ جاری ہے</div>
@@ -516,7 +499,7 @@
 
     <!-- Auth Section (Login/Signup First) -->
     <div id="authSection">
-      <!-- Login Form (Default on first open) -->
+      <!-- Login Form -->
       <div id="loginForm" class="auth-container">
         <h3 style="color:var(--primary-color); margin: 0 0 10px 0; text-align:center; font-size: 17px;">🔐 لاگ ان کریں (Login)</h3>
         
@@ -573,7 +556,7 @@
         <button class="logout-btn" id="logoutBtn">لاگ آؤٹ</button>
       </div>
 
-      <!-- Darood Card with Speaker (🔊) Button -->
+      <!-- Darood Card -->
       <div id="daroodCard" class="darood-card">
         <div class="arabic-text" id="daroodArabicText">
           اَللّٰھُمَّ صَلِّ عَلٰی مُحَمَّدٍ وَّعَلٰی اٰلِ مُحَمَّدٍ کَمَا صَلَّیْتَ عَلٰی اِبْرَاھِیْمَ وَعَلٰی اٰلِ اِبْرَاھِیْمَ اِنَّکَ حَمِیْدٌ مَّجِیْدٌ۔ اَللّٰھُمَّ بَارِکْ عَلٰی مُحَمَّدٍ وَّعَلٰی اٰلِ مُحَمَّدٍ کَمَا بَارَکْتَ عَلٰی اِبْرَاھِیْمَ وَعَلٰی اٰلِ اِبْرَاھِیْمَ اِنَّکَ حَمِیْدٌ مَّجِیْدٌ
@@ -586,30 +569,21 @@
         </button>
       </div>
 
-      <!-- TAB 1: General Tasbeeh -->
+      <!-- TAB 1: Home Tab -->
       <div id="mainTab">
         <h2 style="font-size: 20px; color: var(--primary-color); margin: 10px 0;">🙌 آج کی محفل</h2>
         
-        <!-- Live Total Counter Box matching reference -->
+        <!-- Real Live Total Counter Box -->
         <div style="background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 14px; padding: 12px; margin: 10px 0; box-shadow: 0 4px 15px rgba(0,0,0,0.03);">
-          <div style="font-size: 28px; font-weight: bold; color: var(--primary-color);" id="globalTotalCount">824,530</div>
-          <div style="font-size: 12px; color: var(--text-muted);">آج کے اجتماعی درود</div>
+          <div style="font-size: 28px; font-weight: bold; color: var(--primary-color);" id="globalTotalCount">0</div>
+          <div style="font-size: 12px; color: var(--text-muted);">آج کے اجتماعی درود (ریئل ٹائم)</div>
         </div>
 
-        <!-- Circular Progress Mic Button matching reference style -->
-        <div class="mic-circle-wrapper">
-          <div class="circle-progress"></div>
-          <button class="mic-btn" id="countBtn">
-            <span style="font-size: 32px; font-weight: bold; color: var(--primary-color);" id="userTotal">0</span>
-            <span style="font-size: 12px; color: var(--text-muted); font-weight: normal;">آپ کے آج کے درود</span>
-          </button>
-        </div>
-        <div id="statusMsg" class="status-msg" style="color: var(--primary-color);"></div>
-
-        <div style="display: flex; gap: 8px; justify-content: center; margin-top: 15px;">
-          <button style="background: #f3f4f6; border: 1px solid #d1d5db; padding: 8px 16px; border-radius: 12px; font-family: inherit; font-size: 13px; cursor: pointer;" onclick="alert('رিসেٹ ہو گیا')">Undo ↩</button>
-          <button style="background: #f3f4f6; border: 1px solid #d1d5db; padding: 8px 16px; border-radius: 12px; font-family: inherit; font-size: 13px; cursor: pointer;">10+</button>
-          <button style="background: #0d3b22; color: white; border: none; padding: 8px 20px; border-radius: 12px; font-family: inherit; font-size: 13px; font-weight: bold; cursor: pointer;" onclick="startVoiceRecognition('countBtn', 'statusMsg', false)">🎙️ 1+ درود شریف</button>
+        <!-- PUBLIC PAYMENT PROOF SECTION (Moved to Home) -->
+        <div class="proof-box" style="margin-top: 15px;">
+          <div class="proof-title">📢 فاتحین اور پیمنٹ پروف (Payment Proofs)</div>
+          <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 6px;">تمام صارفین دیکھ سکتے ہیں کہ کس فاتح کو انعام مل گیا:</p>
+          <div id="publicProofList">لوڈ ہو رہا ہے...</div>
         </div>
 
         <h3 style="color:var(--primary-color); margin-top: 25px; font-size: 16px;">🏆 لائیو Leaderboard</h3>
@@ -619,7 +593,7 @@
         </table>
       </div>
 
-      <!-- TAB 2: Competition -->
+      <!-- TAB 2: Competition Tab -->
       <div id="compTab" class="hidden">
         <h2 style="font-size: 20px; color: #d97706; margin: 10px 0;">🎯 مقابلے کا سیکشن</h2>
         <button class="mic-btn" style="background: linear-gradient(135deg, #d97706, #b45309); color:white; width: 130px; height: 130px; margin: 15px auto;" id="compCountBtn">
@@ -636,17 +610,28 @@
         </table>
       </div>
 
-      <!-- TAB 3: Rewards (Tasbeeh) -->
-      <div id="rewardTab" class="hidden" style="text-align: right;">
-        <!-- PUBLIC PAYMENT PROOF SECTION -->
-        <div class="proof-box" style="margin-top: 10px;">
-          <div class="proof-title">📢 فاتحین اور پیمنٹ پروف (Payment Proofs)</div>
-          <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 6px;">تمام صارفین دیکھ سکتے ہیں کہ کس فاتح کو انعام مل گیا:</p>
-          <div id="publicProofList">لوڈ ہو رہا ہے...</div>
+      <!-- TAB 3: Tasbeeh Tab (Contains Counter Buttons & Action Controls) -->
+      <div id="rewardTab" class="hidden" style="text-align: center;">
+        <h2 style="font-size: 20px; color: var(--primary-color); margin: 10px 0;">📿 تسبیح کاؤنٹر</h2>
+        
+        <!-- Circular Progress Mic Button (Moved to Tasbeeh) -->
+        <div class="mic-circle-wrapper">
+          <div class="circle-progress"></div>
+          <button class="mic-btn" id="countBtn">
+            <span style="font-size: 32px; font-weight: bold; color: var(--primary-color);" id="userTotal">0</span>
+            <span style="font-size: 12px; color: var(--text-muted); font-weight: normal;">آپ کے آج کے درود</span>
+          </button>
+        </div>
+        <div id="statusMsg" class="status-msg" style="color: var(--primary-color);"></div>
+
+        <div style="display: flex; gap: 8px; justify-content: center; margin-top: 15px;">
+          <button style="background: #f3f4f6; border: 1px solid #d1d5db; padding: 8px 16px; border-radius: 12px; font-family: inherit; font-size: 13px; cursor: pointer;" onclick="alert('ریسٹ ہو گیا')">Undo ↩</button>
+          <button style="background: #f3f4f6; border: 1px solid #d1d5db; padding: 8px 16px; border-radius: 12px; font-family: inherit; font-size: 13px; cursor: pointer;">10+</button>
+          <button style="background: #0d3b22; color: white; border: none; padding: 8px 20px; border-radius: 12px; font-family: inherit; font-size: 13px; font-weight: bold; cursor: pointer;" onclick="startVoiceRecognition('countBtn', 'statusMsg', false)">🎙️ 1+ درود شریف</button>
         </div>
 
         <!-- ADMIN PANEL SECTION -->
-        <div id="adminPanelSection" class="admin-panel hidden">
+        <div id="adminPanelSection" class="admin-panel hidden" style="text-align: right; margin-top: 25px;">
           <div class="admin-title">👑 ایڈمن پینل (فاتحین اور کل ریکارڈ)</div>
           <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">
             ✨ **کل درود (عام + مقابلہ):** <span id="adminCombinedTotal" style="color:#ef4444; font-weight:bold; font-size: 14px;">0</span>
@@ -656,7 +641,7 @@
         </div>
       </div>
 
-      <!-- TAB 4: Profile Tab (Contains User Profile + Payment Details) -->
+      <!-- TAB 4: Profile Tab -->
       <div id="profileTab" class="hidden" style="text-align: right;">
         <h3 style="color: var(--primary-color); text-align: center; font-size: 18px;">👤 پروفائل کی معلومات</h3>
         <div class="profile-box">
@@ -667,7 +652,6 @@
         <h3 style="color: var(--primary-color); text-align: center; font-size: 16px; margin-top: 20px;">🎁 انعام اور پیمنٹ کی تفصیلات</h3>
         <p style="color: var(--text-muted); font-size: 12px; text-align: center; margin-bottom: 12px;">فاتح بننے کے لیے کم از کم 100 درود شریف پڑھنا لازمی ہے۔ انعام حاصل کرنے کے لیے نیچے اکاؤنٹ نمبر درج کریں:</p>
         
-        <!-- User Payment & Profile Details Box -->
         <div class="profile-box">
           <h4 style="margin: 0 0 6px 0; color: var(--primary-color); font-size: 14px;">📱 اپنی JazzCash / EasyPaisa تفصیلات لکھیں</h4>
           <label style="font-size: 12px; color: var(--text-muted);">اکاؤنٹ ہولڈر کا نام:</label>
@@ -690,7 +674,7 @@
     </div>
   </div>
 
-  <!-- Bottom Navigation Bar (Matching Reference Image) -->
+  <!-- Bottom Navigation Bar -->
   <div class="bottom-nav">
     <button class="nav-item" id="navProfile" onclick="switchBottomTab('profile')">
       <span class="icon">👤</span>
@@ -800,6 +784,7 @@
       } catch(e) {}
     }
 
+    /* REAL DATA COUNTER UPDATER */
     function updateAdminCombinedTotal() {
       let totalGeneral = 0;
       let totalComp = 0;
@@ -820,8 +805,9 @@
           const adminTotalElem = document.getElementById("adminCombinedTotal");
           if (adminTotalElem) adminTotalElem.innerText = grandTotal;
           
+          /* Showing strictly REAL data counting */
           const globalTotalElem = document.getElementById("globalTotalCount");
-          if (globalTotalElem) globalTotalElem.innerText = (824530 + grandTotal).toLocaleString();
+          if (globalTotalElem) globalTotalElem.innerText = grandTotal.toLocaleString();
         });
       });
     }
