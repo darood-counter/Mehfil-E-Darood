@@ -248,7 +248,7 @@
     .unpaid-btn { background-color: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; margin-top: 6px; font-family: inherit;}
     .paid-badge { background-color: #dcfce7; color: #16a34a; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; }
 
-    /* Action Button (Listening / Counter Trigger) */
+    /* Action Button (Mic / Voice Recognition Trigger) */
     .mic-btn {
       background: linear-gradient(135deg, #0d3b22, #166534);
       color: white;
@@ -272,7 +272,7 @@
     }
     .mic-btn:hover { transform: scale(1.06); }
     .mic-btn:disabled { background: #9ca3af; cursor: not-allowed; box-shadow: none; transform: none; }
-    .mic-btn.playing { background: linear-gradient(135deg, #dc2626, #ef4444); animation: pulse-red 1.2s infinite; }
+    .mic-btn.listening { background: linear-gradient(135deg, #dc2626, #ef4444); animation: pulse-red 1.2s infinite; }
 
     @keyframes pulse-red {
       0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5); }
@@ -519,8 +519,8 @@
         <div class="arabic-text" id="daroodArabicText">
           اَللّٰھُمَّ صَلِّ عَلٰی مُحَمَّدٍ وَّعَلٰی اٰلِ مُحَمَّدٍ کَمَا صَلَّیْتَ عَلٰی اِبْرَاھِیْمَ وَعَلٰی اٰلِ اِبْرَاھِیْمَ اِنَّکَ حَمِیْدٌ مَّجِیْدٌ۔ اَللّٰھُمَّ بَارِکْ عَلٰی مُحَمَّدٍ وَّعَلٰی اٰلِ مُحَمَّدٍ کَمَا بَارَکْتَ عَلٰی اِبْرَاھِیْمَ وَعَلٰی اٰلِ اِبْرَاھِیْمَ اِنَّکَ حَمِیْدٌ مَّجِیْدٌ
         </div>
-        <button class="speak-btn" onclick="playDaroodAudio()">
-          <span>🔊</span> تلاوت سنیں (Listen)
+        <button class="speak-btn" onclick="playYouTubeAudioOnly()">
+          <span>🔊</span> (Listen) سنیں
         </button>
         <hr style="margin: 10px 0; border: 0; border-top: 1px solid rgba(197, 160, 89, 0.3);">
         <div class="translation">
@@ -531,8 +531,8 @@
       <!-- TAB 1: General Tasbeeh -->
       <div id="mainTab">
         <button class="mic-btn" id="countBtn">
-          <span style="font-size: 24px;">🎧</span>
-          <span>سن کر پڑھیں (Listening)</span>
+          <span style="font-size: 24px;">🎙️</span>
+          <span>بول کر پڑھیں</span>
         </button>
         <div id="statusMsg" class="status-msg" style="color: var(--primary-color);"></div>
         <div style="font-size: 15px; color: var(--primary-color); margin-top: 8px;">آپ کی کل پڑھائی: <b id="userTotal">0</b></div>
@@ -547,8 +547,8 @@
       <!-- TAB 2: Competition -->
       <div id="compTab" class="hidden">
         <button class="mic-btn" style="background: linear-gradient(135deg, #d97706, #b45309);" id="compCountBtn">
-          <span style="font-size: 24px;">🎧</span>
-          <span>مقابلے کے لیے سنیں</span>
+          <span style="font-size: 24px;">🎙️</span>
+          <span>مقابلے کے لیے بولیں</span>
         </button>
         <div id="compStatusMsg" class="status-msg" style="color: #d97706;"></div>
         <div style="font-size: 15px; color: #d97706; margin-top: 8px;">مقابلے میں آپ کا اسکور: <b id="compUserTotal">0</b></div>
@@ -643,17 +643,13 @@
       });
     }
 
-    // Text-to-Speech fallback for Darood card reading button
-    function playDaroodAudio() {
-      if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-        const textToRead = document.getElementById("daroodArabicText").innerText;
-        const utterance = new SpeechSynthesisUtterance(textToRead);
-        utterance.lang = 'ar-SA';
-        utterance.rate = 0.75;
-        window.speechSynthesis.speak(utterance);
+    // Only play YouTube Audio when clicking the Listen button in the Darood card
+    function playYouTubeAudioOnly() {
+      if (ytPlayer && typeof ytPlayer.playVideo === 'function') {
+        ytPlayer.seekTo(0);
+        ytPlayer.playVideo();
       } else {
-        alert("آپ کا براؤزر اس فیچر کو سپورٹ نہیں کرتا۔");
+        alert("آڈیو لوڈ ہو رہی ہے، براہِ کرم ایک لمحہ انتظار کریں۔");
       }
     }
 
@@ -1019,36 +1015,35 @@
       document.getElementById("onlineCount").innerText = snapshot.numChildren() || 0;
     });
 
-    // Listening Function: Plays the exact YouTube Audio and counts upon completion
-    function playAndListenAudio(buttonId, statusId, isComp = false) {
+    // Voice Recognition (Speech-to-Text) for user recitation counting via microphone
+    function startVoiceRecognition(buttonId, statusId, isComp = false) {
       if (!currentUser) return;
+
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        alert("آپ کا براؤزر وائس ریکگنیشن کو سپورٹ نہیں کرتا۔ براہِ کرم گوگل کروم استعمال کریں۔");
+        return;
+      }
 
       const btn = document.getElementById(buttonId);
       const status = document.getElementById(statusId);
 
       triggerVibration();
 
+      const recognition = new SpeechRecognition();
+      recognition.lang = 'ar-SA'; // Arabic/Urdu speech recognition context
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
+
       btn.disabled = true;
-      btn.classList.add("playing");
+      btn.classList.add("listening");
       status.style.color = "var(--primary-color)";
-      status.innerText = "تلاوت سن رہے ہیں (Listening)...";
+      status.innerText = "سن رہے ہیں، درود شریف پڑھیں...";
 
-      if (ytPlayer && typeof ytPlayer.playVideo === 'function') {
-        ytPlayer.seekTo(0);
-        ytPlayer.playVideo();
-      }
-
-      // 15 seconds duration as requested
-      setTimeout(() => {
-        if (ytPlayer && typeof ytPlayer.pauseVideo === 'function') {
-          ytPlayer.pauseVideo();
-        }
-
-        btn.classList.remove("playing");
-        btn.disabled = false;
-
+      recognition.onresult = (event) => {
+        const speechResult = event.results[0][0].transcript;
         status.style.color = "var(--primary-color)";
-        status.innerText = "✓ سننا مکمل ہو گیا! درود کاؤنٹ ہو گیا۔";
+        status.innerText = "✓ آواز سن لی گئی! شمار درج ہو گیا۔";
         playSuccessSound();
         triggerVibration();
 
@@ -1058,12 +1053,25 @@
           else { current = { name: currentUser.displayName || currentUser.email, count: 1 }; }
           return current;
         });
+      };
 
-      }, 15000);
+      recognition.onerror = (event) => {
+        status.style.color = "#ef4444";
+        status.innerText = "آواز واضح نہیں آئی، دوبارہ کوشش کریں۔";
+        playErrorSound();
+        triggerVibration();
+      };
+
+      recognition.onend = () => {
+        btn.classList.remove("listening");
+        btn.disabled = false;
+      };
+
+      recognition.start();
     }
 
-    document.getElementById("countBtn").onclick = () => playAndListenAudio("countBtn", "statusMsg", false);
-    document.getElementById("compCountBtn").onclick = () => playAndListenAudio("compCountBtn", "compStatusMsg", true);
+    document.getElementById("countBtn").onclick = () => startVoiceRecognition("countBtn", "statusMsg", false);
+    document.getElementById("compCountBtn").onclick = () => startVoiceRecognition("compCountBtn", "compStatusMsg", true);
 
     db.ref("users").orderByChild("count").on("value", snapshot => renderBoard(snapshot, "board"));
     db.ref(competitionRefPath).orderByChild("count").on("value", snapshot => renderBoard(snapshot, "compBoard"));
