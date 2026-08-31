@@ -691,6 +691,19 @@
           <p><b>ای میل:</b> <span id="profileDisplayEmail">---</span></p>
         </div>
 
+        <!-- PASSWORD CHANGE SECTION -->
+        <div class="profile-box">
+          <h4 style="margin: 0 0 6px 0; color: var(--primary-color); font-size: 14px;">🔑 پاسورڈ تبدیل کریں (Change Password)</h4>
+          <label style="font-size: 12px; color: var(--text-muted);">موجودہ پاسورڈ:</label>
+          <input type="password" id="currentPassword" placeholder="پرانا پاسورڈ درج کریں">
+
+          <label style="font-size: 12px; color: var(--text-muted);">نیا پاسورڈ:</label>
+          <input type="password" id="newPassword" placeholder="کم از کم 6 ہندسوں کا نیا پاسورڈ">
+
+          <button class="save-profile-btn" id="changePasswordBtn" style="background-color: #d97706;">پاسورڈ اپڈیٹ کریں</button>
+          <div id="passwordStatus" style="font-size: 12px; margin-top: 6px; text-align: center; font-weight: bold;"></div>
+        </div>
+
         <h3 style="color: var(--primary-color); text-align: center; font-size: 16px; margin-top: 20px;">🎁 انعام اور پیمنٹ کی تفصیلات</h3>
         <p style="color: var(--text-muted); font-size: 12px; text-align: center; margin-bottom: 12px;">فاتح بننے کے لیے کم از کم 100 درود شریف پڑھنا لازمی ہے۔ انعام حاصل کرنے کے لیے نیچے اکاؤنٹ نمبر درج کریں:</p>
         
@@ -716,7 +729,7 @@
     </div>
   </div>
 
-  <div class="bottom-nav">
+  <div id="bottomNav" class="bottom-nav hidden">
     <button class="nav-item" id="navProfile" onclick="switchBottomTab('profile')">
       <span class="icon">👤</span>
       Profile
@@ -921,6 +934,7 @@
         currentUser = user;
         document.getElementById("authSection").classList.add("hidden");
         document.getElementById("userInfo").classList.remove("hidden");
+        document.getElementById("bottomNav").classList.remove("hidden"); // مینو شو کر دیا گیا ہے
         document.getElementById("userName").innerText = user.displayName || user.email;
         document.getElementById("profileDisplayName").innerText = user.displayName || "---";
         document.getElementById("profileDisplayEmail").innerText = user.email || "---";
@@ -964,9 +978,50 @@
         currentUser = null;
         document.getElementById("authSection").classList.remove("hidden");
         document.getElementById("userInfo").classList.add("hidden");
+        document.getElementById("bottomNav").classList.add("hidden"); // لاگ آؤٹ پر مینو چھپا دیا جائے گا
         toggleAuthMode('login');
       }
     });
+
+    // پاسورڈ تبدیل کرنے کا کوڈ
+    document.getElementById("changePasswordBtn").onclick = () => {
+      const currentPass = document.getElementById("currentPassword").value.trim();
+      const newPass = document.getElementById("newPassword").value.trim();
+      const statusEl = document.getElementById("passwordStatus");
+
+      if (!currentPass || !newPass) {
+        statusEl.style.color = "#ef4444";
+        statusEl.innerText = "پرانا اور نیا دونوں پاسورڈ درج کریں۔";
+        playErrorSound();
+        return;
+      }
+
+      if (newPass.length < 6) {
+        statusEl.style.color = "#ef4444";
+        statusEl.innerText = "نیا پاسورڈ کم از کم 6 ہندسوں کا ہونا چاہیے۔";
+        playErrorSound();
+        return;
+      }
+
+      const credential = firebase.auth.EmailAuthProvider.credential(currentUser.email, currentPass);
+      currentUser.reauthenticateWithCredential(credential).then(() => {
+        currentUser.updatePassword(newPass).then(() => {
+          statusEl.style.color = "#16a34a";
+          statusEl.innerText = "✓ پاسورڈ کامیابی سے تبدیل ہو گیا!";
+          document.getElementById("currentPassword").value = "";
+          document.getElementById("newPassword").value = "";
+          playSuccessSound();
+        }).catch((error) => {
+          statusEl.style.color = "#ef4444";
+          statusEl.innerText = "پاسورڈ تبدیل کرنے میں خامی آئی۔";
+          playErrorSound();
+        });
+      }).catch((error) => {
+        statusEl.style.color = "#ef4444";
+        statusEl.innerText = "موجودہ پاسورڈ غلط ہے۔";
+        playErrorSound();
+      });
+    };
 
     document.getElementById("saveProfileBtn").onclick = () => {
       if (!currentUser) return;
@@ -1023,7 +1078,7 @@
           let winnersList = [];
 
           compSnapshot.forEach(dateSnap => {
-            let dateKey = dateSnap.key; // YYYY-MM-DD
+            let dateKey = dateSnap.key; 
             let dDate = new Date(dateKey);
 
             let includeDate = false;
@@ -1045,7 +1100,6 @@
                 let val = userSnap.val();
                 let count = val.count || 0;
 
-                // صرف وہ صارفین جو فاتح ہیں یعنی کم از کم 100 درود شریف پڑھے ہیں
                 if (count >= 100) {
                   winnersList.push({
                     uid: uid,
@@ -1058,7 +1112,6 @@
             }
           });
 
-          // سب سے زیادہ درود والے اوپر آئیں گے اور زیادہ سے زیادہ آخری 10 فاتحین شو ہوں گے
           winnersList.sort((a, b) => b.count - a.count);
           let limitedWinners = winnersList.slice(0, 10);
 
@@ -1119,7 +1172,6 @@
       });
     };
 
-    // Global Listeners for real-time counters
     db.ref("users").on("value", () => {
       let totalGeneral = 0;
       db.ref("users").once("value", snap => {
