@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mehfil-E-Darood — Final V3</title>
+  <title>Mehfil-E-Darood — Final V4</title>
   <link href="https://fonts.googleapis.com/css2?family=Jameel+Noori+Nastaleeq&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -30,7 +30,7 @@
       line-height: 1.8;
     }
 
-    /* Top Green Header matching reference image */
+    /* Top Green Header */
     .top-header {
       background: linear-gradient(135deg, #0b311c 0%, #134e29 100%);
       color: white;
@@ -129,7 +129,6 @@
       border-top: 1px dashed rgba(197, 160, 89, 0.4);
     }
 
-    /* Speaker Button */
     .speak-btn {
       background: var(--accent-gold-light);
       color: var(--primary-color);
@@ -206,6 +205,31 @@
       font-size: 14px;
     }
 
+    /* About Section Cards */
+    .about-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 12px;
+      text-align: right;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    }
+    .about-card h3 {
+      color: var(--primary-color);
+      margin: 0 0 6px 0;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .about-card p {
+      margin: 0;
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.7;
+    }
+
     /* Proof & Admin Boxes */
     .proof-box, .admin-panel {
       background: #fff;
@@ -238,7 +262,7 @@
     .unpaid-btn { background-color: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; margin-top: 6px; font-family: inherit;}
     .paid-badge { background-color: #dcfce7; color: #16a34a; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; }
 
-    /* Action Button (Mic / Voice Recognition Trigger) */
+    /* Action Button */
     .mic-circle-wrapper {
       position: relative;
       width: 170px;
@@ -549,7 +573,7 @@
       </div>
     </div>
 
-    <!-- Main Content Container (Visible after login) -->
+    <!-- Main Content Container -->
     <div id="userInfo" class="hidden">
       <div class="user-header">
         <span>خوش آمدید، <b id="userName"></b>!</span>
@@ -579,18 +603,12 @@
           <div style="font-size: 12px; color: var(--text-muted);">آج کے اجتماعی درود (ریئل ٹائم)</div>
         </div>
 
-        <!-- PUBLIC PAYMENT PROOF SECTION (Moved to Home) -->
+        <!-- PUBLIC PAYMENT PROOF SECTION -->
         <div class="proof-box" style="margin-top: 15px;">
           <div class="proof-title">📢 فاتحین اور پیمنٹ پروف (Payment Proofs)</div>
           <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 6px;">تمام صارفین دیکھ سکتے ہیں کہ کس فاتح کو انعام مل گیا:</p>
           <div id="publicProofList">لوڈ ہو رہا ہے...</div>
         </div>
-
-        <h3 style="color:var(--primary-color); margin-top: 25px; font-size: 16px;">🏆 لائیو Leaderboard</h3>
-        <table>
-          <thead><tr><th>رینک</th><th>صارف</th><th>کل درود</th></tr></thead>
-          <tbody id="board"><tr><td colspan="3">لوڈ ہو رہا ہے...</td></tr></tbody>
-        </table>
       </div>
 
       <!-- TAB 2: Competition Tab -->
@@ -610,11 +628,11 @@
         </table>
       </div>
 
-      <!-- TAB 3: Tasbeeh Tab (Contains Counter Buttons & Action Controls) -->
+      <!-- TAB 3: Tasbeeh Tab (Contains Counter Button & Live Leaderboard) -->
       <div id="rewardTab" class="hidden" style="text-align: center;">
         <h2 style="font-size: 20px; color: var(--primary-color); margin: 10px 0;">📿 تسبیح کاؤنٹر</h2>
         
-        <!-- Circular Progress Mic Button (Moved to Tasbeeh) -->
+        <!-- Circular Progress Mic Button -->
         <div class="mic-circle-wrapper">
           <div class="circle-progress"></div>
           <button class="mic-btn" id="countBtn">
@@ -625,10 +643,15 @@
         <div id="statusMsg" class="status-msg" style="color: var(--primary-color);"></div>
 
         <div style="display: flex; gap: 8px; justify-content: center; margin-top: 15px;">
-          <button style="background: #f3f4f6; border: 1px solid #d1d5db; padding: 8px 16px; border-radius: 12px; font-family: inherit; font-size: 13px; cursor: pointer;" onclick="alert('ریسٹ ہو گیا')">Undo ↩</button>
-          <button style="background: #f3f4f6; border: 1px solid #d1d5db; padding: 8px 16px; border-radius: 12px; font-family: inherit; font-size: 13px; cursor: pointer;">10+</button>
-          <button style="background: #0d3b22; color: white; border: none; padding: 8px 20px; border-radius: 12px; font-family: inherit; font-size: 13px; font-weight: bold; cursor: pointer;" onclick="startVoiceRecognition('countBtn', 'statusMsg', false)">🎙️ 1+ درود شریف</button>
+          <button style="background: #0d3b22; color: white; border: none; padding: 10px 24px; border-radius: 12px; font-family: inherit; font-size: 14px; font-weight: bold; cursor: pointer;" onclick="startVoiceRecognition('countBtn', 'statusMsg', false)">🎙️ 1+ درود شریف پڑھیں</button>
         </div>
+
+        <!-- LEADERBOARD MOVED HERE -->
+        <h3 style="color:var(--primary-color); margin-top: 25px; font-size: 16px; text-align: right;">🏆 لائیو Leaderboard</h3>
+        <table>
+          <thead><tr><th>رینک</th><th>صارف</th><th>کل درود</th></tr></thead>
+          <tbody id="board"><tr><td colspan="3">لوڈ ہو رہا ہے...</td></tr></tbody>
+        </table>
 
         <!-- ADMIN PANEL SECTION -->
         <div id="adminPanelSection" class="admin-panel hidden" style="text-align: right; margin-top: 25px;">
@@ -641,7 +664,32 @@
         </div>
       </div>
 
-      <!-- TAB 4: Profile Tab -->
+      <!-- TAB 4: About Tab (Replaced Leaderboard Tab) -->
+      <div id="aboutTab" class="hidden">
+        <h2 style="font-size: 20px; color: var(--primary-color); margin: 10px 0; text-align: center;">ℹ️ ایپ کی تفصیلات (About Us)</h2>
+        
+        <div class="about-card">
+          <h3>📖 محفلِ درود کیا ہے؟</h3>
+          <p>محفلِ درود ایک ڈیجیٹل اور لائیو پلیٹ فارم ہے جہاں تمام مسلمان مل کر حضور نبی اکرم ﷺ پر درودِ پاک کا نذرانہ پیش کرتے ہیں۔ اس کا مقصد آپس میں نیک کاموں کا مقابلہ اور اجر و ثواب کا حصول ہے۔</p>
+        </div>
+
+        <div class="about-card">
+          <h3>⚡ ایپ کے اہم فیچرز</h3>
+          <p>
+            • <b>آج کی محفل (Home):</b> یہاں آپ آج کے کل اجتماعی درود کی تعداد اور شفاف پیمنٹ پروف (Payment Proofs) دیکھ سکتے ہیں۔<br>
+            • <b>تسبیح (Tasbeeh):</b> اپنی انفرادی تسبیح کے لیے وائس کاؤنٹر استعمال کریں اور لائیو لیڈر بورڈ پر اپنا رینک دیکھیں۔<br>
+            • <b>مقابلہ (Competition):</b> روزانہ کے مقابلے میں حصہ لیں اور 100 یا اس سے زیادہ درود شریف پڑھ کر انعامات حاصل کریں۔<br>
+            • <b>پروفائل (Profile):</b> اپنا نام، ای میل اور انعام کی رقم حاصل کرنے کے لیے JazzCash / EasyPaisa نمبر درج کریں۔
+          </p>
+        </div>
+
+        <div class="about-card">
+          <h3>🎁 انعامی ضوابط</h3>
+          <p>مقابلے میں شامل ہونے کے لیے کم از کم 100 درود شریف پڑھنا لازمی ہے۔ ٹاپ پوزیشن حاصل کرنے والے فاتح کو JazzCash یا EasyPaisa کے ذریعے انعام منتقل کیا جاتا ہے۔</p>
+        </div>
+      </div>
+
+      <!-- TAB 5: Profile Tab -->
       <div id="profileTab" class="hidden" style="text-align: right;">
         <h3 style="color: var(--primary-color); text-align: center; font-size: 18px;">👤 پروفائل کی معلومات</h3>
         <div class="profile-box">
@@ -680,16 +728,16 @@
       <span class="icon">👤</span>
       Profile
     </button>
-    <button class="nav-item" id="navLeaderboard" onclick="switchBottomTab('leaderboard')">
-      <span class="icon">📊</span>
-      Leaderboard
+    <button class="nav-item" id="navAbout" onclick="switchBottomTab('about')">
+      <span class="icon">ℹ️</span>
+      About
     </button>
     <button class="nav-item" id="navCompetition" onclick="switchBottomTab('competition')">
       <span class="icon">🏆</span>
       Competition
     </button>
     <button class="nav-item" id="navTasbeeh" onclick="switchBottomTab('reward')">
-      <span class="icon">🎁</span>
+      <span class="icon">📿</span>
       Tasbeeh
     </button>
     <button class="nav-item active" id="navHome" onclick="switchBottomTab('home')">
@@ -784,7 +832,6 @@
       } catch(e) {}
     }
 
-    /* REAL DATA COUNTER UPDATER */
     function updateAdminCombinedTotal() {
       let totalGeneral = 0;
       let totalComp = 0;
@@ -805,7 +852,6 @@
           const adminTotalElem = document.getElementById("adminCombinedTotal");
           if (adminTotalElem) adminTotalElem.innerText = grandTotal;
           
-          /* Showing strictly REAL data counting */
           const globalTotalElem = document.getElementById("globalTotalCount");
           if (globalTotalElem) globalTotalElem.innerText = grandTotal.toLocaleString();
         });
@@ -820,6 +866,7 @@
       document.getElementById("compTab").classList.add("hidden");
       document.getElementById("rewardTab").classList.add("hidden");
       document.getElementById("profileTab").classList.add("hidden");
+      document.getElementById("aboutTab").classList.add("hidden");
       document.getElementById("daroodCard").classList.remove("hidden");
 
       document.querySelectorAll(".bottom-nav .nav-item").forEach(el => el.classList.remove("active"));
@@ -831,9 +878,9 @@
         document.getElementById("customModal").classList.remove("hidden");
         document.getElementById("compTab").classList.remove("hidden");
         document.getElementById("navCompetition").classList.add("active");
-      } else if (tabName === 'leaderboard') {
-        document.getElementById("mainTab").classList.remove("hidden");
-        document.getElementById("navLeaderboard").classList.add("active");
+      } else if (tabName === 'about') {
+        document.getElementById("aboutTab").classList.remove("hidden");
+        document.getElementById("navAbout").classList.add("active");
       } else if (tabName === 'reward') {
         document.getElementById("rewardTab").classList.remove("hidden");
         document.getElementById("navTasbeeh").classList.add("active");
