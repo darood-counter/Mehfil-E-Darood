@@ -676,14 +676,19 @@
           <div class="prayer-date" id="prayerDateDisplay">لوڈ ہو رہا ہے...</div>
           
           <div class="prayer-config-box">
-            <label style="font-size: 12px; color: var(--text-muted);">📍 اپنا ملک منتخب کریں:</label>
-            <input type="text" id="countryInput" value="Pakistan">
+            <div style="display: flex; gap: 8px;">
+              <div style="flex: 1;">
+                <label style="font-size: 12px; color: var(--text-muted);">📍 ملک:</label>
+                <input type="text" id="countryInput" value="Pakistan">
+              </div>
+              <div style="flex: 1;">
+                <label style="font-size: 12px; color: var(--text-muted);">📍 شہر:</label>
+                <input type="text" id="cityInput" value="Lahore">
+              </div>
+            </div>
             
-            <label style="font-size: 12px; color: var(--text-muted);">📍 اپنا شہر منتخب کریں:</label>
-            <input type="text" id="cityInput" value="Lahore">
-            
-            <div style="display: flex; gap: 8px; margin-top: 8px;">
-              <button class="save-profile-btn" style="flex: 2; background-color: var(--primary-color);" onclick="saveLocationAndFetch()">💾 شہر محفوظ کریں</button>
+            <div style="display: flex; gap: 8px; margin-top: 4px;">
+              <button class="save-profile-btn" style="flex: 2; background-color: var(--primary-color);" onclick="saveLocationAndFetch()">💾 محفوظ کریں</button>
               <button class="save-profile-btn" style="flex: 1; background-color: #2b6cb0;" onclick="detectCurrentLocation()">📍 کرنٹ لوکیشن</button>
             </div>
           </div>
@@ -1412,7 +1417,7 @@
           limitedWinners.forEach((w, idx) => {
             let uProfile = allUsersData[w.uid] || {};
             let isPaid = uProfile.paid === true;
-            let statusBadge = isPaid ? `<span class="paid-badge">Paid ✓ (ادا कर دی گئی)</span>` : `<span class="pending-badge">Pending ⏳ (پینڈنگ)</span>`;
+            let statusBadge = isPaid ? `<span class="paid-badge">Paid ✓ (ادا کر دی گئی)</span>` : `<span class="pending-badge">Pending ⏳ (پینڈنگ)</span>`;
 
             if (isPaid) {
               proofCount++;
