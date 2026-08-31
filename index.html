@@ -1016,7 +1016,7 @@
       document.getElementById("onlineCount").innerText = snapshot.numChildren() || 0;
     });
 
-    // Voice Recognition with Timer and Keyword Verification ("اللهم صل" & "مجيد")
+    // Voice Recognition with 33 Seconds Timer & Keyword Verification ("اللهم صل" & "مجيد")
     function startVoiceRecognition(buttonId, statusId, isComp = false) {
       if (!currentUser) return;
 
@@ -1041,13 +1041,14 @@
       status.style.color = "var(--primary-color)";
       status.innerText = "سن رہے ہیں، درود شریف پڑھیں...";
 
-      // Timer for recording timeout
+      // 33 seconds timer for recording timeout
       let recordingTimeout = setTimeout(() => {
         try { recognition.stop(); } catch(e) {}
-      }, 7000);
+      }, 33000);
 
       recognition.onresult = (event) => {
         clearTimeout(recordingTimeout);
+        triggerVibration(); // Vibration when timer/recognition completes
         const speechResult = event.results[0][0].transcript.toLowerCase();
         
         // Verifying keywords: "اللهم صل" (or "اللهم") and "مجيد" (or similar variations)
@@ -1058,7 +1059,6 @@
           status.style.color = "var(--primary-color)";
           status.innerText = "✓ تصدیق ہو گئی! درود شریف درج ہو گیا۔";
           playSuccessSound();
-          triggerVibration();
 
           const targetPath = isComp ? competitionRefPath + "/" + currentUser.uid : "users/" + currentUser.uid;
           db.ref(targetPath).transaction(current => {
@@ -1070,16 +1070,15 @@
           status.style.color = "#ef4444";
           status.innerText = "آواز واضح نہیں آئی یا درود شریف درست نہیں سنا گیا، دوبارہ کوشش کریں۔";
           playErrorSound();
-          triggerVibration();
         }
       };
 
       recognition.onerror = (event) => {
         clearTimeout(recordingTimeout);
+        triggerVibration(); // Vibration on error/timeout end
         status.style.color = "#ef4444";
         status.innerText = "آواز واضح نہیں آئی، دوبارہ کوشش کریں۔";
         playErrorSound();
-        triggerVibration();
       };
 
       recognition.onend = () => {
