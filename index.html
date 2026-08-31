@@ -259,16 +259,49 @@
 
     .status-msg { font-weight: bold; font-size: 14px; margin: 8px 0; min-height: 20px; }
     
-    .login-btn {
+    /* Auth Forms Styling */
+    .auth-container {
+      background: #fffdf9;
+      border: 1px solid #fde68a;
+      padding: 16px;
+      border-radius: 14px;
+      margin-top: 10px;
+      text-align: right;
+    }
+    .auth-container input {
+      width: 100%;
+      padding: 9px;
+      margin: 6px 0 12px 0;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      box-sizing: border-box;
+      font-family: 'Jameel Noori Nastaleeq', sans-serif;
+      font-size: 14px;
+    }
+    .auth-btn {
       background: linear-gradient(135deg, #0d3b22, #166534);
       color: white;
       border: none;
-      padding: 10px 24px;
-      font-size: 16px;
-      border-radius: 10px;
+      padding: 10px 20px;
+      font-size: 15px;
+      border-radius: 8px;
       cursor: pointer;
       font-family: 'Jameel Noori Nastaleeq', sans-serif;
+      width: 100%;
+      font-weight: bold;
       box-shadow: 0 4px 15px rgba(13, 59, 34, 0.2);
+    }
+    .switch-text {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 12px;
+      text-align: center;
+      cursor: pointer;
+    }
+    .switch-text span {
+      color: var(--primary-color);
+      font-weight: bold;
+      text-decoration: underline;
     }
 
     table { width: 100%; border-collapse: collapse; margin-top: 12px; border-radius: 8px; overflow: hidden; }
@@ -349,10 +382,42 @@
       <span class="live-dot"></span> آن لائن شرکاء: <span id="onlineCount">0</span>
     </div>
 
-    <!-- Auth Section -->
+    <!-- Auth Section (Signup/Login First) -->
     <div id="authSection">
-      <p style="color:var(--text-muted); font-size: 14px; margin: 10px 0;">محفل میں شامل ہونے کے لیے لاگ ان کریں</p>
-      <button class="login-btn" id="loginBtn">✨ Google کے ذریعے لاگ ان کریں</button>
+      <!-- Signup Form (Default on first open) -->
+      <div id="signupForm" class="auth-container">
+        <h3 style="color:var(--primary-color); margin: 0 0 10px 0; text-align:center; font-size: 17px;">✨ نیا اکاؤنٹ بنائیں (Signup)</h3>
+        
+        <label style="font-size: 12px; color: var(--text-muted);">پورا نام:</label>
+        <input type="text" id="signupName" placeholder="اپنا نام درج کریں">
+
+        <label style="font-size: 12px; color: var(--text-muted);">ای میل ایڈریس:</label>
+        <input type="email" id="signupEmail" placeholder="example@gmail.com">
+
+        <label style="font-size: 12px; color: var(--text-muted);">پاسورڈ:</label>
+        <input type="password" id="signupPassword" placeholder="کم از کم 6 ہندسوں کا پاسورڈ">
+
+        <button class="auth-btn" id="signupBtn">اکاؤنٹ رجسٹر کریں</button>
+        <div id="signupStatus" style="font-size: 12px; margin-top: 6px; text-align: center; font-weight: bold;"></div>
+
+        <div class="switch-text" onclick="toggleAuthMode('login')">پہلے سے اکاؤنٹ موجود ہے؟ <span>لاگ ان کریں</span></div>
+      </div>
+
+      <!-- Login Form (Initially Hidden) -->
+      <div id="loginForm" class="auth-container hidden">
+        <h3 style="color:var(--primary-color); margin: 0 0 10px 0; text-align:center; font-size: 17px;">🔐 لاگ ان کریں (Login)</h3>
+        
+        <label style="font-size: 12px; color: var(--text-muted);">ای میل ایڈریس:</label>
+        <input type="email" id="loginEmail" placeholder="example@gmail.com">
+
+        <label style="font-size: 12px; color: var(--text-muted);">پاسورڈ:</label>
+        <input type="password" id="loginPassword" placeholder="اپنا پاسورڈ درج کریں">
+
+        <button class="auth-btn" id="loginSubmitBtn">لاگ ان کریں</button>
+        <div id="loginStatus" style="font-size: 12px; margin-top: 6px; text-align: center; font-weight: bold;"></div>
+
+        <div class="switch-text" onclick="toggleAuthMode('signup')">نیا اکاؤنٹ بنانا ہے؟ <span>سائن اپ کریں</span></div>
+      </div>
     </div>
 
     <!-- Main Content Container (Visible after login) -->
@@ -484,6 +549,45 @@
     const todayDateKey = new Date().toISOString().slice(0, 10);
     const competitionRefPath = "competitions/" + todayDateKey;
 
+    // Helper functions for Feedback (Vibration & Sound Effects)
+    function triggerVibration() {
+      if ("vibrate" in navigator) {
+        try { navigator.vibrate(200); } catch(e) {}
+      }
+    }
+
+    function playSuccessSound() {
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(587.33, audioCtx.currentTime); // D5 note
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.4);
+      } catch(e) {}
+    }
+
+    function playErrorSound() {
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = "sawtooth";
+        osc.frequency.setValueAtTime(200, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.3);
+      } catch(e) {}
+    }
+
     function updateAdminCombinedTotal() {
       let totalGeneral = 0;
       let totalComp = 0;
@@ -527,20 +631,92 @@
       if(tabId === 'rewardTab') document.getElementById("rewardTabBtn").classList.add("active");
     }
 
-    // Function triggered when clicking the Competition tab
     function handleCompetitionClick() {
       document.getElementById("customModal").classList.remove("hidden");
     }
 
-    // Event listener for the OK button inside modal to close it and show competition tab
     document.getElementById("modalOkBtn").onclick = function() {
       document.getElementById("customModal").classList.add("hidden");
       showTab('compTab');
     };
 
-    document.getElementById("loginBtn").onclick = () => {
-      auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(e => alert(e.message));
+    // Toggle between Signup and Login forms
+    window.toggleAuthMode = function(mode) {
+      if (mode === 'login') {
+        document.getElementById("signupForm").classList.add("hidden");
+        document.getElementById("loginForm").classList.remove("hidden");
+      } else {
+        document.getElementById("loginForm").classList.add("hidden");
+        document.getElementById("signupForm").classList.remove("hidden");
+      }
     };
+
+    // Signup Functionality with Detailed Form
+    document.getElementById("signupBtn").onclick = () => {
+      const name = document.getElementById("signupName").value.trim();
+      const email = document.getElementById("signupEmail").value.trim();
+      const password = document.getElementById("signupPassword").value.trim();
+      const statusEl = document.getElementById("signupStatus");
+
+      if (!name || !email || !password) {
+        statusEl.style.color = "#ef4444";
+        statusEl.innerText = "براہِ کرم تمام فیلڈز مکمل کریں۔";
+        playErrorSound();
+        triggerVibration();
+        return;
+      }
+
+      statusEl.style.color = "var(--primary-color)";
+      statusEl.innerText = "اکاؤنٹ بنایا جا رہا ہے...";
+
+      auth.createUserWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+          return userCredential.user.updateProfile({ displayName: name });
+        })
+        .then(() => {
+          statusEl.innerText = "✓ کامیابی سے سائن اپ ہو گیا!";
+          playSuccessSound();
+          triggerVibration();
+        })
+        .catch((error) => {
+          statusEl.style.color = "#ef4444";
+          statusEl.innerText = error.message;
+          playErrorSound();
+          triggerVibration();
+        });
+    };
+
+    // Login Functionality
+    document.getElementById("loginSubmitBtn").onclick = () => {
+      const email = document.getElementById("loginEmail").value.trim();
+      const password = document.getElementById("loginPassword").value.trim();
+      const statusEl = document.getElementById("loginStatus");
+
+      if (!email || !password) {
+        statusEl.style.color = "#ef4444";
+        statusEl.innerText = "ای میل اور پاسورڈ درج کریں۔";
+        playErrorSound();
+        triggerVibration();
+        return;
+      }
+
+      statusEl.style.color = "var(--primary-color)";
+      statusEl.innerText = "لاگ ان ہو رہا ہے...";
+
+      auth.signInWithEmailAndPassword(email, password)
+        .then(() => {
+          statusEl.innerText = "✓ لاگ ان کامیاب!";
+          playSuccessSound();
+          triggerVibration();
+        })
+        .catch((error) => {
+          statusEl.style.color = "#ef4444";
+          statusEl.innerText = error.message;
+          playErrorSound();
+          triggerVibration();
+        });
+    };
+
     document.getElementById("logoutBtn").onclick = () => auth.signOut();
 
     auth.onAuthStateChanged(user => {
@@ -548,10 +724,10 @@
         currentUser = user;
         document.getElementById("authSection").classList.add("hidden");
         document.getElementById("userInfo").classList.remove("hidden");
-        document.getElementById("userName").innerText = user.displayName;
+        document.getElementById("userName").innerText = user.displayName || user.email;
 
         db.ref("users/" + user.uid).update({
-          name: user.displayName,
+          name: user.displayName || user.email,
           email: user.email
         });
 
@@ -601,6 +777,8 @@
       if (!name || !number) {
         document.getElementById("profileStatus").style.color = "#ef4444";
         document.getElementById("profileStatus").innerText = "براہِ کرم نام اور نمبر دونوں درج کریں۔";
+        playErrorSound();
+        triggerVibration();
         return;
       }
 
@@ -608,15 +786,18 @@
         accName: name,
         accNumber: number,
         accType: type,
-        name: currentUser.displayName,
+        name: currentUser.displayName || currentUser.email,
         email: currentUser.email
       }, (error) => {
         if (!error) {
           document.getElementById("profileStatus").style.color = "var(--primary-color)";
           document.getElementById("profileStatus").innerText = "✓ آپ کی پیمنٹ کی تفصیلات محفوظ ہو گئیں!";
+          playSuccessSound();
+          triggerVibration();
         } else {
           document.getElementById("profileStatus").style.color = "#ef4444";
           document.getElementById("profileStatus").innerText = "خرابی پیش آئی، دوبارہ کوشش کریں۔";
+          playErrorSound();
         }
       });
     };
@@ -715,7 +896,7 @@
       btn.disabled = true;
       btn.classList.add("recording");
       status.style.color = "#ef4444";
-      status.innerText = "سُن رہا ہے... (درود شریف پڑھیں)";
+      status.innerText = "سُن रहा है... (درود شریف پڑھیں)";
 
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -728,7 +909,7 @@
         const dataArray = new Uint8Array(analyser.frequencyBinCount);
         
         let hasSpoken = false;
-        let checkDuration = 7000;
+        let checkDuration = 8000; // Updated to 8 seconds timer
         let startTime = Date.now();
 
         const checkAudio = setInterval(() => {
@@ -752,17 +933,21 @@
             if (hasSpoken) {
               status.style.color = "var(--primary-color)";
               status.innerText = "✓ تصدیق شدہ! درود پاک کاؤنٹ ہو گیا۔";
+              playSuccessSound();
+              triggerVibration();
               
               const targetPath = isComp ? competitionRefPath + "/" + currentUser.uid : "users/" + currentUser.uid;
               db.ref(targetPath).transaction(current => {
-                if (current) { current.count = (current.count || 0) + 1; current.name = currentUser.displayName; }
-                else { current = { name: currentUser.displayName, count: 1 }; }
+                if (current) { current.count = (current.count || 0) + 1; current.name = currentUser.displayName || currentUser.email; }
+                else { current = { name: currentUser.displayName || currentUser.email, count: 1 }; }
                 return current;
               });
 
             } else {
               status.style.color = "#ef4444";
               status.innerText = "آواز واضح نہیں آئی، دوبارہ کوشش کریں۔";
+              playErrorSound();
+              triggerVibration();
             }
           }
         }, 100);
@@ -772,6 +957,8 @@
         btn.disabled = false;
         status.style.color = "#ef4444";
         status.innerText = "براہِ کرم مائیک کی اجازت (Mic Permission) دیں۔";
+        playErrorSound();
+        triggerVibration();
       }
     }
 
