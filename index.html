@@ -274,7 +274,7 @@
     }
     .mic-btn:hover { transform: scale(1.06); }
     .mic-btn:disabled { background: #9ca3af; cursor: not-allowed; box-shadow: none; transform: none; }
-    .mic-btn.listening { background: linear-gradient(135deg, #dc2626, #ef4444); animation: pulse-red 33s infinite; }
+    .mic-btn.listening { background: linear-gradient(135deg, #dc2626, #ef4444); animation: pulse-red 1.5s infinite; }
 
     @keyframes pulse-red {
       0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5); }
@@ -644,7 +644,6 @@
       });
     }
 
-    // Play YouTube Audio only when clicking Listen button with a fallback check
     function playYouTubeAudioOnly() {
       if (ytPlayer && typeof ytPlayer.playVideo === 'function') {
         try {
@@ -1020,7 +1019,7 @@
       document.getElementById("onlineCount").innerText = snapshot.numChildren() || 0;
     });
 
-    // Voice Recognition with 33 Seconds Timer & Initial/End Vibration Support
+    // Voice Recognition with 33 Seconds Blinking & Validation on End
     function startVoiceRecognition(buttonId, statusId, isComp = false) {
       if (!currentUser) return;
 
@@ -1033,7 +1032,6 @@
       const btn = document.getElementById(buttonId);
       const status = document.getElementById(statusId);
 
-      // Start Vibration immediately when button is clicked
       triggerVibration();
 
       let recognition;
@@ -1051,8 +1049,10 @@
 
       btn.disabled = true;
       btn.classList.add("listening");
-      status.style.color = "var(--primary-color)";
+      status.style.color = isComp ? "#d97706" : "var(--primary-color)";
       status.innerText = "سن رہے ہیں، درود شریف پڑھیں...";
+
+      let finalTranscript = "";
 
       // 33 seconds timer for recording timeout
       let recordingTimeout = setTimeout(() => {
@@ -1060,20 +1060,30 @@
       }, 33000);
 
       recognition.onresult = (event) => {
-        clearTimeout(recordingTimeout);
-        triggerVibration(); // Vibration when timer/recognition completes successfully
-        
-        let speechResult = "";
         try {
-          speechResult = event.results[0][0].transcript.toLowerCase();
+          finalTranscript = event.results[0][0].transcript.toLowerCase();
         } catch(e) {}
-        
-        // Verifying keywords: "اللهم صل" (or "اللهم") and "مجيد" (or similar variations)
-        const hasSalat = speechResult.includes("اللهم") || speechResult.includes("صل");
-        const hasMajeed = speechResult.includes("مجيد") || speechResult.includes("مجید");
+      };
 
-        if (hasSalat || hasMajeed || speechResult.length > 0) {
-          status.style.color = "var(--primary-color)";
+      recognition.onerror = (event) => {
+        clearTimeout(recordingTimeout);
+        triggerVibration();
+        status.style.color = "#ef4444";
+        status.innerText = "آواز واضح نہیں آئی، دوبارہ کوشش کریں۔";
+        playErrorSound();
+      };
+
+      recognition.onend = () => {
+        clearTimeout(recordingTimeout);
+        btn.classList.remove("listening");
+        btn.disabled = false;
+        triggerVibration();
+
+        const hasSalat = finalTranscript.includes("اللهم") || finalTranscript.includes("صل");
+        const hasMajeed = finalTranscript.includes("مجيد") || finalTranscript.includes("مجید");
+
+        if (finalTranscript.length > 0 && (hasSalat || hasMajeed || finalTranscript.length > 3)) {
+          status.style.color = isComp ? "#d97706" : "var(--primary-color)";
           status.innerText = "✓ تصدیق ہو گئی! درود شریف درج ہو گیا۔";
           playSuccessSound();
 
@@ -1088,20 +1098,6 @@
           status.innerText = "آواز واضح نہیں آئی یا درود شریف درست نہیں سنا گیا، دوبارہ کوشش کریں۔";
           playErrorSound();
         }
-      };
-
-      recognition.onerror = (event) => {
-        clearTimeout(recordingTimeout);
-        triggerVibration(); // Vibration on error/timeout end
-        status.style.color = "#ef4444";
-        status.innerText = "آواز واضح نہیں آئی، دوبارہ کوشش کریں۔";
-        playErrorSound();
-      };
-
-      recognition.onend = () => {
-        clearTimeout(recordingTimeout);
-        btn.classList.remove("listening");
-        btn.disabled = false;
       };
 
       try {
