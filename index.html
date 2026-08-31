@@ -1176,7 +1176,6 @@
               };
             });
 
-            // Find current and next prayer
             let activeIdx = 0;
             for (let i = 0; i < prayerListFormatted.length; i++) {
               if (currentMinutes >= prayerListFormatted[i].minutes) {
@@ -1213,10 +1212,8 @@
         });
     }
 
-    // Auto-refresh prayer times every 5 minutes
     setInterval(fetchPrayerTimes, 300000);
 
-    // پاسورڈ تبدیل کرنے کا کوڈ
     document.getElementById("changePasswordBtn").onclick = () => {
       const currentPass = document.getElementById("currentPassword").value.trim();
       const newPass = document.getElementById("newPassword").value.trim();
@@ -1358,7 +1355,7 @@
           limitedWinners.forEach((w, idx) => {
             let uProfile = allUsersData[w.uid] || {};
             let isPaid = uProfile.paid === true;
-            let statusBadge = isPaid ? `<span class="paid-badge">Paid ✓ (ادا कर دی گئی)</span>` : `<span class="pending-badge">Pending ⏳ (پینڈنگ)</span>`;
+            let statusBadge = isPaid ? `<span class="paid-badge">Paid ✓ (ادا کر دی گئی)</span>` : `<span class="pending-badge">Pending ⏳ (پینڈنگ)</span>`;
 
             if (isPaid) {
               proofCount++;
