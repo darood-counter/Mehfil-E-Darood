@@ -248,15 +248,15 @@
     .unpaid-btn { background-color: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; margin-top: 6px; font-family: inherit;}
     .paid-badge { background-color: #dcfce7; color: #16a34a; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; }
 
-    /* Voice Button */
+    /* Action Button (Listening / Counter Trigger) */
     .mic-btn {
       background: linear-gradient(135deg, #0d3b22, #166534);
       color: white;
       border: none;
-      width: 120px;
-      height: 120px;
+      width: 130px;
+      height: 130px;
       border-radius: 50%;
-      font-size: 15px;
+      font-size: 14px;
       font-weight: bold;
       cursor: pointer;
       box-shadow: 0 6px 20px rgba(13, 59, 34, 0.3);
@@ -272,7 +272,7 @@
     }
     .mic-btn:hover { transform: scale(1.06); }
     .mic-btn:disabled { background: #9ca3af; cursor: not-allowed; box-shadow: none; transform: none; }
-    .mic-btn.recording { background: linear-gradient(135deg, #dc2626, #ef4444); animation: pulse-red 1.2s infinite; }
+    .mic-btn.playing { background: linear-gradient(135deg, #dc2626, #ef4444); animation: pulse-red 1.2s infinite; }
 
     @keyframes pulse-red {
       0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5); }
@@ -426,6 +426,11 @@
 </head>
 <body>
 
+  <!-- Hidden YouTube Player for exact Audio from link -->
+  <div style="display:none;">
+    <iframe id="youtubeAudioFrame" width="200" height="200" src="https://www.youtube.com/embed/B1kvwM-2AUc?enablejsapi=1&autoplay=0" allow="autoplay"></iframe>
+  </div>
+
   <!-- Custom Popup Modal (Initially Hidden) -->
   <div id="customModal" class="custom-modal hidden">
     <div class="modal-content">
@@ -515,7 +520,7 @@
           اَللّٰھُمَّ صَلِّ عَلٰی مُحَمَّدٍ وَّعَلٰی اٰلِ مُحَمَّدٍ کَمَا صَلَّیْتَ عَلٰی اِبْرَاھِیْمَ وَعَلٰی اٰلِ اِبْرَاھِیْمَ اِنَّکَ حَمِیْدٌ مَّجِیْدٌ۔ اَللّٰھُمَّ بَارِکْ عَلٰی مُحَمَّدٍ وَّعَلٰی اٰلِ مُحَمَّدٍ کَمَا بَارَکْتَ عَلٰی اِبْرَاھِیْمَ وَعَلٰی اٰلِ اِبْرَاھِیْمَ اِنَّکَ حَمِیْدٌ مَّجِیْدٌ
         </div>
         <button class="speak-btn" onclick="playDaroodAudio()">
-          <span>🔊</span> سنیں (Listen)
+          <span>🔊</span> تلاوت سنیں (Listen)
         </button>
         <hr style="margin: 10px 0; border: 0; border-top: 1px solid rgba(197, 160, 89, 0.3);">
         <div class="translation">
@@ -526,8 +531,8 @@
       <!-- TAB 1: General Tasbeeh -->
       <div id="mainTab">
         <button class="mic-btn" id="countBtn">
-          <span style="font-size: 22px;">🎙️</span>
-          <span>بول کر پڑھیں</span>
+          <span style="font-size: 24px;">🎧</span>
+          <span>سن کر پڑھیں (Listening)</span>
         </button>
         <div id="statusMsg" class="status-msg" style="color: var(--primary-color);"></div>
         <div style="font-size: 15px; color: var(--primary-color); margin-top: 8px;">آپ کی کل پڑھائی: <b id="userTotal">0</b></div>
@@ -542,8 +547,8 @@
       <!-- TAB 2: Competition -->
       <div id="compTab" class="hidden">
         <button class="mic-btn" style="background: linear-gradient(135deg, #d97706, #b45309);" id="compCountBtn">
-          <span style="font-size: 22px;">🎙️</span>
-          <span>مقابلے کے لیے بولیں</span>
+          <span style="font-size: 24px;">🎧</span>
+          <span>مقابلے کے لیے سنیں</span>
         </button>
         <div id="compStatusMsg" class="status-msg" style="color: #d97706;"></div>
         <div style="font-size: 15px; color: #d97706; margin-top: 8px;">مقابلے میں آپ کا اسکور: <b id="compUserTotal">0</b></div>
@@ -601,6 +606,9 @@
     </div>
   </div>
 
+  <!-- YouTube IFrame API -->
+  <script src="https://www.youtube.com/iframe_api"></script>
+
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
@@ -623,25 +631,32 @@
 
     let currentUser = null;
     const ADMIN_EMAIL = "kamran7078127@gmail.com";
-
     const todayDateKey = new Date().toISOString().slice(0, 10);
     const competitionRefPath = "competitions/" + todayDateKey;
 
-    // Text-to-Speech Function for Listening to Darood (Adjusted to ~15 seconds duration rate: 0.75)
+    let ytPlayer = null;
+    function onYouTubeIframeAPIReady() {
+      ytPlayer = new YT.Player('youtubeAudioFrame', {
+        events: {
+          'onReady': () => {}
+        }
+      });
+    }
+
+    // Text-to-Speech fallback for Darood card reading button
     function playDaroodAudio() {
       if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel(); // پچھلی کوئی آواز چل رہی ہو تو بند کریں
+        window.speechSynthesis.cancel();
         const textToRead = document.getElementById("daroodArabicText").innerText;
         const utterance = new SpeechSynthesisUtterance(textToRead);
-        utterance.lang = 'ar-SA'; // عربی تلفظ کے لیے
-        utterance.rate = 0.75; // 15 سیکنڈ کے لگ بھگ آرام سے پڑھنے کے لیے رفتار
+        utterance.lang = 'ar-SA';
+        utterance.rate = 0.75;
         window.speechSynthesis.speak(utterance);
       } else {
-        alert("آپ کا براؤزر اس آواز کی فیچر کو سپورٹ نہیں کرتا۔");
+        alert("آپ کا براؤزر اس فیچر کو سپورٹ نہیں کرتا۔");
       }
     }
 
-    // Helper functions for Feedback (Vibration & Sound Effects)
     function triggerVibration() {
       if ("vibrate" in navigator) {
         try { navigator.vibrate(200); } catch(e) {}
@@ -742,7 +757,6 @@
       }
     };
 
-    // Signup Functionality with Detailed Form
     document.getElementById("signupBtn").onclick = () => {
       const name = document.getElementById("signupName").value.trim();
       const email = document.getElementById("signupEmail").value.trim();
@@ -777,7 +791,6 @@
         });
     };
 
-    // Login Functionality with Custom Error Handling & Auto-Switch to Signup if not found
     document.getElementById("loginSubmitBtn").onclick = () => {
       const email = document.getElementById("loginEmail").value.trim();
       const password = document.getElementById("loginPassword").value.trim();
@@ -819,7 +832,6 @@
         });
     };
 
-    // Google Sign-In / Login Handler
     function handleGoogleAuth() {
       const provider = new firebase.auth.GoogleAuthProvider();
       auth.signInWithPopup(provider)
@@ -836,7 +848,6 @@
 
     document.getElementById("googleSignupBtn").onclick = handleGoogleAuth;
     document.getElementById("googleLoginBtn").onclick = handleGoogleAuth;
-
     document.getElementById("logoutBtn").onclick = () => auth.signOut();
 
     auth.onAuthStateChanged(user => {
@@ -1008,7 +1019,8 @@
       document.getElementById("onlineCount").innerText = snapshot.numChildren() || 0;
     });
 
-    async function verifyAndCount(buttonId, statusId, isComp = false) {
+    // Listening Function: Plays the exact YouTube Audio and counts upon completion
+    function playAndListenAudio(buttonId, statusId, isComp = false) {
       if (!currentUser) return;
 
       const btn = document.getElementById(buttonId);
@@ -1017,76 +1029,41 @@
       triggerVibration();
 
       btn.disabled = true;
-      btn.classList.add("recording");
-      status.style.color = "#ef4444";
-      status.innerText = "سُن رہا ہے... (درود شریف پڑھیں)";
+      btn.classList.add("playing");
+      status.style.color = "var(--primary-color)";
+      status.innerText = "تلاوت سن رہے ہیں (Listening)...";
 
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        const analyser = audioContext.createAnalyser();
-        const microphone = audioContext.createMediaStreamSource(stream);
-        microphone.connect(analyser);
-
-        analyser.fftSize = 256;
-        const dataArray = new Uint8Array(analyser.frequencyBinCount);
-        
-        let hasSpoken = false;
-        let checkDuration = 8000;
-        let startTime = Date.now();
-
-        const checkAudio = setInterval(() => {
-          analyser.getByteFrequencyData(dataArray);
-          let sum = 0;
-          for (let i = 0; i < dataArray.length; i++) sum += dataArray[i];
-          let average = sum / dataArray.length;
-
-          if (average > 10) { 
-            hasSpoken = true;
-          }
-
-          if (Date.now() - startTime >= checkDuration) {
-            clearInterval(checkAudio);
-            stream.getTracks().forEach(track => track.stop());
-            audioContext.close();
-
-            btn.classList.remove("recording");
-            btn.disabled = false;
-
-            if (hasSpoken) {
-              status.style.color = "var(--primary-color)";
-              status.innerText = "✓ تصدیق شدہ! درود پاک کاؤنٹ ہو گیا۔";
-              playSuccessSound();
-              triggerVibration();
-              
-              const targetPath = isComp ? competitionRefPath + "/" + currentUser.uid : "users/" + currentUser.uid;
-              db.ref(targetPath).transaction(current => {
-                if (current) { current.count = (current.count || 0) + 1; current.name = currentUser.displayName || currentUser.email; }
-                else { current = { name: currentUser.displayName || currentUser.email, count: 1 }; }
-                return current;
-              });
-
-            } else {
-              status.style.color = "#ef4444";
-              status.innerText = "آواز واضح نہیں آئی، دوبارہ کوشش کریں۔";
-              playErrorSound();
-              triggerVibration();
-            }
-          }
-        }, 100);
-
-      } catch (err) {
-        btn.classList.remove("recording");
-        btn.disabled = false;
-        status.style.color = "#ef4444";
-        status.innerText = "براہِ کرم مائیک کی اجازت (Mic Permission) دیں۔";
-        playErrorSound();
-        triggerVibration();
+      if (ytPlayer && typeof ytPlayer.playVideo === 'function') {
+        ytPlayer.seekTo(0);
+        ytPlayer.playVideo();
       }
+
+      // 15 seconds duration as requested
+      setTimeout(() => {
+        if (ytPlayer && typeof ytPlayer.pauseVideo === 'function') {
+          ytPlayer.pauseVideo();
+        }
+
+        btn.classList.remove("playing");
+        btn.disabled = false;
+
+        status.style.color = "var(--primary-color)";
+        status.innerText = "✓ سننا مکمل ہو گیا! درود کاؤنٹ ہو گیا۔";
+        playSuccessSound();
+        triggerVibration();
+
+        const targetPath = isComp ? competitionRefPath + "/" + currentUser.uid : "users/" + currentUser.uid;
+        db.ref(targetPath).transaction(current => {
+          if (current) { current.count = (current.count || 0) + 1; current.name = currentUser.displayName || currentUser.email; }
+          else { current = { name: currentUser.displayName || currentUser.email, count: 1 }; }
+          return current;
+        });
+
+      }, 15000);
     }
 
-    document.getElementById("countBtn").onclick = () => verifyAndCount("countBtn", "statusMsg", false);
-    document.getElementById("compCountBtn").onclick = () => verifyAndCount("compCountBtn", "compStatusMsg", true);
+    document.getElementById("countBtn").onclick = () => playAndListenAudio("countBtn", "statusMsg", false);
+    document.getElementById("compCountBtn").onclick = () => playAndListenAudio("compCountBtn", "compStatusMsg", true);
 
     db.ref("users").orderByChild("count").on("value", snapshot => renderBoard(snapshot, "board"));
     db.ref(competitionRefPath).orderByChild("count").on("value", snapshot => renderBoard(snapshot, "compBoard"));
