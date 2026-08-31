@@ -420,10 +420,33 @@
       <span class="live-dot"></span> آن لائن شرکاء: <span id="onlineCount">0</span>
     </div>
 
-    <!-- Auth Section (Signup/Login First) -->
+    <!-- Auth Section (Login/Signup First) -->
     <div id="authSection">
-      <!-- Signup Form (Default on first open) -->
-      <div id="signupForm" class="auth-container">
+      <!-- Login Form (Default on first open) -->
+      <div id="loginForm" class="auth-container">
+        <h3 style="color:var(--primary-color); margin: 0 0 10px 0; text-align:center; font-size: 17px;">🔐 لاگ ان کریں (Login)</h3>
+        
+        <label style="font-size: 12px; color: var(--text-muted);">ای میل ایڈریس:</label>
+        <input type="email" id="loginEmail" placeholder="example@gmail.com">
+
+        <label style="font-size: 12px; color: var(--text-muted);">پاسورڈ:</label>
+        <input type="password" id="loginPassword" placeholder="اپنا پاسورڈ درج کریں">
+
+        <button class="auth-btn" id="loginSubmitBtn">لاگ ان کریں</button>
+
+        <div class="divider">یا</div>
+        <button class="google-btn" id="googleLoginBtn">
+          <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.13 0-5.78-2.11-6.73-4.96H1.19v3.15C3.17 21.31 7.23 24 12 24z"/><path fill="#FBBC05" d="M5.27 14.24c-.25-.72-.38-1.49-.38-2.24s.13-1.52.38-2.24V6.61H1.19C.43 8.14 0 9.99 0 12s.43 3.86 1.19 5.39l4.08-3.15z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.23 0 3.17 2.69 1.19 6.61l4.08 3.15c.95-2.85 3.6-4.96 6.73-4.96z"/></svg>
+          گوگل (Google) سے لاگ ان کریں
+        </button>
+
+        <div id="loginStatus" style="font-size: 12px; margin-top: 6px; text-align: center; font-weight: bold;"></div>
+
+        <div class="switch-text" onclick="toggleAuthMode('signup')">نیا اکاؤنٹ بنانا ہے؟ <span>سائن اپ کریں</span></div>
+      </div>
+
+      <!-- Signup Form (Hidden initially, opens if account doesn't exist) -->
+      <div id="signupForm" class="auth-container hidden">
         <h3 style="color:var(--primary-color); margin: 0 0 10px 0; text-align:center; font-size: 17px;">✨ نیا اکاؤنٹ بنائیں (Signup)</h3>
         
         <label style="font-size: 12px; color: var(--text-muted);">پورا نام:</label>
@@ -446,29 +469,6 @@
         <div id="signupStatus" style="font-size: 12px; margin-top: 6px; text-align: center; font-weight: bold;"></div>
 
         <div class="switch-text" onclick="toggleAuthMode('login')">پہلے سے اکاؤنٹ موجود ہے؟ <span>لاگ ان کریں</span></div>
-      </div>
-
-      <!-- Login Form (Initially Hidden) -->
-      <div id="loginForm" class="auth-container hidden">
-        <h3 style="color:var(--primary-color); margin: 0 0 10px 0; text-align:center; font-size: 17px;">🔐 لاگ ان کریں (Login)</h3>
-        
-        <label style="font-size: 12px; color: var(--text-muted);">ای میل ایڈریس:</label>
-        <input type="email" id="loginEmail" placeholder="example@gmail.com">
-
-        <label style="font-size: 12px; color: var(--text-muted);">پاسورڈ:</label>
-        <input type="password" id="loginPassword" placeholder="اپنا پاسورڈ درج کریں">
-
-        <button class="auth-btn" id="loginSubmitBtn">لاگ ان کریں</button>
-
-        <div class="divider">یا</div>
-        <button class="google-btn" id="googleLoginBtn">
-          <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.13 0-5.78-2.11-6.73-4.96H1.19v3.15C3.17 21.31 7.23 24 12 24z"/><path fill="#FBBC05" d="M5.27 14.24c-.25-.72-.38-1.49-.38-2.24s.13-1.52.38-2.24V6.61H1.19C.43 8.14 0 9.99 0 12s.43 3.86 1.19 5.39l4.08-3.15z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.23 0 3.17 2.69 1.19 6.61l4.08 3.15c.95-2.85 3.6-4.96 6.73-4.96z"/></svg>
-          گوگل (Google) سے لاگ ان کریں
-        </button>
-
-        <div id="loginStatus" style="font-size: 12px; margin-top: 6px; text-align: center; font-weight: bold;"></div>
-
-        <div class="switch-text" onclick="toggleAuthMode('signup')">نیا اکاؤنٹ بنانا ہے؟ <span>سائن اپ کریں</span></div>
       </div>
     </div>
 
@@ -693,12 +693,12 @@
     };
 
     window.toggleAuthMode = function(mode) {
-      if (mode === 'login') {
-        document.getElementById("signupForm").classList.add("hidden");
-        document.getElementById("loginForm").classList.remove("hidden");
-      } else {
+      if (mode === 'signup') {
         document.getElementById("loginForm").classList.add("hidden");
         document.getElementById("signupForm").classList.remove("hidden");
+      } else {
+        document.getElementById("signupForm").classList.add("hidden");
+        document.getElementById("loginForm").classList.remove("hidden");
       }
     };
 
@@ -731,13 +731,13 @@
         })
         .catch((error) => {
           statusEl.style.color = "#ef4444";
-          statusEl.innerText = error.message;
+          statusEl.innerText = "اکاؤنٹ بنانے میں خرابی پیش آئی۔";
           playErrorSound();
           triggerVibration();
         });
     };
 
-    // Login Functionality
+    // Login Functionality with Custom Error Handling & Auto-Switch to Signup if not found
     document.getElementById("loginSubmitBtn").onclick = () => {
       const email = document.getElementById("loginEmail").value.trim();
       const password = document.getElementById("loginPassword").value.trim();
@@ -762,9 +762,22 @@
         })
         .catch((error) => {
           statusEl.style.color = "#ef4444";
-          statusEl.innerText = error.message;
           playErrorSound();
           triggerVibration();
+
+          // If user doesn't exist or credentials invalid, show clean msg and switch to signup
+          if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-email') {
+            statusEl.innerText = "ای میل یا پاسورڈ غلط ہے، یا اکاؤنٹ موجود نہیں۔";
+            setTimeout(() => {
+              // Pre-fill signup email and switch to signup form automatically
+              document.getElementById("signupEmail").value = email;
+              toggleAuthMode('signup');
+              document.getElementById("signupStatus").style.color = "#d97706";
+              document.getElementById("signupStatus").innerText = "یہ اکاؤنٹ موجود نہیں، براہِ کرم نیا اکاؤنٹ رجسٹر کریں۔";
+            }, 1500);
+          } else {
+            statusEl.innerText = "لاگ ان میں ناکامی۔ براہِ کرم دوبارہ کوشش کریں۔";
+          }
         });
     };
 
@@ -779,7 +792,7 @@
         .catch((error) => {
           playErrorSound();
           triggerVibration();
-          alert("گوگل لاگ ان میں خرابی: " + error.message);
+          alert("گوگل لاگ ان میں خرابی پیش آئی۔");
         });
     }
 
@@ -834,6 +847,8 @@
         currentUser = null;
         document.getElementById("authSection").classList.remove("hidden");
         document.getElementById("userInfo").classList.add("hidden");
+        // Ensure login form is shown first by default when logged out
+        toggleAuthMode('login');
       }
     });
 
@@ -978,7 +993,7 @@
         const dataArray = new Uint8Array(analyser.frequencyBinCount);
         
         let hasSpoken = false;
-        let checkDuration = 8000; // 8 seconds timer
+        let checkDuration = 8000;
         let startTime = Date.now();
 
         const checkAudio = setInterval(() => {
@@ -1053,7 +1068,7 @@
         let rankBadge = index + 1;
         if (index === 0) rankBadge = "🥇 1";
         else if (index === 1) rankBadge = "🥈 2";
-        else if (index ===_2) rankBadge = "🥉 3";
+        else if (index === 2) rankBadge = "🥉 3";
 
         container.innerHTML += `<tr>
           <td><b>${rankBadge}</b></td>
