@@ -477,6 +477,100 @@
       font-family: 'Jameel Noori Nastaleeq', sans-serif;
       box-shadow: 0 4px 15px rgba(13, 59, 34, 0.2);
     }
+
+    /* PRAYER TIMES CSS */
+    .prayer-card-container {
+      background: linear-gradient(135deg, #0d3b22 0%, #14532d 100%);
+      color: white;
+      border-radius: 16px;
+      padding: 16px;
+      margin: 15px 0;
+      box-shadow: 0 8px 25px rgba(13, 59, 34, 0.2);
+      border: 1px solid var(--accent-gold);
+    }
+    .prayer-title {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .prayer-date {
+      font-size: 12px;
+      color: #a3c1ad;
+      margin-bottom: 12px;
+    }
+    .prayer-config-box {
+      background: #fffdf9;
+      border: 1px solid #fde68a;
+      padding: 12px;
+      border-radius: 12px;
+      margin-bottom: 12px;
+      color: var(--text-main);
+      text-align: right;
+    }
+    .prayer-config-box select, .prayer-config-box input {
+      width: 100%;
+      padding: 7px;
+      margin: 4px 0 8px 0;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      box-sizing: border-box;
+      font-family: 'Jameel Noori Nastaleeq', sans-serif;
+      font-size: 13px;
+    }
+    .current-prayer-highlight {
+      background: #e8f5e9;
+      border: 1px solid #81c784;
+      border-radius: 12px;
+      padding: 10px;
+      margin-bottom: 12px;
+      color: var(--primary-color);
+      text-align: center;
+    }
+    .prayer-table {
+      width: 100%;
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      color: var(--text-main);
+      margin-top: 10px;
+    }
+    .prayer-table th {
+      background-color: #0d3b22;
+      color: white;
+      padding: 8px;
+      font-size: 13px;
+    }
+    .prayer-table td {
+      padding: 8px;
+      font-size: 13px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .prayer-table tr.active-row {
+      background-color: #e8f5e9 !important;
+      font-weight: bold;
+    }
+    .active-badge {
+      background-color: #16a34a;
+      color: white;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+    }
+    .next-prayer-footer {
+      background: #fdf8ee;
+      border: 1px solid var(--accent-gold);
+      border-radius: 10px;
+      padding: 8px;
+      margin-top: 10px;
+      font-size: 13px;
+      color: #92400e;
+      font-weight: bold;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
@@ -577,6 +671,45 @@
       <div id="mainTab">
         <h2 style="font-size: 20px; color: var(--primary-color); margin: 10px 0;">🕌 آج کی محفل</h2>
         
+        <!-- PRAYER TIMES CARD (LIVE API) -->
+        <div class="prayer-card-container">
+          <div class="prayer-title">🕌 آج کے نماز کے اوقات</div>
+          <div class="prayer-date" id="prayerDateDisplay">لوڈ ہو رہا ہے...</div>
+          
+          <div class="prayer-config-box">
+            <label style="font-size: 12px; color: var(--text-muted);">📍 اپنا ملک منتخب کریں:</label>
+            <input type="text" id="countryInput" value="UAE">
+            
+            <label style="font-size: 12px; color: var(--text-muted);">📍 اپنا شہر منتخب کریں:</label>
+            <input type="text" id="cityInput" value="Dubai">
+            
+            <button class="save-profile-btn" onclick="fetchPrayerTimes()">💾 شہر محفوظ کریں</button>
+          </div>
+
+          <div class="current-prayer-highlight">
+            <div style="font-size: 12px; color: #555;">اس وقت کی نماز</div>
+            <div id="currentActivePrayerName" style="font-size: 16px; font-weight: bold;">--</div>
+          </div>
+
+          <table class="prayer-table">
+            <thead>
+              <tr>
+                <th>حیثیت</th>
+                <th>وقت</th>
+                <th>نماز</th>
+              </tr>
+            </thead>
+            <tbody id="prayerTableBody">
+              <tr><td colspan="3">اوقات لوڈ ہو رہے ہیں...</td></tr>
+            </tbody>
+          </table>
+
+          <div class="next-prayer-footer" id="nextPrayerFooter">
+            اگلی نماز: --
+          </div>
+        </div>
+        <!-- END PRAYER TIMES CARD -->
+
         <div style="background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 14px; padding: 12px; margin: 10px 0; box-shadow: 0 4px 15px rgba(0,0,0,0.03);">
           <div style="font-size: 28px; font-weight: bold; color: var(--primary-color);" id="globalTotalCount">0</div>
           <div style="font-size: 12px; color: var(--text-muted);">آج کے اجتماعی درود (ریئل ٹائم)</div>
@@ -591,14 +724,12 @@
         <div id="adminPanelSection" class="admin-panel hidden" style="text-align: right; margin-top: 15px;">
           <div class="admin-title">👑 ایڈمن پینل (صرف 100+ درود والے فاتحین)</div>
           
-          <!-- Filter Controls -->
           <div style="display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap;">
             <button class="save-profile-btn" style="flex: 1; padding: 6px; font-size: 12px;" onclick="setAdminFilter('today')">آج (Today)</button>
             <button class="save-profile-btn" style="flex: 1; padding: 6px; font-size: 12px; background-color: #d97706;" onclick="setAdminFilter('weekly')">ہفتہ وار (Weekly)</button>
             <button class="save-profile-btn" style="flex: 1; padding: 6px; font-size: 12px; background-color: #1e40af;" onclick="setAdminFilter('monthly')">ماہانہ (Monthly)</button>
           </div>
 
-          <!-- Date Range Selector -->
           <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px; display: flex; gap: 6px; align-items: center;">
             <span>تاریخ کی حد:</span>
             <input type="date" id="adminStartDate" style="padding: 4px; border-radius: 6px; border: 1px solid #d1d5db; font-size: 11px;">
@@ -676,7 +807,7 @@
         <div class="about-card">
           <h3>⚡ ایپ کے اہم فیچرز</h3>
           <p>
-            • <b>آج کی محفل (Home):</b> یہاں آپ کل اجتماعی درود، رینکنگ اور ایڈمن پینل کے ذریعے صرف کامیاب فاتحین (100+ درود) کی تفصیلات، تاریخ اور پیمنٹ اسٹیٹس (Paid/Pending) کنٹرول کر سکتے ہیں۔<br>
+            • <b>آج کی محفل (Home):</b> یہاں آپ کل اجتماعی درود، رینکنگ، نماز کے اوقات اور ایڈمن پینل کے ذریعے صرف کامیاب فاتحین (100+ درود) کی تفصیلات کنٹرول کر سکتے ہیں۔<br>
             • <b>تسبیح (Tasbeeh):</b> اپنی انفرادی تسبیح کے لیے وائس کاؤنٹر استعمال کریں۔<br>
             • <b>مقابلہ (Competition):</b> روزانہ کے مقابلے میں حصہ لیں اور انعامات جیتیں۔
           </p>
@@ -691,7 +822,6 @@
           <p><b>ای میل:</b> <span id="profileDisplayEmail">---</span></p>
         </div>
 
-        <!-- PASSWORD CHANGE SECTION -->
         <div class="profile-box">
           <h4 style="margin: 0 0 6px 0; color: var(--primary-color); font-size: 14px;">🔑 پاسورڈ تبدیل کریں (Change Password)</h4>
           <label style="font-size: 12px; color: var(--text-muted);">موجودہ پاسورڈ:</label>
@@ -775,7 +905,7 @@
     let currentUser = null;
     const ADMIN_EMAIL = "kamran7078127@gmail.com";
     const todayDateKey = new Date().toISOString().slice(0, 10);
-    let currentAdminFilter = "today"; // default
+    let currentAdminFilter = "today";
 
     let ytPlayer = null;
     function onYouTubeIframeAPIReady() {
@@ -934,7 +1064,7 @@
         currentUser = user;
         document.getElementById("authSection").classList.add("hidden");
         document.getElementById("userInfo").classList.remove("hidden");
-        document.getElementById("bottomNav").classList.remove("hidden"); // مینو شو کر دیا گیا ہے
+        document.getElementById("bottomNav").classList.remove("hidden");
         document.getElementById("userName").innerText = user.displayName || user.email;
         document.getElementById("profileDisplayName").innerText = user.displayName || "---";
         document.getElementById("profileDisplayEmail").innerText = user.email || "---";
@@ -958,7 +1088,10 @@
             if(data.accName) document.getElementById("accName").value = data.accName;
             if(data.accNumber) document.getElementById("accNumber").value = data.accNumber;
             if(data.accType) document.getElementById("accType").value = data.accType;
+            if(data.savedCity) document.getElementById("cityInput").value = data.savedCity;
+            if(data.savedCountry) document.getElementById("countryInput").value = data.savedCountry;
           }
+          fetchPrayerTimes();
         });
 
         db.ref("competitions/" + todayDateKey + "/" + user.uid).on("value", snapshot => {
@@ -978,10 +1111,110 @@
         currentUser = null;
         document.getElementById("authSection").classList.remove("hidden");
         document.getElementById("userInfo").classList.add("hidden");
-        document.getElementById("bottomNav").classList.add("hidden"); // لاگ آؤٹ پر مینو چھپا دیا جائے گا
+        document.getElementById("bottomNav").classList.add("hidden");
         toggleAuthMode('login');
       }
     });
+
+    // PRAYER TIMES LIVE API LOGIC
+    function timeToMinutes(timeStr) {
+      const [time, modifier] = timeStr.split(' ');
+      let [hours, minutes] = time.split(':').map(Number);
+      if (modifier === 'PM' && hours < 12) hours += 12;
+      if (modifier === 'AM' && hours === 12) hours = 0;
+      return hours * 60 + minutes;
+    }
+
+    function format12Hour(time24) {
+      let [h, m] = time24.split(':').map(Number);
+      let modifier = h >= 12 ? 'PM' : 'AM';
+      h = h % 12 || 12;
+      return `${h}:${m < 10 ? '0' : ''}${m} ${modifier}`;
+    }
+
+    function fetchPrayerTimes() {
+      let city = document.getElementById("cityInput").value.trim() || "Dubai";
+      let country = document.getElementById("countryInput").value.trim() || "UAE";
+
+      if (currentUser) {
+        db.ref("users/" + currentUser.uid).update({
+          savedCity: city,
+          savedCountry: country
+        });
+      }
+
+      const url = `https://api.aladhan.com/v1/timingsByCity?city=${encodeURIComponent(city)}&country=${encodeURIComponent(country)}&method=2`;
+
+      fetch(url)
+        .then(response => response.json())
+        .then(data => {
+          if (data && data.code === 200) {
+            const timings = data.data.timings;
+            const dateObj = data.data.date;
+            document.getElementById("prayerDateDisplay").innerText = `${dateObj.hijri.weekday.en}، ${dateObj.readable} (${city}, ${country})`;
+
+            const prayers = [
+              { key: 'Fajr', name: 'فجر', icon: '🌙' },
+              { key: 'Sunrise', name: 'طلوع آفتاب', icon: '🌅' },
+              { key: 'Dhuhr', name: 'ظہر', icon: '☀️' },
+              { key: 'Asr', name: 'عصر', icon: '⛅' },
+              { key: 'Maghrib', name: 'مغرب', icon: '🌇' },
+              { key: 'Isha', name: 'عشاء', icon: '🌙' }
+            ];
+
+            let now = new Date();
+            let currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+            let prayerListFormatted = prayers.map(p => {
+              let time24 = timings[p.key].split(' ')[0];
+              return {
+                key: p.key,
+                name: p.name,
+                icon: p.icon,
+                time12: format12Hour(time24),
+                minutes: timeToMinutes(format12Hour(time24))
+              };
+            });
+
+            // Find current and next prayer
+            let activeIdx = 0;
+            for (let i = 0; i < prayerListFormatted.length; i++) {
+              if (currentMinutes >= prayerListFormatted[i].minutes) {
+                activeIdx = i;
+              }
+            }
+
+            let currentPrayer = prayerListFormatted[activeIdx];
+            let nextPrayer = prayerListFormatted[(activeIdx + 1) % prayerListFormatted.length];
+
+            document.getElementById("currentActivePrayerName").innerHTML = `${currentPrayer.icon} ${currentPrayer.name} (${currentPrayer.time12})`;
+            document.getElementById("nextPrayerFooter").innerHTML = `⏩ اگلی نماز: ${nextPrayer.name} — ${nextPrayer.time12}`;
+
+            let tbody = document.getElementById("prayerTableBody");
+            tbody.innerHTML = "";
+
+            prayerListFormatted.forEach((p, idx) => {
+              let isCurrent = (idx === activeIdx);
+              let rowClass = isCurrent ? "active-row" : "";
+              let statusBadge = isCurrent ? `<span class="active-badge">ابھی</span>` : (idx < activeIdx ? `✓` : `—`);
+
+              tbody.innerHTML += `
+                <tr class="${rowClass}">
+                  <td>${statusBadge}</td>
+                  <td dir="ltr">${p.time12}</td>
+                  <td>${p.icon} ${p.name}</td>
+                </tr>
+              `;
+            });
+          }
+        })
+        .catch(err => {
+          document.getElementById("prayerTableBody").innerHTML = `<tr><td colspan="3">اوقات لوڈ کرنے میں ناکامی۔ انٹرنیٹ چیک کریں۔</td></tr>`;
+        });
+    }
+
+    // Auto-refresh prayer times every 5 minutes
+    setInterval(fetchPrayerTimes, 300000);
 
     // پاسورڈ تبدیل کرنے کا کوڈ
     document.getElementById("changePasswordBtn").onclick = () => {
@@ -1114,7 +1347,6 @@
 
           winnersList.sort((a, b) => b.count - a.count);
           let limitedWinners = winnersList.slice(0, 10);
-
           let proofCount = 0;
 
           if (limitedWinners.length === 0) {
@@ -1126,7 +1358,7 @@
           limitedWinners.forEach((w, idx) => {
             let uProfile = allUsersData[w.uid] || {};
             let isPaid = uProfile.paid === true;
-            let statusBadge = isPaid ? `<span class="paid-badge">Paid ✓ (ادا کر دی گئی)</span>` : `<span class="pending-badge">Pending ⏳ (پینڈنگ)</span>`;
+            let statusBadge = isPaid ? `<span class="paid-badge">Paid ✓ (ادا कर دی گئی)</span>` : `<span class="pending-badge">Pending ⏳ (پینڈنگ)</span>`;
 
             if (isPaid) {
               proofCount++;
