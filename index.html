@@ -135,8 +135,10 @@
     .translation {
       font-size: 13px;
       color: var(--text-muted);
-      margin-top: 8px;
+      margin-top: 12px;
       line-height: 1.6;
+      padding-top: 10px;
+      border-top: 1px dashed rgba(197, 160, 89, 0.4);
     }
 
     /* Speaker Button inside Darood Card */
@@ -514,18 +516,17 @@
         <button class="tab-btn" id="rewardTabBtn" onclick="showTab('rewardTab')">🎁 انعام اور پروف</button>
       </div>
 
-      <!-- Darood Card with Speaker (🔊) Button -->
+      <!-- Darood Card with Speaker (🔊) Button & Arabic Top / Translation Right Below -->
       <div class="darood-card">
         <div class="arabic-text" id="daroodArabicText">
           اَللّٰھُمَّ صَلِّ عَلٰی مُحَمَّدٍ وَّعَلٰی اٰلِ مُحَمَّدٍ کَمَا صَلَّیْتَ عَلٰی اِبْرَاھِیْمَ وَعَلٰی اٰلِ اِبْرَاھِیْمَ اِنَّکَ حَمِیْدٌ مَّجِیْدٌ۔ اَللّٰھُمَّ بَارِکْ عَلٰی مُحَمَّدٍ وَّعَلٰی اٰلِ مُحَمَّدٍ کَمَا بَارَکْتَ عَلٰی اِبْرَاھِیْمَ وَعَلٰی اٰلِ اِبْرَاھِیْمَ اِنَّکَ حَمِیْدٌ مَّجِیْدٌ
         </div>
-        <button class="speak-btn" onclick="playYouTubeAudioOnly()">
-          <span>🔊</span> (Listen) سنیں
-        </button>
-        <hr style="margin: 10px 0; border: 0; border-top: 1px solid rgba(197, 160, 89, 0.3);">
         <div class="translation">
           اے اللہ! رحمت نازل فرما حضرت محمد ﷺ پر اور ان کی آل پر جیسے تو نے رحمت نازل فرمائی حضرت ابراہیم علیہ السلام پر اور ان کی آل پر، بے شک تو تعریف کے لائق اور بزرگی والا ہے۔ اور برکت نازل فرما حضرت محمد ﷺ پر اور ان کی آل پر جیسے تو نے برکت نازل فرمائی حضرت ابراہیم علیہ السلام پر اور ان کی آل پر، بے شک تو تعریف کے لائق اور بزرگی والا ہے۔
         </div>
+        <button class="speak-btn" onclick="playYouTubeAudioOnly()">
+          <span>🔊</span> (Listen) سنیں
+        </button>
       </div>
 
       <!-- TAB 1: General Tasbeeh -->
@@ -643,7 +644,7 @@
       });
     }
 
-    // Only play YouTube Audio when clicking the Listen button in the Darood card
+    // Play YouTube Audio only when clicking Listen button
     function playYouTubeAudioOnly() {
       if (ytPlayer && typeof ytPlayer.playVideo === 'function') {
         ytPlayer.seekTo(0);
@@ -1015,7 +1016,7 @@
       document.getElementById("onlineCount").innerText = snapshot.numChildren() || 0;
     });
 
-    // Voice Recognition (Speech-to-Text) for user recitation counting via microphone
+    // Voice Recognition with Timer and Keyword Verification ("اللهم صل" & "مجيد")
     function startVoiceRecognition(buttonId, statusId, isComp = false) {
       if (!currentUser) return;
 
@@ -1031,7 +1032,7 @@
       triggerVibration();
 
       const recognition = new SpeechRecognition();
-      recognition.lang = 'ar-SA'; // Arabic/Urdu speech recognition context
+      recognition.lang = 'ar-SA';
       recognition.interimResults = false;
       recognition.maxAlternatives = 1;
 
@@ -1040,22 +1041,41 @@
       status.style.color = "var(--primary-color)";
       status.innerText = "سن رہے ہیں، درود شریف پڑھیں...";
 
-      recognition.onresult = (event) => {
-        const speechResult = event.results[0][0].transcript;
-        status.style.color = "var(--primary-color)";
-        status.innerText = "✓ آواز سن لی گئی! شمار درج ہو گیا۔";
-        playSuccessSound();
-        triggerVibration();
+      // Timer for recording timeout
+      let recordingTimeout = setTimeout(() => {
+        try { recognition.stop(); } catch(e) {}
+      }, 7000);
 
-        const targetPath = isComp ? competitionRefPath + "/" + currentUser.uid : "users/" + currentUser.uid;
-        db.ref(targetPath).transaction(current => {
-          if (current) { current.count = (current.count || 0) + 1; current.name = currentUser.displayName || currentUser.email; }
-          else { current = { name: currentUser.displayName || currentUser.email, count: 1 }; }
-          return current;
-        });
+      recognition.onresult = (event) => {
+        clearTimeout(recordingTimeout);
+        const speechResult = event.results[0][0].transcript.toLowerCase();
+        
+        // Verifying keywords: "اللهم صل" (or "اللهم") and "مجيد" (or similar variations)
+        const hasSalat = speechResult.includes("اللهم") || speechResult.includes("صل");
+        const hasMajeed = speechResult.includes("مجيد") || speechResult.includes("مجید");
+
+        if (hasSalat || hasMajeed) {
+          status.style.color = "var(--primary-color)";
+          status.innerText = "✓ تصدیق ہو گئی! درود شریف درج ہو گیا۔";
+          playSuccessSound();
+          triggerVibration();
+
+          const targetPath = isComp ? competitionRefPath + "/" + currentUser.uid : "users/" + currentUser.uid;
+          db.ref(targetPath).transaction(current => {
+            if (current) { current.count = (current.count || 0) + 1; current.name = currentUser.displayName || currentUser.email; }
+            else { current = { name: currentUser.displayName || currentUser.email, count: 1 }; }
+            return current;
+          });
+        } else {
+          status.style.color = "#ef4444";
+          status.innerText = "آواز واضح نہیں آئی یا درود شریف درست نہیں سنا گیا، دوبارہ کوشش کریں۔";
+          playErrorSound();
+          triggerVibration();
+        }
       };
 
       recognition.onerror = (event) => {
+        clearTimeout(recordingTimeout);
         status.style.color = "#ef4444";
         status.innerText = "آواز واضح نہیں آئی، دوبارہ کوشش کریں۔";
         playErrorSound();
@@ -1063,11 +1083,17 @@
       };
 
       recognition.onend = () => {
+        clearTimeout(recordingTimeout);
         btn.classList.remove("listening");
         btn.disabled = false;
       };
 
-      recognition.start();
+      try {
+        recognition.start();
+      } catch(e) {
+        btn.classList.remove("listening");
+        btn.disabled = false;
+      }
     }
 
     document.getElementById("countBtn").onclick = () => startVoiceRecognition("countBtn", "statusMsg", false);
