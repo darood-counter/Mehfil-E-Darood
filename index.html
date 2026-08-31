@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mehfil-E-Darood — Final V8 (Admin Home)</title>
+  <title>Mehfil-E-Darood — Final V7 (Admin Home)</title>
   <link href="https://fonts.googleapis.com/css2?family=Jameel+Noori+Nastaleeq&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -511,17 +511,7 @@
       color: var(--text-main);
       text-align: right;
     }
-    
-    /* ملک اور شہر کو ایک ہی لائن میں کرنے کے لیے فلیکس باکس */
-    .location-row {
-      display: flex;
-      gap: 10px;
-      margin-top: 4px;
-    }
-    .location-group {
-      flex: 1;
-    }
-    .location-config-box select, .location-config-box input {
+    .prayer-config-box select, .prayer-config-box input {
       width: 100%;
       padding: 7px;
       margin: 4px 0 8px 0;
@@ -531,7 +521,6 @@
       font-family: 'Jameel Noori Nastaleeq', sans-serif;
       font-size: 13px;
     }
-
     .current-prayer-highlight {
       background: #e8f5e9;
       border: 1px solid #81c784;
@@ -680,29 +669,22 @@
 
       <!-- TAB 1: Home Tab -->
       <div id="mainTab">
-        <h2 style="font-size: 20px; color: var(--primary-color); margin: 10px 0;">🕌 آج کی محفل</h2>
         
         <!-- PRAYER TIMES CARD (LIVE API) -->
         <div class="prayer-card-container">
           <div class="prayer-title">🕌 آج کے نماز کے اوقات</div>
           <div class="prayer-date" id="prayerDateDisplay">لوڈ ہو رہا ہے...</div>
           
-          <div class="prayer-config-box location-config-box">
-            <!-- ملک اور شہر کو ایک ہی لائن میں کیا گیا ہے -->
-            <div class="location-row">
-              <div class="location-group">
-                <label style="font-size: 11px; color: var(--text-muted);">📍 ملک:</label>
-                <input type="text" id="countryInput" value="Pakistan">
-              </div>
-              <div class="location-group">
-                <label style="font-size: 11px; color: var(--text-muted);">📍 شہر:</label>
-                <input type="text" id="cityInput" value="Lahore">
-              </div>
-            </div>
+          <div class="prayer-config-box">
+            <label style="font-size: 12px; color: var(--text-muted);">📍 اپنا ملک منتخب کریں:</label>
+            <input type="text" id="countryInput" value="Pakistan">
             
-            <div style="display: flex; gap: 8px; margin-top: 4px;">
-              <button class="save-profile-btn" style="flex: 2; background-color: var(--primary-color); padding: 7px; font-size: 13px;" onclick="saveLocationAndFetch()">💾 شہر محفوظ کریں</button>
-              <button class="save-profile-btn" style="flex: 1; background-color: #2b6cb0; padding: 7px; font-size: 13px;" onclick="detectCurrentLocation()">📍 لوکیشن</button>
+            <label style="font-size: 12px; color: var(--text-muted);">📍 اپنا شہر منتخب کریں:</label>
+            <input type="text" id="cityInput" value="Lahore">
+            
+            <div style="display: flex; gap: 8px; margin-top: 8px;">
+              <button class="save-profile-btn" style="flex: 2; background-color: var(--primary-color);" onclick="saveLocationAndFetch()">💾 شہر محفوظ کریں</button>
+              <button class="save-profile-btn" style="flex: 1; background-color: #2b6cb0;" onclick="detectCurrentLocation()">📍 کرنٹ لوکیشن</button>
             </div>
           </div>
 
@@ -729,6 +711,8 @@
           </div>
         </div>
         <!-- END PRAYER TIMES CARD -->
+
+        <h2 style="font-size: 20px; color: var(--primary-color); margin: 10px 0;">🕌 آج کی محفل</h2>
 
         <div style="background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 14px; padding: 12px; margin: 10px 0; box-shadow: 0 4px 15px rgba(0,0,0,0.03);">
           <div style="font-size: 28px; font-weight: bold; color: var(--primary-color);" id="globalTotalCount">0</div>
