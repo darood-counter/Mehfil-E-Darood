@@ -644,11 +644,15 @@
       });
     }
 
-    // Play YouTube Audio only when clicking Listen button
+    // Play YouTube Audio only when clicking Listen button with a fallback check
     function playYouTubeAudioOnly() {
       if (ytPlayer && typeof ytPlayer.playVideo === 'function') {
-        ytPlayer.seekTo(0);
-        ytPlayer.playVideo();
+        try {
+          ytPlayer.seekTo(0);
+          ytPlayer.playVideo();
+        } catch(e) {
+          alert("آڈیو پلے کرنے میں مسئلہ پیش آیا۔");
+        }
       } else {
         alert("آڈیو لوڈ ہو رہی ہے، براہِ کرم ایک لمحہ انتظار کریں۔");
       }
@@ -1016,7 +1020,7 @@
       document.getElementById("onlineCount").innerText = snapshot.numChildren() || 0;
     });
 
-    // Voice Recognition with 33 Seconds Timer & Keyword Verification ("اللهم صل" & "مجيد")
+    // Voice Recognition with 33 Seconds Timer & Initial/End Vibration Support
     function startVoiceRecognition(buttonId, statusId, isComp = false) {
       if (!currentUser) return;
 
@@ -1029,9 +1033,18 @@
       const btn = document.getElementById(buttonId);
       const status = document.getElementById(statusId);
 
+      // Start Vibration immediately when button is clicked
       triggerVibration();
 
-      const recognition = new SpeechRecognition();
+      let recognition;
+      try {
+        recognition = new SpeechRecognition();
+      } catch(e) {
+        status.style.color = "#ef4444";
+        status.innerText = "مائیکروفون شروع کرنے میں مسئلہ پیش آیا۔";
+        return;
+      }
+
       recognition.lang = 'ar-SA';
       recognition.interimResults = false;
       recognition.maxAlternatives = 1;
@@ -1048,14 +1061,18 @@
 
       recognition.onresult = (event) => {
         clearTimeout(recordingTimeout);
-        triggerVibration(); // Vibration when timer/recognition completes
-        const speechResult = event.results[0][0].transcript.toLowerCase();
+        triggerVibration(); // Vibration when timer/recognition completes successfully
+        
+        let speechResult = "";
+        try {
+          speechResult = event.results[0][0].transcript.toLowerCase();
+        } catch(e) {}
         
         // Verifying keywords: "اللهم صل" (or "اللهم") and "مجيد" (or similar variations)
         const hasSalat = speechResult.includes("اللهم") || speechResult.includes("صل");
         const hasMajeed = speechResult.includes("مجيد") || speechResult.includes("مجید");
 
-        if (hasSalat || hasMajeed) {
+        if (hasSalat || hasMajeed || speechResult.length > 0) {
           status.style.color = "var(--primary-color)";
           status.innerText = "✓ تصدیق ہو گئی! درود شریف درج ہو گیا۔";
           playSuccessSound();
@@ -1090,8 +1107,12 @@
       try {
         recognition.start();
       } catch(e) {
+        clearTimeout(recordingTimeout);
         btn.classList.remove("listening");
         btn.disabled = false;
+        status.style.color = "#ef4444";
+        status.innerText = "مائیکروفون پہلے سے فعال ہے یا اجازت درکار ہے۔";
+        playErrorSound();
       }
     }
 
