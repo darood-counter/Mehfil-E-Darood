@@ -41,7 +41,7 @@
     }
 
     .brand-title {
-      font-size: 28px;
+      font-size: 24px;
       font-weight: bold;
       margin: 0;
       display: flex;
@@ -52,7 +52,7 @@
     }
 
     .brand-subtitle {
-      font-size: 15px;
+      font-size: 13px;
       color: #a3c1ad;
       margin-top: 4px;
     }
@@ -61,7 +61,7 @@
       max-width: 620px;
       margin: 0 auto;
       background: var(--card-bg);
-      padding: 30px 18px;
+      padding: 20px 18px;
       border-radius: 24px;
       box-shadow: var(--shadow);
       border: 1px solid rgba(197, 160, 89, 0.25);
@@ -77,14 +77,14 @@
       border: 1px solid rgba(197, 160, 89, 0.4);
       padding: 3px 12px;
       border-radius: 30px;
-      font-size: 14px;
+      font-size: 12px;
       font-weight: bold;
-      margin-bottom: 20px;
+      margin-bottom: 10px;
     }
 
     .live-dot {
-      height: 8px;
-      width: 8px;
+      height: 7px;
+      width: 7px;
       background-color: #16a34a;
       border-radius: 50%;
       display: inline-block;
@@ -98,80 +98,80 @@
       100% { transform: scale(0.95); opacity: 0.7; }
     }
 
-    /* Completed darood-card CSS */
+    /* --- Completed darood-card --- */
     .darood-card {
-      background: #fdfaf6;
-      border-radius: 16px;
-      padding: 20px;
-      margin-bottom: 20px;
-      border: 1px solid rgba(197, 160, 89, 0.2);
+      background-color: var(--card-bg);
+      border-radius: 18px;
+      padding: 24px;
+      margin-top: 20px;
+      border: 1px solid rgba(197, 160, 89, 0.3);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.03);
       text-align: right;
     }
 
-    /* --- Profile & Password Form Styles --- */
-    .profile-heading {
-      font-size: 24px;
+    /* --- Form Styling --- */
+    .section-title {
+      font-size: 22px;
       color: var(--primary-color);
-      border-bottom: 2px solid var(--accent-gold);
-      display: inline-block;
-      padding-bottom: 5px;
       margin-bottom: 20px;
-      text-align: right;
+      font-weight: bold;
+      border-bottom: 2px solid var(--accent-gold-light);
+      padding-bottom: 10px;
     }
 
     .form-group {
-      margin-bottom: 18px;
-      text-align: right;
+      margin-bottom: 16px;
     }
 
     .form-group label {
       display: block;
-      font-size: 18px;
+      font-size: 17px;
       color: var(--text-main);
-      margin-bottom: 8px;
-      font-weight: bold;
+      margin-bottom: 6px;
     }
 
     .form-group input {
       width: 100%;
       box-sizing: border-box;
-      padding: 12px 15px;
-      border: 1px solid #d1d5db;
-      border-radius: 12px;
-      font-family: 'Plus Jakarta Sans', sans-serif; /* LTR font for passwords */
-      font-size: 16px;
-      direction: ltr; /* Password fields should always be LTR */
-      transition: all 0.3s ease;
+      padding: 12px 14px;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      font-size: 15px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      direction: ltr; /* Password should be LTR */
+      background-color: #f9fafb;
+      transition: all 0.3s;
     }
 
     .form-group input:focus {
       outline: none;
-      border-color: var(--primary-color);
-      box-shadow: 0 0 0 3px rgba(13, 59, 34, 0.15);
+      border-color: var(--accent-gold);
+      box-shadow: 0 0 0 3px rgba(197, 160, 89, 0.15);
+      background-color: #ffffff;
     }
 
-    .btn-submit {
+    .submit-btn {
+      width: 100%;
       background: var(--primary-color);
       color: white;
       border: none;
-      padding: 12px 25px;
-      font-size: 20px;
+      padding: 14px;
+      font-size: 18px;
       font-family: 'Jameel Noori Nastaleeq', sans-serif;
-      border-radius: 12px;
+      border-radius: 10px;
       cursor: pointer;
-      width: 100%;
-      transition: background 0.3s;
       margin-top: 10px;
+      transition: background-color 0.3s;
     }
 
-    .btn-submit:hover {
+    .submit-btn:hover {
       background: var(--primary-hover);
     }
   </style>
 </head>
 <body>
 
-  <!-- Top Header -->
+  <!-- Header -->
   <div class="top-header">
     <h1 class="brand-title">محفلِ درود</h1>
     <div class="brand-subtitle">ایڈمن ہوم / ڈیش بورڈ</div>
@@ -184,31 +184,27 @@
       لائیو
     </div>
 
-    <!-- Password Change Section -->
-    <div style="text-align: right;">
-      <h2 class="profile-heading">پروفائل کی ترتیبات</h2>
-    </div>
-    
+    <!-- Password Change Card -->
     <div class="darood-card">
+      <div class="section-title">پاسورڈ تبدیل کریں</div>
+      
       <form action="#" method="POST">
-        
         <div class="form-group">
-          <label for="old_password">موجودہ پاسورڈ</label>
-          <input type="password" id="old_password" name="old_password" placeholder="Old Password" required>
+          <label>موجودہ پاسورڈ</label>
+          <input type="password" name="current_password" placeholder="Current Password" required>
         </div>
 
         <div class="form-group">
-          <label for="new_password">نیا پاسورڈ</label>
-          <input type="password" id="new_password" name="new_password" placeholder="New Password" required>
+          <label>نیا پاسورڈ</label>
+          <input type="password" name="new_password" placeholder="New Password" required>
         </div>
 
         <div class="form-group">
-          <label for="confirm_password">نئے پاسورڈ کی تصدیق</label>
-          <input type="password" id="confirm_password" name="confirm_password" placeholder="Confirm New Password" required>
+          <label>نئے پاسورڈ کی تصدیق</label>
+          <input type="password" name="confirm_password" placeholder="Confirm New Password" required>
         </div>
 
-        <button type="submit" class="btn-submit">پاسورڈ تبدیل کریں</button>
-
+        <button type="submit" class="submit-btn">محفوظ کریں</button>
       </form>
     </div>
 
