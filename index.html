@@ -125,7 +125,7 @@
 
     .arabic-text {
       font-family: 'Traditional Arabic', 'Amiri', serif;
-      font-size: 24px;
+      font-size: 22px;
       color: var(--primary-color);
       font-weight: bold;
       line-height: 2;
@@ -512,14 +512,14 @@
       <!-- Darood Card with Speaker (🔊) Button -->
       <div class="darood-card">
         <div class="arabic-text" id="daroodArabicText">
-          اَللّٰھُمَّ صَلِّ عَلٰی مُحَمَّدٍ وَّعَلٰی اٰلِ مُحَمَّدٍ کَمَا صَلَّیْتَ عَلٰی اِبْرَاھِیْمَ وَعَلٰی اٰلِ اِبْرَاھِیْمَ اِنَّکَ حَمِیْدٌ مَّجِیْدٌ
+          اَللّٰھُمَّ صَلِّ عَلٰی مُحَمَّدٍ وَّعَلٰی اٰلِ مُحَمَّدٍ کَمَا صَلَّیْتَ عَلٰی اِبْرَاھِیْمَ وَعَلٰی اٰلِ اِبْرَاھِیْمَ اِنَّکَ حَمِیْدٌ مَّجِیْدٌ۔ اَللّٰھُمَّ بَارِکْ عَلٰی مُحَمَّدٍ وَّعَلٰی اٰلِ مُحَمَّدٍ کَمَا بَارَکْتَ عَلٰی اِبْرَاھِیْمَ وَعَلٰی اٰلِ اِبْرَاھِیْمَ اِنَّکَ حَمِیْدٌ مَّجِیْدٌ
         </div>
         <button class="speak-btn" onclick="playDaroodAudio()">
           <span>🔊</span> سنیں (Listen)
         </button>
         <hr style="margin: 10px 0; border: 0; border-top: 1px solid rgba(197, 160, 89, 0.3);">
         <div class="translation">
-          اے اللہ! رحمت نازل فرما حضرت محمد ﷺ پر اور ان کی آل پر جیسے تو نے رحمت نازل فرمائی حضرت ابراہیم علیہ السلام پر اور ان کی آل پر، بے شک تو تعریف کے لائق اور بزرگی والا ہے۔
+          اے اللہ! رحمت نازل فرما حضرت محمد ﷺ پر اور ان کی آل پر جیسے تو نے رحمت نازل فرمائی حضرت ابراہیم علیہ السلام پر اور ان کی آل پر، بے شک تو تعریف کے لائق اور بزرگی والا ہے۔ اور برکت نازل فرما حضرت محمد ﷺ پر اور ان کی آل پر جیسے تو نے برکت نازل فرمائی حضرت ابراہیم علیہ السلام پر اور ان کی آل پر، بے شک تو تعریف کے لائق اور بزرگی والا ہے۔
         </div>
       </div>
 
@@ -627,14 +627,14 @@
     const todayDateKey = new Date().toISOString().slice(0, 10);
     const competitionRefPath = "competitions/" + todayDateKey;
 
-    // Text-to-Speech Function for Listening to Darood
+    // Text-to-Speech Function for Listening to Darood (Adjusted to ~15 seconds duration rate: 0.75)
     function playDaroodAudio() {
       if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel(); // پچھلی کوئی آواز چل رہی ہو تو بند کریں
         const textToRead = document.getElementById("daroodArabicText").innerText;
         const utterance = new SpeechSynthesisUtterance(textToRead);
         utterance.lang = 'ar-SA'; // عربی تلفظ کے لیے
-        utterance.rate = 0.85; // پڑھنے کی رفتار تھوڑی سست تاکہ واضح سنائی دے
+        utterance.rate = 0.75; // 15 سیکنڈ کے لگ بھگ آرام سے پڑھنے کے لیے رفتار
         window.speechSynthesis.speak(utterance);
       } else {
         alert("آپ کا براؤزر اس آواز کی فیچر کو سپورٹ نہیں کرتا۔");
