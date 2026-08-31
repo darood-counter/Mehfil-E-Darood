@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mehfil-E-Darood — Final V4</title>
+  <title>Mehfil-E-Darood — Final V5</title>
   <link href="https://fonts.googleapis.com/css2?family=Jameel+Noori+Nastaleeq&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -580,8 +580,8 @@
         <button class="logout-btn" id="logoutBtn">لاگ آؤٹ</button>
       </div>
 
-      <!-- Darood Card -->
-      <div id="daroodCard" class="darood-card">
+      <!-- Darood Card (Shows in Tasbeeh and Competition) -->
+      <div id="daroodCard" class="darood-card hidden">
         <div class="arabic-text" id="daroodArabicText">
           اَللّٰھُمَّ صَلِّ عَلٰی مُحَمَّدٍ وَّعَلٰی اٰلِ مُحَمَّدٍ کَمَا صَلَّیْتَ عَلٰی اِبْرَاھِیْمَ وَعَلٰی اٰلِ اِبْرَاھِیْمَ اِنَّکَ حَمِیْدٌ مَّجِیْدٌ۔ اَللّٰھُمَّ بَارِکْ عَلٰی مُحَمَّدٍ وَّعَلٰی اٰلِ مُحَمَّدٍ کَمَا بَارَکْتَ عَلٰی اِبْرَاھِیْمَ وَعَلٰی اٰلِ اِبْرَاھِیْمَ اِنَّکَ حَمِیْدٌ مَّجِیْدٌ
         </div>
@@ -595,7 +595,7 @@
 
       <!-- TAB 1: Home Tab -->
       <div id="mainTab">
-        <h2 style="font-size: 20px; color: var(--primary-color); margin: 10px 0;">🙌 آج کی محفل</h2>
+        <h2 style="font-size: 20px; color: var(--primary-color); margin: 10px 0;">🕌 آج کی محفل</h2>
         
         <!-- Real Live Total Counter Box -->
         <div style="background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 14px; padding: 12px; margin: 10px 0; box-shadow: 0 4px 15px rgba(0,0,0,0.03);">
@@ -603,8 +603,15 @@
           <div style="font-size: 12px; color: var(--text-muted);">آج کے اجتماعی درود (ریئل ٹائم)</div>
         </div>
 
-        <!-- PUBLIC PAYMENT PROOF SECTION -->
-        <div class="proof-box" style="margin-top: 15px;">
+        <!-- TOP 10 RANKING LEADERBOARD -->
+        <h3 style="color:var(--primary-color); margin-top: 20px; font-size: 16px; text-align: right;">🏆 ٹاپ 10 رینکنگ (Top 10 Users)</h3>
+        <table>
+          <thead><tr><th>رینک</th><th>صارف</th><th>کل درود</th></tr></thead>
+          <tbody id="homeTop10Board"><tr><td colspan="3">لوڈ ہو رہا ہے...</td></tr></tbody>
+        </table>
+
+        <!-- PUBLIC PAYMENT PROOF SECTION (AT THE BOTTOM/LAST) -->
+        <div class="proof-box" style="margin-top: 20px;">
           <div class="proof-title">📢 فاتحین اور پیمنٹ پروف (Payment Proofs)</div>
           <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 6px;">تمام صارفین دیکھ سکتے ہیں کہ کس فاتح کو انعام مل گیا:</p>
           <div id="publicProofList">لوڈ ہو رہا ہے...</div>
@@ -646,7 +653,7 @@
           <button style="background: #0d3b22; color: white; border: none; padding: 10px 24px; border-radius: 12px; font-family: inherit; font-size: 14px; font-weight: bold; cursor: pointer;" onclick="startVoiceRecognition('countBtn', 'statusMsg', false)">🎙️ 1+ درود شریف پڑھیں</button>
         </div>
 
-        <!-- LEADERBOARD MOVED HERE -->
+        <!-- LEADERBOARD -->
         <h3 style="color:var(--primary-color); margin-top: 25px; font-size: 16px; text-align: right;">🏆 لائیو Leaderboard</h3>
         <table>
           <thead><tr><th>رینک</th><th>صارف</th><th>کل درود</th></tr></thead>
@@ -664,7 +671,7 @@
         </div>
       </div>
 
-      <!-- TAB 4: About Tab (Replaced Leaderboard Tab) -->
+      <!-- TAB 4: About Tab -->
       <div id="aboutTab" class="hidden">
         <h2 style="font-size: 20px; color: var(--primary-color); margin: 10px 0; text-align: center;">ℹ️ ایپ کی تفصیلات (About Us)</h2>
         
@@ -676,7 +683,7 @@
         <div class="about-card">
           <h3>⚡ ایپ کے اہم فیچرز</h3>
           <p>
-            • <b>آج کی محفل (Home):</b> یہاں آپ آج کے کل اجتماعی درود کی تعداد اور شفاف پیمنٹ پروف (Payment Proofs) دیکھ سکتے ہیں۔<br>
+            • <b>آج کی محفل (Home):</b> یہاں آپ آج کے کل اجتماعی درود کی تعداد، ٹاپ 10 رینکنگ اور شفاف پیمنٹ پروف (Payment Proofs) دیکھ سکتے ہیں۔<br>
             • <b>تسبیح (Tasbeeh):</b> اپنی انفرادی تسبیح کے لیے وائس کاؤنٹر استعمال کریں اور لائیو لیڈر بورڈ پر اپنا رینک دیکھیں۔<br>
             • <b>مقابلہ (Competition):</b> روزانہ کے مقابلے میں حصہ لیں اور 100 یا اس سے زیادہ درود شریف پڑھ کر انعامات حاصل کریں۔<br>
             • <b>پروفائل (Profile):</b> اپنا نام، ای میل اور انعام کی رقم حاصل کرنے کے لیے JazzCash / EasyPaisa نمبر درج کریں۔
@@ -867,7 +874,7 @@
       document.getElementById("rewardTab").classList.add("hidden");
       document.getElementById("profileTab").classList.add("hidden");
       document.getElementById("aboutTab").classList.add("hidden");
-      document.getElementById("daroodCard").classList.remove("hidden");
+      document.getElementById("daroodCard").classList.add("hidden");
 
       document.querySelectorAll(".bottom-nav .nav-item").forEach(el => el.classList.remove("active"));
 
@@ -878,16 +885,17 @@
         document.getElementById("customModal").classList.remove("hidden");
         document.getElementById("compTab").classList.remove("hidden");
         document.getElementById("navCompetition").classList.add("active");
+        document.getElementById("daroodCard").classList.remove("hidden");
       } else if (tabName === 'about') {
         document.getElementById("aboutTab").classList.remove("hidden");
         document.getElementById("navAbout").classList.add("active");
       } else if (tabName === 'reward') {
         document.getElementById("rewardTab").classList.remove("hidden");
         document.getElementById("navTasbeeh").classList.add("active");
+        document.getElementById("daroodCard").classList.remove("hidden");
       } else if (tabName === 'profile') {
         document.getElementById("profileTab").classList.remove("hidden");
         document.getElementById("navProfile").classList.add("active");
-        document.getElementById("daroodCard").classList.add("hidden");
       }
     }
 
@@ -1205,15 +1213,26 @@
     document.getElementById("countBtn").onclick = () => startVoiceRecognition("countBtn", "statusMsg", false);
     document.getElementById("compCountBtn").onclick = () => startVoiceRecognition("compCountBtn", "compStatusMsg", true);
 
-    db.ref("users").orderByChild("count").on("value", snapshot => renderBoard(snapshot, "board"));
-    db.ref(competitionRefPath).orderByChild("count").on("value", snapshot => renderBoard(snapshot, "compBoard"));
+    db.ref("users").orderByChild("count").on("value", snapshot => {
+      renderBoard(snapshot, "board");
+      renderBoard(snapshot, "homeTop10Board", 10);
+    });
 
-    function renderBoard(snapshot, elementId) {
+    db.ref(competitionRefPath).orderByChild("count").on("value", snapshot => {
+      renderBoard(snapshot, "compBoard");
+    });
+
+    function renderBoard(snapshot, elementId, limit = null) {
       const container = document.getElementById(elementId);
+      if (!container) return;
       container.innerHTML = "";
       let users = [];
       snapshot.forEach(child => { users.push(child.val()); });
       users.reverse();
+
+      if (limit) {
+        users = users.slice(0, limit);
+      }
 
       if (users.length === 0) {
         container.innerHTML = "<tr><td colspan='3'>ابھی تک کوئی ڈیٹا نہیں۔</td></tr>";
