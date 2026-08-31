@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mehfil-E-Darood — Final V6 (Updated)</title>
+  <title>Mehfil-E-Darood — Final V7 (Admin Home)</title>
   <link href="https://fonts.googleapis.com/css2?family=Jameel+Noori+Nastaleeq&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -24,13 +24,12 @@
       color: var(--text-main);
       text-align: center;
       margin: 0;
-      padding-bottom: 70px; /* Space for bottom nav */
+      padding-bottom: 70px;
       min-height: 100vh;
       font-size: 16px;
       line-height: 1.8;
     }
 
-    /* Top Green Header */
     .top-header {
       background: linear-gradient(135deg, #0b311c 0%, #134e29 100%);
       color: white;
@@ -70,7 +69,6 @@
       z-index: 10;
     }
 
-    /* Live Badge */
     .live-badge {
       display: inline-flex;
       align-items: center;
@@ -100,7 +98,6 @@
       100% { transform: scale(0.95); opacity: 0.7; }
     }
 
-    /* Darood Card */
     .darood-card {
       background: linear-gradient(145deg, #ffffff, #f8faf9);
       border: 1.5px solid var(--accent-gold);
@@ -145,12 +142,8 @@
       font-family: 'Jameel Noori Nastaleeq', sans-serif;
       transition: all 0.2s ease;
     }
-    .speak-btn:hover {
-      background: var(--accent-gold);
-      color: white;
-    }
+    .speak-btn:hover { background: var(--accent-gold); color: white; }
 
-    /* User Header & Profile */
     .user-header {
       display: flex;
       justify-content: space-between;
@@ -205,7 +198,6 @@
       font-size: 14px;
     }
 
-    /* About Section Cards */
     .about-card {
       background: #ffffff;
       border: 1px solid #e2e8f0;
@@ -230,7 +222,6 @@
       line-height: 1.7;
     }
 
-    /* Proof & Admin Boxes */
     .proof-box, .admin-panel {
       background: #fff;
       border: 1px solid #e2e8f0;
@@ -261,8 +252,8 @@
     .paid-btn { background-color: #16a34a; color: white; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; margin-top: 6px; font-family: inherit;}
     .unpaid-btn { background-color: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; margin-top: 6px; font-family: inherit;}
     .paid-badge { background-color: #dcfce7; color: #16a34a; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; }
+    .pending-badge { background-color: #fef3c7; color: #d97706; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; }
 
-    /* Action Button */
     .mic-circle-wrapper {
       position: relative;
       width: 170px;
@@ -315,7 +306,6 @@
 
     .status-msg { font-weight: bold; font-size: 13px; margin: 6px 0; min-height: 20px; }
     
-    /* Auth Forms Styling */
     .auth-container {
       background: #fffdf9;
       border: 1px solid #fde68a;
@@ -401,7 +391,6 @@
     
     .hidden { display: none !important; }
 
-    /* Bottom Navigation Bar */
     .bottom-nav {
       position: fixed;
       bottom: 0;
@@ -439,7 +428,6 @@
       margin-bottom: 2px;
     }
 
-    /* Custom Popup Modal */
     .custom-modal {
       position: fixed;
       top: 0; left: 0; width: 100%; height: 100%;
@@ -493,12 +481,10 @@
 </head>
 <body>
 
-  <!-- Hidden YouTube Player -->
   <div style="display:none;">
     <iframe id="youtubeAudioFrame" width="200" height="200" src="https://www.youtube.com/embed/B1kvwM-2AUc?enablejsapi=1&autoplay=0" allow="autoplay"></iframe>
   </div>
 
-  <!-- Custom Popup Modal -->
   <div id="customModal" class="custom-modal hidden">
     <div class="modal-content">
       <div class="modal-title">🎯 مقابلہ جاری ہے</div>
@@ -507,7 +493,6 @@
     </div>
   </div>
 
-  <!-- Top Dark Green Header -->
   <div class="top-header">
     <div class="brand-title">
       Mehfil-E-Darood 🌙
@@ -521,9 +506,7 @@
       <span class="live-dot"></span> آن لائن شرکاء: <span id="onlineCount">0</span>
     </div>
 
-    <!-- Auth Section (Login/Signup First) -->
     <div id="authSection">
-      <!-- Login Form -->
       <div id="loginForm" class="auth-container">
         <h3 style="color:var(--primary-color); margin: 0 0 10px 0; text-align:center; font-size: 17px;">🔐 لاگ ان کریں (Login)</h3>
         
@@ -546,7 +529,6 @@
         <div class="switch-text" onclick="toggleAuthMode('signup')">نیا اکاؤنٹ بنانا ہے؟ <span>سائن اپ کریں</span></div>
       </div>
 
-      <!-- Signup Form -->
       <div id="signupForm" class="auth-container hidden">
         <h3 style="color:var(--primary-color); margin: 0 0 10px 0; text-align:center; font-size: 17px;">✨ نیا اکاؤنٹ بنائیں (Signup)</h3>
         
@@ -573,14 +555,12 @@
       </div>
     </div>
 
-    <!-- Main Content Container -->
     <div id="userInfo" class="hidden">
       <div class="user-header">
         <span>خوش آمدید، <b id="userName"></b>!</span>
         <button class="logout-btn" id="logoutBtn">لاگ آؤٹ</button>
       </div>
 
-      <!-- Darood Card (Shows in Tasbeeh and Competition) -->
       <div id="daroodCard" class="darood-card hidden">
         <div class="arabic-text" id="daroodArabicText">
           اَللّٰھُمَّ صَلِّ عَلٰی مُحَمَّدٍ وَّعَلٰی اٰلِ مُحَمَّدٍ کَمَا صَلَّیْتَ عَلٰی اِبْرَاھِیْمَ وَعَلٰی اٰلِ اِبْرَاھِیْمَ اِنَّکَ حَمِیْدٌ مَّجِیْدٌ۔ اَللّٰھُمَّ بَارِکْ عَلٰی مُحَمَّدٍ وَّعَلٰی اٰلِ مُحَمَّدٍ کَمَا بَارَکْتَ عَلٰی اِبْرَاھِیْمَ وَعَلٰی اٰلِ اِبْرَاھِیْمَ اِنَّکَ حَمِیْدٌ مَّجِیْدٌ
@@ -597,26 +577,49 @@
       <div id="mainTab">
         <h2 style="font-size: 20px; color: var(--primary-color); margin: 10px 0;">🕌 آج کی محفل</h2>
         
-        <!-- Real Live Total Counter Box -->
         <div style="background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 14px; padding: 12px; margin: 10px 0; box-shadow: 0 4px 15px rgba(0,0,0,0.03);">
           <div style="font-size: 28px; font-weight: bold; color: var(--primary-color);" id="globalTotalCount">0</div>
           <div style="font-size: 12px; color: var(--text-muted);">آج کے اجتماعی درود (ریئل ٹائم)</div>
         </div>
 
-        <!-- LIVE COMPETITION WINNER HIGHLIGHT BOX -->
         <div style="background: linear-gradient(135deg, #fffbeb, #fef3c7); border: 1.5px solid #f59e0b; border-radius: 14px; padding: 14px; margin: 14px 0; text-align: center; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.15);">
           <div style="font-size: 14px; font-weight: bold; color: #d97706; margin-bottom: 4px;">👑 آج کے مقابلے کا لیڈر (سب سے آگے)</div>
           <div id="homeWinnerHighlight" style="font-size: 15px; color: #1f2937; font-weight: bold;">لوڈ ہو رہا ہے...</div>
         </div>
 
-        <!-- TOP 10 RANKING LEADERBOARD -->
+        <!-- ADMIN PANEL SECTION ON HOME PAGE -->
+        <div id="adminPanelSection" class="admin-panel hidden" style="text-align: right; margin-top: 15px;">
+          <div class="admin-title">👑 ایڈمن پینل (پیمنٹ اور فاتحین کا انتظام)</div>
+          
+          <!-- Filter Controls -->
+          <div style="display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap;">
+            <button class="save-profile-btn" style="flex: 1; padding: 6px; font-size: 12px;" onclick="setAdminFilter('today')">آج (Today)</button>
+            <button class="save-profile-btn" style="flex: 1; padding: 6px; font-size: 12px; background-color: #d97706;" onclick="setAdminFilter('weekly')">ہفتہ وار (Weekly)</button>
+            <button class="save-profile-btn" style="flex: 1; padding: 6px; font-size: 12px; background-color: #1e40af;" onclick="setAdminFilter('monthly')">ماہانہ (Monthly)</button>
+          </div>
+
+          <!-- Date Range Selector -->
+          <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px; display: flex; gap: 6px; align-items: center;">
+            <span>تاریخ کی حد:</span>
+            <input type="date" id="adminStartDate" style="padding: 4px; border-radius: 6px; border: 1px solid #d1d5db; font-size: 11px;">
+            <span>تا</span>
+            <input type="date" id="adminEndDate" style="padding: 4px; border-radius: 6px; border: 1px solid #d1d5db; font-size: 11px;">
+            <button onclick="applyDateRangeFilter()" style="background:var(--primary-color); color:white; border:none; padding: 4px 10px; border-radius: 6px; font-size: 11px; cursor: pointer;">لاگو کریں</button>
+          </div>
+
+          <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">
+            ✨ **منتخب دورانیے کے کل درود:** <span id="adminCombinedTotal" style="color:#ef4444; font-weight:bold; font-size: 14px;">0</span>
+          </p>
+
+          <div id="adminWinnersList">لوڈ ہو رہا ہے...</div>
+        </div>
+
         <h3 style="color:var(--primary-color); margin-top: 20px; font-size: 16px; text-align: right;">🏆 ٹاپ 10 رینکنگ (Top 10 Users)</h3>
         <table>
           <thead><tr><th>رینک</th><th>صارف</th><th>کل درود</th></tr></thead>
           <tbody id="homeTop10Board"><tr><td colspan="3">لوڈ ہو رہا ہے...</td></tr></tbody>
         </table>
 
-        <!-- PUBLIC PAYMENT PROOF SECTION (AT THE BOTTOM/LAST) -->
         <div class="proof-box" style="margin-top: 20px;">
           <div class="proof-title">📢 فاتحین اور پیمنٹ پروف (Payment Proofs)</div>
           <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 6px;">تمام صارفین دیکھ سکتے ہیں کہ کس فاتح کو انعام مل گیا:</p>
@@ -641,11 +644,10 @@
         </table>
       </div>
 
-      <!-- TAB 3: Tasbeeh Tab (Contains Counter Button & Live Leaderboard) -->
+      <!-- TAB 3: Tasbeeh Tab -->
       <div id="rewardTab" class="hidden" style="text-align: center;">
         <h2 style="font-size: 20px; color: var(--primary-color); margin: 10px 0;">📿 تسبیح کاؤنٹر</h2>
         
-        <!-- Circular Progress Mic Button -->
         <div class="mic-circle-wrapper">
           <div class="circle-progress"></div>
           <button class="mic-btn" id="countBtn">
@@ -659,22 +661,11 @@
           <button style="background: #0d3b22; color: white; border: none; padding: 10px 24px; border-radius: 12px; font-family: inherit; font-size: 14px; font-weight: bold; cursor: pointer;" onclick="startVoiceRecognition('countBtn', 'statusMsg', false)">🎙️ 1+ درود شریف پڑھیں</button>
         </div>
 
-        <!-- LEADERBOARD -->
         <h3 style="color:var(--primary-color); margin-top: 25px; font-size: 16px; text-align: right;">🏆 لائیو Leaderboard</h3>
         <table>
           <thead><tr><th>رینک</th><th>صارف</th><th>کل درود</th></tr></thead>
           <tbody id="board"><tr><td colspan="3">لوڈ ہو رہا ہے...</td></tr></tbody>
         </table>
-
-        <!-- ADMIN PANEL SECTION -->
-        <div id="adminPanelSection" class="admin-panel hidden" style="text-align: right; margin-top: 25px;">
-          <div class="admin-title">👑 ایڈمن پینل (فاتحین اور کل ریکارڈ)</div>
-          <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">
-            ✨ **کل درود (عام + مقابلہ):** <span id="adminCombinedTotal" style="color:#ef4444; font-weight:bold; font-size: 14px;">0</span>
-          </p>
-          <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">یہاں سے پیمنٹ اسٹیٹس کنٹرول کریں:</p>
-          <div id="adminWinnersList">لوڈ ہو رہا ہے...</div>
-        </div>
       </div>
 
       <!-- TAB 4: About Tab -->
@@ -689,16 +680,10 @@
         <div class="about-card">
           <h3>⚡ ایپ کے اہم فیچرز</h3>
           <p>
-            • <b>آج کی محفل (Home):</b> یہاں آپ آج کے کل اجتماعی درود کی تعداد، ٹاپ 10 رینکنگ اور شفاف پیمنٹ پروف (Payment Proofs) دیکھ سکتے ہیں۔<br>
-            • <b>تسبیح (Tasbeeh):</b> اپنی انفرادی تسبیح کے لیے وائس کاؤنٹر استعمال کریں اور لائیو لیڈر بورڈ پر اپنا رینک دیکھیں۔<br>
-            • <b>مقابلہ (Competition):</b> روزانہ کے مقابلے میں حصہ لیں اور کم از کم 100 درود شریف پڑھ کر انعام حاصل کریں۔<br>
-            • <b>پروفائل (Profile):</b> اپنا نام، ای میل اور انعام کی رقم حاصل کرنے کے لیے JazzCash / EasyPaisa نمبر درج کریں۔
+            • <b>آج کی محفل (Home):</b> یہاں آپ کل اجتماعی درود، رینکنگ اور ایڈمن پینل کے ذریعے پیمنٹ اسٹیٹس (Paid/Pending) ہفتہ وار اور ماہانہ بنیادوں پر دیکھ سکتے ہیں۔<br>
+            • <b>تسبیح (Tasbeeh):</b> اپنی انفرادی تسبیح کے لیے وائس کاؤنٹر استعمال کریں۔<br>
+            • <b>مقابلہ (Competition):</b> روزانہ کے مقابلے میں حصہ لیں اور انعامات جیتیں۔
           </p>
-        </div>
-
-        <div class="about-card">
-          <h3>🎁 انعامی ضوابط</h3>
-          <p>مقابلے میں شامل ہونے کے لیے کم از کم 100 درود شریف پڑھنا لازمی ہے۔ ٹاپ پوزیشن حاصل کرنے والے فاتح کو JazzCash یا EasyPaisa کے ذریعے انعام منتقل کیا جاتا ہے۔</p>
         </div>
       </div>
 
@@ -735,7 +720,6 @@
     </div>
   </div>
 
-  <!-- Bottom Navigation Bar -->
   <div class="bottom-nav">
     <button class="nav-item" id="navProfile" onclick="switchBottomTab('profile')">
       <span class="icon">👤</span>
@@ -759,10 +743,7 @@
     </button>
   </div>
 
-  <!-- YouTube IFrame API -->
   <script src="https://www.youtube.com/iframe_api"></script>
-
-  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
@@ -785,7 +766,7 @@
     let currentUser = null;
     const ADMIN_EMAIL = "kamran7078127@gmail.com";
     const todayDateKey = new Date().toISOString().slice(0, 10);
-    const competitionRefPath = "competitions/" + todayDateKey;
+    let currentAdminFilter = "today"; // default
 
     let ytPlayer = null;
     function onYouTubeIframeAPIReady() {
@@ -796,21 +777,12 @@
 
     function playYouTubeAudioOnly() {
       if (ytPlayer && typeof ytPlayer.playVideo === 'function') {
-        try {
-          ytPlayer.seekTo(0);
-          ytPlayer.playVideo();
-        } catch(e) {
-          alert("آڈیو پلے کرنے میں مسئلہ پیش آیا۔");
-        }
-      } else {
-        alert("آڈیو لوڈ ہو رہی ہے، براہِ کرم ایک لمحہ انتظار کریں۔");
+        try { ytPlayer.seekTo(0); ytPlayer.playVideo(); } catch(e) {}
       }
     }
 
     function triggerVibration() {
-      if ("vibrate" in navigator) {
-        try { navigator.vibrate(200); } catch(e) {}
-      }
+      if ("vibrate" in navigator) { try { navigator.vibrate(200); } catch(e) {} }
     }
 
     function playSuccessSound() {
@@ -822,10 +794,8 @@
         osc.frequency.setValueAtTime(587.33, audioCtx.currentTime);
         gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
         gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.4);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.4);
       } catch(e) {}
     }
 
@@ -838,41 +808,10 @@
         osc.frequency.setValueAtTime(200, audioCtx.currentTime);
         gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
         gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.3);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.3);
       } catch(e) {}
     }
-
-    function updateAdminCombinedTotal() {
-      let totalGeneral = 0;
-      let totalComp = 0;
-
-      db.ref("users").once("value", userSnap => {
-        userSnap.forEach(child => {
-          let d = child.val();
-          if (d.count) totalGeneral += d.count;
-        });
-
-        db.ref(competitionRefPath).once("value", compSnap => {
-          compSnap.forEach(child => {
-            let d = child.val();
-            if (d.count) totalComp += d.count;
-          });
-
-          let grandTotal = totalGeneral + totalComp;
-          const adminTotalElem = document.getElementById("adminCombinedTotal");
-          if (adminTotalElem) adminTotalElem.innerText = grandTotal;
-          
-          const globalTotalElem = document.getElementById("globalTotalCount");
-          if (globalTotalElem) globalTotalElem.innerText = grandTotal.toLocaleString();
-        });
-      });
-    }
-
-    db.ref("users").on("value", () => updateAdminCombinedTotal());
-    db.ref(competitionRefPath).on("value", () => updateAdminCombinedTotal());
 
     function switchBottomTab(tabName) {
       document.getElementById("mainTab").classList.add("hidden");
@@ -929,7 +868,6 @@
         statusEl.style.color = "#ef4444";
         statusEl.innerText = "براہِ کرم تمام فیلڈز مکمل کریں۔";
         playErrorSound();
-        triggerVibration();
         return;
       }
 
@@ -938,7 +876,6 @@
         .then(() => {
           statusEl.innerText = "✓ کامیابی سے سائن اپ ہو گیا!";
           playSuccessSound();
-          triggerVibration();
         })
         .catch(() => {
           statusEl.style.color = "#ef4444";
@@ -967,15 +904,7 @@
         .catch((error) => {
           statusEl.style.color = "#ef4444";
           playErrorSound();
-          if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
-            statusEl.innerText = "اکاؤنٹ موجود نہیں، سائن اپ کریں۔";
-            setTimeout(() => {
-              document.getElementById("signupEmail").value = email;
-              toggleAuthMode('signup');
-            }, 1200);
-          } else {
-            statusEl.innerText = "لاگ ان میں ناکامی۔";
-          }
+          statusEl.innerText = "لاگ ان میں ناکامی۔";
         });
     };
 
@@ -984,10 +913,7 @@
       auth.signInWithPopup(provider).then(() => {
         playSuccessSound();
         triggerVibration();
-      }).catch(() => {
-        playErrorSound();
-        alert("گوگل لاگ ان میں خرابی۔");
-      });
+      }).catch(() => { playErrorSound(); });
     }
 
     document.getElementById("googleSignupBtn").onclick = handleGoogleAuth;
@@ -1010,7 +936,7 @@
 
         if (user.email === ADMIN_EMAIL) {
           document.getElementById("adminPanelSection").classList.remove("hidden");
-          updateAdminCombinedTotal();
+          loadAdminData();
         } else {
           document.getElementById("adminPanelSection").classList.add("hidden");
         }
@@ -1025,7 +951,7 @@
           }
         });
 
-        db.ref(competitionRefPath + "/" + user.uid).on("value", snapshot => {
+        db.ref("competitions/" + todayDateKey + "/" + user.uid).on("value", snapshot => {
           const data = snapshot.val();
           document.getElementById("compUserTotal").innerText = data ? (data.count || 0) : 0;
         });
@@ -1068,95 +994,167 @@
           document.getElementById("profileStatus").style.color = "var(--primary-color)";
           document.getElementById("profileStatus").innerText = "✓ تفصیلات محفوظ ہو گئیں!";
           playSuccessSound();
-        } else {
-          document.getElementById("profileStatus").style.color = "#ef4444";
-          document.getElementById("profileStatus").innerText = "خرابی پیش آئی۔";
         }
       });
     };
 
-    // Listen to competition leaderboard changes to update Home page winner highlight as well
-    db.ref(competitionRefPath).orderByChild("count").on("value", compSnapshot => {
-      db.ref("users").on("value", userSnapshot => {
-        const adminContainer = document.getElementById("adminWinnersList");
-        const publicContainer = document.getElementById("publicProofList");
-        const homeWinnerElem = document.getElementById("homeWinnerHighlight");
+    window.setAdminFilter = function(filterType) {
+      currentAdminFilter = filterType;
+      loadAdminData();
+    };
 
-        adminContainer.innerHTML = "";
-        publicContainer.innerHTML = "";
+    window.applyDateRangeFilter = function() {
+      currentAdminFilter = 'custom';
+      loadAdminData();
+    };
 
-        let compUsers = [];
-        compSnapshot.forEach(child => { compUsers.push({ uid: child.key, ...child.val() }); });
-        compUsers.reverse();
+    function loadAdminData() {
+      if (!currentUser || currentUser.email !== ADMIN_EMAIL) return;
 
-        // Update Home page competition winner highlight
-        if (compUsers.length > 0 && homeWinnerElem) {
-          let topUser = compUsers[0];
-          let statusText = topUser.count >= 100 ? " (شرط پوری کر لی ہے! 🎉)" : " (جیتنے کے قریب ہیں!)";
-          homeWinnerElem.innerHTML = `⭐ <b>${topUser.name || "گمنام"}</b> (${topUser.count} درود)${statusText}`;
-        } else if (homeWinnerElem) {
-          homeWinnerElem.innerText = "ابھی تک مقابلے میں کوئی شریک نہیں ہوا۔";
-        }
+      let startDateStr = document.getElementById("adminStartDate").value;
+      let endDateStr = document.getElementById("adminEndDate").value;
 
-        let allUsersData = userSnapshot.val() || {};
+      db.ref("competitions").once("value", compSnapshot => {
+        db.ref("users").once("value", userSnapshot => {
+          const adminContainer = document.getElementById("adminWinnersList");
+          const publicContainer = document.getElementById("publicProofList");
+          const adminTotalElem = document.getElementById("adminCombinedTotal");
 
-        if (compUsers.length === 0) {
-          adminContainer.innerHTML = "<p>آج کے مقابلے میں کوئی نہیں ہے۔</p>";
-          publicContainer.innerHTML = "<p style='font-size:12px; color:var(--text-muted);'>ابھی تک کوئی فاتح ریکارڈ نہیں۔</p>";
-          return;
-        }
+          adminContainer.innerHTML = "";
+          publicContainer.innerHTML = "";
 
-        let proofCount = 0;
-        compUsers.forEach((u) => {
-          let uProfile = allUsersData[u.uid] || {};
-          if (uProfile.paid && (u.count || 0) >= 100) {
-            proofCount++;
-            let maskedNumber = uProfile.accNumber ? uProfile.accNumber.replace(/.(?=.{4})/g, '*') : '---';
-            publicContainer.innerHTML += `
-              <div class="proof-item">
-                <b>🥇 فاتح:</b> ${u.name || "گمنام"} (درود: ${u.count}) | <b>انعام:</b> 200 روپے<br>
-                <b>اکاؤنٹ:</b> ${uProfile.accType || ""} (${maskedNumber})<br>
-                <span style="color: #16a34a; font-weight: bold; font-size: 11px;">✓ اسٹیٹس: پیمنٹ ادا کر دی گئی (Paid)</span>
+          let now = new Date();
+          let filteredUsers = {};
+          let totalDaroodSum = 0;
+
+          compSnapshot.forEach(dateSnap => {
+            let dateKey = dateSnap.key; // YYYY-MM-DD
+            let dDate = new Date(dateKey);
+
+            let includeDate = false;
+            if (currentAdminFilter === 'today') {
+              includeDate = (dateKey === todayDateKey);
+            } else if (currentAdminFilter === 'weekly') {
+              let diffTime = Math.abs(now - dDate);
+              let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+              includeDate = (diffDays <= 7);
+            } else if (currentAdminFilter === 'monthly') {
+              includeDate = (dDate.getMonth() === now.getMonth() && dDate.getFullYear() === now.getFullYear());
+            } else if (currentAdminFilter === 'custom' && startDateStr && endDateStr) {
+              includeDate = (dateKey >= startDateStr && dateKey <= endDateStr);
+            }
+
+            if (includeDate) {
+              dateSnap.forEach(userSnap => {
+                let uid = userSnap.key;
+                let val = userSnap.val();
+                if (!filteredUsers[uid]) {
+                  filteredUsers[uid] = { name: val.name, count: 0 };
+                }
+                filteredUsers[uid].count += (val.count || 0);
+                totalDaroodSum += (val.count || 0);
+              });
+            }
+          });
+
+          adminTotalElem.innerText = totalDaroodSum.toLocaleString();
+
+          let sortedWinners = [];
+          for (let uid in filteredUsers) {
+            sortedWinners.push({ uid: uid, ...filteredUsers[uid] });
+          }
+          sortedWinners.sort((a, b) => b.count - a.count);
+
+          let allUsersData = userSnapshot.val() || {};
+          let proofCount = 0;
+
+          if (sortedWinners.length === 0) {
+            adminContainer.innerHTML = "<p>اس دورانیے میں کوئی ڈیٹا موجود نہیں۔</p>";
+            publicContainer.innerHTML = "<p style='font-size:12px; color:var(--text-muted);'>ابھی تک کوئی فاتح ریکارڈ نہیں۔</p>";
+            return;
+          }
+
+          sortedWinners.forEach((u, idx) => {
+            let uProfile = allUsersData[u.uid] || {};
+            let isEligible = u.count >= 100;
+            let rankLabel = idx === 0 ? "🥇 ٹاپ پوزیشن" : `#${idx+1} رینک`;
+            let statusBadge = uProfile.paid ? `<span class="paid-badge">Paid ✓ (ادا کر دی گئی)</span>` : `<span class="pending-badge">Pending ⏳ (پینڈنگ)</span>`;
+
+            if (isEligible && uProfile.paid) {
+              proofCount++;
+              let maskedNumber = uProfile.accNumber ? uProfile.accNumber.replace(/.(?=.{4})/g, '*') : '---';
+              publicContainer.innerHTML += `
+                <div class="proof-item">
+                  <b>🥇 فاتح:</b> ${u.name || "گمنام"} (درود: ${u.count})<br>
+                  <b>اکاؤنٹ:</b> ${uProfile.accType || ""} (${maskedNumber})<br>
+                  <span style="color: #16a34a; font-weight: bold; font-size: 11px;">✓ اسٹیٹس: پیمنٹ ادا کر دی گئی (Paid)</span>
+                </div>
+              `;
+            }
+
+            let paidActionBtn = isEligible ? (
+              uProfile.paid ? 
+              `<button class="unpaid-btn" onclick="togglePayment('${u.uid}', false)">Pending کریں</button>` : 
+              `<button class="paid-btn" onclick="togglePayment('${u.uid}', true)">Paid کریں</button>`
+            ) : `<span style="font-size: 11px; color: #ef4444;">100 درود پورے نہیں</span>`;
+
+            adminContainer.innerHTML += `
+              <div class="admin-card">
+                <b>${rankLabel}</b> | <b>نام:</b> ${u.name || "گمنام"}<br>
+                <b>کل اسکور:</b> ${u.count} درود | ${statusBadge}<br>
+                <b>اکاؤنٹ نمبر:</b> ${uProfile.accNumber || "درج نہیں"} (${uProfile.accType || "---"})<br>
+                <div style="margin-top:6px;">${paidActionBtn}</div>
               </div>
             `;
+          });
+
+          if (proofCount === 0) {
+            publicContainer.innerHTML = "<p style='font-size:12px; color:var(--text-muted);'>ابھی تک کسی فاتح کی پیمنٹ مکمل نہیں ہوئی۔</p>";
           }
-        });
-
-        if (proofCount === 0) {
-          publicContainer.innerHTML = "<p style='font-size:12px; color:var(--text-muted);'>کم از کم 100 درود شریف پڑھیں اور جیتنے والے کو انعام پائیں</p>";
-        }
-
-        compUsers.forEach((u, idx) => {
-          let uProfile = allUsersData[u.uid] || {};
-          let isEligible = (u.count || 0) >= 100;
-          let rankLabel = idx === 0 ? "🥇 ٹاپ پوزیشن" : `#${idx+1} رینک`;
-          
-          let statusText = isEligible ? `<span style="color:green; font-weight:bold;">✓ 100 شرط پوری</span>` : `<span style="color:#ef4444; font-weight:bold;">⚠️ 100 پورے نہیں</span>`;
-
-          let paidActionBtn = "";
-          if (isEligible) {
-            paidActionBtn = uProfile.paid ? 
-              `<button class="unpaid-btn" onclick="togglePayment('${u.uid}', false)">Unpaid کریں</button> <span class="paid-badge">Paid ✓</span>` : 
-              `<button class="paid-btn" onclick="togglePayment('${u.uid}', true)">Paid کریں</button>`;
-          }
-
-          adminContainer.innerHTML += `
-            <div class="admin-card">
-              <b>${rankLabel}</b> | <b>نام:</b> ${u.name || "گمنام"}<br>
-              <b>اسکور:</b> ${u.count || 0} ${statusText}<br>
-              <b>اکاؤنٹ نمبر:</b> ${uProfile.accNumber || "درج نہیں"} (${uProfile.accType || "---"})<br>
-              <div style="margin-top:6px;">${paidActionBtn}</div>
-            </div>
-          `;
         });
       });
-    });
+    }
 
     window.togglePayment = function(userId, status) {
       db.ref("users/" + userId).update({ paid: status }, (error) => {
-        if (!error) alert("پیمنٹ کا اسٹیٹس اپڈیٹ ہو گیا!");
+        if (!error) {
+          alert("پیمنٹ کا اسٹیٹس اپڈیٹ ہو گیا!");
+          loadAdminData();
+        }
       });
     };
+
+    // Global Listeners for real-time counters
+    db.ref("users").on("value", () => {
+      let totalGeneral = 0;
+      db.ref("users").once("value", snap => {
+        snap.forEach(c => { if(c.val().count) totalGeneral += c.val().count; });
+        db.ref("competitions/" + todayDateKey).once("value", compSnap => {
+          let totalComp = 0;
+          compSnap.forEach(c => { if(c.val().count) totalComp += c.val().count; });
+          const globalTotalElem = document.getElementById("globalTotalCount");
+          if (globalTotalElem) globalTotalElem.innerText = (totalGeneral + totalComp).toLocaleString();
+        });
+      });
+      if (currentUser && currentUser.email === ADMIN_EMAIL) loadAdminData();
+    });
+
+    db.ref("competitions/" + todayDateKey).on("value", compSnapshot => {
+      const homeWinnerElem = document.getElementById("homeWinnerHighlight");
+      let compUsers = [];
+      compSnapshot.forEach(child => { compUsers.push({ uid: child.key, ...child.val() }); });
+      compUsers.reverse();
+
+      if (compUsers.length > 0 && homeWinnerElem) {
+        let topUser = compUsers[0];
+        let statusText = topUser.count >= 100 ? " (شرط پوری کر لی ہے! 🎉)" : " (جیتنے کے قریب ہیں!)";
+        homeWinnerElem.innerHTML = `⭐ <b>${topUser.name || "گمنام"}</b> (${topUser.count} درود)${statusText}`;
+      } else if (homeWinnerElem) {
+        homeWinnerElem.innerText = "ابھی تک مقابلے میں کوئی شریک نہیں ہوا۔";
+      }
+
+      if (currentUser && currentUser.email === ADMIN_EMAIL) loadAdminData();
+    });
 
     db.ref("status").on("value", snapshot => {
       document.getElementById("onlineCount").innerText = snapshot.numChildren() || 0;
@@ -1211,7 +1209,7 @@
           status.innerText = "✓ تصدیق ہو گئی!";
           playSuccessSound();
 
-          const targetPath = isComp ? competitionRefPath + "/" + currentUser.uid : "users/" + currentUser.uid;
+          const targetPath = isComp ? "competitions/" + todayDateKey + "/" + currentUser.uid : "users/" + currentUser.uid;
           db.ref(targetPath).transaction(current => {
             if (current) { current.count = (current.count || 0) + 1; current.name = currentUser.displayName || currentUser.email; }
             else { current = { name: currentUser.displayName || currentUser.email, count: 1 }; }
@@ -1235,7 +1233,7 @@
       renderBoard(snapshot, "homeTop10Board", 10);
     });
 
-    db.ref(competitionRefPath).orderByChild("count").on("value", snapshot => {
+    db.ref("competitions/" + todayDateKey).orderByChild("count").on("value", snapshot => {
       renderBoard(snapshot, "compBoard");
     });
 
@@ -1247,9 +1245,7 @@
       snapshot.forEach(child => { users.push(child.val()); });
       users.reverse();
 
-      if (limit) {
-        users = users.slice(0, limit);
-      }
+      if (limit) users = users.slice(0, limit);
 
       if (users.length === 0) {
         container.innerHTML = "<tr><td colspan='3'>ابھی تک کوئی ڈیٹا نہیں۔</td></tr>";
