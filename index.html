@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>محفلِ درود و مقابلے - Mehfil-E-Darood</title>
+  <title>Mehfil-E-Darood — Demo V2</title>
   <link href="https://fonts.googleapis.com/css2?family=Jameel+Noori+Nastaleeq&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -20,14 +20,42 @@
 
     body {
       font-family: 'Jameel Noori Nastaleeq', 'Plus Jakarta Sans', sans-serif;
-      background: var(--bg-gradient);
+      background: #eef4f1;
       color: var(--text-main);
       text-align: center;
-      padding: 15px 10px;
       margin: 0;
+      padding-bottom: 70px; /* Space for bottom nav */
       min-height: 100vh;
       font-size: 16px;
       line-height: 1.8;
+    }
+
+    /* Top Green Header matching reference image */
+    .top-header {
+      background: linear-gradient(135deg, #0b311c 0%, #134e29 100%);
+      color: white;
+      padding: 20px 16px 30px 16px;
+      border-bottom-left-radius: 25px;
+      border-bottom-right-radius: 25px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      margin-bottom: -20px;
+    }
+
+    .brand-title {
+      font-size: 24px;
+      font-weight: bold;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      color: #ffffff;
+    }
+
+    .brand-subtitle {
+      font-size: 13px;
+      color: #a3c1ad;
+      margin-top: 4px;
     }
 
     .container {
@@ -35,14 +63,16 @@
       margin: 0 auto;
       background: var(--card-bg);
       padding: 20px 18px;
-      border-radius: 20px;
+      border-radius: 24px;
       box-shadow: var(--shadow);
       border: 1px solid rgba(197, 160, 89, 0.25);
+      position: relative;
+      z-index: 10;
     }
 
     h1 {
       color: var(--primary-color);
-      font-size: 28px;
+      font-size: 24px;
       margin: 0 0 4px 0;
       font-weight: bold;
     }
@@ -60,16 +90,16 @@
       background-color: var(--accent-gold-light);
       color: var(--primary-color);
       border: 1px solid rgba(197, 160, 89, 0.4);
-      padding: 4px 14px;
+      padding: 3px 12px;
       border-radius: 30px;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: bold;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
 
     .live-dot {
-      height: 8px;
-      width: 8px;
+      height: 7px;
+      width: 7px;
       background-color: #16a34a;
       border-radius: 50%;
       display: inline-block;
@@ -83,61 +113,32 @@
       100% { transform: scale(0.95); opacity: 0.7; }
     }
 
-    /* Navigation Tabs */
-    .nav-tabs {
-      display: flex;
-      justify-content: center;
-      gap: 8px;
-      margin: 10px 0 15px 0;
-      flex-wrap: wrap;
-    }
-
-    .tab-btn {
-      background: #f3f4f6;
-      color: var(--text-muted);
-      border: none;
-      padding: 8px 18px;
-      border-radius: 30px;
-      font-weight: bold;
-      cursor: pointer;
-      font-size: 14px;
-      transition: all 0.3s ease;
-      font-family: 'Jameel Noori Nastaleeq', sans-serif;
-    }
-
-    .tab-btn.active {
-      background: var(--primary-color);
-      color: white;
-      box-shadow: 0 4px 15px rgba(13, 59, 34, 0.3);
-      transform: translateY(-2px);
-    }
-
     /* Darood Card */
     .darood-card {
       background: linear-gradient(145deg, #ffffff, #f8faf9);
-      border: 2px solid var(--accent-gold);
+      border: 1.5px solid var(--accent-gold);
       border-radius: 16px;
-      padding: 16px;
-      margin: 12px 0;
+      padding: 14px;
+      margin: 10px 0;
       box-shadow: 0 6px 20px rgba(197, 160, 89, 0.12);
       position: relative;
     }
 
     .arabic-text {
       font-family: 'Traditional Arabic', 'Amiri', serif;
-      font-size: 22px;
+      font-size: 20px;
       color: var(--primary-color);
       font-weight: bold;
-      line-height: 2;
+      line-height: 1.8;
       direction: rtl;
     }
 
     .translation {
-      font-size: 13px;
+      font-size: 12px;
       color: var(--text-muted);
-      margin-top: 12px;
-      line-height: 1.6;
-      padding-top: 10px;
+      margin-top: 10px;
+      line-height: 1.5;
+      padding-top: 8px;
       border-top: 1px dashed rgba(197, 160, 89, 0.4);
     }
 
@@ -146,12 +147,12 @@
       background: var(--accent-gold-light);
       color: var(--primary-color);
       border: 1px solid var(--accent-gold);
-      padding: 6px 14px;
+      padding: 5px 12px;
       border-radius: 20px;
-      font-size: 14px;
+      font-size: 13px;
       font-weight: bold;
       cursor: pointer;
-      margin-top: 10px;
+      margin-top: 8px;
       display: inline-flex;
       align-items: center;
       gap: 6px;
@@ -230,7 +231,7 @@
     .proof-title, .admin-title {
       color: var(--primary-color);
       font-weight: bold;
-      font-size: 16px;
+      font-size: 15px;
       margin-bottom: 8px;
       border-bottom: 2px solid #e8f5e9;
       padding-bottom: 6px;
@@ -251,18 +252,36 @@
     .paid-badge { background-color: #dcfce7; color: #16a34a; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; }
 
     /* Action Button (Mic / Voice Recognition Trigger) */
+    .mic-circle-wrapper {
+      position: relative;
+      width: 170px;
+      height: 170px;
+      margin: 15px auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .circle-progress {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border: 6px solid #e2e8f0;
+      border-top: 6px solid var(--primary-color);
+      border-radius: 50%;
+    }
+
     .mic-btn {
-      background: linear-gradient(135deg, #0d3b22, #166534);
-      color: white;
-      border: none;
-      width: 130px;
-      height: 130px;
+      background: linear-gradient(135deg, #ffffff, #f8faf9);
+      color: var(--primary-color);
+      border: 2px solid #10b981;
+      width: 140px;
+      height: 140px;
       border-radius: 50%;
       font-size: 14px;
       font-weight: bold;
       cursor: pointer;
-      box-shadow: 0 6px 20px rgba(13, 59, 34, 0.3);
-      margin: 14px auto;
+      box-shadow: 0 6px 20px rgba(13, 59, 34, 0.1);
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -271,10 +290,11 @@
       outline: none;
       transition: all 0.3s ease;
       font-family: 'Jameel Noori Nastaleeq', sans-serif;
+      z-index: 2;
     }
-    .mic-btn:hover { transform: scale(1.06); }
+    .mic-btn:hover { transform: scale(1.04); }
     .mic-btn:disabled { background: #9ca3af; cursor: not-allowed; box-shadow: none; transform: none; }
-    .mic-btn.listening { background: linear-gradient(135deg, #dc2626, #ef4444); animation: pulse-red 1.5s infinite; }
+    .mic-btn.listening { background: linear-gradient(135deg, #dc2626, #ef4444); color: white; animation: pulse-red 1.5s infinite; }
 
     @keyframes pulse-red {
       0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5); }
@@ -282,7 +302,7 @@
       100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
     }
 
-    .status-msg { font-weight: bold; font-size: 14px; margin: 8px 0; min-height: 20px; }
+    .status-msg { font-weight: bold; font-size: 13px; margin: 6px 0; min-height: 20px; }
     
     /* Auth Forms Styling */
     .auth-container {
@@ -374,6 +394,44 @@
     
     .hidden { display: none !important; }
 
+    /* Bottom Navigation Bar matching reference image */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: #ffffff;
+      display: flex;
+      justify-content: space-around;
+      padding: 8px 0;
+      box-shadow: 0 -4px 15px rgba(0,0,0,0.06);
+      border-top: 1px solid #e5e7eb;
+      z-index: 1000;
+    }
+
+    .nav-item {
+      background: none;
+      border: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      color: #6b7280;
+      font-size: 11px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      transition: 0.2s;
+    }
+
+    .nav-item.active {
+      color: #0d3b22;
+      font-weight: bold;
+    }
+
+    .nav-item svg, .nav-item span.icon {
+      font-size: 18px;
+      margin-bottom: 2px;
+    }
+
     /* Custom Beautiful Modal Popup */
     .custom-modal {
       position: fixed;
@@ -442,10 +500,16 @@
     </div>
   </div>
 
-  <div class="container">
-    <h1>محفلِ درود و سلام 🌸</h1>
-    <div class="subtitle">ذکرِ رسول پاک ﷺ کا بابرکت پلیٹ فارم</div>
+  <!-- Top Dark Green Header -->
+  <div class="top-header">
+    <div class="brand-title">
+      Mehfil-E-Darood 🌙
+    </div>
+    <div class="brand-subtitle">آن لائن اجتماعی محفل</div>
+  </div>
 
+  <div class="container" style="margin-top: -15px;">
+    
     <div class="live-badge">
       <span class="live-dot"></span> آن لائن شرکاء: <span id="onlineCount">0</span>
     </div>
@@ -475,7 +539,7 @@
         <div class="switch-text" onclick="toggleAuthMode('signup')">نیا اکاؤنٹ بنانا ہے؟ <span>سائن اپ کریں</span></div>
       </div>
 
-      <!-- Signup Form (Hidden initially, opens if account doesn't exist) -->
+      <!-- Signup Form -->
       <div id="signupForm" class="auth-container hidden">
         <h3 style="color:var(--primary-color); margin: 0 0 10px 0; text-align:center; font-size: 17px;">✨ نیا اکاؤنٹ بنائیں (Signup)</h3>
         
@@ -509,20 +573,13 @@
         <button class="logout-btn" id="logoutBtn">لاگ آؤٹ</button>
       </div>
 
-      <!-- Navigation Tabs -->
-      <div class="nav-tabs">
-        <button class="tab-btn active" id="mainTabBtn" onclick="showTab('mainTab')">✨ عام تسبیح</button>
-        <button class="tab-btn" id="compTabBtn" onclick="handleCompetitionClick()">🎯 مقابلہ</button>
-        <button class="tab-btn" id="rewardTabBtn" onclick="showTab('rewardTab')">🎁 انعام اور پروف</button>
-      </div>
-
-      <!-- Darood Card with Speaker (🔊) Button & Arabic Top / Translation Right Below -->
+      <!-- Darood Card with Speaker (🔊) Button -->
       <div class="darood-card">
         <div class="arabic-text" id="daroodArabicText">
           اَللّٰھُمَّ صَلِّ عَلٰی مُحَمَّدٍ وَّعَلٰی اٰلِ مُحَمَّدٍ کَمَا صَلَّیْتَ عَلٰی اِبْرَاھِیْمَ وَعَلٰی اٰلِ اِبْرَاھِیْمَ اِنَّکَ حَمِیْدٌ مَّجِیْدٌ۔ اَللّٰھُمَّ بَارِکْ عَلٰی مُحَمَّدٍ وَّعَلٰی اٰلِ مُحَمَّدٍ کَمَا بَارَکْتَ عَلٰی اِبْرَاھِیْمَ وَعَلٰی اٰلِ اِبْرَاھِیْمَ اِنَّکَ حَمِیْدٌ مَّجِیْدٌ
         </div>
         <div class="translation">
-          اے اللہ! رحمت نازل فرما حضرت محمد ﷺ پر اور ان کی آل پر جیسے تو نے رحمت نازل فرمائی حضرت ابراہیم علیہ السلام پر اور ان کی آل پر، بے شک تو تعریف کے لائق اور بزرگی والا ہے۔ اور برکت نازل فرما حضرت محمد ﷺ پر اور ان کی آل پر جیسے تو نے برکت نازل فرمائی حضرت ابراہیم علیہ السلام پر اور ان کی آل پر، بے شک تو تعریف کے لائق اور بزرگی والا ہے۔
+          اے اللہ! رحمت نازل فرما حضرت محمد ﷺ پر اور ان کی آل پر جیسے تو نے رحمت نازل فرمائی حضرت ابراہیم علیہ السلام پر اور ان کی آل پر، بے شک تو تعریف کے لائق اور بزرگی والا ہے۔
         </div>
         <button class="speak-btn" onclick="playYouTubeAudioOnly()">
           <span>🔊</span> (Listen) سنیں
@@ -531,14 +588,31 @@
 
       <!-- TAB 1: General Tasbeeh -->
       <div id="mainTab">
-        <button class="mic-btn" id="countBtn">
-          <span style="font-size: 24px;">🎙️</span>
-          <span>بول کر پڑھیں</span>
-        </button>
-        <div id="statusMsg" class="status-msg" style="color: var(--primary-color);"></div>
-        <div style="font-size: 15px; color: var(--primary-color); margin-top: 8px;">آپ کی کل پڑھائی: <b id="userTotal">0</b></div>
+        <h2 style="font-size: 20px; color: var(--primary-color); margin: 10px 0;">🙌 آج کی محفل</h2>
+        
+        <!-- Live Total Counter Box matching reference -->
+        <div style="background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 14px; padding: 12px; margin: 10px 0; box-shadow: 0 4px 15px rgba(0,0,0,0.03);">
+          <div style="font-size: 28px; font-weight: bold; color: var(--primary-color);" id="globalTotalCount">824,530</div>
+          <div style="font-size: 12px; color: var(--text-muted);">آج کے اجتماعی درود</div>
+        </div>
 
-        <h3 style="color:var(--primary-color); margin-top: 20px; font-size: 16px;">🏆 لائیو Leaderboard</h3>
+        <!-- Circular Progress Mic Button matching reference style -->
+        <div class="mic-circle-wrapper">
+          <div class="circle-progress"></div>
+          <button class="mic-btn" id="countBtn">
+            <span style="font-size: 32px; font-weight: bold; color: var(--primary-color);" id="userTotal">0</span>
+            <span style="font-size: 12px; color: var(--text-muted); font-weight: normal;">آپ کے آج کے درود</span>
+          </button>
+        </div>
+        <div id="statusMsg" class="status-msg" style="color: var(--primary-color);"></div>
+
+        <div style="display: flex; gap: 8px; justify-content: center; margin-top: 15px;">
+          <button style="background: #f3f4f6; border: 1px solid #d1d5db; padding: 8px 16px; border-radius: 12px; font-family: inherit; font-size: 13px; cursor: pointer;" onclick="alert('رিসেٹ ہو گیا')">Undo ↩</button>
+          <button style="background: #f3f4f6; border: 1px solid #d1d5db; padding: 8px 16px; border-radius: 12px; font-family: inherit; font-size: 13px; cursor: pointer;">10+</button>
+          <button style="background: #0d3b22; color: white; border: none; padding: 8px 20px; border-radius: 12px; font-family: inherit; font-size: 13px; font-weight: bold; cursor: pointer;" onclick="startVoiceRecognition('countBtn', 'statusMsg', false)">🎙️ 1+ درود شریف</button>
+        </div>
+
+        <h3 style="color:var(--primary-color); margin-top: 25px; font-size: 16px;">🏆 لائیو Leaderboard</h3>
         <table>
           <thead><tr><th>رینک</th><th>صارف</th><th>کل درود</th></tr></thead>
           <tbody id="board"><tr><td colspan="3">لوڈ ہو رہا ہے...</td></tr></tbody>
@@ -547,7 +621,8 @@
 
       <!-- TAB 2: Competition -->
       <div id="compTab" class="hidden">
-        <button class="mic-btn" style="background: linear-gradient(135deg, #d97706, #b45309);" id="compCountBtn">
+        <h2 style="font-size: 20px; color: #d97706; margin: 10px 0;">🎯 مقابلے کا سیکشن</h2>
+        <button class="mic-btn" style="background: linear-gradient(135deg, #d97706, #b45309); color:white; width: 130px; height: 130px; margin: 15px auto;" id="compCountBtn">
           <span style="font-size: 24px;">🎙️</span>
           <span>مقابلے کے لیے بولیں</span>
         </button>
@@ -601,10 +676,42 @@
           <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">یہاں سے پیمنٹ اسٹیٹس کنٹرول کریں:</p>
           <div id="adminWinnersList">لوڈ ہو رہا ہے...</div>
         </div>
+      </div>
 
+      <!-- TAB 4: Profile Tab -->
+      <div id="profileTab" class="hidden" style="text-align: right;">
+        <h3 style="color: var(--primary-color); text-align: center; font-size: 18px;">👤 پروفائل کی معلومات</h3>
+        <div class="profile-box">
+          <p><b>نام:</b> <span id="profileDisplayName">---</span></p>
+          <p><b>ای میل:</b> <span id="profileDisplayEmail">---</span></p>
+        </div>
       </div>
 
     </div>
+  </div>
+
+  <!-- Bottom Navigation Bar (Matching Reference Image) -->
+  <div class="bottom-nav">
+    <button class="nav-item" id="navProfile" onclick="switchBottomTab('profile')">
+      <span class="icon">👤</span>
+      Profile
+    </button>
+    <button class="nav-item" id="navLeaderboard" onclick="switchBottomTab('leaderboard')">
+      <span class="icon">📊</span>
+      Leaderboard
+    </button>
+    <button class="nav-item" id="navCompetition" onclick="switchBottomTab('competition')">
+      <span class="icon">🏆</span>
+      Competition
+    </button>
+    <button class="nav-item" id="navTasbeeh" onclick="switchBottomTab('reward')">
+      <span class="icon">🎁</span>
+      Tasbeeh
+    </button>
+    <button class="nav-item active" id="navHome" onclick="switchBottomTab('home')">
+      <span class="icon">🏠</span>
+      Home
+    </button>
   </div>
 
   <!-- YouTube IFrame API -->
@@ -638,9 +745,7 @@
     let ytPlayer = null;
     function onYouTubeIframeAPIReady() {
       ytPlayer = new YT.Player('youtubeAudioFrame', {
-        events: {
-          'onReady': () => {}
-        }
+        events: { 'onReady': () => {} }
       });
     }
 
@@ -713,9 +818,10 @@
 
           let grandTotal = totalGeneral + totalComp;
           const adminTotalElem = document.getElementById("adminCombinedTotal");
-          if (adminTotalElem) {
-            adminTotalElem.innerText = grandTotal;
-          }
+          if (adminTotalElem) adminTotalElem.innerText = grandTotal;
+          
+          const globalTotalElem = document.getElementById("globalTotalCount");
+          if (globalTotalElem) globalTotalElem.innerText = (824530 + grandTotal).toLocaleString();
         });
       });
     }
@@ -723,28 +829,36 @@
     db.ref("users").on("value", () => updateAdminCombinedTotal());
     db.ref(competitionRefPath).on("value", () => updateAdminCombinedTotal());
 
-    function showTab(tabId) {
+    function switchBottomTab(tabName) {
       document.getElementById("mainTab").classList.add("hidden");
       document.getElementById("compTab").classList.add("hidden");
       document.getElementById("rewardTab").classList.add("hidden");
-      
-      document.getElementById("mainTabBtn").classList.remove("active");
-      document.getElementById("compTabBtn").classList.remove("active");
-      document.getElementById("rewardTabBtn").classList.remove("active");
+      document.getElementById("profileTab").classList.add("hidden");
 
-      document.getElementById(tabId).classList.remove("hidden");
-      if(tabId === 'mainTab') document.getElementById("mainTabBtn").classList.add("active");
-      if(tabId === 'compTab') document.getElementById("compTabBtn").classList.add("active");
-      if(tabId === 'rewardTab') document.getElementById("rewardTabBtn").classList.add("active");
-    }
+      document.querySelectorAll(".bottom-nav .nav-item").forEach(el => el.classList.remove("active"));
 
-    function handleCompetitionClick() {
-      document.getElementById("customModal").classList.remove("hidden");
+      if (tabName === 'home') {
+        document.getElementById("mainTab").classList.remove("hidden");
+        document.getElementById("navHome").classList.add("active");
+      } else if (tabName === 'competition') {
+        document.getElementById("customModal").classList.remove("hidden");
+        document.getElementById("compTab").classList.remove("hidden");
+        document.getElementById("navCompetition").classList.add("active");
+      } else if (tabName === 'leaderboard') {
+        document.getElementById("mainTab").classList.remove("hidden");
+        document.getElementById("navLeaderboard").classList.add("active");
+      } else if (tabName === 'reward') {
+        document.getElementById("rewardTab").classList.remove("hidden");
+        document.getElementById("navTasbeeh").classList.add("active");
+      } else if (tabName === 'profile') {
+        document.getElementById("profileTab").classList.remove("hidden");
+        document.getElementById("navProfile").classList.add("active");
+      }
     }
 
     document.getElementById("modalOkBtn").onclick = function() {
       document.getElementById("customModal").classList.add("hidden");
-      showTab('compTab');
+      switchBottomTab('competition');
     };
 
     window.toggleAuthMode = function(mode) {
@@ -771,23 +885,17 @@
         return;
       }
 
-      statusEl.style.color = "var(--primary-color)";
-      statusEl.innerText = "اکاؤنٹ بنایا جا رہا ہے...";
-
       auth.createUserWithEmailAndPassword(email, password)
-        .then((userCredential) => {
-          return userCredential.user.updateProfile({ displayName: name });
-        })
+        .then((userCredential) => userCredential.user.updateProfile({ displayName: name }))
         .then(() => {
           statusEl.innerText = "✓ کامیابی سے سائن اپ ہو گیا!";
           playSuccessSound();
           triggerVibration();
         })
-        .catch((error) => {
+        .catch(() => {
           statusEl.style.color = "#ef4444";
           statusEl.innerText = "اکاؤنٹ بنانے میں خرابی پیش آئی۔";
           playErrorSound();
-          triggerVibration();
         });
     };
 
@@ -800,50 +908,38 @@
         statusEl.style.color = "#ef4444";
         statusEl.innerText = "ای میل اور پاسورڈ درج کریں۔";
         playErrorSound();
-        triggerVibration();
         return;
       }
-
-      statusEl.style.color = "var(--primary-color)";
-      statusEl.innerText = "لاگ ان ہو رہا ہے...";
 
       auth.signInWithEmailAndPassword(email, password)
         .then(() => {
           statusEl.innerText = "✓ لاگ ان کامیاب!";
           playSuccessSound();
-          triggerVibration();
         })
         .catch((error) => {
           statusEl.style.color = "#ef4444";
           playErrorSound();
-          triggerVibration();
-
-          if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-email') {
-            statusEl.innerText = "ای میل یا پاسورڈ غلط ہے، یا اکاؤنٹ موجود نہیں۔";
+          if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
+            statusEl.innerText = "اکاؤنٹ موجود نہیں، سائن اپ کریں۔";
             setTimeout(() => {
               document.getElementById("signupEmail").value = email;
               toggleAuthMode('signup');
-              document.getElementById("signupStatus").style.color = "#d97706";
-              document.getElementById("signupStatus").innerText = "یہ اکاؤنٹ موجود نہیں، براہِ کرم نیا اکاؤنٹ رجسٹر کریں۔";
-            }, 1500);
+            }, 1200);
           } else {
-            statusEl.innerText = "لاگ ان میں ناکامی۔ براہِ کرم دوبارہ کوشش کریں۔";
+            statusEl.innerText = "لاگ ان میں ناکامی۔";
           }
         });
     };
 
     function handleGoogleAuth() {
       const provider = new firebase.auth.GoogleAuthProvider();
-      auth.signInWithPopup(provider)
-        .then(() => {
-          playSuccessSound();
-          triggerVibration();
-        })
-        .catch((error) => {
-          playErrorSound();
-          triggerVibration();
-          alert("گوگل لاگ ان میں خرابی پیش آئی۔");
-        });
+      auth.signInWithPopup(provider).then(() => {
+        playSuccessSound();
+        triggerVibration();
+      }).catch(() => {
+        playErrorSound();
+        alert("گوگل لاگ ان میں خرابی۔");
+      });
     }
 
     document.getElementById("googleSignupBtn").onclick = handleGoogleAuth;
@@ -856,6 +952,8 @@
         document.getElementById("authSection").classList.add("hidden");
         document.getElementById("userInfo").classList.remove("hidden");
         document.getElementById("userName").innerText = user.displayName || user.email;
+        document.getElementById("profileDisplayName").innerText = user.displayName || "---";
+        document.getElementById("profileDisplayEmail").innerText = user.email || "---";
 
         db.ref("users/" + user.uid).update({
           name: user.displayName || user.email,
@@ -908,28 +1006,23 @@
 
       if (!name || !number) {
         document.getElementById("profileStatus").style.color = "#ef4444";
-        document.getElementById("profileStatus").innerText = "براہِ کرم نام اور نمبر دونوں درج کریں۔";
+        document.getElementById("profileStatus").innerText = "نام اور نمبر دونوں درج کریں۔";
         playErrorSound();
-        triggerVibration();
         return;
       }
 
       db.ref("users/" + currentUser.uid).update({
         accName: name,
         accNumber: number,
-        accType: type,
-        name: currentUser.displayName || currentUser.email,
-        email: currentUser.email
+        accType: type
       }, (error) => {
         if (!error) {
           document.getElementById("profileStatus").style.color = "var(--primary-color)";
-          document.getElementById("profileStatus").innerText = "✓ آپ کی پیمنٹ کی تفصیلات محفوظ ہو گئیں!";
+          document.getElementById("profileStatus").innerText = "✓ تفصیلات محفوظ ہو گئیں!";
           playSuccessSound();
-          triggerVibration();
         } else {
           document.getElementById("profileStatus").style.color = "#ef4444";
-          document.getElementById("profileStatus").innerText = "خرابی پیش آئی، دوبارہ کوشش کریں۔";
-          playErrorSound();
+          document.getElementById("profileStatus").innerText = "خرابی پیش آئی۔";
         }
       });
     };
@@ -943,16 +1036,14 @@
         publicContainer.innerHTML = "";
 
         let compUsers = [];
-        compSnapshot.forEach(child => {
-          compUsers.push({ uid: child.key, ...child.val() });
-        });
+        compSnapshot.forEach(child => { compUsers.push({ uid: child.key, ...child.val() }); });
         compUsers.reverse();
 
         let allUsersData = userSnapshot.val() || {};
 
         if (compUsers.length === 0) {
-          adminContainer.innerHTML = "<p>آج کے مقابلے میں ابھی تک کسی نے حصہ نہیں لیا۔</p>";
-          publicContainer.innerHTML = "<p style='font-size:12px; color:var(--text-muted);'>ابھی تک کوئی فاتح ریکارڈ موجود نہیں۔</p>";
+          adminContainer.innerHTML = "<p>آج کے مقابلے میں کوئی نہیں ہے۔</p>";
+          publicContainer.innerHTML = "<p style='font-size:12px; color:var(--text-muted);'>ابھی تک کوئی فاتح ریکارڈ نہیں۔</p>";
           return;
         }
 
@@ -981,9 +1072,7 @@
           let isEligible = (u.count || 0) >= 100;
           let rankLabel = idx === 0 ? "🥇 ٹاپ پوزیشن" : `#${idx+1} رینک`;
           
-          let statusText = isEligible ? 
-            `<span style="color:green; font-weight:bold;">✓ 100 شرط پوری</span>` : 
-            `<span style="color:#ef4444; font-weight:bold;">⚠️ 100 پورے نہیں</span>`;
+          let statusText = isEligible ? `<span style="color:green; font-weight:bold;">✓ 100 شرط پوری</span>` : `<span style="color:#ef4444; font-weight:bold;">⚠️ 100 پورے نہیں</span>`;
 
           let paidActionBtn = "";
           if (isEligible) {
@@ -995,9 +1084,8 @@
           adminContainer.innerHTML += `
             <div class="admin-card">
               <b>${rankLabel}</b> | <b>نام:</b> ${u.name || "گمنام"}<br>
-              <b>ای میل:</b> <span style="color:#ef4444;">${uProfile.email || "ای میل دستیاب نہیں"}</span><br>
               <b>اسکور:</b> ${u.count || 0} ${statusText}<br>
-              <b>اکاؤنٹ نمبر:</b> ${uProfile.accNumber || "درج نہیں"} (${uProfile.accType || "---"}) - نام: ${uProfile.accName || "---"}<br>
+              <b>اکاؤنٹ نمبر:</b> ${uProfile.accNumber || "درج نہیں"} (${uProfile.accType || "---"})<br>
               <div style="margin-top:6px;">${paidActionBtn}</div>
             </div>
           `;
@@ -1007,11 +1095,7 @@
 
     window.togglePayment = function(userId, status) {
       db.ref("users/" + userId).update({ paid: status }, (error) => {
-        if (!error) {
-          alert("پیمنٹ کا اسٹیٹس کامیابی سے اپڈیٹ ہو گیا!");
-        } else {
-          alert("خرابی پیش آئی۔");
-        }
+        if (!error) alert("پیمنٹ کا اسٹیٹس اپڈیٹ ہو گیا!");
       });
     };
 
@@ -1019,33 +1103,21 @@
       document.getElementById("onlineCount").innerText = snapshot.numChildren() || 0;
     });
 
-    // Voice Recognition with 33 Seconds Blinking & Validation on End
     function startVoiceRecognition(buttonId, statusId, isComp = false) {
       if (!currentUser) return;
-
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (!SpeechRecognition) {
-        alert("آپ کا براؤزر وائس ریکگنیشن کو سپورٹ نہیں کرتا۔ براہِ کرم گوگل کروم استعمال کریں۔");
+        alert("براؤزر وائس ریکگنیشن سپورٹ نہیں کرتا۔");
         return;
       }
 
       const btn = document.getElementById(buttonId);
       const status = document.getElementById(statusId);
-
       triggerVibration();
 
-      let recognition;
-      try {
-        recognition = new SpeechRecognition();
-      } catch(e) {
-        status.style.color = "#ef4444";
-        status.innerText = "مائیکروفون شروع کرنے میں مسئلہ پیش آیا۔";
-        return;
-      }
-
+      let recognition = new SpeechRecognition();
       recognition.lang = 'ar-SA';
       recognition.interimResults = false;
-      recognition.maxAlternatives = 1;
 
       btn.disabled = true;
       btn.classList.add("listening");
@@ -1053,23 +1125,16 @@
       status.innerText = "سن رہے ہیں، درود شریف پڑھیں...";
 
       let finalTranscript = "";
-
-      // 33 seconds timer for recording timeout
-      let recordingTimeout = setTimeout(() => {
-        try { recognition.stop(); } catch(e) {}
-      }, 33000);
+      let recordingTimeout = setTimeout(() => { try { recognition.stop(); } catch(e) {} }, 33000);
 
       recognition.onresult = (event) => {
-        try {
-          finalTranscript = event.results[0][0].transcript.toLowerCase();
-        } catch(e) {}
+        try { finalTranscript = event.results[0][0].transcript.toLowerCase(); } catch(e) {}
       };
 
-      recognition.onerror = (event) => {
+      recognition.onerror = () => {
         clearTimeout(recordingTimeout);
-        triggerVibration();
         status.style.color = "#ef4444";
-        status.innerText = "آواز واضح نہیں آئی، دوبارہ کوشش کریں۔";
+        status.innerText = "آواز واضح نہیں آئی۔";
         playErrorSound();
       };
 
@@ -1079,12 +1144,12 @@
         btn.disabled = false;
         triggerVibration();
 
-        const hasSalat = finalTranscript.includes("اللهم") || finalTranscript.includes("اللهم");
+        const hasSalat = finalTranscript.includes("اللهم");
         const hasMajeed = finalTranscript.includes("مجيد") || finalTranscript.includes("مجید");
 
         if (finalTranscript.length > 0 && (hasSalat || hasMajeed || finalTranscript.length > 3)) {
           status.style.color = isComp ? "#d97706" : "var(--primary-color)";
-          status.innerText = "✓ تصدیق ہو گئی! درود شریف درج ہو گیا۔";
+          status.innerText = "✓ تصدیق ہو گئی!";
           playSuccessSound();
 
           const targetPath = isComp ? competitionRefPath + "/" + currentUser.uid : "users/" + currentUser.uid;
@@ -1095,21 +1160,12 @@
           });
         } else {
           status.style.color = "#ef4444";
-          status.innerText = "آواز واضح نہیں آئی یا درود شریف درست نہیں سنا گیا، دوبارہ کوشش کریں۔";
+          status.innerText = "آواز واضح نہیں آئی۔";
           playErrorSound();
         }
       };
 
-      try {
-        recognition.start();
-      } catch(e) {
-        clearTimeout(recordingTimeout);
-        btn.classList.remove("listening");
-        btn.disabled = false;
-        status.style.color = "#ef4444";
-        status.innerText = "مائیکروفون پہلے سے فعال ہے یا اجازت درکار ہے۔";
-        playErrorSound();
-      }
+      recognition.start();
     }
 
     document.getElementById("countBtn").onclick = () => startVoiceRecognition("countBtn", "statusMsg", false);
@@ -1126,7 +1182,7 @@
       users.reverse();
 
       if (users.length === 0) {
-        container.innerHTML = "<tr><td colspan='3'>ابھی تک کوئی ڈیٹا موجود نہیں ہے۔</td></tr>";
+        container.innerHTML = "<tr><td colspan='3'>ابھی تک کوئی ڈیٹا نہیں۔</td></tr>";
         return;
       }
 
