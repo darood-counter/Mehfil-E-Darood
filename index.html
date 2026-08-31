@@ -574,7 +574,7 @@
       </div>
 
       <!-- Darood Card with Speaker (🔊) Button -->
-      <div class="darood-card">
+      <div id="daroodCard" class="darood-card">
         <div class="arabic-text" id="daroodArabicText">
           اَللّٰھُمَّ صَلِّ عَلٰی مُحَمَّدٍ وَّعَلٰی اٰلِ مُحَمَّدٍ کَمَا صَلَّیْتَ عَلٰی اِبْرَاھِیْمَ وَعَلٰی اٰلِ اِبْرَاھِیْمَ اِنَّکَ حَمِیْدٌ مَّجِیْدٌ۔ اَللّٰھُمَّ بَارِکْ عَلٰی مُحَمَّدٍ وَّعَلٰی اٰلِ مُحَمَّدٍ کَمَا بَارَکْتَ عَلٰی اِبْرَاھِیْمَ وَعَلٰی اٰلِ اِبْرَاھِیْمَ اِنَّکَ حَمِیْدٌ مَّجِیْدٌ
         </div>
@@ -636,9 +636,35 @@
         </table>
       </div>
 
-      <!-- TAB 3: Rewards & Payment Details -->
+      <!-- TAB 3: Rewards (Tasbeeh) -->
       <div id="rewardTab" class="hidden" style="text-align: right;">
-        <h3 style="color: var(--primary-color); text-align: center; font-size: 16px;">🎁 روزانہ کا انعام اور پیمنٹ کی تفصیلات</h3>
+        <!-- PUBLIC PAYMENT PROOF SECTION -->
+        <div class="proof-box" style="margin-top: 10px;">
+          <div class="proof-title">📢 فاتحین اور پیمنٹ پروف (Payment Proofs)</div>
+          <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 6px;">تمام صارفین دیکھ سکتے ہیں کہ کس فاتح کو انعام مل گیا:</p>
+          <div id="publicProofList">لوڈ ہو رہا ہے...</div>
+        </div>
+
+        <!-- ADMIN PANEL SECTION -->
+        <div id="adminPanelSection" class="admin-panel hidden">
+          <div class="admin-title">👑 ایڈمن پینل (فاتحین اور کل ریکارڈ)</div>
+          <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">
+            ✨ **کل درود (عام + مقابلہ):** <span id="adminCombinedTotal" style="color:#ef4444; font-weight:bold; font-size: 14px;">0</span>
+          </p>
+          <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">یہاں سے پیمنٹ اسٹیٹس کنٹرول کریں:</p>
+          <div id="adminWinnersList">لوڈ ہو رہا ہے...</div>
+        </div>
+      </div>
+
+      <!-- TAB 4: Profile Tab (Contains User Profile + Payment Details) -->
+      <div id="profileTab" class="hidden" style="text-align: right;">
+        <h3 style="color: var(--primary-color); text-align: center; font-size: 18px;">👤 پروفائل کی معلومات</h3>
+        <div class="profile-box">
+          <p><b>نام:</b> <span id="profileDisplayName">---</span></p>
+          <p><b>ای میل:</b> <span id="profileDisplayEmail">---</span></p>
+        </div>
+
+        <h3 style="color: var(--primary-color); text-align: center; font-size: 16px; margin-top: 20px;">🎁 انعام اور پیمنٹ کی تفصیلات</h3>
         <p style="color: var(--text-muted); font-size: 12px; text-align: center; margin-bottom: 12px;">فاتح بننے کے لیے کم از کم 100 درود شریف پڑھنا لازمی ہے۔ انعام حاصل کرنے کے لیے نیچے اکاؤنٹ نمبر درج کریں:</p>
         
         <!-- User Payment & Profile Details Box -->
@@ -658,32 +684,6 @@
           
           <button class="save-profile-btn" id="saveProfileBtn">تفصیلات محفوظ کریں</button>
           <div id="profileStatus" style="font-size: 12px; margin-top: 6px; color: var(--primary-color); text-align: center; font-weight: bold;"></div>
-        </div>
-
-        <!-- PUBLIC PAYMENT PROOF SECTION -->
-        <div class="proof-box">
-          <div class="proof-title">📢 فاتحین اور پیمنٹ پروف (Payment Proofs)</div>
-          <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 6px;">تمام صارفین دیکھ سکتے ہیں کہ کس فاتح کو انعام مل گیا:</p>
-          <div id="publicProofList">لوڈ ہو رہا ہے...</div>
-        </div>
-
-        <!-- ADMIN PANEL SECTION -->
-        <div id="adminPanelSection" class="admin-panel hidden">
-          <div class="admin-title">👑 ایڈمن پینل (فاتحین اور کل ریکارڈ)</div>
-          <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">
-            ✨ **کل درود (عام + مقابلہ):** <span id="adminCombinedTotal" style="color:#ef4444; font-weight:bold; font-size: 14px;">0</span>
-          </p>
-          <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">یہاں سے پیمنٹ اسٹیٹس کنٹرول کریں:</p>
-          <div id="adminWinnersList">لوڈ ہو رہا ہے...</div>
-        </div>
-      </div>
-
-      <!-- TAB 4: Profile Tab -->
-      <div id="profileTab" class="hidden" style="text-align: right;">
-        <h3 style="color: var(--primary-color); text-align: center; font-size: 18px;">👤 پروفائل کی معلومات</h3>
-        <div class="profile-box">
-          <p><b>نام:</b> <span id="profileDisplayName">---</span></p>
-          <p><b>ای میل:</b> <span id="profileDisplayEmail">---</span></p>
         </div>
       </div>
 
@@ -834,6 +834,7 @@
       document.getElementById("compTab").classList.add("hidden");
       document.getElementById("rewardTab").classList.add("hidden");
       document.getElementById("profileTab").classList.add("hidden");
+      document.getElementById("daroodCard").classList.remove("hidden");
 
       document.querySelectorAll(".bottom-nav .nav-item").forEach(el => el.classList.remove("active"));
 
@@ -853,12 +854,12 @@
       } else if (tabName === 'profile') {
         document.getElementById("profileTab").classList.remove("hidden");
         document.getElementById("navProfile").classList.add("active");
+        document.getElementById("daroodCard").classList.add("hidden");
       }
     }
 
     document.getElementById("modalOkBtn").onclick = function() {
       document.getElementById("customModal").classList.add("hidden");
-      switchBottomTab('competition');
     };
 
     window.toggleAuthMode = function(mode) {
