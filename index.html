@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mehfil-E-Darood — Final V7 (Admin Home)</title>
+  <title>Mehfil-E-Darood — Final V8 (Admin Home)</title>
   <link href="https://fonts.googleapis.com/css2?family=Jameel+Noori+Nastaleeq&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -511,7 +511,17 @@
       color: var(--text-main);
       text-align: right;
     }
-    .prayer-config-box select, .prayer-config-box input {
+    
+    /* ملک اور شہر کو ایک ہی لائن میں کرنے کے لیے فلیکس باکس */
+    .location-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 4px;
+    }
+    .location-group {
+      flex: 1;
+    }
+    .location-config-box select, .location-config-box input {
       width: 100%;
       padding: 7px;
       margin: 4px 0 8px 0;
@@ -521,6 +531,7 @@
       font-family: 'Jameel Noori Nastaleeq', sans-serif;
       font-size: 13px;
     }
+
     .current-prayer-highlight {
       background: #e8f5e9;
       border: 1px solid #81c784;
@@ -676,16 +687,22 @@
           <div class="prayer-title">🕌 آج کے نماز کے اوقات</div>
           <div class="prayer-date" id="prayerDateDisplay">لوڈ ہو رہا ہے...</div>
           
-          <div class="prayer-config-box">
-            <label style="font-size: 12px; color: var(--text-muted);">📍 اپنا ملک منتخب کریں:</label>
-            <input type="text" id="countryInput" value="Pakistan">
+          <div class="prayer-config-box location-config-box">
+            <!-- ملک اور شہر کو ایک ہی لائن میں کیا گیا ہے -->
+            <div class="location-row">
+              <div class="location-group">
+                <label style="font-size: 11px; color: var(--text-muted);">📍 ملک:</label>
+                <input type="text" id="countryInput" value="Pakistan">
+              </div>
+              <div class="location-group">
+                <label style="font-size: 11px; color: var(--text-muted);">📍 شہر:</label>
+                <input type="text" id="cityInput" value="Lahore">
+              </div>
+            </div>
             
-            <label style="font-size: 12px; color: var(--text-muted);">📍 اپنا شہر منتخب کریں:</label>
-            <input type="text" id="cityInput" value="Lahore">
-            
-            <div style="display: flex; gap: 8px; margin-top: 8px;">
-              <button class="save-profile-btn" style="flex: 2; background-color: var(--primary-color);" onclick="saveLocationAndFetch()">💾 شہر محفوظ کریں</button>
-              <button class="save-profile-btn" style="flex: 1; background-color: #2b6cb0;" onclick="detectCurrentLocation()">📍 کرنٹ لوکیشن</button>
+            <div style="display: flex; gap: 8px; margin-top: 4px;">
+              <button class="save-profile-btn" style="flex: 2; background-color: var(--primary-color); padding: 7px; font-size: 13px;" onclick="saveLocationAndFetch()">💾 شہر محفوظ کریں</button>
+              <button class="save-profile-btn" style="flex: 1; background-color: #2b6cb0; padding: 7px; font-size: 13px;" onclick="detectCurrentLocation()">📍 لوکیشن</button>
             </div>
           </div>
 
@@ -1062,7 +1079,6 @@
     document.getElementById("googleLoginBtn").onclick = handleGoogleAuth;
     document.getElementById("logoutBtn").onclick = () => auth.signOut();
 
-    // پیج لوڈ ہوتے ہی localStorage سے لوکیشن ری لوڈ کرنے کا فنکشن
     window.addEventListener('DOMContentLoaded', () => {
       const savedCountry = localStorage.getItem('user_country');
       const savedCity = localStorage.getItem('user_city');
@@ -1100,7 +1116,6 @@
             if(data.accNumber) document.getElementById("accNumber").value = data.accNumber;
             if(data.accType) document.getElementById("accType").value = data.accType;
             
-            // اگر ڈیٹا بیس میں شہر محفوظ ہے اور لوکل سٹوریج خالی ہے تو اسے وہاں سیو کر لیں
             if(data.savedCity && !localStorage.getItem('user_city')) {
               localStorage.setItem('user_city', data.savedCity);
               document.getElementById("cityInput").value = data.savedCity;
@@ -1135,7 +1150,6 @@
       }
     });
 
-    // PRAYER TIMES LIVE API LOGIC
     function timeToMinutes(timeStr) {
       const [time, modifier] = timeStr.split(' ');
       let [hours, minutes] = time.split(':').map(Number);
@@ -1151,7 +1165,6 @@
       return `${h}:${m < 10 ? '0' : ''}${m} ${modifier}`;
     }
 
-    // لوکیشن کو براؤزر میں اور ڈیٹا بیس میں محفوظ کرنے کا فنکشن
     function saveLocationAndFetch() {
       let city = document.getElementById("cityInput").value.trim();
       let country = document.getElementById("countryInput").value.trim();
@@ -1170,7 +1183,6 @@
       fetchPrayerTimes();
     }
 
-    // کرنٹ لوکیشن خودکار معلوم کرنے کا فنکشن
     function detectCurrentLocation() {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(async function(position) {
@@ -1187,7 +1199,6 @@
             document.getElementById("countryInput").value = country;
             document.getElementById("cityInput").value = city;
             
-            // لوکل سٹوریج اور ڈیٹا بیس میں بھی ساتھ ہی سیو کر دیں
             saveLocationAndFetch();
             alert('لوکیشن کامیابی سے ڈیٹیکٹ اور محفوظ ہو گئی!');
           } catch (error) {
@@ -1417,7 +1428,7 @@
           limitedWinners.forEach((w, idx) => {
             let uProfile = allUsersData[w.uid] || {};
             let isPaid = uProfile.paid === true;
-            let statusBadge = isPaid ? `<span class="paid-badge">Paid ✓ (ادا کر دی گئی)</span>` : `<span class="pending-badge">Pending ⏳ (پینڈنگ)</span>`;
+            let statusBadge = isPaid ? `<span class="paid-badge">Paid ✓ (ادا कर دی گئی)</span>` : `<span class="pending-badge">Pending ⏳ (پینڈنگ)</span>`;
 
             if (isPaid) {
               proofCount++;
@@ -1426,7 +1437,7 @@
                 <div class="proof-item">
                   <b>🥇 فاتح:</b> ${w.name} (درود: ${w.count})<br>
                   <b>تاریخ:</b> ${w.date} | <b>اکاؤنٹ:</b> ${uProfile.accType || ""} (${maskedNumber})<br>
-                  <span style="color: #16a34a; font-weight: bold; font-size: 11px;">✓ اسٹیٹس: پیمنٹ ادا कर دی گئی (Paid)</span>
+                  <span style="color: #16a34a; font-weight: bold; font-size: 11px;">✓ اسٹیٹس: پیمنٹ ادا کر دی گئی (Paid)</span>
                 </div>
               `;
             }
