@@ -589,7 +589,7 @@
 
         <!-- ADMIN PANEL SECTION ON HOME PAGE -->
         <div id="adminPanelSection" class="admin-panel hidden" style="text-align: right; margin-top: 15px;">
-          <div class="admin-title">👑 ایڈمن پینل (پیمنٹ اور فاتحین کا انتظام)</div>
+          <div class="admin-title">👑 ایڈمن پینل (صرف 100+ درود والے فاتحین)</div>
           
           <!-- Filter Controls -->
           <div style="display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap;">
@@ -606,10 +606,6 @@
             <input type="date" id="adminEndDate" style="padding: 4px; border-radius: 6px; border: 1px solid #d1d5db; font-size: 11px;">
             <button onclick="applyDateRangeFilter()" style="background:var(--primary-color); color:white; border:none; padding: 4px 10px; border-radius: 6px; font-size: 11px; cursor: pointer;">لاگو کریں</button>
           </div>
-
-          <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">
-            ✨ **منتخب دورانیے کے کل درود:** <span id="adminCombinedTotal" style="color:#ef4444; font-weight:bold; font-size: 14px;">0</span>
-          </p>
 
           <div id="adminWinnersList">لوڈ ہو رہا ہے...</div>
         </div>
@@ -680,7 +676,7 @@
         <div class="about-card">
           <h3>⚡ ایپ کے اہم فیچرز</h3>
           <p>
-            • <b>آج کی محفل (Home):</b> یہاں آپ کل اجتماعی درود، رینکنگ اور ایڈمن پینل کے ذریعے پیمنٹ اسٹیٹس (Paid/Pending) ہفتہ وار اور ماہانہ بنیادوں پر دیکھ سکتے ہیں۔<br>
+            • <b>آج کی محفل (Home):</b> یہاں آپ کل اجتماعی درود، رینکنگ اور ایڈمن پینل کے ذریعے صرف کامیاب فاتحین (100+ درود) کی تفصیلات، تاریخ اور پیمنٹ اسٹیٹس (Paid/Pending) کنٹرول کر سکتے ہیں۔<br>
             • <b>تسبیح (Tasbeeh):</b> اپنی انفرادی تسبیح کے لیے وائس کاؤنٹر استعمال کریں۔<br>
             • <b>مقابلہ (Competition):</b> روزانہ کے مقابلے میں حصہ لیں اور انعامات جیتیں۔
           </p>
@@ -1018,14 +1014,13 @@
         db.ref("users").once("value", userSnapshot => {
           const adminContainer = document.getElementById("adminWinnersList");
           const publicContainer = document.getElementById("publicProofList");
-          const adminTotalElem = document.getElementById("adminCombinedTotal");
 
           adminContainer.innerHTML = "";
           publicContainer.innerHTML = "";
 
           let now = new Date();
-          let filteredUsers = {};
-          let totalDaroodSum = 0;
+          let allUsersData = userSnapshot.val() || {};
+          let winnersList = [];
 
           compSnapshot.forEach(dateSnap => {
             let dateKey = dateSnap.key; // YYYY-MM-DD
@@ -1048,61 +1043,61 @@
               dateSnap.forEach(userSnap => {
                 let uid = userSnap.key;
                 let val = userSnap.val();
-                if (!filteredUsers[uid]) {
-                  filteredUsers[uid] = { name: val.name, count: 0 };
+                let count = val.count || 0;
+
+                // صرف وہ صارفین جو فاتح ہیں یعنی کم از کم 100 درود شریف پڑھے ہیں
+                if (count >= 100) {
+                  winnersList.push({
+                    uid: uid,
+                    date: dateKey,
+                    name: val.name || "گمنام",
+                    count: count
+                  });
                 }
-                filteredUsers[uid].count += (val.count || 0);
-                totalDaroodSum += (val.count || 0);
               });
             }
           });
 
-          adminTotalElem.innerText = totalDaroodSum.toLocaleString();
+          // سب سے زیادہ درود والے اوپر آئیں گے اور زیادہ سے زیادہ آخری 10 فاتحین شو ہوں گے
+          winnersList.sort((a, b) => b.count - a.count);
+          let limitedWinners = winnersList.slice(0, 10);
 
-          let sortedWinners = [];
-          for (let uid in filteredUsers) {
-            sortedWinners.push({ uid: uid, ...filteredUsers[uid] });
-          }
-          sortedWinners.sort((a, b) => b.count - a.count);
-
-          let allUsersData = userSnapshot.val() || {};
           let proofCount = 0;
 
-          if (sortedWinners.length === 0) {
-            adminContainer.innerHTML = "<p>اس دورانیے میں کوئی ڈیٹا موجود نہیں۔</p>";
+          if (limitedWinners.length === 0) {
+            adminContainer.innerHTML = "<p style='font-size:12px; color:var(--text-muted);'>اس دورانیے میں کوئی فاتح (100+ درود والے) موجود نہیں۔</p>";
             publicContainer.innerHTML = "<p style='font-size:12px; color:var(--text-muted);'>ابھی تک کوئی فاتح ریکارڈ نہیں۔</p>";
             return;
           }
 
-          sortedWinners.forEach((u, idx) => {
-            let uProfile = allUsersData[u.uid] || {};
-            let isEligible = u.count >= 100;
-            let rankLabel = idx === 0 ? "🥇 ٹاپ پوزیشن" : `#${idx+1} رینک`;
-            let statusBadge = uProfile.paid ? `<span class="paid-badge">Paid ✓ (ادا کر دی گئی)</span>` : `<span class="pending-badge">Pending ⏳ (پینڈنگ)</span>`;
+          limitedWinners.forEach((w, idx) => {
+            let uProfile = allUsersData[w.uid] || {};
+            let isPaid = uProfile.paid === true;
+            let statusBadge = isPaid ? `<span class="paid-badge">Paid ✓ (ادا کر دی گئی)</span>` : `<span class="pending-badge">Pending ⏳ (پینڈنگ)</span>`;
 
-            if (isEligible && uProfile.paid) {
+            if (isPaid) {
               proofCount++;
               let maskedNumber = uProfile.accNumber ? uProfile.accNumber.replace(/.(?=.{4})/g, '*') : '---';
               publicContainer.innerHTML += `
                 <div class="proof-item">
-                  <b>🥇 فاتح:</b> ${u.name || "گمنام"} (درود: ${u.count})<br>
-                  <b>اکاؤنٹ:</b> ${uProfile.accType || ""} (${maskedNumber})<br>
+                  <b>🥇 فاتح:</b> ${w.name} (درود: ${w.count})<br>
+                  <b>تاریخ:</b> ${w.date} | <b>اکاؤنٹ:</b> ${uProfile.accType || ""} (${maskedNumber})<br>
                   <span style="color: #16a34a; font-weight: bold; font-size: 11px;">✓ اسٹیٹس: پیمنٹ ادا کر دی گئی (Paid)</span>
                 </div>
               `;
             }
 
-            let paidActionBtn = isEligible ? (
-              uProfile.paid ? 
-              `<button class="unpaid-btn" onclick="togglePayment('${u.uid}', false)">Pending کریں</button>` : 
-              `<button class="paid-btn" onclick="togglePayment('${u.uid}', true)">Paid کریں</button>`
-            ) : `<span style="font-size: 11px; color: #ef4444;">100 درود پورے نہیں</span>`;
+            let paidActionBtn = isPaid ? 
+              `<button class="unpaid-btn" onclick="togglePayment('${w.uid}', false)">Pending کریں</button>` : 
+              `<button class="paid-btn" onclick="togglePayment('${w.uid}', true)">Paid کریں</button>`;
 
             adminContainer.innerHTML += `
               <div class="admin-card">
-                <b>${rankLabel}</b> | <b>نام:</b> ${u.name || "گمنام"}<br>
-                <b>کل اسکور:</b> ${u.count} درود | ${statusBadge}<br>
-                <b>اکاؤنٹ نمبر:</b> ${uProfile.accNumber || "درج نہیں"} (${uProfile.accType || "---"})<br>
+                <b>🥇 فاتح #${idx + 1}</b> | <b>تاریخ:</b> ${w.date}<br>
+                <b>نام:</b> ${w.name} | <b>کل درود:</b> ${w.count}<br>
+                <b>اسٹیٹس:</b> ${statusBadge}<br>
+                <b>اکاؤنٹ ہولڈر:</b> ${uProfile.accName || "درج نہیں"}<br>
+                <b>نمبر اور قسم:</b> ${uProfile.accNumber || "درج نہیں"} (${uProfile.accType || "---"})<br>
                 <div style="margin-top:6px;">${paidActionBtn}</div>
               </div>
             `;
