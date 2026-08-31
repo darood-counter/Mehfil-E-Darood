@@ -678,12 +678,15 @@
           
           <div class="prayer-config-box">
             <label style="font-size: 12px; color: var(--text-muted);">📍 اپنا ملک منتخب کریں:</label>
-            <input type="text" id="countryInput" value="UAE">
+            <input type="text" id="countryInput" value="Pakistan">
             
             <label style="font-size: 12px; color: var(--text-muted);">📍 اپنا شہر منتخب کریں:</label>
-            <input type="text" id="cityInput" value="Dubai">
+            <input type="text" id="cityInput" value="Lahore">
             
-            <button class="save-profile-btn" onclick="fetchPrayerTimes()">💾 شہر محفوظ کریں</button>
+            <div style="display: flex; gap: 8px; margin-top: 8px;">
+              <button class="save-profile-btn" style="flex: 2; background-color: var(--primary-color);" onclick="saveLocationAndFetch()">💾 شہر محفوظ کریں</button>
+              <button class="save-profile-btn" style="flex: 1; background-color: #2b6cb0;" onclick="detectCurrentLocation()">📍 کرنٹ لوکیشن</button>
+            </div>
           </div>
 
           <div class="current-prayer-highlight">
@@ -1059,6 +1062,14 @@
     document.getElementById("googleLoginBtn").onclick = handleGoogleAuth;
     document.getElementById("logoutBtn").onclick = () => auth.signOut();
 
+    // پیج لوڈ ہوتے ہی localStorage سے لوکیشن ری لوڈ کرنے کا فنکشن
+    window.addEventListener('DOMContentLoaded', () => {
+      const savedCountry = localStorage.getItem('user_country');
+      const savedCity = localStorage.getItem('user_city');
+      if (savedCountry) document.getElementById("countryInput").value = savedCountry;
+      if (savedCity) document.getElementById("cityInput").value = savedCity;
+    });
+
     auth.onAuthStateChanged(user => {
       if (user) {
         currentUser = user;
@@ -1088,8 +1099,16 @@
             if(data.accName) document.getElementById("accName").value = data.accName;
             if(data.accNumber) document.getElementById("accNumber").value = data.accNumber;
             if(data.accType) document.getElementById("accType").value = data.accType;
-            if(data.savedCity) document.getElementById("cityInput").value = data.savedCity;
-            if(data.savedCountry) document.getElementById("countryInput").value = data.savedCountry;
+            
+            // اگر ڈیٹا بیس میں شہر محفوظ ہے اور لوکل سٹوریج خالی ہے تو اسے وہاں سیو کر لیں
+            if(data.savedCity && !localStorage.getItem('user_city')) {
+              localStorage.setItem('user_city', data.savedCity);
+              document.getElementById("cityInput").value = data.savedCity;
+            }
+            if(data.savedCountry && !localStorage.getItem('user_country')) {
+              localStorage.setItem('user_country', data.savedCountry);
+              document.getElementById("countryInput").value = data.savedCountry;
+            }
           }
           fetchPrayerTimes();
         });
@@ -1132,9 +1151,15 @@
       return `${h}:${m < 10 ? '0' : ''}${m} ${modifier}`;
     }
 
-    function fetchPrayerTimes() {
-      let city = document.getElementById("cityInput").value.trim() || "Dubai";
-      let country = document.getElementById("countryInput").value.trim() || "UAE";
+    // لوکیشن کو براؤزر میں اور ڈیٹا بیس میں محفوظ کرنے کا فنکشن
+    function saveLocationAndFetch() {
+      let city = document.getElementById("cityInput").value.trim();
+      let country = document.getElementById("countryInput").value.trim();
+
+      if(city && country) {
+        localStorage.setItem('user_city', city);
+        localStorage.setItem('user_country', country);
+      }
 
       if (currentUser) {
         db.ref("users/" + currentUser.uid).update({
@@ -1142,6 +1167,43 @@
           savedCountry: country
         });
       }
+      fetchPrayerTimes();
+    }
+
+    // کرنٹ لوکیشن خودکار معلوم کرنے کا فنکشن
+    function detectCurrentLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(async function(position) {
+          const lat = position.coords.latitude;
+          const lon = position.coords.longitude;
+          
+          try {
+            const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
+            const data = await response.json();
+            
+            const country = data.address.country || 'Pakistan';
+            const city = data.address.city || data.address.town || data.address.state || 'Lahore';
+            
+            document.getElementById("countryInput").value = country;
+            document.getElementById("cityInput").value = city;
+            
+            // لوکل سٹوریج اور ڈیٹا بیس میں بھی ساتھ ہی سیو کر دیں
+            saveLocationAndFetch();
+            alert('لوکیشن کامیابی سے ڈیٹیکٹ اور محفوظ ہو گئی!');
+          } catch (error) {
+            alert('لوکیشن تلاش کرنے میں مسئلہ پیش آیا۔');
+          }
+        }, function(error) {
+          alert('براہ کرم براؤزر کو لوکیشن کی اجازت (Permission) دیں۔');
+        });
+      } else {
+        alert('آپ کا براؤزر جیو لوکیشن کو سپورٹ نہیں کرتا۔');
+      }
+    }
+
+    function fetchPrayerTimes() {
+      let city = document.getElementById("cityInput").value.trim() || localStorage.getItem('user_city') || "Lahore";
+      let country = document.getElementById("countryInput").value.trim() || localStorage.getItem('user_country') || "Pakistan";
 
       const url = `https://api.aladhan.com/v1/timingsByCity?city=${encodeURIComponent(city)}&country=${encodeURIComponent(country)}&method=2`;
 
@@ -1364,7 +1426,7 @@
                 <div class="proof-item">
                   <b>🥇 فاتح:</b> ${w.name} (درود: ${w.count})<br>
                   <b>تاریخ:</b> ${w.date} | <b>اکاؤنٹ:</b> ${uProfile.accType || ""} (${maskedNumber})<br>
-                  <span style="color: #16a34a; font-weight: bold; font-size: 11px;">✓ اسٹیٹس: پیمنٹ ادا کر دی گئی (Paid)</span>
+                  <span style="color: #16a34a; font-weight: bold; font-size: 11px;">✓ اسٹیٹس: پیمنٹ ادا कर دی گئی (Paid)</span>
                 </div>
               `;
             }
