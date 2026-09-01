@@ -689,6 +689,34 @@ rtl">
     </div>
   </div>
 
+
+  <!-- LATEST WINNER CERTIFICATE POPUP -->
+  <div id="winnerCertificatePopup" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,.62);z-index:99999;display:none;align-items:center;justify-content:center;padding:14px;">
+    <div style="width:min(500px,96vw);max-height:92vh;overflow:auto;background:#fffdf8;border-radius:20px;padding:10px;box-shadow:0 20px 60px rgba(0,0,0,.35);position:relative;">
+      <button onclick="closeWinnerCertificatePopup()" style="position:absolute;right:10px;top:8px;width:32px;height:32px;border:0;border-radius:50%;background:#eee;color:#555;font-size:20px;cursor:pointer;">×</button>
+      <div id="popupCertificate" style="background:linear-gradient(145deg,#fffdf7,#fff8e8);border:7px double var(--accent-gold);border-radius:16px;padding:20px 14px;text-align:center;">
+        <div style="font-size:30px;">🏆 📜</div>
+        <div style="font-size:22px;font-weight:bold;color:var(--primary-color);font-family:Arial,sans-serif;">Certificate of Excellence</div>
+        <div style="font-size:12px;color:var(--accent-gold);font-weight:bold;margin-bottom:12px;">Mehfil-E-Darood — Daily Competition</div>
+        <div style="font-size:13px;color:var(--text-muted);">This certificate is proudly presented to</div>
+        <div id="popupCertWinnerName" style="font-size:25px;font-weight:bold;color:#b7791f;margin:7px 0;border-bottom:2px dashed var(--accent-gold);display:inline-block;padding:0 18px;">—</div>
+        <div style="font-size:13px;color:var(--text-main);line-height:1.9;margin:10px 0;">
+          for achieving <b id="popupCertWinnerScore" style="color:var(--primary-color);">0</b> Durood Shareef and securing
+          <b style="color:#b7791f;">First Position in the Daily Competition</b>.
+        </div>
+        <div style="font-size:13px;color:#6b4f1d;margin:13px 0 4px;line-height:1.9;">
+          🤲 اللہ تعالیٰ آپ کی اس نیک کاوش کو قبول فرمائے، آپ کے درود شریف کو اپنی بارگاہ میں شرفِ قبولیت عطا فرمائے اور آپ کو بہترین اجر عطا فرمائے۔ آمین۔
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;margin-top:15px;padding-top:10px;border-top:1px solid rgba(197,160,89,.35);font-size:10px;color:var(--text-muted);">
+          <div><b>Date:</b> <span id="popupCertDate">—</span></div>
+          <div style="font-size:13px;font-weight:bold;color:var(--primary-color);">Mehfil-E-Darood 🌙</div>
+          <div><b>🏆 Winner</b></div>
+        </div>
+      </div>
+      <div style="text-align:center;color:var(--text-muted);font-size:11px;margin:8px 0 2px;">آج کے مقابلے کے فاتح کا اعزاز</div>
+    </div>
+  </div>
+
   <div class="top-header">
     <div class="brand-title">
       Mehfil-E-Darood 🌙
@@ -1465,10 +1493,41 @@ const wasHidden = certCard.classList.contains("hidden");
       return winner;
     }
 
-    function loadLatestWinnerCertificate() {
+    function showWinnerCertificatePopup(w) {
+      if (!w) return;
+      document.getElementById("popupCertWinnerName").innerText = w.name;
+      document.getElementById("popupCertWinnerScore").innerText = w.count;
+      document.getElementById("popupCertDate").innerText = w.dateKey;
+      const popup = document.getElementById("winnerCertificatePopup");
+      popup.classList.remove("hidden");
+      popup.style.display = "flex";
+    }
+
+    function closeWinnerCertificatePopup() {
+      const popup = document.getElementById("winnerCertificatePopup");
+      popup.classList.add("hidden");
+      popup.style.display = "none";
+
+      // After closing the winner certificate, take the user to the Home Menu.
+      const homeTab = document.getElementById("homeTab");
+      const mainTab = document.getElementById("mainTab");
+      const menuTab = document.getElementById("menuTab");
+
+      document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
+      if (homeTab) homeTab.classList.add("active");
+
+      document.querySelectorAll(".tab-btn").forEach(el => el.classList.remove("active"));
+      if (mainTab) mainTab.classList.add("active");
+
+      if (typeof window.scrollTo === "function") {
+        window.scrollTo({top: 0, behavior: "smooth"});
+      }
+    }
+
+    function loadLatestWinnerCertificate(showPopup = false) {
       const card = document.getElementById("latestWinnerCertificateCard");
       if (!card) return;
-      db.ref("competitions").on("value", snapshot => {
+      db.ref("competitions").once("value").then(snapshot => {
         const winners = [];
         snapshot.forEach(daySnap => {
           const w = getQualifyingDailyWinner(daySnap);
@@ -1477,11 +1536,17 @@ const wasHidden = certCard.classList.contains("hidden");
         winners.sort((a,b) => String(b.dateKey).localeCompare(String(a.dateKey)));
         const w = winners[0];
         if (!w) { card.classList.add("hidden"); return; }
+
         document.getElementById("latestCertWinnerName").innerText = w.name;
         document.getElementById("latestCertWinnerScore").innerText = w.count;
         document.getElementById("latestCertDate").innerText = w.dateKey;
         window.latestWinnerCertificateData = w;
         card.classList.remove("hidden");
+
+        // Show the certificate as a popup after login / page entry.
+        if (showPopup) {
+          setTimeout(() => showWinnerCertificatePopup(w), 350);
+        }
       });
     }
 
@@ -1552,7 +1617,7 @@ const wasHidden = certCard.classList.contains("hidden");
       document.getElementById("board").innerHTML = fullTbody || `<tr><td colspan="3">کوئی ڈیٹا موجود نہیں</td></tr>`;
     });
 
-    loadLatestWinnerCertificate();
+    loadLatestWinnerCertificate(true);
     loadHomeDailyTop5Winners();
 
     db.ref("competitions/" + todayDateKey).on("value", snapshot => {
