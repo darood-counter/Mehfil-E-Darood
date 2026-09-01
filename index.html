@@ -1769,10 +1769,7 @@
                   ${badge}
                 </div>
                 <div style="margin-top:4px;">🏆 <b>فاتح:</b> ${winner.name} (${winner.count} درود شریف)</div>
-                <div style="margin-top:8px; text-align:left;">
-                  <button onclick="downloadSpecificCertificate('${safeName}', ${winner.count}, '${String(dateKey).replace(/'/g, "\\'")}')" style="background:linear-gradient(135deg, #0d3b22, #166534); color:white; border:none; padding:5px 12px; border-radius:6px; font-size:11px; font-weight:bold; cursor:pointer; font-family:inherit;">📜 سرٹیفکیٹ ڈاؤنلوڈ کریں</button>
-                </div>
-                </div>
+                  ${isPaid ? `<div style="margin-top:8px; text-align:left;"><button onclick="downloadSpecificCertificate('${safeName}', ${winner.count}, '${String(dateKey).replace(/'/g, "\\'")}')" style="background:linear-gradient(135deg, #0d3b22, #166534); color:white; border:none; padding:5px 12px; border-radius:6px; font-size:11px; font-weight:bold; cursor:pointer; font-family:inherit;">📜 سرٹیفکیٹ ڈاؤنلوڈ کریں</button></div>` : ''}
               </div>
             `;
           }
