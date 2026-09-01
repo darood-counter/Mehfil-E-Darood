@@ -1,1735 +1,1177 @@
 <!DOCTYPE html>
 <html lang="ur" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mehfil-E-Darood — Online Community</title>
-  <link href="https://fonts.googleapis.com/css2?family=Jameel+Noori+Nastaleeq&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --primary-color: #0d3b22;
-      --primary-hover: #14532d;
-      --accent-gold: #c5a059;
-      --accent-gold-light: #fdf8ee;
-      --bg-gradient: linear-gradient(145deg, #f3f7f4 0%, #e8f0ec 100%);
-      --card-bg: #ffffff;
-      --text-main: #1f2937;
-      --text-muted: #4b5563;
-      --shadow: 0 12px 35px rgba(13, 59, 34, 0.08);
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mehfil-E-Darood — Final V7 (Admin Home)</title>
+<link href="https://fonts.googleapis.com/css2?family=Jameel+Noori+Nastaleeq&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+--primary-color: #0d3b22;
+--primary-hover: #14532d;
+--accent-gold: #c5a059;
+--accent-gold-light: #fdf8ee;
+--bg-gradient: linear-gradient(145deg, #f3f7f4 0%, #e8f0ec 100%);
+--card-bg: #ffffff;
+--text-main: #1f2937;
+--text-muted: #4b5563;
+--shadow: 0 12px 35px rgba(13, 59, 34, 0.08);
+}
 
-    body {
-      font-family: 'Jameel Noori Nastaleeq', 'Plus Jakarta Sans', sans-serif;
-      background: #eef4f1;
-      color: var(--text-main);
-      text-align: center;
-      margin: 0;
-      padding-bottom: 70px;
-      min-height: 100vh;
-      font-size: 16px;
-      line-height: 1.8;
-    }
+body {
+font-family: 'Jameel Noori Nastaleeq', 'Plus Jakarta Sans', sans-serif;
+background: #eef4f1;
+color: var(--text-main);
+text-align: center;
+margin: 0;
+padding-bottom: 70px;
+min-height: 100vh;
+font-size: 16px;
+line-height: 1.8;
+}
 
-    .top-header {
-      background: linear-gradient(135deg, #0b311c 0%, #134e29 100%);
-      color: white;
-      padding: 20px 16px 30px 16px;
-      border-bottom-left-radius: 25px;
-      border-bottom-right-radius: 25px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-      margin-bottom: -20px;
-    }
+.top-header {
+background: linear-gradient(135deg, #0b311c 0%, #134e29 100%);
+color: white;
+padding: 20px 16px 30px 16px;
+border-bottom-left-radius: 25px;
+border-bottom-right-radius: 25px;
+box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+margin-bottom: -20px;
+}
 
-    .brand-title {
-      font-size: 24px;
-      font-weight: bold;
-      margin: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      color: #ffffff;
-    }
+.brand-title {
+font-size: 24px;
+font-weight: bold;
+margin: 0;
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 6px;
+color: #ffffff;
+}
 
-    .brand-subtitle {
-      font-size: 13px;
-      color: #a3c1ad;
-      margin-top: 4px;
-    }
+.brand-subtitle {
+font-size: 13px;
+color: #a3c1ad;
+margin-top: 4px;
+}
 
-    .container {
-      max-width: 620px;
-      margin: 0 auto;
-      background: var(--card-bg);
-      padding: 20px 18px;
-      border-radius: 24px;
-      box-shadow: var(--shadow);
-      border: 1px solid rgba(197, 160, 89, 0.25);
-      position: relative;
-      z-index: 10;
-    }
+.container {
+max-width: 620px;
+margin: 0 auto;
+background: var(--card-bg);
+padding: 20px 18px;
+border-radius: 24px;
+box-shadow: var(--shadow);
+border: 1px solid rgba(197, 160, 89, 0.25);
+position: relative;
+z-index: 10;
+}
 
-    .live-badge {
-      display: inline-flex;
-      align-items: center;
-      background-color: var(--accent-gold-light);
-      color: var(--primary-color);
-      border: 1px solid rgba(197, 160, 89, 0.4);
-      padding: 3px 12px;
-      border-radius: 30px;
-      font-size: 12px;
-      font-weight: bold;
-      margin-bottom: 10px;
-    }
+.live-badge {
+display: inline-flex;
+align-items: center;
+background-color: var(--accent-gold-light);
+color: var(--primary-color);
+border: 1px solid rgba(197, 160, 89, 0.4);
+padding: 3px 12px;
+border-radius: 30px;
+font-size: 12px;
+font-weight: bold;
+margin-bottom: 10px;
+}
 
-    .live-dot {
-      height: 7px;
-      width: 7px;
-      background-color: #16a34a;
-      border-radius: 50%;
-      display: inline-block;
-      margin-left: 6px;
-      animation: pulse 1.5s infinite;
-    }
+.live-dot {
+height: 7px;
+width: 7px;
+background-color: #16a34a;
+border-radius: 50%;
+display: inline-block;
+margin-left: 6px;
+animation: pulse 1.5s infinite;
+}
 
-    @keyframes pulse {
-      0% { transform: scale(0.95); opacity: 0.7; }
-      50% { transform: scale(1.3); opacity: 1; }
-      100% { transform: scale(0.95); opacity: 0.7; }
-    }
+@keyframes pulse {
+0% { transform: scale(0.95); opacity: 0.7; }
+50% { transform: scale(1.3); opacity: 1; }
+100% { transform: scale(0.95); opacity: 0.7; }
+}
 
-    .darood-card {
-      background: linear-gradient(145deg, #ffffff, #f8faf9);
-      border: 1.5px solid var(--accent-gold);
-      border-radius: 16px;
-      padding: 14px;
-      margin: 10px 0;
-      box-shadow: 0 6px 20px rgba(197, 160, 89, 0.12);
-      position: relative;
-    }
+.darood-card {
+background: linear-gradient(145deg, #ffffff, #f8faf9);
+border: 1.5px solid var(--accent-gold);
+border-radius: 16px;
+padding: 14px;
+margin: 10px 0;
+box-shadow: 0 6px 20px rgba(197, 160, 89, 0.12);
+position: relative;
+}
 
-    .arabic-text {
-      font-family: 'Traditional Arabic', 'Amiri', serif;
-      font-size: 20px;
-      color: var(--primary-color);
-      font-weight: bold;
-      line-height: 1.8;
-      direction: rtl;
-    }
+.arabic-text {
+font-family: 'Traditional Arabic', 'Amiri', serif;
+font-size: 20px;
+color: var(--primary-color);
+font-weight: bold;
+line-height: 1.8;
+direction: rtl;
+}
 
-    .translation {
-      font-size: 12px;
-      color: var(--text-muted);
-      margin-top: 10px;
-      line-height: 1.5;
-      padding-top: 8px;
-      border-top: 1px dashed rgba(197, 160, 89, 0.4);
-    }
+.translation {
+font-size: 12px;
+color: var(--text-muted);
+margin-top: 10px;
+line-height: 1.5;
+padding-top: 8px;
+border-top: 1px dashed rgba(197, 160, 89, 0.4);
+}
 
-    .speak-btn {
-      background: var(--accent-gold-light);
-      color: var(--primary-color);
-      border: 1px solid var(--accent-gold);
-      padding: 5px 12px;
-      border-radius: 20px;
-      font-size: 13px;
-      font-weight: bold;
-      cursor: pointer;
-      margin-top: 8px;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-family: 'Jameel Noori Nastaleeq', sans-serif;
-      transition: all 0.2s ease;
-    }
-    .speak-btn:hover { background: var(--accent-gold); color: white; }
+.speak-btn {
+background: var(--accent-gold-light);
+color: var(--primary-color);
+border: 1px solid var(--accent-gold);
+padding: 5px 12px;
+border-radius: 20px;
+font-size: 13px;
+font-weight: bold;
+cursor: pointer;
+margin-top: 8px;
+display: inline-flex;
+align-items: center;
+gap: 6px;
+font-family: 'Jameel Noori Nastaleeq', sans-serif;
+transition: all 0.2s ease;
+}
+.speak-btn:hover { background: var(--accent-gold); color: white; }
 
-    .user-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: #f8fafc;
-      padding: 8px 14px;
-      border-radius: 10px;
-      margin-bottom: 12px;
-      border: 1px solid #e2e8f0;
-      font-size: 14px;
-    }
+.user-header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+background: #f8fafc;
+padding: 8px 14px;
+border-radius: 10px;
+margin-bottom: 12px;
+border: 1px solid #e2e8f0;
+font-size: 14px;
+}
 
-    .logout-btn {
-      background-color: #ef4444;
-      color: white;
-      border: none;
-      padding: 4px 10px;
-      font-size: 12px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-family: 'Jameel Noori Nastaleeq', sans-serif;
-    }
+.logout-btn {
+background-color: #ef4444;
+color: white;
+border: none;
+padding: 4px 10px;
+font-size: 12px;
+border-radius: 6px;
+cursor: pointer;
+font-family: 'Jameel Noori Nastaleeq', sans-serif;
+}
 
-    .profile-box {
-      background: #fffdf9;
-      border: 1px solid #fde68a;
-      padding: 14px;
-      border-radius: 14px;
-      margin-bottom: 14px;
-      text-align: right;
-    }
-    .profile-box input, .profile-box select {
-      width: 100%;
-      padding: 8px;
-      margin: 6px 0 10px 0;
-      border: 1px solid #d1d5db;
-      border-radius: 8px;
-      box-sizing: border-box;
-      font-family: 'Jameel Noori Nastaleeq', sans-serif;
-      font-size: 14px;
-    }
-    .save-profile-btn {
-      background-color: var(--primary-color);
-      color: white;
-      border: none;
-      padding: 8px 12px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: bold;
-      width: 100%;
-      font-family: 'Jameel Noori Nastaleeq', sans-serif;
-      font-size: 14px;
-    }
+.profile-box {
+background: #fffdf9;
+border: 1px solid #fde68a;
+padding: 14px;
+border-radius: 14px;
+margin-bottom: 14px;
+text-align: right;
+}
+.profile-box input, .profile-box select {
+width: 100%;
+padding: 8px;
+margin: 6px 0 10px 0;
+border: 1px solid #d1d5db;
+border-radius: 8px;
+box-sizing: border-box;
+font-family: 'Jameel Noori Nastaleeq', sans-serif;
+font-size: 14px;
+}
+.save-profile-btn {
+background-color: var(--primary-color);
+color: white;
+border: none;
+padding: 8px 12px;
+border-radius: 8px;
+cursor: pointer;
+font-weight: bold;
+width: 100%;
+font-family: 'Jameel Noori Nastaleeq', sans-serif;
+font-size: 14px;
+}
 
-    .about-card {
-      background: #ffffff;
-      border: 1px solid #e2e8f0;
-      border-radius: 14px;
-      padding: 14px;
-      margin-bottom: 12px;
-      text-align: right;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-    }
-    .about-card h3 {
-      color: var(--primary-color);
-      margin: 0 0 6px 0;
-      font-size: 16px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .about-card p {
-      margin: 0;
-      font-size: 13px;
-      color: var(--text-muted);
-      line-height: 1.7;
-    }
+.about-card {
+background: #ffffff;
+border: 1px solid #e2e8f0;
+border-radius: 14px;
+padding: 14px;
+margin-bottom: 12px;
+text-align: right;
+box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+}
+.about-card h3 {
+color: var(--primary-color);
+margin: 0 0 6px 0;
+font-size: 16px;
+display: flex;
+align-items: center;
+gap: 6px;
+}
+.about-card p {
+margin: 0;
+font-size: 13px;
+color: var(--text-muted);
+line-height: 1.7;
+}
 
-    .proof-box, .admin-panel {
-      background: #fff;
-      border: 1px solid #e2e8f0;
-      padding: 14px;
-      border-radius: 14px;
-      margin-top: 14px;
-      text-align: right;
-    }
-    .proof-title, .admin-title {
-      color: var(--primary-color);
-      font-weight: bold;
-      font-size: 15px;
-      margin-bottom: 8px;
-      border-bottom: 2px solid #e8f5e9;
-      padding-bottom: 6px;
-    }
-    .proof-item, .admin-card {
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      padding: 10px;
-      border-radius: 10px;
-      margin-bottom: 8px;
-      font-size: 13px;
-    }
-    .admin-panel { background: #fffbeb; border-color: #fef08a; }
-    .admin-title { color: #d97706; border-bottom-color: #fef3c7; }
+.proof-box, .admin-panel {
+background: #fff;
+border: 1px solid #e2e8f0;
+padding: 14px;
+border-radius: 14px;
+margin-top: 14px;
+text-align: right;
+}
+.proof-title, .admin-title {
+color: var(--primary-color);
+font-weight: bold;
+font-size: 15px;
+margin-bottom: 8px;
+border-bottom: 2px solid #e8f5e9;
+padding-bottom: 6px;
+}
+.proof-item, .admin-card {
+background: #f8fafc;
+border: 1px solid #e2e8f0;
+padding: 10px;
+border-radius: 10px;
+margin-bottom: 8px;
+font-size: 13px;
+}
+.admin-panel { background: #fffbeb; border-color: #fef08a; }
+.admin-title { color: #d97706; border-bottom-color: #fef3c7; }
 
-    .paid-btn { background-color: #16a34a; color: white; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; margin-top: 6px; font-family: inherit;}
-    .unpaid-btn { background-color: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; margin-top: 6px; font-family: inherit;}
-    .paid-badge { background-color: #dcfce7; color: #16a34a; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; }
-    .pending-badge { background-color: #fef3c7; color: #d97706; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; }
+.paid-btn { background-color: #16a34a; color: white; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; margin-top: 6px; font-family: inherit;}
+.unpaid-btn { background-color: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; margin-top: 6px; font-family: inherit;}
+.paid-badge { background-color: #dcfce7; color: #16a34a; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; }
+.pending-badge { background-color: #fef3c7; color: #d97706; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; }
 
-    .mic-circle-wrapper {
-      position: relative;
-      width: 170px;
-      height: 170px;
-      margin: 15px auto;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
+.mic-circle-wrapper {
+position: relative;
+width: 170px;
+height: 170px;
+margin: 15px auto;
+display: flex;
+align-items: center;
+justify-content: center;
+}
 
-    .circle-progress {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      border: 6px solid #e2e8f0;
-      border-top: 6px solid var(--primary-color);
-      border-radius: 50%;
-    }
+.circle-progress {
+position: absolute;
+width: 100%;
+height: 100%;
+border: 6px solid #e2e8f0;
+border-top: 6px solid var(--primary-color);
+border-radius: 50%;
+}
 
-    .mic-btn {
-      background: linear-gradient(135deg, #ffffff, #f8faf9);
-      color: var(--primary-color);
-      border: 2px solid #10b981;
-      width: 140px;
-      height: 140px;
-      border-radius: 50%;
-      font-size: 14px;
-      font-weight: bold;
-      cursor: pointer;
-      box-shadow: 0 6px 20px rgba(13, 59, 34, 0.1);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 4px;
-      outline: none;
-      transition: all 0.3s ease;
-      font-family: 'Jameel Noori Nastaleeq', sans-serif;
-      z-index: 2;
-    }
-    .mic-btn:hover { transform: scale(1.04); }
-    .mic-btn:disabled { background: #9ca3af; cursor: not-allowed; box-shadow: none; transform: none; }
-    .mic-btn.listening { background: linear-gradient(135deg, #dc2626, #ef4444); color: white; animation: pulse-red 1.5s infinite; }
+.mic-btn {
+background: linear-gradient(135deg, #ffffff, #f8faf9);
+color: var(--primary-color);
+border: 2px solid #10b981;
+width: 140px;
+height: 140px;
+border-radius: 50%;
+font-size: 14px;
+font-weight: bold;
+cursor: pointer;
+box-shadow: 0 6px 20px rgba(13, 59, 34, 0.1);
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+gap: 4px;
+outline: none;
+transition: all 0.3s ease;
+font-family: 'Jameel Noori Nastaleeq', sans-serif;
+z-index: 2;
+}
+.mic-btn:hover { transform: scale(1.04); }
+.mic-btn:disabled { background: #9ca3af; cursor: not-allowed; box-shadow: none; transform: none; }
+.mic-btn.listening { background: linear-gradient(135deg, #dc2626, #ef4444); color: white; animation: pulse-red 1.5s infinite; }
 
-    @keyframes pulse-red {
-      0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5); }
-      70% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
-    }
+@keyframes pulse-red {
+0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5); }
+70% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); }
+100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
 
-    .status-msg { font-weight: bold; font-size: 13px; margin: 6px 0; min-height: 20px; }
-    
-    .auth-container {
-      background: #fffdf9;
-      border: 1px solid #fde68a;
-      padding: 16px;
-      border-radius: 14px;
-      margin-top: 10px;
-      text-align: right;
-    }
-    .auth-container input {
-      width: 100%;
-      padding: 9px;
-      margin: 6px 0 12px 0;
-      border: 1px solid #d1d5db;
-      border-radius: 8px;
-      box-sizing: border-box;
-      font-family: 'Jameel Noori Nastaleeq', sans-serif;
-      font-size: 14px;
-    }
-    .auth-btn {
-      background: linear-gradient(135deg, #0d3b22, #166534);
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      font-size: 15px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-family: 'Jameel Noori Nastaleeq', sans-serif;
-      width: 100%;
-      font-weight: bold;
-      box-shadow: 0 4px 15px rgba(13, 59, 34, 0.2);
-    }
-    .google-btn {
-      background: #ffffff;
-      color: #374151;
-      border: 1px solid #d1d5db;
-      padding: 10px 20px;
-      font-size: 14px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-family: 'Plus Jakarta Sans', 'Jameel Noori Nastaleeq', sans-serif;
-      width: 100%;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      margin-top: 10px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-    }
-    .divider {
-      display: flex;
-      align-items: center;
-      text-align: center;
-      margin: 14px 0;
-      color: var(--text-muted);
-      font-size: 12px;
-    }
-    .divider::before, .divider::after {
-      content: '';
-      flex: 1;
-      border-bottom: 1px solid #e5e7eb;
-    }
-    .divider::before { margin-left: 10px; }
-    .divider::after { margin-right: 10px; }
+.status-msg { font-weight: bold; font-size: 13px; margin: 6px 0; min-height: 20px; }
 
-    .switch-text {
-      font-size: 13px;
-      color: var(--text-muted);
-      margin-top: 12px;
-      text-align: center;
-      cursor: pointer;
-    }
-    .switch-text span {
-      color: var(--primary-color);
-      font-weight: bold;
-      text-decoration: underline;
-    }
+.auth-container {
+background: #fffdf9;
+border: 1px solid #fde68a;
+padding: 16px;
+border-radius: 14px;
+margin-top: 10px;
+text-align: right;
+}
+.auth-container input {
+width: 100%;
+padding: 9px;
+margin: 6px 0 12px 0;
+border: 1px solid #d1d5db;
+border-radius: 8px;
+box-sizing: border-box;
+font-family: 'Jameel Noori Nastaleeq', sans-serif;
+font-size: 14px;
+}
+.auth-btn {
+background: linear-gradient(135deg, #0d3b22, #166534);
+color: white;
+border: none;
+padding: 10px 20px;
+font-size: 15px;
+border-radius: 8px;
+cursor: pointer;
+font-family: 'Jameel Noori Nastaleeq', sans-serif;
+width: 100%;
+font-weight: bold;
+box-shadow: 0 4px 15px rgba(13, 59, 34, 0.2);
+}
+.google-btn {
+background: #ffffff;
+color: #374151;
+border: 1px solid #d1d5db;
+padding: 10px 20px;
+font-size: 14px;
+border-radius: 8px;
+cursor: pointer;
+font-family: 'Plus Jakarta Sans', 'Jameel Noori Nastaleeq', sans-serif;
+width: 100%;
+font-weight: 600;
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 10px;
+margin-top: 10px;
+box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+.divider {
+display: flex;
+align-items: center;
+text-align: center;
+margin: 14px 0;
+color: var(--text-muted);
+font-size: 12px;
+}
+.divider::before, .divider::after {
+content: '';
+flex: 1;
+border-bottom: 1px solid #e5e7eb;
+}
+.divider::before { margin-left: 10px; }
+.divider::after { margin-right: 10px; }
 
-    table { width: 100%; border-collapse: collapse; margin-top: 12px; border-radius: 8px; overflow: hidden; }
-    th, td { border: 1px solid #e5e7eb; padding: 8px; text-align: center; font-size: 13px; }
-    th { background-color: var(--primary-color); color: white; font-weight: 600; }
-    tr:nth-child(even) { background-color: #f9fafb; }
-    
-    .hidden { display: none !important; }
+.switch-text {
+font-size: 13px;
+color: var(--text-muted);
+margin-top: 12px;
+text-align: center;
+cursor: pointer;
+}
+.switch-text span {
+color: var(--primary-color);
+font-weight: bold;
+text-decoration: underline;
+}
 
-    .bottom-nav {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      background: #ffffff;
-      display: flex;
-      justify-content: space-around;
-      padding: 8px 0;
-      box-shadow: 0 -4px 15px rgba(0,0,0,0.06);
-      border-top: 1px solid #e5e7eb;
-      z-index: 1000;
-    }
+table { width: 100%; border-collapse: collapse; margin-top: 12px; border-radius: 8px; overflow: hidden; }
+th, td { border: 1px solid #e5e7eb; padding: 8px; text-align: center; font-size: 13px; }
+th { background-color: var(--primary-color); color: white; font-weight: 600; }
+tr:nth-child(even) { background-color: #f9fafb; }
 
-    .nav-item {
-      background: none;
-      border: none;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      cursor: pointer;
-      color: #6b7280;
-      font-size: 11px;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      transition: 0.2s;
-    }
+.hidden { display: none !important; }
 
-    .nav-item.active {
-      color: #0d3b22;
-      font-weight: bold;
-    }
+.bottom-nav {
+position: fixed;
+bottom: 0;
+left: 0;
+width: 100%;
+background: #ffffff;
+display: flex;
+justify-content: space-around;
+padding: 8px 0;
+box-shadow: 0 -4px 15px rgba(0,0,0,0.06);
+border-top: 1px solid #e5e7eb;
+z-index: 1000;
+}
 
-    .nav-item span.icon {
-      font-size: 18px;
-      margin-bottom: 2px;
-    }
+.nav-item {
+background: none;
+border: none;
+display: flex;
+flex-direction: column;
+align-items: center;
+cursor: pointer;
+color: #6b7280;
+font-size: 11px;
+font-family: 'Plus Jakarta Sans', sans-serif;
+transition: 0.2s;
+}
 
-    .custom-modal {
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.6);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 9999;
-    }
-    .modal-content {
-      background: #ffffff;
-      padding: 24px 20px;
-      border-radius: 18px;
-      max-width: 380px;
-      width: 90%;
-      text-align: center;
-      box-shadow: 0 15px 35px rgba(0,0,0,0.2);
-      border: 2px solid var(--accent-gold);
-      animation: scaleUp 0.3s ease;
-    }
-    @keyframes scaleUp {
-      from { transform: scale(0.8); opacity: 0; }
-      to { transform: scale(1); opacity: 1; }
-    }
-    .modal-title {
-      font-size: 20px;
-      color: var(--primary-color);
-      font-weight: bold;
-      margin-bottom: 8px;
-    }
-    .modal-text {
-      font-size: 15px;
-      color: var(--text-muted);
-      margin-bottom: 20px;
-      line-height: 1.7;
-      font-weight: bold;
-    }
-    .modal-ok-btn {
-      background: var(--primary-color);
-      color: white;
-      border: none;
-      padding: 8px 24px;
-      border-radius: 30px;
-      font-size: 15px;
-      font-weight: bold;
-      cursor: pointer;
-      font-family: 'Jameel Noori Nastaleeq', sans-serif;
-      box-shadow: 0 4px 15px rgba(13, 59, 34, 0.2);
-    }
+.nav-item.active {
+color: #0d3b22;
+font-weight: bold;
+}
 
-    /* PRAYER TIMES CSS */
-    .prayer-card-container {
-      background: linear-gradient(135deg, #0d3b22 0%, #14532d 100%);
-      color: white;
-      border-radius: 16px;
-      padding: 16px;
-      margin: 15px 0;
-      box-shadow: 0 8px 25px rgba(13, 59, 34, 0.2);
-      border: 1px solid var(--accent-gold);
-    }
-    .prayer-title {
-      font-size: 18px;
-      font-weight: bold;
-      margin-bottom: 4px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-    }
-    .prayer-date {
-      font-size: 12px;
-      color: #a3c1ad;
-      margin-bottom: 12px;
-    }
-    .prayer-config-box {
-      background: #fffdf9;
-      border: 1px solid #fde68a;
-      padding: 12px;
-      border-radius: 12px;
-      margin-bottom: 12px;
-      color: var(--text-main);
-      text-align: right;
-    }
-    .prayer-config-box select, .prayer-config-box input {
-      width: 100%;
-      padding: 7px;
-      margin: 4px 0 8px 0;
-      border: 1px solid #d1d5db;
-      border-radius: 8px;
-      box-sizing: border-box;
-      font-family: 'Jameel Noori Nastaleeq', sans-serif;
-      font-size: 13px;
-    }
-    .current-prayer-highlight {
-      background: #e8f5e9;
-      border: 1px solid #81c784;
-      border-radius: 12px;
-      padding: 10px;
-      margin-bottom: 12px;
-      color: var(--primary-color);
-      text-align: center;
-    }
-    .prayer-table {
-      width: 100%;
-      background: white;
-      border-radius: 12px;
-      overflow: hidden;
-      color: var(--text-main);
-      margin-top: 10px;
-    }
-    .prayer-table th {
-      background-color: #0d3b22;
-      color: white;
-      padding: 8px;
-      font-size: 13px;
-    }
-    .prayer-table td {
-      padding: 8px;
-      font-size: 13px;
-      border-bottom: 1px solid #e5e7eb;
-    }
-    .prayer-table tr.active-row {
-      background-color: #e8f5e9 !important;
-      font-weight: bold;
-    }
-    .active-badge {
-      background-color: #16a34a;
-      color: white;
-      padding: 2px 8px;
-      border-radius: 6px;
-      font-size: 11px;
-    }
-    .winner-history-box {
-      background: linear-gradient(135deg, #fffdf5, #ffffff);
-      border: 1.5px solid var(--accent-gold);
-      padding: 14px;
-      border-radius: 14px;
-      margin-top: 18px;
-      text-align: right;
-      box-shadow: 0 5px 18px rgba(197,160,89,0.10);
-    }
-    .winner-history-title {
-      color: var(--primary-color);
-      font-weight: bold;
-      font-size: 16px;
-      margin-bottom: 8px;
-      border-bottom: 2px solid #fef3c7;
-      padding-bottom: 7px;
-    }
-    .winner-history-item {
-      background: #f8fafc;
-      border: 1px solid #e5e7eb;
-      border-radius: 10px;
-      padding: 10px;
-      margin-bottom: 8px;
-      font-size: 13px;
-    }
-    .winner-history-item.today {
-      background: #fffbeb;
-      border-color: #f59e0b;
-    }
-    .winner-medal { font-size: 19px; margin-left: 4px; }
+.nav-item span.icon {
+font-size: 18px;
+margin-bottom: 2px;
+}
 
-    .next-prayer-footer {
-      background: #fdf8ee;
-      border: 1px solid var(--accent-gold);
-      border-radius: 10px;
-      padding: 8px;
-      margin-top: 10px;
-      font-size: 13px;
-      color: #92400e;
-      font-weight: bold;
-      text-align: center;
-    }
+.custom-modal {
+position: fixed;
+top: 0; left: 0; width: 100%; height: 100%;
+background: rgba(0, 0, 0, 0.6);
+display: flex;
+justify-content: center;
+align-items: center;
+z-index: 9999;
+}
+.modal-content {
+background: #ffffff;
+padding: 24px 20px;
+border-radius: 18px;
+max-width: 380px;
+width: 90%;
+text-align: center;
+box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+border: 2px solid var(--accent-gold);
+animation: scaleUp 0.3s ease;
+}
+@keyframes scaleUp {
+from { transform: scale(0.8); opacity: 0; }
+to { transform: scale(1); opacity: 1; }
+}
+.modal-title {
+font-size: 20px;
+color: var(--primary-color);
+font-weight: bold;
+margin-bottom: 8px;
+}
+.modal-text {
+font-size: 15px;
+color: var(--text-muted);
+margin-bottom: 20px;
+line-height: 1.7;
+font-weight: bold;
+}
+.modal-ok-btn {
+background: var(--primary-color);
+color: white;
+border: none;
+padding: 8px 24px;
+border-radius: 30px;
+font-size: 15px;
+font-weight: bold;
+cursor: pointer;
+font-family: 'Jameel Noori Nastaleeq', sans-serif;
+box-shadow: 0 4px 15px rgba(13, 59, 34, 0.2);
+}
 
-    .comp-header-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: #fffdf5;
-      border: 1px solid #fde68a;
-      padding: 10px 14px;
-      border-radius: 12px;
-      margin-bottom: 12px;
-    }
-    .comp-date-badge {
-      font-size: 13px;
-      font-weight: bold;
-      color: #b45309;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .comp-timer-badge {
-      font-size: 13px;
-      font-weight: bold;
-      color: #dc2626;
-      direction: ltr;
-    }
-  </style>
+/* PRAYER TIMES CSS */
+.prayer-card-container {
+background: linear-gradient(135deg, #0d3b22 0%, #14532d 100%);
+color: white;
+border-radius: 16px;
+padding: 16px;
+margin: 15px 0;
+box-shadow: 0 8px 25px rgba(13, 59, 34, 0.2);
+border: 1px solid var(--accent-gold);
+}
+.prayer-title {
+font-size: 18px;
+font-weight: bold;
+margin-bottom: 4px;
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 6px;
+}
+.prayer-date {
+font-size: 12px;
+color: #a3c1ad;
+margin-bottom: 12px;
+}
+.prayer-config-box {
+background: #fffdf9;
+border: 1px solid #fde68a;
+padding: 12px;
+border-radius: 12px;
+margin-bottom: 12px;
+color: var(--text-main);
+text-align: right;
+}
+.prayer-config-box select, .prayer-config-box input {
+width: 100%;
+padding: 7px;
+margin: 4px 0 8px 0;
+border: 1px solid #d1d5db;
+border-radius: 8px;
+box-sizing: border-box;
+font-family: 'Jameel Noori Nastaleeq', sans-serif;
+font-size: 13px;
+}
+.current-prayer-highlight {
+background: #e8f5e9;
+border: 1px solid #81c784;
+border-radius: 12px;
+padding: 10px;
+margin-bottom: 12px;
+color: var(--primary-color);
+text-align: center;
+}
+.prayer-table {
+width: 100%;
+background: white;
+border-radius: 12px;
+overflow: hidden;
+color: var(--text-main);
+margin-top: 10px;
+}
+.prayer-table th {
+background-color: #0d3b22;
+color: white;
+padding: 8px;
+font-size: 13px;
+}
+.prayer-table td {
+padding: 8px;
+font-size: 13px;
+border-bottom: 1px solid #e5e7eb;
+}
+.prayer-table tr.active-row {
+background-color: #e8f5e9 !important;
+font-weight: bold;
+}
+.active-badge {
+background-color: #16a34a;
+color: white;
+padding: 2px 8px;
+border-radius: 6px;
+font-size: 11px;
+}
+.next-prayer-footer {
+background: #fdf8ee;
+border: 1px solid var(--accent-gold);
+border-radius: 10px;
+padding: 8px;
+margin-top: 10px;
+font-size: 13px;
+color: #92400e;
+font-weight: bold;
+text-align: center;
+}
+</style>
 </head>
 <body>
 
-  <div style="display:none;">
-    <iframe id="youtubeAudioFrame" width="200" height="200" src="https://www.youtube.com/embed/B1kvwM-2AUc?enablejsapi=1&autoplay=0" allow="autoplay"></iframe>
-  </div>
-
-  <div id="customModal" class="custom-modal hidden">
-    <div class="modal-content">
-      <div class="modal-title">🎯 مقابلہ جاری ہے</div>
-      <div class="modal-text">کم از کم 100 درود شریف پڑھیں اور جیتنے والے کو انعام پائیں</div>
-      <button class="modal-ok-btn" id="modalOkBtn">ٹھیک ہے (OK)</button>
-    </div>
-  </div>
-
-  <div class="top-header">
-    <div class="brand-title">
-      Mehfil-E-Darood 🌙
-    </div>
-    <div class="brand-subtitle">آن لائن اجتماعی محفل</div>
-  </div>
-
-  <div class="container" style="margin-top: -15px;">
-    
-    <div class="live-badge">
-      <span class="live-dot"></span> آن لائن شرکاء: <span id="onlineCount">0</span>
-    </div>
-
-    <div id="authSection">
-      <div id="loginForm" class="auth-container">
-        <h3 style="color:var(--primary-color); margin: 0 0 10px 0; text-align:center; font-size: 17px;">🔐 لاگ ان کریں (Login)</h3>
-        
-        <label style="font-size: 12px; color: var(--text-muted);">ای میل ایڈریس:</label>
-        <input type="email" id="loginEmail" placeholder="example@gmail.com">
-
-        <label style="font-size: 12px; color: var(--text-muted);">پاسورڈ:</label>
-        <input type="password" id="loginPassword" placeholder="اپنا پاسورڈ درج کریں">
-
-        <button class="auth-btn" id="loginSubmitBtn">لاگ ان کریں</button>
-
-        <div class="divider">یا</div>
-        <button class="google-btn" id="googleLoginBtn">
-          <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.13 0-5.78-2.11-6.73-4.96H1.19v3.15C3.17 21.31 7.23 24 12 24z"/><path fill="#FBBC05" d="M5.27 14.24c-.25-.72-.38-1.49-.38-2.24s.13-1.52.38-2.24V6.61H1.19C.43 8.14 0 9.99 0 12s.43 3.86 1.19 5.39l4.08-3.15z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.23 0 3.17 2.69 1.19 6.61l4.08 3.15c.95-2.85 3.6-4.96 6.73-4.96z"/></svg>
-          گوگل (Google) سے لاگ ان کریں
-        </button>
-
-        <div id="loginStatus" style="font-size: 12px; margin-top: 6px; text-align: center; font-weight: bold;"></div>
-
-        <div class="switch-text" onclick="toggleAuthMode('signup')">نیا اکاؤنٹ بنانا ہے؟ <span>سائن اپ کریں</span></div>
-      </div>
-
-      <div id="signupForm" class="auth-container hidden">
-        <h3 style="color:var(--primary-color); margin: 0 0 10px 0; text-align:center; font-size: 17px;">✨ نیا اکاؤنٹ بنائیں (Signup)</h3>
-        
-        <label style="font-size: 12px; color: var(--text-muted);">پورا نام:</label>
-        <input type="text" id="signupName" placeholder="اپنا نام درج کریں">
-
-        <label style="font-size: 12px; color: var(--text-muted);">ای میل ایڈریس:</label>
-        <input type="email" id="signupEmail" placeholder="example@gmail.com">
-
-        <label style="font-size: 12px; color: var(--text-muted);">پاسورڈ:</label>
-        <input type="password" id="signupPassword" placeholder="کم از کم 6 ہندسوں کا پاسورڈ">
-
-        <button class="auth-btn" id="signupBtn">اکاؤنٹ رجسٹر کریں</button>
-        
-        <div class="divider">یا</div>
-        <button class="google-btn" id="googleSignupBtn">
-          <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.13 0-5.78-2.11-6.73-4.96H1.19v3.15C3.17 21.31 7.23 24 12 24z"/><path fill="#FBBC05" d="M5.27 14.24c-.25-.72-.38-1.49-.38-2.24s.13-1.52.38-2.24V6.61H1.19C.43 8.14 0 9.99 0 12s.43 3.86 1.19 5.39l4.08-3.15z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.23 0 3.17 2.69 1.19 6.61l4.08 3.15c.95-2.85 3.6-4.96 6.73-4.96z"/></svg>
-          گوگل (Google) سے سائن اپ کریں
-        </button>
-
-        <div id="signupStatus" style="font-size: 12px; margin-top: 6px; text-align: center; font-weight: bold;"></div>
-
-        <div class="switch-text" onclick="toggleAuthMode('login')">پہلے سے اکاؤنٹ موجود ہے؟ <span>لاگ ان کریں</span></div>
-      </div>
-    </div>
-
-    <div id="userInfo" class="hidden">
-      <div class="user-header">
-        <span>خوش آمدید، <b id="userName"></b>!</span>
-        <button class="logout-btn" id="logoutBtn">لاگ آؤٹ</button>
-      </div>
-
-      <div id="daroodCard" class="darood-card hidden">
-        <div class="arabic-text" id="daroodArabicText">
-          اَللّٰھُمَّ صَلِّ عَلٰی مُحَمَّدٍ وَّعَلٰی اٰلِ مُحَمَّدٍ کَمَا صَلَّیْتَ عَلٰی اِبْرَاھِیْمَ وَعَلٰی اٰلِ اِبْرَاھِیْمَ اِنَّکَ حَمِیْدٌ مَّجِیْدٌ۔ اَللّٰھُمَّ بَارِکْ عَلٰی مُحَمَّدٍ وَّعَلٰی اٰلِ مُحَمَّدٍ کَمَا بَارَکْتَ عَلٰی اِبْرَاھِیْمَ وَعَلٰی اٰلِ اِبْرَاھِیْمَ اِنَّکَ حَمِیْدٌ مَّجِیْدٌ
-        </div>
-        <div class="translation">
-          اے اللہ! رحمت نازل فرما حضرت محمد ﷺ پر اور ان کی آل پر جیسے تو نے رحمت نازل فرمائی حضرت ابراہیم علیہ السلام پر اور ان کی آل پر، بے شک تو تعریف کے لائق اور بزرگی والا ہے۔
-        </div>
-        <button class="speak-btn" onclick="playYouTubeAudioOnly()">
-          <span>🔊</span> (Listen) سنیں
-        </button>
-      </div>
-
-      <!-- TAB 1: Home Tab -->
-      <div id="mainTab">
-        
-        <!-- PRAYER TIMES CARD (LIVE API) -->
-        <div class="prayer-card-container">
-          <div class="prayer-title">🕌 آج کے نماز کے اوقات</div>
-          <div class="prayer-date" id="prayerDateDisplay">لوڈ ہو رہا ہے...</div>
-          
-          <div class="prayer-config-box">
-            <div style="display: flex; gap: 8px;">
-              <div style="flex: 1;">
-                <label style="font-size: 12px; color: var(--text-muted);">📍 ملک:</label>
-                <input type="text" id="countryInput" value="Pakistan">
-              </div>
-              <div style="flex: 1;">
-                <label style="font-size: 12px; color: var(--text-muted);">📍 شہر:</label>
-                <input type="text" id="cityInput" value="Lahore">
-              </div>
-            </div>
-            
-            <div style="display: flex; gap: 8px; margin-top: 4px;">
-              <button class="save-profile-btn" style="flex: 2; background-color: var(--primary-color);" onclick="saveLocationAndFetch()">💾 محفوظ کریں</button>
-              <button class="save-profile-btn" style="flex: 1; background-color: #2b6cb0;" onclick="detectCurrentLocation()">📍 کرنٹ لوکیشن</button>
-            </div>
-          </div>
-
-          <div class="current-prayer-highlight">
-            <div style="font-size: 12px; color: #555;">اس وقت کی نماز</div>
-            <div id="currentActivePrayerName" style="font-size: 16px; font-weight: bold;">--</div>
-          </div>
-
-          <table class="prayer-table">
-            <thead>
-              <tr>
-                <th>حیثیت</th>
-                <th>وقت</th>
-                <th>نماز</th>
-              </tr>
-            </thead>
-            <tbody id="prayerTableBody">
-              <tr><td colspan="3">اوقات لوڈ ہو رہے ہیں...</td></tr>
-            </tbody>
-          </table>
-
-          <div class="next-prayer-footer" id="nextPrayerFooter">
-            اگلی نماز: --
-          </div>
-        </div>
-
-        <h2 style="font-size: 20px; color: var(--primary-color); margin: 10px 0;">🕌 آج کی محفل</h2>
-
-        <div style="background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 14px; padding: 12px; margin: 10px 0; box-shadow: 0 4px 15px rgba(0,0,0,0.03);">
-          <div style="font-size: 28px; font-weight: bold; color: var(--primary-color);" id="globalTotalCount">0</div>
-          <div style="font-size: 12px; color: var(--text-muted);">آج کے اجتماعی درود (ریئل ٹائم)</div>
-        </div>
-
-        <div style="background: linear-gradient(135deg, #fffbeb, #fef3c7); border: 1.5px solid #f59e0b; border-radius: 14px; padding: 14px; margin: 14px 0; text-align: center; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.15);">
-          <div style="font-size: 14px; font-weight: bold; color: #d97706; margin-bottom: 4px;">👑 آج کے مقابلے کا لیڈر (سب سے آگے)</div>
-          <div id="homeWinnerHighlight" style="font-size: 15px; color: #1f2937; font-weight: bold;">لوڈ ہو رہا ہے...</div>
-        </div>
-
-        <!-- ADMIN PANEL SECTION ON HOME PAGE -->
-        <div id="adminPanelSection" class="admin-panel hidden" style="text-align: right; margin-top: 15px;">
-          <div class="admin-title">👑 ایڈمن پینل (صرف 100+ درود والے فاتحین)</div>
-          
-          <div style="display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap;">
-            <button class="save-profile-btn" style="flex: 1; padding: 6px; font-size: 12px;" onclick="setAdminFilter('today')">آج (Today)</button>
-            <button class="save-profile-btn" style="flex: 1; padding: 6px; font-size: 12px; background-color: #d97706;" onclick="setAdminFilter('weekly')">ہفتہ وار (Weekly)</button>
-            <button class="save-profile-btn" style="flex: 1; padding: 6px; font-size: 12px; background-color: #1e40af;" onclick="setAdminFilter('monthly')">ماہانہ (Monthly)</button>
-          </div>
-
-          <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px; display: flex; gap: 6px; align-items: center;">
-            <span>تاریخ کی حد:</span>
-            <input type="date" id="adminStartDate" style="padding: 4px; border-radius: 6px; border: 1px solid #d1d5db; font-size: 11px;">
-            <span>تا</span>
-            <input type="date" id="adminEndDate" style="padding: 4px; border-radius: 6px; border: 1px solid #d1d5db; font-size: 11px;">
-            <button onclick="applyDateRangeFilter()" style="background:var(--primary-color); color:white; border:none; padding: 4px 10px; border-radius: 6px; font-size: 11px; cursor: pointer;">لاگو کریں</button>
-          </div>
-
-          <div id="adminWinnersList">لوڈ ہو رہا ہے...</div>
-        </div>
-
-        <h3 style="color:var(--primary-color); margin-top: 20px; font-size: 16px; text-align: right;">🏆 ٹاپ 10 رینکنگ (Top 10 Users)</h3>
-        <table>
-          <thead><tr><th>رینک</th><th>صارف</th><th>کل درود</th></tr></thead>
-          <tbody id="homeTop10Board"><tr><td colspan="3">لوڈ ہو رہا ہے...</td></tr></tbody>
-        </table>
-
-        <div class="winner-history-box">
-          <div class="winner-history-title">📅 روزانہ کے فاتحین کا مستقل ریکارڈ</div>
-          <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;">ہر دن صرف ایک فاتح — کم از کم 100 درود اور اس دن سب سے زیادہ اسکور</div>
-          <div id="winnerHistoryList">ریکارڈ لوڈ ہو رہا ہے...</div>
-        </div>
-
-        <div class="proof-box" style="margin-top: 20px;">
-          <div class="proof-title">📢 فاتحین اور پیمنٹ پروف (Payment Proofs)</div>
-          <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 6px;">تمام صارفین دیکھ سکتے ہیں کہ کس فاتح کو انعام مل گیا:</p>
-          <div id="publicProofList">لوڈ ہو رہا ہے...</div>
-        </div>
-      </div>
-
-      <!-- TAB 2: Competition Tab -->
-      <div id="compTab" class="hidden">
-        
-        <!-- Live Date and Countdown Header -->
-        <div class="comp-header-bar">
-          <div class="comp-date-badge">
-            <span class="live-dot"></span> <span id="compLiveDate">--</span> (لائیو)
-          </div>
-          <div class="comp-timer-badge">
-            ⏱️ ختم ہونے میں: <span id="compCountdownTimer">00:00:00</span>
-          </div>
-        </div>
-
-        <h2 style="font-size: 20px; color: #d97706; margin: 10px 0;">🎯 مقابلے کا سیکشن</h2>
-        <button class="mic-btn" style="background: linear-gradient(135deg, #d97706, #b45309); color:white; width: 130px; height: 130px; margin: 15px auto;" id="compCountBtn">
-          <span style="font-size: 24px;">🎙️</span>
-          <span>مقابلے کے لیے بولیں</span>
-        </button>
-        <div id="compStatusMsg" class="status-msg" style="color: #d97706;"></div>
-        <div style="font-size: 15px; color: #d97706; margin-top: 8px;">مقابلے میں آپ کا اسکور: <b id="compUserTotal">0</b></div>
-
-        <h3 style="color:#d97706; margin-top: 20px; font-size: 16px;">🥇 مقابلے کا Leaderboard</h3>
-        <table>
-          <thead><tr><th>رینک</th><th>صارف</th><th>اسکور</th></tr></thead>
-          <tbody id="compBoard"><tr><td colspan="3">لوڈ ہو رہا ہے...</td></tr></tbody>
-        </table>
-      </div>
-
-      <!-- TAB 3: Tasbeeh Tab -->
-      <div id="rewardTab" class="hidden" style="text-align: center;">
-        <h2 style="font-size: 20px; color: var(--primary-color); margin: 10px 0;">📿 تسبیح کاؤنٹر</h2>
-        
-        <div class="mic-circle-wrapper">
-          <div class="circle-progress"></div>
-          <button class="mic-btn" id="countBtn">
-            <span style="font-size: 32px; font-weight: bold; color: var(--primary-color);" id="userTotal">0</span>
-            <span style="font-size: 12px; color: var(--text-muted); font-weight: normal;">آپ کے آج کے درود</span>
-          </button>
-        </div>
-        <div id="statusMsg" class="status-msg" style="color: var(--primary-color);"></div>
-
-        <div style="display: flex; gap: 8px; justify-content: center; margin-top: 15px;">
-          <button style="background: #0d3b22; color: white; border: none; padding: 10px 24px; border-radius: 12px; font-family: inherit; font-size: 14px; font-weight: bold; cursor: pointer;" onclick="startVoiceRecognition('countBtn', 'statusMsg', false)">🎙️ 1+ درود شریف پڑھیں</button>
-        </div>
-
-        <h3 style="color:var(--primary-color); margin-top: 25px; font-size: 16px; text-align: right;">🏆 لائیو Leaderboard</h3>
-        <table>
-          <thead><tr><th>رینک</th><th>صارف</th><th>کل درود</th></tr></thead>
-          <tbody id="board"><tr><td colspan="3">لوڈ ہو رہا ہے...</td></tr></tbody>
-        </table>
-      </div>
-
-      <!-- TAB 4: About Tab -->
-      <div id="aboutTab" class="hidden">
-        <h2 style="font-size: 20px; color: var(--primary-color); margin: 10px 0; text-align: center;">ℹ️ ایپ کی تفصیلات (About Us)</h2>
-        
-        <div class="about-card">
-          <h3>📖 محفلِ درود کیا ہے؟</h3>
-          <p>محفلِ درود ایک ڈیجیٹل اور لائیو پلیٹ فارم ہے جہاں تمام مسلمان مل کر حضور نبی اکرم ﷺ پر درودِ پاک کا نذرانہ پیش کرتے ہیں۔ اس کا مقصد آپس میں نیک کاموں کا مقابلہ اور اجر و ثواب کا حصول ہے۔</p>
-        </div>
-
-        <div class="about-card">
-          <h3>⚡ ایپ کے اہم فیچرز</h3>
-          <p>
-            • <b>آج کی محفل (Home):</b> یہاں آپ کل اجتماعی درود، رینکنگ، نماز کے اوقات اور ایڈمن پینل کے ذریعے صرف کامیاب فاتحین (100+ درود) کی تفصیلات کنٹرول کر سکتے ہیں۔<br>
-            • <b>تسبیح (Tasbeeh):</b> اپنی انفرادی تسبیح کے لیے وائس کاؤنٹر استعمال کریں۔<br>
-            • <b>مقابلہ (Competition):</b> روزانہ کے مقابلے میں حصہ لیں اور انعامات جیتیں۔
-          </p>
-        </div>
-      </div>
-
-      <!-- TAB 5: Profile Tab -->
-      <div id="profileTab" class="hidden" style="text-align: right;">
-        <h3 style="color: var(--primary-color); text-align: center; font-size: 18px;">👤 پروفائل کی معلومات</h3>
-        <div class="profile-box">
-          <p><b>نام:</b> <span id="profileDisplayName">---</span></p>
-          <p><b>ای میل:</b> <span id="profileDisplayEmail">---</span></p>
-        </div>
-
-        <div class="profile-box">
-          <h4 style="margin: 0 0 6px 0; color: var(--primary-color); font-size: 14px;">🔑 پاسورڈ تبدیل کریں (Change Password)</h4>
-          <label style="font-size: 12px; color: var(--text-muted);">موجودہ پاسورڈ:</label>
-          <input type="password" id="currentPassword" placeholder="پرانا پاسورڈ درج کریں">
-
-          <label style="font-size: 12px; color: var(--text-muted);">نیا پاسورڈ:</label>
-          <input type="password" id="newPassword" placeholder="کم از کم 6 ہندسوں کا نیا پاسورڈ">
-
-          <button class="save-profile-btn" id="changePasswordBtn" style="background-color: #d97706;">پاسورڈ اپڈیٹ کریں</button>
-          <div id="passwordStatus" style="font-size: 12px; margin-top: 6px; text-align: center; font-weight: bold;"></div>
-        </div>
-
-        <h3 style="color: var(--primary-color); text-align: center; font-size: 16px; margin-top: 20px;">🎁 انعام اور پیمنٹ کی تفصیلات</h3>
-        <p style="color: var(--text-muted); font-size: 12px; text-align: center; margin-bottom: 12px;">فاتح بننے کے لیے کم از کم 100 درود شریف پڑھنا لازمی ہے۔ انعام حاصل کرنے کے لیے نیچے اکاؤنٹ نمبر درج کریں:</p>
-        
-        <div class="profile-box">
-          <h4 style="margin: 0 0 6px 0; color: var(--primary-color); font-size: 14px;">📱 اپنی JazzCash / EasyPaisa تفصیلات لکھیں</h4>
-          <label style="font-size: 12px; color: var(--text-muted);">اکاؤنٹ ہولڈر کا نام:</label>
-          <input type="text" id="accName" placeholder="اپنا پورا نام لکھیں">
-          
-          <label style="font-size: 12px; color: var(--text-muted);">موبایل نمبر:</label>
-          <input type="text" id="accNumber" placeholder="03XXXXXXXXX">
-          
-          <label style="font-size: 12px; color: var(--text-muted);">اکاؤنٹ کی قسم:</label>
-          <select id="accType">
-            <option value="JazzCash">JazzCash (جاز کیش)</option>
-            <option value="EasyPaisa">EasyPaisa (ایزی پیسہ)</option>
-          </select>
-          
-          <button class="save-profile-btn" id="saveProfileBtn">تفصیلات محفوظ کریں</button>
-          <div id="profileStatus" style="font-size: 12px; margin-top: 6px; color: var(--primary-color); text-align: center; font-weight: bold;"></div>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-  <div id="bottomNav" class="bottom-nav hidden">
-    <button class="nav-item" id="navProfile" onclick="switchBottomTab('profile')">
-      <span class="icon">👤</span>
-      Profile
-    </button>
-    <button class="nav-item" id="navAbout" onclick="switchBottomTab('about')">
-      <span class="icon">ℹ️</span>
-      About
-    </button>
-    <button class="nav-item" id="navCompetition" onclick="switchBottomTab('competition')">
-      <span class="icon">🏆</span>
-      Competition
-    </button>
-    <button class="nav-item" id="navTasbeeh" onclick="switchBottomTab('reward')">
-      <span class="icon">📿</span>
-      Tasbeeh
-    </button>
-    <button class="nav-item active" id="navHome" onclick="switchBottomTab('home')">
-      <span class="icon">🏠</span>
-      Home
-    </button>
-  </div>
-
-  <script src="https://www.youtube.com/iframe_api"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
-
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyB3PjjiQM2IqKmIQJ4d4YOwcc10RiG47FI",
-      authDomain: "mehfil-e-darood.firebaseapp.com",
-      databaseURL: "https://mehfil-e-darood-default-rtdb.firebaseio.com",
-      projectId: "mehfil-e-darood",
-      storageBucket: "mehfil-e-darood.firebasestorage.app",
-      messagingSenderId: "876052619750",
-      appId: "1:876052619750:web:889b37737240756ba5f627"
-    };
-
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.database();
-
-    let currentUser = null;
-    const ADMIN_EMAIL = "kamran7078127@gmail.com";
-    
-    function getLocalDateKey() {
-      const d = new Date();
-      const y = d.getFullYear();
-      const m = String(d.getMonth() + 1).padStart(2, '0');
-      const day = String(d.getDate()).padStart(2, '0');
-      return `${y}-${m}-${day}`;
-    }
-
-    let todayDateKey = getLocalDateKey();
-    let currentAdminFilter = "today";
-
-    let ytPlayer = null;
-    function onYouTubeIframeAPIReady() {
-      ytPlayer = new YT.Player('youtubeAudioFrame', {
-        events: { 'onReady': () => {} }
-      });
-    }
-
-    function playYouTubeAudioOnly() {
-      if (ytPlayer && typeof ytPlayer.playVideo === 'function') {
-        try { ytPlayer.seekTo(0); ytPlayer.playVideo(); } catch(e) {}
-      }
-    }
-
-    function triggerVibration() {
-      if ("vibrate" in navigator) { try { navigator.vibrate(200); } catch(e) {} }
-    }
-
-    function playSuccessSound() {
-      try {
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = "sine";
-        osc.frequency.setValueAtTime(587.33, audioCtx.currentTime);
-        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
-        osc.connect(gain); gain.connect(audioCtx.destination);
-        osc.start(); osc.stop(audioCtx.currentTime + 0.4);
-      } catch(e) {}
-    }
-
-    function playErrorSound() {
-      try {
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = "sawtooth";
-        osc.frequency.setValueAtTime(200, audioCtx.currentTime);
-        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
-        osc.connect(gain); gain.connect(audioCtx.destination);
-        osc.start(); osc.stop(audioCtx.currentTime + 0.3);
-      } catch(e) {}
-    }
-
-    function updateCompetitionTimerAndDate() {
-      const now = new Date();
-      const options = { day: 'numeric', month: 'short', year: 'numeric' };
-      const formattedDate = now.toLocaleDateString('ur-PK', options) || todayDateKey;
-      
-      const dateElem = document.getElementById("compLiveDate");
-      if (dateElem) dateElem.innerText = formattedDate;
-
-      const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
-      const diff = endOfDay - now;
-
-      if (diff <= 0) {
-        document.getElementById("compCountdownTimer").innerText = "00:00:00";
-        return;
-      }
-
-      const hours = String(Math.floor(diff / (1000 * 60 * 60))).padStart(2, '0');
-      const minutes = String(Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0');
-      const seconds = String(Math.floor((diff % (1000 * 60)) / 1000)).padStart(2, '0');
-
-      const timerElem = document.getElementById("compCountdownTimer");
-      if (timerElem) timerElem.innerText = `${hours}:${minutes}:${seconds}`;
-    }
-
-    setInterval(updateCompetitionTimerAndDate, 1000);
-    updateCompetitionTimerAndDate();
-
-    function switchBottomTab(tabName) {
-      document.getElementById("mainTab").classList.add("hidden");
-      document.getElementById("compTab").classList.add("hidden");
-      document.getElementById("rewardTab").classList.add("hidden");
-      document.getElementById("profileTab").classList.add("hidden");
-      document.getElementById("aboutTab").classList.add("hidden");
-      document.getElementById("daroodCard").classList.add("hidden");
-
-      document.querySelectorAll(".bottom-nav .nav-item").forEach(el => el.classList.remove("active"));
-
-      if (tabName === 'home') {
-        document.getElementById("mainTab").classList.remove("hidden");
-        document.getElementById("navHome").classList.add("active");
-      } else if (tabName === 'competition') {
-        document.getElementById("customModal").classList.remove("hidden");
-        document.getElementById("compTab").classList.remove("hidden");
-        document.getElementById("navCompetition").classList.add("active");
-        document.getElementById("daroodCard").classList.remove("hidden");
-      } else if (tabName === 'about') {
-        document.getElementById("aboutTab").classList.remove("hidden");
-        document.getElementById("navAbout").classList.add("active");
-      } else if (tabName === 'reward') {
-        document.getElementById("rewardTab").classList.remove("hidden");
-        document.getElementById("navTasbeeh").classList.add("active");
-        document.getElementById("daroodCard").classList.remove("hidden");
-      } else if (tabName === 'profile') {
-        document.getElementById("profileTab").classList.remove("hidden");
-        document.getElementById("navProfile").classList.add("active");
-      }
-    }
-
-    document.getElementById("modalOkBtn").onclick = function() {
-      document.getElementById("customModal").classList.add("hidden");
-    };
-
-    window.toggleAuthMode = function(mode) {
-      if (mode === 'signup') {
-        document.getElementById("loginForm").classList.add("hidden");
-        document.getElementById("signupForm").classList.remove("hidden");
-      } else {
-        document.getElementById("signupForm").classList.add("hidden");
-        document.getElementById("loginForm").classList.remove("hidden");
-      }
-    };
-
-    document.getElementById("signupBtn").onclick = () => {
-      const name = document.getElementById("signupName").value.trim();
-      const email = document.getElementById("signupEmail").value.trim();
-      const password = document.getElementById("signupPassword").value.trim();
-      const statusEl = document.getElementById("signupStatus");
-
-      if (!name || !email || !password) {
-        statusEl.style.color = "#ef4444";
-        statusEl.innerText = "براہِ کرم تمام فیلڈز مکمل کریں۔";
-        playErrorSound();
-        return;
-      }
-
-      auth.createUserWithEmailAndPassword(email, password)
-        .then((userCredential) => userCredential.user.updateProfile({ displayName: name }))
-        .then(() => {
-          statusEl.innerText = "✓ کامیابی سے سائن اپ ہو گیا!";
-          playSuccessSound();
-        })
-        .catch(() => {
-          statusEl.style.color = "#ef4444";
-          statusEl.innerText = "اکاؤنٹ بنانے میں خرابی پیش آئی۔";
-          playErrorSound();
-        });
-    };
-
-    document.getElementById("loginSubmitBtn").onclick = () => {
-      const email = document.getElementById("loginEmail").value.trim();
-      const password = document.getElementById("loginPassword").value.trim();
-      const statusEl = document.getElementById("loginStatus");
-
-      if (!email || !password) {
-        statusEl.style.color = "#ef4444";
-        statusEl.innerText = "ای میل اور پاسورڈ درج کریں۔";
-        playErrorSound();
-        return;
-      }
-
-      auth.signInWithEmailAndPassword(email, password)
-        .then(() => {
-          statusEl.innerText = "✓ لاگ ان کامیاب!";
-          playSuccessSound();
-        })
-        .catch((error) => {
-          statusEl.style.color = "#ef4444";
-          playErrorSound();
-          statusEl.innerText = "لاگ ان میں ناکامی۔";
-        });
-    };
-
-    function handleGoogleAuth() {
-      const provider = new firebase.auth.GoogleAuthProvider();
-      auth.signInWithPopup(provider).then(() => {
-        playSuccessSound();
-        triggerVibration();
-      }).catch(() => { playErrorSound(); });
-    }
-
-    document.getElementById("googleSignupBtn").onclick = handleGoogleAuth;
-    document.getElementById("googleLoginBtn").onclick = handleGoogleAuth;
-    document.getElementById("logoutBtn").onclick = () => auth.signOut();
-
-    window.addEventListener('DOMContentLoaded', () => {
-      const savedCountry = localStorage.getItem('user_country');
-      const savedCity = localStorage.getItem('user_city');
-      if (savedCountry) document.getElementById("countryInput").value = savedCountry;
-      if (savedCity) document.getElementById("cityInput").value = savedCity;
-    });
-
-    auth.onAuthStateChanged(user => {
-      if (user) {
-        currentUser = user;
-        document.getElementById("authSection").classList.add("hidden");
-        document.getElementById("userInfo").classList.remove("hidden");
-        document.getElementById("bottomNav").classList.remove("hidden");
-        document.getElementById("userName").innerText = user.displayName || user.email;
-        document.getElementById("profileDisplayName").innerText = user.displayName || "---";
-        document.getElementById("profileDisplayEmail").innerText = user.email || "---";
-
-        db.ref("users/" + user.uid).update({
-          name: user.displayName || user.email,
-          email: user.email
-        });
-
-        if (user.email === ADMIN_EMAIL) {
-          document.getElementById("adminPanelSection").classList.remove("hidden");
-          loadAdminData();
-        } else {
-          document.getElementById("adminPanelSection").classList.add("hidden");
-        }
-
-        db.ref("users/" + user.uid).on("value", snapshot => {
-          const data = snapshot.val();
-          document.getElementById("userTotal").innerText = data ? (data.count || 0) : 0;
-          if (data) {
-            if(data.accName) document.getElementById("accName").value = data.accName;
-            if(data.accNumber) document.getElementById("accNumber").value = data.accNumber;
-            if(data.accType) document.getElementById("accType").value = data.accType;
-            
-            if(data.savedCity && !localStorage.getItem('user_city')) {
-              localStorage.setItem('user_city', data.savedCity);
-              document.getElementById("cityInput").value = data.savedCity;
-            }
-            if(data.savedCountry && !localStorage.getItem('user_country')) {
-              localStorage.setItem('user_country', data.savedCountry);
-              document.getElementById("countryInput").value = data.savedCountry;
-            }
-          }
-          fetchPrayerTimes();
-        });
-
-        db.ref("competitions/" + todayDateKey + "/" + user.uid).on("value", snapshot => {
-          const data = snapshot.val();
-          document.getElementById("compUserTotal").innerText = data ? (data.count || 0) : 0;
-        });
-
-        const userStatusRef = db.ref("status/" + user.uid);
-        db.ref(".info/connected").on("value", snapshot => {
-          if (snapshot.val() === true) {
-            userStatusRef.onDisconnect().remove();
-            userStatusRef.set(true);
-          }
-        });
-      } else {
-        if (currentUser) db.ref("status/" + currentUser.uid).remove();
-        currentUser = null;
-        document.getElementById("authSection").classList.remove("hidden");
-        document.getElementById("userInfo").classList.add("hidden");
-        document.getElementById("bottomNav").classList.add("hidden");
-        toggleAuthMode('login');
-      }
-    });
-
-    function timeToMinutes(timeStr) {
-      const [time, modifier] = timeStr.split(' ');
-      let [hours, minutes] = time.split(':').map(Number);
-      if (modifier === 'PM' && hours < 12) hours += 12;
-      if (modifier === 'AM' && hours === 12) hours = 0;
-      return hours * 60 + minutes;
-    }
-
-    function format12Hour(time24) {
-      let [h, m] = time24.split(':').map(Number);
-      let modifier = h >= 12 ? 'PM' : 'AM';
-      h = h % 12 || 12;
-      return `${h}:${m < 10 ? '0' : ''}${m} ${modifier}`;
-    }
-
-    function saveLocationAndFetch() {
-      let city = document.getElementById("cityInput").value.trim();
-      let country = document.getElementById("countryInput").value.trim();
-
-      if(city && country) {
-        localStorage.setItem('user_city', city);
-        localStorage.setItem('user_country', country);
-      }
-
-      if (currentUser) {
-        db.ref("users/" + currentUser.uid).update({
-          savedCity: city,
-          savedCountry: country
-        });
-      }
-      fetchPrayerTimes();
-    }
-
-    function detectCurrentLocation() {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(async function(position) {
-          const lat = position.coords.latitude;
-          const lon = position.coords.longitude;
-          
-          try {
-            const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
-            const data = await response.json();
-            
-            const country = data.address.country || 'Pakistan';
-            const city = data.address.city || data.address.town || data.address.state || 'Lahore';
-            
-            document.getElementById("countryInput").value = country;
-            document.getElementById("cityInput").value = city;
-            
-            saveLocationAndFetch();
-            alert('لوکیشن کامیابی سے ڈیٹیکٹ اور محفوظ ہو گئی!');
-          } catch (error) {
-            alert('لوکیشن تلاش کرنے میں مسئلہ پیش آیا۔');
-          }
-        }, function(error) {
-          alert('براہ کرم براؤزر کو لوکیشن کی اجازت (Permission) دیں۔');
-        });
-      } else {
-        alert('آپ کا براؤزر جیو لوکیشن کو سپورٹ نہیں کرتا۔');
-      }
-    }
-
-    function fetchPrayerTimes() {
-      let city = document.getElementById("cityInput").value.trim() || localStorage.getItem('user_city') || "Lahore";
-      let country = document.getElementById("countryInput").value.trim() || localStorage.getItem('user_country') || "Pakistan";
-
-      const now = new Date();
-      const apiDate = `${String(now.getDate()).padStart(2, '0')}-${String(now.getMonth() + 1).padStart(2, '0')}-${now.getFullYear()}`;
-      const url = `https://api.aladhan.com/v1/timingsByCity/${apiDate}?city=${encodeURIComponent(city)}&country=${encodeURIComponent(country)}&method=2`;
-
-      fetch(url)
-        .then(response => response.json())
-        .then(data => {
-          if (data && data.code === 200) {
-            const timings = data.data.timings;
-            const dateObj = data.data.date;
-            document.getElementById("prayerDateDisplay").innerText = `${dateObj.hijri.weekday.en}، ${dateObj.readable} (${city}, ${country})`;
-
-            const prayers = [
-              { key: 'Fajr', name: 'فجر', icon: '🌙' },
-              { key: 'Sunrise', name: 'طلوع آفتاب', icon: '🌅' },
-              { key: 'Dhuhr', name: 'ظہر', icon: '☀️' },
-              { key: 'Asr', name: 'عصر', icon: '⛅' },
-              { key: 'Maghrib', name: 'مغرب', icon: '🌆' },
-              { key: 'Isha', name: 'عشاء', icon: '🌌' }
-            ];
-
-            const curMin = now.getHours() * 60 + now.getMinutes();
-            let currentActiveName = "عشاء کے بعد";
-            let nextPrayerText = "اگلی نماز: فجر (صبح)";
-            let foundCurrent = false;
-
-            let tbodyHtml = '';
-
-            for (let i = 0; i < prayers.length; i++) {
-              const p = prayers[i];
-              const time12 = format12Hour(timings[p.key]);
-              const pMin = timeToMinutes(time12);
-              
-              let nextPMin = (i < prayers.length - 1) ? timeToMinutes(format12Hour(timings[prayers[i+1].key])) : 1440;
-
-              let isActive = false;
-              if (curMin >= pMin && curMin < nextPMin && !foundCurrent) {
-                isActive = true;
-                foundCurrent = true;
-                currentActiveName = `${p.icon} ${p.name} (${time12})`;
-
-                if (i < prayers.length - 1) {
-                  const nextP = prayers[i+1];
-                  nextPrayerText = `اگلی نماز: ${nextP.icon} ${nextP.name} (${format12Hour(timings[nextP.key])})`;
-                }
-              }
-
-              tbodyHtml += `
-                <tr class="${isActive ? 'active-row' : ''}">
-                  <td>${isActive ? '<span class="active-badge">جاری</span>' : '—'}</td>
-                  <td style="direction: ltr; font-weight: bold;">${time12}</td>
-                  <td>${p.icon} ${p.name}</td>
-                </tr>
-              `;
-            }
-
-            document.getElementById("prayerTableBody").innerHTML = tbodyHtml;
-            document.getElementById("currentActivePrayerName").innerText = currentActiveName;
-            document.getElementById("nextPrayerFooter").innerText = nextPrayerText;
-          }
-        })
-        .catch(() => {
-          document.getElementById("prayerTableBody").innerHTML = `<tr><td colspan="3">ڈیٹا تلاش کرنے میں ناکامی۔</td></tr>`;
-        });
-    }
-
-    document.getElementById("saveProfileBtn").onclick = () => {
-      const accName = document.getElementById("accName").value.trim();
-      const accNumber = document.getElementById("accNumber").value.trim();
-      const accType = document.getElementById("accType").value;
-      const statusEl = document.getElementById("profileStatus");
-
-      if (!currentUser) return;
-      if (!accName || !accNumber) {
-        statusEl.style.color = "#ef4444";
-        statusEl.innerText = "تمام معلومات مکمل کریں۔";
-        playErrorSound();
-        return;
-      }
-
-      db.ref("users/" + currentUser.uid).update({
-        accName: accName,
-        accNumber: accNumber,
-        accType: accType
-      }).then(() => {
-        statusEl.style.color = "var(--primary-color)";
-        statusEl.innerText = "✓ تفصیلات کامیاب محفوظ ہوگئیں!";
-        playSuccessSound();
-      });
-    };
-
-    document.getElementById("changePasswordBtn").onclick = () => {
-      const currentPassword = document.getElementById("currentPassword").value;
-      const newPassword = document.getElementById("newPassword").value;
-      const statusEl = document.getElementById("passwordStatus");
-
-      if (!currentPassword || !newPassword) {
-        statusEl.style.color = "#ef4444";
-        statusEl.innerText = "دونوں پاسورڈ فیلڈز پر کریں۔";
-        playErrorSound();
-        return;
-      }
-      if (newPassword.length < 6) {
-        statusEl.style.color = "#ef4444";
-        statusEl.innerText = "نیا پاسورڈ کم از کم 6 ہندسوں کا ہونا چاہیے۔";
-        playErrorSound();
-        return;
-      }
-
-      const cred = firebase.auth.EmailAuthProvider.credential(currentUser.email, currentPassword);
-      currentUser.reauthenticateWithCredential(cred).then(() => {
-        currentUser.updatePassword(newPassword).then(() => {
-          statusEl.style.color = "#16a34a";
-          statusEl.innerText = "✓ پاسورڈ کامیابی سے تبدیل ہو گیا!";
-          document.getElementById("currentPassword").value = "";
-          document.getElementById("newPassword").value = "";
-          playSuccessSound();
-        });
-      }).catch(() => {
-        statusEl.style.color = "#ef4444";
-        statusEl.innerText = "پرانا پاسورڈ غلط ہے۔";
-        playErrorSound();
-      });
-    };
-
-    function setAdminFilter(filterType) {
-      currentAdminFilter = filterType;
-      loadAdminData();
-    }
-
-    function applyDateRangeFilter() {
-      currentAdminFilter = "custom";
-      loadAdminData();
-    }
-
-    function loadAdminData() {
-      db.ref("users").once("value", snapshot => {
-        let users = [];
-        snapshot.forEach(child => {
-          const u = child.val();
-          users.push({ uid: child.key, ...u });
-        });
-
-        let eligibleUsers = users.filter(u => Number(u.count || 0) >= 100);
-
-        if (currentAdminFilter === "today") {
-          eligibleUsers.sort((a,b) => Number(b.count || 0) - Number(a.count || 0));
-        } else if (currentAdminFilter === "weekly") {
-          eligibleUsers.sort((a,b) => Number(b.count || 0) - Number(a.count || 0));
-        } else if (currentAdminFilter === "monthly") {
-          eligibleUsers.sort((a,b) => Number(b.count || 0) - Number(a.count || 0));
-        } else if (currentAdminFilter === "custom") {
-          const start = document.getElementById("adminStartDate").value;
-          const end = document.getElementById("adminEndDate").value;
-          if (start && end) {
-            eligibleUsers = eligibleUsers.filter(u => {
-              if (!u.lastUpdated) return true;
-              return u.lastUpdated >= start && u.lastUpdated <= end;
-            });
-          }
-          eligibleUsers.sort((a,b) => Number(b.count || 0) - Number(a.count || 0));
-        }
-
-        const adminContainer = document.getElementById("adminWinnersList");
-        if (eligibleUsers.length === 0) {
-          adminContainer.innerHTML = "<div style='font-size:12px; color:var(--text-muted);'>اس فلٹر میں کوئی بھی 100+ درود والا صارف نہیں۔</div>";
-          return;
-        }
-
-        adminContainer.innerHTML = eligibleUsers.map(u => {
-          const isPaid = u.paidStatus === true;
-          return `
-            <div class="admin-card">
-              <div><b>صارف:</b> ${u.name || "گمنام"} (${u.email || "No Email"})</div>
-              <div><b>کل درود:</b> <span style="color:var(--primary-color); font-weight:bold;">${Number(u.count || 0).toLocaleString()}</span></div>
-              <div><b>پیمنٹ اکاؤنٹ:</b> ${u.accType || 'N/A'} - ${u.accNumber || 'N/A'} (${u.accName || 'N/A'})</div>
-              <div style="margin-top: 4px;">
-                <b>حالت:</b> ${isPaid ? '<span class="paid-badge">Paid ✓</span>' : '<span class="pending-badge">Pending</span>'}
-              </div>
-              <div>
-                ${isPaid ? 
-                  `<button class="unpaid-btn" onclick="togglePayment('${u.uid}', false)">Unmark Paid</button>` : 
-                  `<button class="paid-btn" onclick="togglePayment('${u.uid}', true)">Mark as Paid ✓</button>`
-                }
-              </div>
-            </div>
-          `;
-        }).join('');
-      });
-    }
-
-    window.togglePayment = function(uid, status) {
-      db.ref("users/" + uid).update({ paidStatus: status }).then(() => {
-        loadAdminData();
-      });
-    };
-
-    db.ref("users").on("value", snapshot => {
-      let publicProofs = [];
-      snapshot.forEach(child => {
-        const u = child.val();
-        if (u.paidStatus === true) {
-          publicProofs.push({ name: u.name, count: u.count, accType: u.accType });
-        }
-      });
-
-      const proofContainer = document.getElementById("publicProofList");
-      if (publicProofs.length === 0) {
-        proofContainer.innerHTML = "<div style='font-size:12px; color:var(--text-muted);'>ابھی تک کسی پیمنٹ کو پبلک مارک نہیں کیا گیا۔</div>";
-      } else {
-        proofContainer.innerHTML = publicProofs.map(p => `
-          <div class="proof-item">
-            🎉 <b>${p.name || "گمنام"}</b> نے ${Number(p.count || 0).toLocaleString()} درود کا ہدف پورا کیا اور <b>${p.accType || 'JazzCash'}</b> کے ذریعے انعام حاصل کر لیا! ✓
-          </div>
-        `).join('');
-      }
-    });
-
-    db.ref("users").on("value", snapshot => {
-      let total = 0;
-      snapshot.forEach(child => total += Number(child.val().count || 0));
-      document.getElementById("globalTotalCount").innerText = total.toLocaleString();
-    });
-
-    function saveTodayWinner(compUsers) {
-      if (!compUsers || !compUsers.length) return;
-      const topUser = compUsers[0];
-      const topCount = Number(topUser.count || 0);
-
-      if (topCount >= 100) {
-        db.ref("dailyWinners/" + todayDateKey).set({
-          date: todayDateKey,
-          name: topUser.name || "گمنام",
-          count: topCount,
-          uid: topUser.uid || ""
-        });
-      }
-    }
-
-    function loadWinnerHistory() {
-      db.ref("dailyWinners").on("value", snapshot => {
-        const container = document.getElementById("winnerHistoryList");
-        if (!container) return;
-
-        if (!snapshot.exists()) {
-          container.innerHTML = "<div style='font-size:12px;color:var(--text-muted);'>ابھی تک کوئی فاتح ریکارڈ نہیں ہوا۔</div>";
-          return;
-        }
-
-        let winners = [];
-        snapshot.forEach(child => winners.push(child.val()));
-        winners.reverse();
-
-        container.innerHTML = winners.map(w => {
-          const isToday = (w.date === todayDateKey);
-          return `
-            <div class="winner-history-item ${isToday ? 'today' : ''}">
-              <div style="font-weight:bold;color:var(--primary-color);">
-                <span class="winner-medal">👑</span> ${w.name || "گمنام"} 
-                ${isToday ? '<span style="color:#d97706;font-size:11px;">(آج کا لائیو لیڈر)</span>' : ''}
-              </div>
-              <div style="font-size:12px;color:var(--text-muted);">
-                <b>تاریخ:</b> ${w.date} | <b>سکور:</b> ${Number(w.count || 0).toLocaleString()} درود شریف
-              </div>
-            </div>
-          `;
-        }).join('');
-      });
-    }
-
-    db.ref("competitions/" + todayDateKey).on("value", compSnapshot => {
-      const homeWinnerElem = document.getElementById("homeWinnerHighlight");
-      let compUsers = [];
-      compSnapshot.forEach(child => compUsers.push({ uid: child.key, ...child.val() }));
-      compUsers.sort((a,b) => (Number(b.count||0) - Number(a.count||0)) || String(a.uid).localeCompare(String(b.uid)));
-
-      if (compUsers.length > 0) {
-        saveTodayWinner(compUsers);
-        const topUser = compUsers[0];
-        if (homeWinnerElem) {
-          if (Number(topUser.count || 0) >= 100) {
-            homeWinnerElem.innerHTML = `👑 <b>${topUser.name || "گمنام"}</b> (${Number(topUser.count).toLocaleString()} درود) <span style="color:#16a34a;">— موجودہ فاتح</span>`;
-          } else {
-            homeWinnerElem.innerHTML = `کم از کم 100 درود کا ہدف ابھی پورا نہیں ہوا۔ (سب سے آگے: <b>${topUser.name || "گمنام"}</b> - ${Number(topUser.count).toLocaleString()})`;
-          }
-        }
-      } else {
-        if (homeWinnerElem) homeWinnerElem.innerText = "آج کے مقابلے میں ابھی تک کوئی شریک نہیں ہوا۔";
-      }
-
-      // Render Competition Leaderboard (compBoard)
-      const compBoardBody = document.getElementById("compBoard");
-      if (compBoardBody) {
-        if (!compUsers.length) {
-          compBoardBody.innerHTML = `<tr><td colspan="3">ابھی تک کوئی اسکور نہیں ہے۔</td></tr>`;
-        } else {
-          compBoardBody.innerHTML = compUsers.map((u, index) => `
-            <tr>
-              <td>${index + 1}</td>
-              <td>${u.name || "گمنام"}</td>
-              <td>${Number(u.count || 0).toLocaleString()}</td>
-            </tr>
-          `).join('');
-        }
-      }
-    });
-
-    db.ref("users").on("value", snapshot => {
-      let users = [];
-      snapshot.forEach(child => {
-        users.push({ uid: child.key, ...child.val() });
-      });
-      users.sort((a, b) => Number(b.count || 0) - Number(a.count || 0));
-
-      const homeTop10 = document.getElementById("homeTop10Board");
-      const board = document.getElementById("board");
-
-      if (homeTop10) {
-        const top10 = users.slice(0, 10);
-        homeTop10.innerHTML = top10.length ? top10.map((u, i) => `
-          <tr>
-            <td>${i + 1}</td>
-            <td>${u.name || "گمنام"}</td>
-            <td>${Number(u.count || 0).toLocaleString()}</td>
-          </tr>
-        `).join('') : `<tr><td colspan="3">کوئی ڈیٹا نہیں ہے۔</td></tr>`;
-      }
-
-      if (board) {
-        board.innerHTML = users.length ? users.map((u, i) => `
-          <tr>
-            <td>${i + 1}</td>
-            <td>${u.name || "گمنام"}</td>
-            <td>${Number(u.count || 0).toLocaleString()}</td>
-          </tr>
-        `).join('') : `<tr><td colspan="3">کوئی ڈیٹا نہیں ہے۔</td></tr>`;
-      }
-    });
-
-    db.ref("status").on("value", snapshot => {
-      const onlineElem = document.getElementById("onlineCount");
-      if (onlineElem) {
-        onlineElem.innerText = snapshot.numChildren() || 0;
-      }
-    });
-
-    function startVoiceRecognition(btnId, statusId, isComp = false) {
-      if (!currentUser) {
-        alert("براہ کرم پہلے لاگ ان کریں۔");
-        return;
-      }
-
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!SpeechRecognition) {
-        alert("آپ کا براؤزر وائس ریکگنیشن کو سپورٹ نہیں کرتا۔");
-        return;
-      }
-
-      const recognition = new SpeechRecognition();
-      recognition.lang = 'ar-SA';
-      recognition.interimResults = false;
-
-      const btn = document.getElementById(btnId);
-      const statusMsg = document.getElementById(statusId);
-
-      if (btn) btn.classList.add("listening");
-      if (statusMsg) statusMsg.innerText = "سن رہا ہے... درود شریف پڑھیں";
-
-      recognition.onresult = (event) => {
-        const text = event.results[0][0].transcript;
-        if (statusMsg) statusMsg.innerText = `✓ مائیک نے سنا: "${text}"`;
-        
-        playSuccessSound();
-        triggerVibration();
-
-        if (isComp) {
-          const compRef = db.ref("competitions/" + todayDateKey + "/" + currentUser.uid);
-          compRef.transaction(current => {
-            if (!current) {
-              return { count: 1, name: currentUser.displayName || currentUser.email };
-            }
-            return { count: (current.count || 0) + 1, name: currentUser.displayName || currentUser.email };
-          });
-        } else {
-          const userRef = db.ref("users/" + currentUser.uid);
-          userRef.transaction(current => {
-            if (!current) {
-              return { count: 1, name: currentUser.displayName || currentUser.email, email: currentUser.email };
-            }
-            return { ...current, count: (current.count || 0) + 1 };
-          });
-        }
-      };
-
-      recognition.onerror = () => {
-        if (statusMsg) statusMsg.innerText = "آواز نہ پہچانی جا سکی۔ دوبارہ کوشش کریں۔";
-        playErrorSound();
-      };
-
-      recognition.onend = () => {
-        if (btn) btn.classList.remove("listening");
-      };
-
-      recognition.start();
-    }
-
-    const compBtn = document.getElementById("compCountBtn");
-    if (compBtn) {
-      compBtn.onclick = () => startVoiceRecognition("compCountBtn", "compStatusMsg", true);
-    }
-
-    const countBtn = document.getElementById("countBtn");
-    if (countBtn) {
-      countBtn.onclick = () => startVoiceRecognition("countBtn", "statusMsg", false);
-    }
-
-    loadWinnerHistory();
-  </script>
-</body>
-</html>
+<div style="display:none;">
+<iframe id="youtubeAudioFrame" width="200" height="200" src="https://www.youtube.com/embed/B1kvwM-2AUc?enablejsapi=1&autoplay=0" allow="autoplay"></iframe>
+</div>
+
+<div id="customModal" class="custom-modal hidden">
+<div class="modal-content">
+<div class="modal-title">🎯 مقابلہ جاری ہے</div>
+<div class="modal-text">کم از کم 100 درود شریف پڑھیں اور جیتنے والے کو انعام پائیں</div>
+<button class="modal-ok-btn" id="modalOkBtn">ٹھیک ہے (OK)</button>
+</div>
+</div>
+
+<div class="top-header">
+<div class="brand-title">
+Mehfil-E-Darood 🌙
+</div>
+<div class="brand-subtitle">آن لائن اجتماعی محفل</div>
+</div>
+
+<div class="container" style="margin-top: -15px;">
+
+<div class="live-badge">
+<span class="live-dot"></span> آن لائن شرکاء: <span id="onlineCount">0</span>
+</div>
+
+<div id="authSection">
+<div id="loginForm" class="auth-container">
+<h3 style="color:var(--primary-color); margin: 0 0 10px 0; text-align:center; font-size: 17px;">🔐 لاگ ان کریں (Login)</h3>
+
+<label style="font-size: 12px; color: var(--text-muted);">ای میل ایڈریس:</label>
+<input type="email" id="loginEmail" placeholder="example@gmail.com">
+
+<label style="font-size: 12px; color: var(--text-muted);">پاسورڈ:</label>
+<input type="password" id="loginPassword" placeholder="اپنا پاسورڈ درج کریں">
+
+<button class="auth-btn" id="loginSubmitBtn">لاگ ان کریں</button>
+
+<div class="divider">یا</div>
+<button class="google-btn" id="googleLoginBtn">
+<svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.13 0-5.78-2.11-6.73-4.96H1.19v3.15C3.17 21.31 7.23 24 12 24z"/><path fill="#FBBC05" d="M5.27 14.24c-.25-.72-.38-1.49-.38-2.24s.13-1.52.38-2.24V6.61H1.19C.43 8.14 0 9.99 0 12s.43 3.86 1.19 5.39l4.08-3.15z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.23 0 3.17 2.69 1.19 6.61l4.08 3.15c.95-2.85 3.6-4.96 6.73-4.96z"/></svg>
+گوگل (Google) سے لاگ ان کریں
+</button>
+
+<div id="loginStatus" style="font-size: 12px; margin-top: 6px; text-align: center; font-weight: bold;"></div>
+
+<div class="switch-text" onclick="toggleAuthMode('signup')">نیا اکاؤنٹ بنانا ہے؟ <span>سائن اپ کریں</span></div>
+</div>
+
+<div id="signupForm" class="auth-container hidden">
+<h3 style="color:var(--primary-color); margin: 0 0 10px 0; text-align:center; font-size: 17px;">✨ نیا اکاؤنٹ بنائیں (Signup)</h3>
+
+<label style="font-size: 12px; color: var(--text-muted);">پورا نام:</label>
+<input type="text" id="signupName" placeholder="اپنا نام درج کریں">
+
+<label style="font-size: 12px; color: var(--text-muted);">ای میل ایڈریس:</label>
+<input type="email" id="signupEmail" placeholder="example@gmail.com">
+
+<label style="font-size: 12px; color: var(--text-muted);">پاسورڈ:</label>
+<input type="password" id="signupPassword" placeholder="کم از کم 6 ہندسوں کا پاسورڈ">
+
+<button class="auth-btn" id="signupBtn">اکاؤنٹ رجسٹر کریں</button>
+
+<div class="divider">یا</div>
+<button class="google-btn" id="googleSignupBtn">
+<svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.13 0-5.78-2.11-6.73-4.96H1.19v3.15C3.17 21.31 7.23 24 12 24z"/><path fill="#FBBC05" d="M5.27 14.24c-.25-.72-.38-1.49-.38-2.24s.13-1.52.38-2.24V6.61H1.19C.43 8.14 0 9.99 0 12s.43 3.86 1.19 5.39l4.08-3.15z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.23 0 3.17 2.69 1.19 6.61l4.08 3.15c.95-2.85 3.6-4.96 6.73-4.96z"/></svg>
+گوگل (Google) سے سائن اپ کریں
+</button>
+
+<div id="signupStatus" style="font-size: 12px; margin-top: 6px; text-align: center; font-weight: bold;"></div>
+
+<div class="switch-text" onclick="toggleAuthMode('login')">پہلے سے اکاؤنٹ موجود ہے؟ <span>لاگ ان کریں</span></div>
+</div>
+</div>
+
+<div id="userInfo" class="hidden">
+<div class="user-header">
+<span>خوش آمدید، <b id="userName"></b>!</span>
+<button class="logout-btn" id="logoutBtn">لاگ آؤٹ</button>
+</div>
+
+<div id="daroodCard" class="darood-card hidden">
+<div class="arabic-text" id="daroodArabicText">
+اَللّٰھُمَّ صَلِّ عَلٰی مُحَمَّدٍ وَّعَلٰی اٰلِ مُحَمَّدٍ کَمَا صَلَّیْتَ عَلٰی اِبْرَاھِیْمَ وَعَلٰی اٰلِ اِبْرَاھِیْمَ اِنَّکَ حَمِیْدٌ مَّجِیْدٌ۔ اَللّٰھُمَّ بَارِکْ عَلٰی مُحَمَّدٍ وَّعَلٰی اٰلِ مُحَمَّدٍ کَمَا بَارَکْتَ عَلٰی اِبْرَاھِیْمَ وَعَلٰی اٰلِ اِبْرَاھِیْمَ اِنَّکَ حَمِیْدٌ مَّجِیْدٌ
+</div>
+<div class="translation">
+اے اللہ! رحمت نازل فرما حضرت محمد ﷺ پر اور ان کی آل پر جیسے تو نے رحمت نازل فرمائی حضرت ابراہیم علیہ السلام پر اور ان کی آل پر، بے شک تو تعریف کے لائق اور بزرگی والا ہے۔
+</div>
+<button class="speak-btn" onclick="playYouTubeAudioOnly()">
+<span>🔊</span> (Listen) سنیں
+</button>
+</div>
+
+<!-- TAB 1: Home Tab -->
+<div id="mainTab">
+
+<!-- PRAYER TIMES CARD (LIVE API) -->
+<div class="prayer-card-container">
+<div class="prayer-title">🕌 آج کے نماز کے اوقات</div>
+<div class="prayer-date" id="prayerDateDisplay">لوڈ ہو رہا ہے...</div>
+
+<div class="prayer-config-box">
+<div style="display: flex; gap: 8px;">
+<div style="flex: 1;">
+<label style="font-size: 12px; color: var(--text-muted);">📍 ملک:</label>
+<input type="text" id="countryInput" value="Pakistan">
+</div>
+<div style="flex: 1;">
+<label style="font-size: 12px; color: var(--text-muted);">📍 شہر:</label>
+<input type="text" id="cityInput" value="Lahore">
+</div>
+</div>
+
+<div style="display: flex; gap: 8px; margin-top: 4px;">
+<button class="save-profile-btn" style="flex: 2; background-color: var(--primary-color);" onclick="saveLocationAndFetch()">💾 محفوظ کریں</button>
+<button class="save-profile-btn" style="flex: 1; background-color: #2b6cb0;" onclick="detectCurrentLocation()">📍 کرنٹ لوکیشن</button>
+</div>
+</div>
+
+<div class="current-prayer-highlight">
+<div style="font-size: 12px; color: #555;">اس وقت کی نماز</div>
+<div id="currentActivePrayerName" style="font-size: 16px; font-weight: bold;">--</div>
+</div>
+
+<table class="prayer-table">
+<thead>
+<tr>
+<th>حیثیت</th>
+<th>وقت</th>
+<th>نماز</th>
+</tr>
+</thead>
+<tbody id="prayerTableBody">
+<tr><td colspan="3">اوقات لوڈ ہو رہے ہیں...</td></tr>
+</tbody>
+</table>
+
+<div class="next-prayer-footer" id="nextPrayerFooter">
+اگلی نماز: --
+</div>
+</div>
+<!-- END PRAYER TIMES CARD -->
+
+<h2 style="font-size: 20px; color: var(--primary-color); margin: 10px 0;">🕌 آج کی محفل</h2>
+
+<div style="background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 14px; padding: 12px; margin: 10px 0; box-shadow: 0 4px 15px rgba(0,0,0,0.03);">
+<div style="font-size: 28px; font-weight: bold; color: var(--primary-color);" id="globalTotalCount">0</div>
+<div style="font-size: 12px; color: var(--text-muted);">آج کے اجتماعی درود (ریئل ٹائم)</div>
+</div>
+
+<div style="background: linear-gradient(135deg, #fffbeb, #fef3c7); border: 1.5px solid #f59e0b; border-radius: 14px; padding: 14px; margin: 14px 0; text-align: center; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.15);">
+<div style="font-size: 14px; font-weight: bold; color: #d97706; margin-bottom: 4px;">👑 آج کے مقابلے کا لیڈر (سب سے آگے)</div>
+<div id="homeWinnerHighlight" style="font-size: 15px; color: #1f2937; font-weight: bold;">لوڈ ہو رہا ہے...</div>
+</div>
+
+<!-- ADMIN PANEL SECTION ON HOME PAGE -->
+<div id="adminPanelSection" class="admin-panel hidden" style="text-align: right; margin-top: 15px;">
+<div class="admin-title">👑 ایڈمن پینل (صرف 100+ درود والے فاتحین)</div>
+
+<div style="display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap;">
+<button class="save-profile-btn" style="flex: 1; padding: 6px; font-size: 12px;" onclick="setAdminFilter('today')">آج (Today)</button>
+<button class="save-profile-btn" style="flex: 1; padding: 6px; font-size: 12px; background-color: #d97706;" onclick="setAdminFilter('weekly')">ہفتہ وار (Weekly)</button>
+<button class="save-profile-btn" style="flex: 1; padding: 6px; font-size: 12px; background-color: #1e40af;" onclick="setAdminFilter('monthly')">ماہانہ (Monthly)</button>
+</div>
+
+<div style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px; display: flex; gap: 6px; align-items: center;">
+<span>تاریخ کی حد:</span>
+<input type="date" id="adminStartDate" style="padding: 4px; border-radius: 6px; border: 1px solid #d1d5db; font-size: 11px;">
+<span>تا</span>
+<input type="date" id="adminEndDate" style="padding: 4px; border-radius: 6px; border: 1px solid #d1d5db; font-size: 11px;">
+<button onclick="applyDateRangeFilter()" style="background:var(--primary-color); color:white; border:none; padding: 4px 10px; border-radius: 6px; font-size: 11px; cursor: pointer;">لاگو کریں</button>
+</div>
+
+<div id="adminWinnersList">لوڈ ہو رہا ہے...</div>
+</div>
+
+<h3 style="color:var(--primary-color); margin-top: 20px; font-size: 16px; text-align: right;">🏆 ٹاپ 10 رینکنگ (Top 10 Users)</h3>
+<table>
+<thead><tr><th>رینک</th><th>صارف</th><th>کل درود</th></tr></thead>
+<tbody id="homeTop10Board"><tr><td colspan="3">لوڈ ہو رہا ہے...</td></tr></tbody>
+</table>
+
+<div class="proof-box" style="margin-top: 20px;">
+<div class="proof-title">📢 فاتحین اور پیمنٹ پروف (Payment Proofs)</div>
+<p style="font-size: 12px; color: var(--text-muted); margin-bottom: 6px;">تمام صارفین دیکھ سکتے ہیں کہ کس فاتح کو انعام مل گیا:</p>
+<div id="publicProofList">لوڈ ہو رہا ہے...</div>
+</div>
+</div>
+
+<!-- TAB 2: Competition Tab -->
+<div id="compTab" class="hidden">
+<h2 style="font-size: 20px; color: #d97706; margin: 10px 0;">🎯 مقابلے کا سیکشن</h2>
+<button class="mic-btn" style="background: linear-gradient(135deg, #d97706, #b45309); color:white; width: 130px; height: 130px; margin: 15px auto;" id="compCountBtn">
+<span style="font-size: 24px;">🎙️</span>
+<span>مقابلے کے لیے بولیں</span>
+</button>
+<div id="compStatusMsg" class="status-msg" style="color: #d97706;"></div>
+<div style="font-size: 15px; color: #d97706; margin-top: 8px;">مقابلے میں آپ کا اسکور: <b id="compUserTotal">0</b></div>
+
+<h3 style="color:#d97706; margin-top: 20px; font-size: 16px;">🥇 مقابلے کا Leaderboard</h3>
+<table>
+<thead><tr><th>رینک</th><th>صارف</th><th>اسکور</th></tr></thead>
+<tbody id="compBoard"><tr><td colspan="3">لوڈ ہو رہا ہے...</td></tr></tbody>
+</table>
+</div>
+
+<!-- TAB 3: Tasbeeh Tab -->
+<div id="rewardTab" class="hidden" style="text-align: center;">
+<h2 style="font-size: 20px; color: var(--primary-color); margin: 10px 0;">📿 تسبیح کاؤنٹر</h2>
+
+<div class="mic-circle-wrapper">
+<div class="circle-progress"></div>
+<button class="mic-btn" id="countBtn">
+<span style="font-size: 32px; font-weight: bold; color: var(--primary-color);" id="userTotal">0</span>
+<span style="font-size: 12px; color: var(--text-muted); font-weight: normal;">آپ کے آج کے درود</span>
+</button>
+</div>
+<div id="statusMsg" class="status-msg" style="color: var(--primary-color);"></div>
+
+<div style="display: flex; gap: 8px; justify-content: center; margin-top: 15px;">
+<button style="background: #0d3b22; color: white; border: none; padding: 10px 24px; border-radius: 12px; font-family: inherit; font-size: 14px; font-weight: bold; cursor: pointer;" onclick="startVoiceRecognition('countBtn', 'statusMsg', false)">🎙️ 1+ درود شریف پڑھیں</button>
+</div>
+
+<h3 style="color:var(--primary-color); margin-top: 25px; font-size: 16px; text-align: right;">🏆 لائیو Leaderboard</h3>
+<table>
+<thead><tr><th>رینک</th><th>صارف</th><th>کل درود</th></tr></thead>
+<tbody id="board"><tr><td colspan="3">لوڈ ہو رہا ہے...</td></tr></tbody>
+</table>
+</div>
+
+<!-- TAB 4: About Tab -->
+<div id="aboutTab" class="hidden">
+<h2 style="font-size: 20px; color: var(--primary-color); margin: 10px 0; text-align: center;">ℹ️ ایپ کی تفصیلات (About Us)</h2>
+
+<div class="about-card">
+<h3>📖 محفلِ درود کیا ہے؟</h3>
+<p>محفلِ درود ایک ڈیجیٹل اور لائیو پلیٹ فارم ہے جہاں تمام مسلمان مل کر حضور نبی اکرم ﷺ پر درودِ پاک کا نذرانہ پیش کرتے ہیں۔ اس کا مقصد آپس میں نیک کاموں کا مقابلہ اور اجر و ثواب کا حصول ہے۔</p>
+</div>
+
+<div class="about-card">
+<h3>⚡ ایپ کے اہم فیچرز</h3>
+<p>
+• <b>آج کی محفل (Home):</b> یہاں آپ کل اجتماعی درود، رینکنگ، نماز کے اوقات اور ایڈمن پینل کے ذریعے صرف کامیاب فاتحین (100+ درود) کی تفصیلات کنٹرول کر سکتے ہیں۔<br>
+• <b>تسبیح (Tasbeeh):</b> اپنی انفرادی تسبیح کے لیے وائس کاؤنٹر استعمال کریں۔<br>
+• <b>مقابلہ (Competition):</b> روزانہ کے مقابلے میں حصہ لیں اور انعامات جیتیں۔
+</p>
+</div>
+</div>
+
+<!-- TAB 5: Profile Tab -->
+<div id="profileTab" class="hidden" style="text-align: right;">
+<h3 style="color: var(--primary-color); text-align: center; font-size: 18px;">👤 پروفائل کی معلومات</h3>
+<div class="profile-box">
+<p><b>نام:</b> <span id="profileDisplayName">---</span></p>
+<p><b>ای میل:</b> <span id="profileDisplayEmail">---</span></p>
+</div>
+
+<div class="profile-box">
+<h4 style="margin: 0 0 6px 0; color: var(--primary-color); font-size: 14px;">🔑 پاسورڈ تبدیل کریں (Change Password)</h4>
+<label style="font-size: 12px; color: var(--text-muted);">موجودہ پاسورڈ:</label>
+<input type="password" id="currentPassword" placeholder="پرانا پاسورڈ درج کریں">
+
+<label style="font-size: 12px; color: var(--text-muted);">نیا پاسورڈ:</label>
+<input type="password" id="newPassword" placeholder="کم از کم 6 ہندسوں کا نیا پاسورڈ">
+
+<button class="save-profile-btn" id="changePasswordBtn" style="background-color: #d97706;">پاسورڈ اپڈیٹ کریں</button>
+<div id="passwordStatus" style="font-size: 12px; margin-top: 6px; text-align: center; font-weight: bold;"></div>
+</div>
+
+<h3 style="color: var(--primary-color); text-align: center; font-size: 16px; margin-top: 20px;">🎁 انعام اور پیمنٹ کی تفصیلات</h3>
+<p style="color: var(--text-muted); font-size: 12px; text-align: center; margin-bottom: 12px;">فاتح بننے کے لیے کم از کم 100 درود شریف پڑھنا لازمی ہے۔ انعام حاصل کرنے کے لیے نیچے اکاؤنٹ نمبر درج کریں:</p>
+
+<div class="profile-box">
+<h4 style="margin: 0 0 6px 0; color: var(--primary-color); font-size: 14px;">📱 اپنی JazzCash / EasyPaisa تفصیلات لکھیں</h4>
+<label style="font-size: 12px; color: var(--text-muted);">اکاؤنٹ ہولڈر کا نام:</label>
+<input type="text" id="accName" placeholder="اپنا پورا نام لکھیں">
+
+<label style="font-size: 12px; color: var(--text-muted);">موبایل نمبر:</label>
+<input type="text" id="accNumber" placeholder="03XXXXXXXXX">
+
+<label style="font-size: 12px; color: var(--text-muted);">اکاؤنٹ کی قسم:</label>
+<select id="accType">
+<option value="JazzCash">JazzCash (جاز کیش)</option>
+<option value="EasyPaisa">EasyPaisa (ایزی پیسہ)</option>
+</select>
+
+<button class="save-profile-btn" id="saveProfileBtn">تفصیلات محفوظ کریں</button>
+<div id="profileStatus" style="font-size: 12px; margin-top: 6px; color: var(--primary-color); text-align: center; font-weight: bold;"></div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div id="bottomNav" class="bottom-nav hidden">
+<button class="nav-item" id="navProfile" onclick="switchBottomTab('profile')">
+<span class="icon">👤</span>
+Profile
+</button>
+<button class="nav-item" id="navAbout" onclick="switchBottomTab('about')">
+<span class="icon">ℹ️</span>
+About
+</button>
+<button class="nav-item" id="navCompetition" onclick="switchBottomTab('competition')">
+<span class="icon">🏆</span>
+Competition
+</button>
+<button class="nav-item" id="navTasbeeh" onclick="switchBottomTab('reward')">
+<span class="icon">📿</span>
+Tasbeeh
+</button>
+<button class="nav-item active" id="navHome" onclick="switchBottomTab('home')">
+<span class="icon">🏠</span>
+Home
+</button>
+</div>
+
+<script src="https://www.youtube.com/iframe_api"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
+<script>
+const firebaseConfig = {
+apiKey: "AIzaSyB3PjjiQM2IqKmIQJ4d4YOwcc10RiG47FI",
+authDomain: "mehfil-e-darood.firebaseapp.com",
+databaseURL: "https://mehfil-e-darood-default-rtdb.firebaseio.com",
+projectId: "mehfil-e-darood",
+storageBucket: "mehfil-e-darood.firebasestorage.app",
+messagingSenderId: "876052619750",
+appId: "1:876052619750:web:889b37737240756ba5f627"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.database();
+
+let currentUser = null;
+const ADMIN_EMAIL = "kamran7078127@gmail.com";
+const todayDateKey = new Date().toISOString().slice(0, 10);
+let currentAdminFilter = "today";
+
+let ytPlayer = null;
+function onYouTubeIframeAPIReady() {
+ytPlayer = new YT.Player('youtubeAudioFrame', {
+events: { 'onReady': () => {} }
+});
+}
+
+function playYouTubeAudioOnly() {
+if (ytPlayer && typeof ytPlayer.playVideo === 'function') {
+try { ytPlayer.seekTo(0); ytPlayer.playVideo(); } catch(e) {}
+}
+}
+
+function triggerVibration() {
+if ("vibrate" in navigator) { try { navigator.vibrate(200); } catch(e) {} }
+}
+
+function playSuccessSound() {
+try {
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+const osc = audioCtx.createOscillator();
+const gain = audioCtx.createGain();
+osc.type = "sine";
+osc.frequency.setValueAtTime(587.33, audioCtx.currentTime);
+gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
+osc.connect(gain); gain.connect(audioCtx.destination);
+osc.start(); osc.stop(audioCtx.currentTime + 0.4);
+} catch(e) {}
+}
+
+function playErrorSound() {
+try {
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+const osc = audioCtx.createOscillator();
+const gain = audioCtx.createGain();
+osc.type = "sawtooth";
+osc.frequency.setValueAtTime(200, audioCtx.currentTime);
+gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+osc.connect(gain); gain.connect(audioCtx.destination);
+osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+} catch(e) {}
+}
+
+function switchBottomTab(tabName) {
+document.getElementById("mainTab").classList.add("hidden");
+document.getElementById("compTab").classList.add("hidden");
+document.getElementById("rewardTab").classList.add("hidden");
+document.getElementById("profileTab").classList.add("hidden");
+document.getElementById("aboutTab").classList.add("hidden");
+document.getElementById("daroodCard").classList.add("hidden");
+
+document.querySelectorAll(".bottom-nav .nav-item").forEach(el => el.classList.remove("active"));
+
+if (tabName === 'home') {
+document.getElementById("mainTab").classList.remove("hidden");
+document.getElementById("navHome").classList.add("active");
+} else if (tabName === 'competition') {
+document.getElementById("customModal").classList.remove("hidden");
+document.getElementById("compTab").classList.remove("hidden");
+document.getElementById("navCompetition").classList.add("active");
+document.getElementById("daroodCard").classList.remove("hidden");
+} else if (tabName === 'about') {
+document.getElementById("aboutTab").classList.remove("hidden");
+document.getElementById("navAbout").classList.add("active");
+} else if (tabName === 'reward') {
+document.getElementById("rewardTab").classList.remove("hidden");
+document.getElementById("navTasbeeh").classList.add("active");
+document.getElementById("daroodCard").classList.remove("hidden");
+} else if (tabName === 'profile') {
+document.getElementById("profileTab").classList.remove("hidden");
+document.getElementById("navProfile").classList.add("active");
+}
+}
+
+document.getElementById("modalOkBtn").onclick = function() {
+document.getElementById("customModal").classList.add("hidden");
+};
+
+window.toggleAuthMode = function(mode) {
+if (mode === 'signup') {
+document.getElementById("loginForm").classList.add("hidden");
+document.getElementById("signupForm").classList.remove("hidden");
+} else {
+document.getElementById("signupForm").classList.add("hidden");
+document.getElementById("loginForm").classList.remove("hidden");
+}
+};
+
+document.getElementById("signupBtn").onclick = () => {
+const name = document.getElementById("signupName").value.trim();
+const email = document.getElementById("signupEmail").value.trim();
+const password = document.getElementById("signupPassword").value.trim();
+const statusEl = document.getElementById("signupStatus");
+
+if (!name || !email || !password) {
+statusEl.style.color = "#ef4444";
+statusEl.innerText = "براہِ کرم تمام فیلڈز مکمل کریں۔";
+playErrorSound();
+return;
+}
+
+auth.createUserWithEmailAndPassword(email, password)
+.then((userCredential) => userCredential.user.updateProfile({ displayName: name }))
+.then(() => {
+statusEl.innerText = "✓ کامیابی سے سائن اپ ہو گیا!";
+playSuccessSound();
+})
+.catch(() => {
+statusEl.style.color = "#ef4444";
+statusEl.innerText = "اکاؤنٹ بنانے میں خرابی پیش آئی۔";
+playErrorSound();
+});
+};
+
+document.getElementById("loginSubmitBtn").onclick = () => {
+const email = document.getElementById("loginEmail").value.trim();
+const password = document.getElementById("loginPassword").value.trim();
+const statusEl = document.getElementById("loginStatus");
+
+if (!email || !password) {
+statusEl.style.color = "#ef4444";
+statusEl.innerText = "ای میل اور پاسورڈ درج کریں۔";
+playErrorSound();
+return;
+}
+
+auth.signInWithEmailAndPassword(email, password)
+.then(() => {
+statusEl.innerText = "✓ لاگ ان کامیاب!";
+playSuccessSound();
+})
+.catch((error) => {
+statusEl.style.color = "#ef4444";
+playErrorSound();
+statusEl.innerText = "لاگ ان میں ناکامی۔";
+});
+};
+
+function handleGoogleAuth() {
+const provider = new firebase.auth.GoogleAuthProvider();
+auth.signInWithPopup(provider).then(() => {
+playSuccessSound();
+triggerVibration();
+}).catch(() => { playErrorSound(); });
+}
+
+document.getElementById("googleSignupBtn").onclick = handleGoogleAuth;
+document.getElementById("googleLoginBtn").onclick = handleGoogleAuth;
+document.getElementById("logoutBtn").onclick = () => auth.signOut();
+
+window.addEventListener('DOMContentLoaded', () => {
+const savedCountry = localStorage.getItem('user_country');
+const savedCity = localStorage.getItem('user_city');
+if (savedCountry) document.getElementById("countryInput").value = savedCountry;
+if (savedCity) document.getElementById("cityInput").value = savedCity;
+});
+
+auth.onAuthStateChanged(user => {
+if (user) {
+currentUser = user;
+document.getElementById("authSection").classList.add("hidden");
+document.getElementById("userInfo").classList.remove("hidden");
+document.getElementById("bottomNav").classList.remove("hidden");
+document.getElementById("userName").innerText = user.displayName || user.email;
+document.getElementById("profileDisplayName").innerText = user.displayName || "---";
+document.getElementById("profileDisplayEmail").innerText = user.email || "---";
+
+db.ref("users/" + user.uid).update({
+name: user.displayName || user.email,
+email: user.email
+});
+
+if (user.email === ADMIN_EMAIL) {
+document.getElementById("adminPanelSection").classList.remove("hidden");
+loadAdminData();
+} else {
+document.getElementById("adminPanelSection").classList.add("hidden");
+}
+
+db.ref("users/" + user.uid).on("value", snapshot => {
+const data = snapshot.val();
+document.getElementById("userTotal").innerText = data ? (data.count || 0) : 0;
+if (data) {
+if(data.accName) document.getElementById("accName").value = data.accName;
+if(data.accNumber) document.getElementById("accNumber").value = data.accNumber;
+if(data.accType) document.getElementById("accType").value = data.accType;
+
+if(data.savedCity && !localStorage.getItem('user_city')) {
+localStorage.setItem('user_city', data.savedCity);
+document.getElementById("cityInput").value = data.savedCity;
+}
+if(data.savedCountry && !localStorage.getItem('user_country')) {
+localStorage.setItem('user_country', data.savedCountry);
+document.getElementById("countryInput").value = data.savedCountry;
+}
+}
+fetchPrayerTimes();
+});
+
+db.ref("competitions/" + todayDateKey + "/" + user.uid).on("value", snapshot => {
+const data = snapshot.val();
+document.getElementById("compUserTotal").innerText = data ? (data.count || 0) : 0;
+});
+
+const userStatusRef = db.ref("status/" + user.uid);
+db.ref(".info/connected").on("value", snapshot => {
+if (snapshot.val() === true) {
+userStatusRef.onDisconnect().remove();
+userStatusRef.set(true);
+}
+});
+} else {
+if (currentUser) db.ref("status/" + currentUser.uid).remove();
+currentUser = null;
+document.getElementById("authSection").classList.remove("hidden");
+document.getElementById("userInfo").classList.add("hidden");
+document.getElementById("bottomNav").classList.add("hidden");
+toggleAuthMode('login');
+}
+});
+
+function timeToMinutes(timeStr) {
+const [time, modifier] = timeStr.split(' ');
+let [hours, minutes] = time.split(':').map(Number);
+if (modifier === 'PM' && hours < 12) hours += 12;
+if (modifier === 'AM' && hours === 12) hours = 0;
+return hours * 60 + minutes;
+}
+
+function format12Hour(time24) {
+let [h, m] = time24.split(':').map(Number);
+let modifier = h >= 12 ? 'PM' : 'AM';
+h = h % 12 || 12;
+return ${h}:${m &lt; 10 ? '0' : ''}${m} ${modifier};
+}
+
+function saveLocationAndFetch() {
+let city = document.getElementById("cityInput").value.trim();
+let country = document.getElementById("countryInput").value.trim();
+
+if(city && country) {
+localStorage.setItem('user_city', city);
+localStorage.setItem('user_country', country);
+}
+
+if (currentUser) {
+db.ref("users/" + currentUser.uid).update({
+savedCity: city,
+savedCountry: country
+});
+}
+fetchPrayerTimes();
+}
+
+function detectCurrentLocation() {
+if (navigator.geolocation) {
+navigator.geolocation.getCur
