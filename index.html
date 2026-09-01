@@ -1850,21 +1850,15 @@
     const COMP_PROGRESS_CIRCUMFERENCE = 2 * Math.PI * 65;
     let compTimerInterval = null;
     let compRecognition = null;
-    let compSessionUntil = 0;
-    let compCountRecorded = false;
 
     let tasbeehTimerInterval = null;
     let tasbeehRecognition = null;
-    let tasbeehSessionUntil = 0;
-    let tasbeehCountRecorded = false;
 
     function startTasbeeh35SecondTimer() {
       const ring = document.getElementById("tasbeehTimerRing");
       if (!ring) return;
       if (tasbeehTimerInterval) clearInterval(tasbeehTimerInterval);
       const startedAt = Date.now();
-      tasbeehSessionUntil = startedAt + COMP_DURATION_MS;
-      tasbeehCountRecorded = false;
       ring.style.setProperty("--tasbeeh-progress", "100%");
 
       tasbeehTimerInterval = setInterval(() => {
@@ -1875,8 +1869,6 @@
           clearInterval(tasbeehTimerInterval);
           tasbeehTimerInterval = null;
           if (tasbeehRecognition) { try { tasbeehRecognition.stop(); } catch(e) {} tasbeehRecognition = null; }
-          tasbeehSessionUntil = 0;
-          tasbeehCountRecorded = false;
           const btn = document.getElementById("countBtn");
           const status = document.getElementById("statusMsg");
           if (btn) { btn.disabled = false; btn.classList.remove("listening"); }
@@ -1890,8 +1882,6 @@
       if (!bar) return;
       if (compTimerInterval) clearInterval(compTimerInterval);
       const startedAt = Date.now();
-      compSessionUntil = startedAt + COMP_DURATION_MS;
-      compCountRecorded = false;
       bar.style.strokeDasharray = COMP_PROGRESS_CIRCUMFERENCE.toFixed(2);
       bar.style.strokeDashoffset = "0";
 
@@ -1906,8 +1896,6 @@
             try { compRecognition.stop(); } catch(e) {}
             compRecognition = null;
           }
-          compSessionUntil = 0;
-          compCountRecorded = false;
           const btn = document.getElementById("compCountBtn");
           const status = document.getElementById("compStatusMsg");
           if (btn) { btn.disabled = false; btn.classList.remove("listening"); }
@@ -1944,7 +1932,7 @@
       }
       recognition.lang = 'ar-SA';
       recognition.interimResults = false;
-      recognition.continuous = true;
+      recognition.continuous = false;
       recognition.maxAlternatives = 5;
 
       const normalizeArabic = (value) => {
@@ -2048,8 +2036,6 @@
         }
 
         if (currentUser) {
-          if (isComp && compCountRecorded) return;
-          if (!isComp && btnId === "countBtn" && tasbeehCountRecorded) return;
           if (isComp) {
             db.ref("competitions/" + todayDateKey + "/" + currentUser.uid).transaction(current => {
               if (!current) return { count: 1, name: currentUser.displayName || currentUser.email };
@@ -2078,10 +2064,8 @@
             });
           }
 
-          if (isComp) compCountRecorded = true;
-          if (!isComp && btnId === "countBtn") tasbeehCountRecorded = true;
           statusEl.style.color = "#0d3b22";
-          statusEl.innerText = "✓ درود شریف شمار ہو گیا! 35 سیکنڈ تک سن رہا ہے...";
+          statusEl.innerText = "✓ درود شریف شمار ہو گیا!";
           playSuccessSound();
           triggerVibration();
         }
@@ -2094,39 +2078,19 @@
       };
 
       recognition.onend = () => {
-        const sessionUntil = isComp ? compSessionUntil : (btnId === "countBtn" ? tasbeehSessionUntil : 0);
-        const activeSession = sessionUntil && Date.now() < sessionUntil;
-
-        if (activeSession) {
-          // Android/Chrome SpeechRecognition may end briefly on its own.
-          // Keep listening until the full 35-second window is over.
-          setTimeout(() => {
-            if (Date.now() >= sessionUntil) return;
-            try {
-              recognition.start();
-              btn.disabled = true;
-              btn.classList.add("listening");
-            } catch (e) {}
-          }, 150);
-          return;
-        }
-
         btn.disabled = false;
         btn.classList.remove("listening");
         if (isComp && compRecognition === recognition) compRecognition = null;
-        if (!isComp && btnId === "countBtn" && tasbeehRecognition === recognition) tasbeehRecognition = null;
       };
 
       recognition.start();
     }
 
     document.getElementById("countBtn").onclick = function() {
-      if (tasbeehSessionUntil && Date.now() < tasbeehSessionUntil) return;
       startVoiceRecognition('countBtn', 'statusMsg', false);
     };
 
     document.getElementById("compCountBtn").onclick = function() {
-      if (compSessionUntil && Date.now() < compSessionUntil) return;
       startComp35SecondTimer();
       startVoiceRecognition('compCountBtn', 'compStatusMsg', true);
     };
