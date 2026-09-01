@@ -776,7 +776,7 @@
           <div id="adminWinnersList">لوڈ ہو رہا ہے...</div>
         </div>
 
-        <h3 style="color:var(--primary-color); margin-top: 20px; font-size: 16px; text-align: right;">🏆 ٹاپ 5 ونرز (Daily Competition Winners)</h3>
+        <h3 style="color:var(--primary-color); margin-top: 20px; font-size: 16px; text-align: right;">🏆 ٹاپ 5 ونرز (Daily Competition Winners — Minimum 100)</h3>
         <div id="homeTop5Winners">
           <div style="text-align:center; padding:14px;">لوڈ ہو رہا ہے...</div>
         </div>
@@ -1396,7 +1396,8 @@
             const val = userSnap.val() || {};
             const score = Number(val.count || 0);
 
-            if (!winner || score > winner.count) {
+            // Minimum 100 score is required to qualify as a daily winner.
+            if (score >= 100 && (!winner || score > winner.count)) {
               winner = {
                 uid: userSnap.key,
                 name: val.name || "صارف",
@@ -1405,7 +1406,7 @@
             }
           });
 
-          if (winner && winner.count > 0) {
+          if (winner && winner.count >= 100) {
             dailyWinners.push({
               dateKey,
               name: winner.name,
@@ -1426,7 +1427,7 @@
         const top5 = dailyWinners.slice(0, 5);
 
         if (!top5.length) {
-          container.innerHTML = `<div style="text-align:center; padding:14px;">ابھی کوئی روزانہ ونر موجود نہیں</div>`;
+          container.innerHTML = `<div style="text-align:center; padding:14px;">ابھی کوئی روزانہ ونر موجود نہیں (کم از کم 100 درود ضروری ہیں)</div>`;
           return;
         }
 
