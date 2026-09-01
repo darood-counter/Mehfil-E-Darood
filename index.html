@@ -1249,7 +1249,12 @@
       let city = document.getElementById("cityInput").value.trim() || localStorage.getItem('user_city') || "Lahore";
       let country = document.getElementById("countryInput").value.trim() || localStorage.getItem('user_country') || "Pakistan";
 
-      const url = `https://api.aladhan.com/v1/timingsByCity?city=${encodeURIComponent(city)}&country=${encodeURIComponent(country)}&method=2`;
+      // Always request prayer times for the browser's actual local calendar date.
+      // AlAdhan expects DD-MM-YYYY. This prevents the API from falling back
+      // to an unexpected/server date (e.g. July 17).
+      const now = new Date();
+      const apiDate = `${String(now.getDate()).padStart(2, '0')}-${String(now.getMonth() + 1).padStart(2, '0')}-${now.getFullYear()}`;
+      const url = `https://api.aladhan.com/v1/timingsByCity/${apiDate}?city=${encodeURIComponent(city)}&country=${encodeURIComponent(country)}&method=2`;
 
       fetch(url)
         .then(response => response.json())
