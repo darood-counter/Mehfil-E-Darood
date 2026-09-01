@@ -776,11 +776,10 @@
           <div id="adminWinnersList">لوڈ ہو رہا ہے...</div>
         </div>
 
-        <h3 style="color:var(--primary-color); margin-top: 20px; font-size: 16px; text-align: right;">🏆 ٹاپ 10 رینکنگ (Top 10 Users)</h3>
-        <table>
-          <thead><tr><th>رینک</th><th>صارف</th><th>کل درود</th></tr></thead>
-          <tbody id="homeTop10Board"><tr><td colspan="3">لوڈ ہو رہا ہے...</td></tr></tbody>
-        </table>
+        <div style="background:linear-gradient(135deg,#fffdf5,#fef3c7); border:2px solid var(--accent-gold); border-radius:16px; padding:14px; margin-top:20px; box-shadow:0 8px 22px rgba(197,160,89,0.16);">
+          <h3 style="color:var(--primary-color); margin:0 0 10px 0; font-size:18px;">🏆 ٹاپ 5 فاتحین (Top 5 Winners)</h3>
+          <div id="homeTop5Winners"><div style="color:var(--text-muted); font-size:13px;">لوڈ ہو رہا ہے...</div></div>
+        </div>
 
         <div class="proof-box" style="margin-top: 20px;">
           <div class="proof-title">📢 فاتحین اور پیمنٹ پروف (Payment Proofs)</div>
@@ -1393,11 +1392,25 @@
 
       userList.sort((a, b) => b.count - a.count);
 
-      let tbody = "";
-      userList.slice(0, 10).forEach((u, i) => {
-        tbody += `<tr><td>${i + 1}</td><td>${u.name}</td><td><b>${u.count}</b></td></tr>`;
-      });
-      document.getElementById("homeTop10Board").innerHTML = tbody || `<tr><td colspan="3">کوئی ڈیٹا موجود نہیں</td></tr>`;
+      const top5El = document.getElementById("homeTop5Winners");
+      if (top5El) {
+        const top5 = userList.filter(u => u.count > 0).slice(0, 5);
+        if (top5.length) {
+          top5El.innerHTML = top5.map((u, i) => `
+            <div style="background:#fff; border:1px solid rgba(197,160,89,0.45); border-radius:12px; padding:10px; margin:7px 0; display:flex; align-items:center; gap:8px; text-align:right;">
+              <div style="font-size:20px; min-width:32px;">${["🥇","🥈","🥉","🏅","🎖️"][i]}</div>
+              <div style="flex:1;">
+                <div style="font-weight:bold; color:var(--primary-color); font-size:14px;">${u.name}</div>
+                <div style="font-size:11px; color:var(--text-muted);">تاریخ: ${todayDateKey}</div>
+              </div>
+              <div style="font-weight:bold; color:#d97706; font-size:13px; white-space:nowrap;">${u.count} درود</div>
+              <button onclick="downloadSpecificCertificate('${String(u.name).replace(/'/g, "\\'")}', ${u.count}, '${todayDateKey}')" style="background:var(--primary-color); color:white; border:none; padding:6px 9px; border-radius:8px; font-size:11px; cursor:pointer; font-family:inherit; white-space:nowrap;">📜 سرٹیفکیٹ</button>
+            </div>
+          `).join("");
+        } else {
+          top5El.innerHTML = `<div style="color:var(--text-muted); font-size:13px;">آج ابھی کوئی فاتح موجود نہیں</div>`;
+        }
+      }
 
       let fullTbody = "";
       userList.forEach((u, i) => {
