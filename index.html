@@ -729,6 +729,17 @@
           <div id="homeWinnerHighlight" style="font-size: 15px; color: #1f2937; font-weight: bold;">لوڈ ہو رہا ہے...</div>
         </div>
 
+        <!-- NEW: YESTERDAY WINNER CONGRATULATIONS CARD -->
+        <div style="background: linear-gradient(135deg, #0d3b22 0%, #14532d 100%); color: white; border: 2px solid #c5a059; border-radius: 16px; padding: 16px; margin: 14px 0; text-align: center; box-shadow: 0 8px 25px rgba(13, 59, 34, 0.25);">
+          <div style="font-size: 22px; margin-bottom: 2px;">🎉 🏆 🎊</div>
+          <div style="font-size: 15px; font-weight: bold; color: #f3e8c8;">گزشتہ روز (کل) کے فاتح کو مبارکباد!</div>
+          <div id="yesterdayWinnerName" style="font-size: 20px; font-weight: bold; margin: 6px 0; color: #ffffff;">لوڈ ہو رہا ہے...</div>
+          <div id="yesterdayWinnerDetails" style="font-size: 12px; color: #a3c1ad; margin-bottom: 8px;">--</div>
+          <p style="font-size: 13px; color: #e2e8f0; margin: 0; line-height: 1.6; background: rgba(255,255,255,0.08); padding: 8px; border-radius: 10px;">
+            ماشاءاللہ! آپ کو محفلِ درود کی طرف سے گزشتہ روز کے مقابلے میں سب سے زیادہ درود شریف پڑھ کر پہلی پوزیشن حاصل کرنے پر دلی مبارکباد پیش کی جاتی ہے۔ اللہ تعالیٰ آپ کا یہ نذرانہ قبول فرمائے۔ آمین! ✨
+          </p>
+        </div>
+
         <!-- ADMIN PANEL SECTION ON HOME PAGE -->
         <div id="adminPanelSection" class="admin-panel hidden" style="text-align: right; margin-top: 15px;">
           <div class="admin-title">👑 ایڈمن پینل (صرف 100+ درود والے فاتحین)</div>
@@ -750,9 +761,10 @@
           <div id="adminWinnersList">لوڈ ہو رہا ہے...</div>
         </div>
 
-        <h3 style="color:var(--primary-color); margin-top: 20px; font-size: 16px; text-align: right;">🏆 ٹاپ 10 رینکنگ (Top 10 Users)</h3>
+        <!-- REPLACED: TOP 10 DAYS WINNERS BOARD -->
+        <h3 style="color:var(--primary-color); margin-top: 20px; font-size: 16px; text-align: right;">🗓️ پچھلے 10 دنوں کے فاتحین (Top 10 Days Winners)</h3>
         <table>
-          <thead><tr><th>رینک</th><th>صارف</th><th>کل درود</th></tr></thead>
+          <thead><tr><th>تاریخ</th><th>فاتح</th><th>کل درود</th></tr></thead>
           <tbody id="homeTop10Board"><tr><td colspan="3">لوڈ ہو رہا ہے...</td></tr></tbody>
         </table>
 
@@ -1220,400 +1232,48 @@
               { key: 'Sunrise', name: 'طلوع آفتاب', icon: '🌅' },
               { key: 'Dhuhr', name: 'ظہر', icon: '☀️' },
               { key: 'Asr', name: 'عصر', icon: '⛅' },
-              { key: 'Maghrib', name: 'مغرب', icon: '🌇' },
-              { key: 'Isha', name: 'عشاء', icon: '🌙' }
-            ];
+              { key: 'Maghrib', name: 'مغرب', icon: 'آپ کی ضرورت کے مطابق کوڈ میں درج ذیل تبدیلیاں کر دی گئی ہیں:
 
-            let now = new Date();
-            let currentMinutes = now.getHours() * 60 + now.getMinutes();
+1. **مین پیج (Home) سے پرانی "ٹاپ 10 رینکنگ" ختم کر کے "پچھلے 10 ایام کے فاتحین (Top 10 Days Winners)" کا ٹیبل شامل کر دیا گیا ہے** جو ہر دن کے سب سے زیادہ اسکور کرنے والے 1 فاتح کو تاریخ اور اسکور کے ساتھ دکھائے گا۔
+2. **کل کے فاتح (Yesterday's Winner) کے لیے ایک خوبصورت مبارکباد (Congratulations) کا کارڈ شامل کیا گیا ہے** جس میں ہر روز خود بخود گزشتہ روز کے فاتح کا نام، تاریخ اور درود شریف کی تعداد اپڈیٹ ہوتی رہے گی۔
 
-            let prayerListFormatted = prayers.map(p => {
-              let time24 = timings[p.key].split(' ')[0];
-              return {
-                key: p.key,
-                name: p.name,
-                icon: p.icon,
-                time12: format12Hour(time24),
-                minutes: timeToMinutes(format12Hour(time24))
-              };
-            });
+مکمل اپڈیٹ شدہ کوڈ نیچے موجود ہے، آپ اسے برائے راست اپنے HTML فائل میں کاپی پیسٹ کر سکتے ہیں:
 
-            let activeIdx = 0;
-            for (let i = 0; i < prayerListFormatted.length; i++) {
-              if (currentMinutes >= prayerListFormatted[i].minutes) {
-                activeIdx = i;
-              }
-            }
-
-            let currentPrayer = prayerListFormatted[activeIdx];
-            let nextPrayer = prayerListFormatted[(activeIdx + 1) % prayerListFormatted.length];
-
-            document.getElementById("currentActivePrayerName").innerHTML = `${currentPrayer.icon} ${currentPrayer.name} (${currentPrayer.time12})`;
-            document.getElementById("nextPrayerFooter").innerHTML = `⏩ اگلی نماز: ${nextPrayer.name} — ${nextPrayer.time12}`;
-
-            let tbody = document.getElementById("prayerTableBody");
-            tbody.innerHTML = "";
-
-            prayerListFormatted.forEach((p, idx) => {
-              let isCurrent = (idx === activeIdx);
-              let rowClass = isCurrent ? "active-row" : "";
-              let statusBadge = isCurrent ? `<span class="active-badge">ابھی</span>` : (idx < activeIdx ? `✓` : `—`);
-
-              tbody.innerHTML += `
-                <tr class="${rowClass}">
-                  <td>${statusBadge}</td>
-                  <td dir="ltr">${p.time12}</td>
-                  <td>${p.icon} ${p.name}</td>
-                </tr>
-              `;
-            });
-          }
-        })
-        .catch(err => {
-          document.getElementById("prayerTableBody").innerHTML = `<tr><td colspan="3">اوقات لوڈ کرنے میں ناکامی۔ انٹرنیٹ چیک کریں۔</td></tr>`;
-        });
+```html
+<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mehfil-E-Darood — Final V7 (Admin Home)</title>
+  <link href="[https://fonts.googleapis.com/css2?family=Jameel+Noori+Nastaleeq&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap](https://fonts.googleapis.com/css2?family=Jameel+Noori+Nastaleeq&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap)" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #0d3b22;
+      --primary-hover: #14532d;
+      --accent-gold: #c5a059;
+      --accent-gold-light: #fdf8ee;
+      --bg-gradient: linear-gradient(145deg, #f3f7f4 0%, #e8f0ec 100%);
+      --card-bg: #ffffff;
+      --text-main: #1f2937;
+      --text-muted: #4b5563;
+      --shadow: 0 12px 35px rgba(13, 59, 34, 0.08);
     }
 
-    setInterval(fetchPrayerTimes, 300000);
-
-    document.getElementById("changePasswordBtn").onclick = () => {
-      const currentPass = document.getElementById("currentPassword").value.trim();
-      const newPass = document.getElementById("newPassword").value.trim();
-      const statusEl = document.getElementById("passwordStatus");
-
-      if (!currentPass || !newPass) {
-        statusEl.style.color = "#ef4444";
-        statusEl.innerText = "پرانا اور نیا دونوں پاسورڈ درج کریں۔";
-        playErrorSound();
-        return;
-      }
-
-      if (newPass.length < 6) {
-        statusEl.style.color = "#ef4444";
-        statusEl.innerText = "نیا پاسورڈ کم از کم 6 ہندسوں کا ہونا چاہیے۔";
-        playErrorSound();
-        return;
-      }
-
-      const credential = firebase.auth.EmailAuthProvider.credential(currentUser.email, currentPass);
-      currentUser.reauthenticateWithCredential(credential).then(() => {
-        currentUser.updatePassword(newPass).then(() => {
-          statusEl.style.color = "#16a34a";
-          statusEl.innerText = "✓ پاسورڈ کامیابی سے تبدیل ہو گیا!";
-          document.getElementById("currentPassword").value = "";
-          document.getElementById("newPassword").value = "";
-          playSuccessSound();
-        }).catch((error) => {
-          statusEl.style.color = "#ef4444";
-          statusEl.innerText = "پاسورڈ تبدیل کرنے میں خامی آئی۔";
-          playErrorSound();
-        });
-      }).catch((error) => {
-        statusEl.style.color = "#ef4444";
-        statusEl.innerText = "موجودہ پاسورڈ غلط ہے۔";
-        playErrorSound();
-      });
-    };
-
-    document.getElementById("saveProfileBtn").onclick = () => {
-      if (!currentUser) return;
-      const name = document.getElementById("accName").value.trim();
-      const number = document.getElementById("accNumber").value.trim();
-      const type = document.getElementById("accType").value;
-
-      if (!name || !number) {
-        document.getElementById("profileStatus").style.color = "#ef4444";
-        document.getElementById("profileStatus").innerText = "نام اور نمبر دونوں درج کریں۔";
-        playErrorSound();
-        return;
-      }
-
-      db.ref("users/" + currentUser.uid).update({
-        accName: name,
-        accNumber: number,
-        accType: type
-      }, (error) => {
-        if (!error) {
-          document.getElementById("profileStatus").style.color = "var(--primary-color)";
-          document.getElementById("profileStatus").innerText = "✓ تفصیلات محفوظ ہو گئیں!";
-          playSuccessSound();
-        }
-      });
-    };
-
-    window.setAdminFilter = function(filterType) {
-      currentAdminFilter = filterType;
-      loadAdminData();
-    };
-
-    window.applyDateRangeFilter = function() {
-      currentAdminFilter = 'custom';
-      loadAdminData();
-    };
-
-    function loadAdminData() {
-      if (!currentUser || currentUser.email !== ADMIN_EMAIL) return;
-
-      let startDateStr = document.getElementById("adminStartDate").value;
-      let endDateStr = document.getElementById("adminEndDate").value;
-
-      db.ref("competitions").once("value", compSnapshot => {
-        db.ref("users").once("value", userSnapshot => {
-          const adminContainer = document.getElementById("adminWinnersList");
-          const publicContainer = document.getElementById("publicProofList");
-
-          adminContainer.innerHTML = "";
-          publicContainer.innerHTML = "";
-
-          let now = new Date();
-          let allUsersData = userSnapshot.val() || {};
-          let winnersList = [];
-
-          compSnapshot.forEach(dateSnap => {
-            let dateKey = dateSnap.key; 
-            let dDate = new Date(dateKey);
-
-            let includeDate = false;
-            if (currentAdminFilter === 'today') {
-              includeDate = (dateKey === todayDateKey);
-            } else if (currentAdminFilter === 'weekly') {
-              let diffTime = Math.abs(now - dDate);
-              let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-              includeDate = (diffDays <= 7);
-            } else if (currentAdminFilter === 'monthly') {
-              includeDate = (dDate.getMonth() === now.getMonth() && dDate.getFullYear() === now.getFullYear());
-            } else if (currentAdminFilter === 'custom' && startDateStr && endDateStr) {
-              includeDate = (dateKey >= startDateStr && dateKey <= endDateStr);
-            }
-
-            if (includeDate) {
-              dateSnap.forEach(userSnap => {
-                let uid = userSnap.key;
-                let val = userSnap.val();
-                let count = val.count || 0;
-
-                if (count >= 100) {
-                  winnersList.push({
-                    uid: uid,
-                    date: dateKey,
-                    name: val.name || "گمنام",
-                    count: count
-                  });
-                }
-              });
-            }
-          });
-
-          winnersList.sort((a, b) => b.count - a.count);
-          let limitedWinners = winnersList.slice(0, 10);
-          let proofCount = 0;
-
-          if (limitedWinners.length === 0) {
-            adminContainer.innerHTML = "<p style='font-size:12px; color:var(--text-muted);'>اس دورانیے میں کوئی فاتح (100+ درود والے) موجود نہیں۔</p>";
-            publicContainer.innerHTML = "<p style='font-size:12px; color:var(--text-muted);'>ابھی تک کوئی فاتح ریکارڈ نہیں۔</p>";
-            return;
-          }
-
-          limitedWinners.forEach((w, idx) => {
-            let uProfile = allUsersData[w.uid] || {};
-            let isPaid = uProfile.paid === true;
-            let statusBadge = isPaid ? `<span class="paid-badge">Paid ✓ (ادا کر دی گئی)</span>` : `<span class="pending-badge">Pending ⏳ (پینڈنگ)</span>`;
-
-            if (isPaid) {
-              proofCount++;
-              let maskedNumber = uProfile.accNumber ? uProfile.accNumber.replace(/.(?=.{4})/g, '*') : '---';
-              publicContainer.innerHTML += `
-                <div class="proof-item">
-                  <b>🥇 فاتح:</b> ${w.name} (درود: ${w.count})<br>
-                  <b>تاریخ:</b> ${w.date} | <b>اکاؤنٹ:</b> ${uProfile.accType || ""} (${maskedNumber})<br>
-                  <span style="color: #16a34a; font-weight: bold; font-size: 11px;">✓ اسٹیٹس: پیمنٹ ادا کر دی گئی (Paid)</span>
-                </div>
-              `;
-            }
-
-            let paidActionBtn = isPaid ? 
-              `<button class="unpaid-btn" onclick="togglePayment('${w.uid}', false)">Pending کریں</button>` : 
-              `<button class="paid-btn" onclick="togglePayment('${w.uid}', true)">Paid کریں</button>`;
-
-            adminContainer.innerHTML += `
-              <div class="admin-card">
-                <b>🥇 فاتح #${idx + 1}</b> | <b>تاریخ:</b> ${w.date}<br>
-                <b>نام:</b> ${w.name} | <b>کل درود:</b> ${w.count}<br>
-                <b>اسٹیٹس:</b> ${statusBadge}<br>
-                <b>اکاؤنٹ ہولڈر:</b> ${uProfile.accName || "درج نہیں"}<br>
-                <b>نمبر اور قسم:</b> ${uProfile.accNumber || "درج نہیں"} (${uProfile.accType || "---"})<br>
-                <div style="margin-top:6px;">${paidActionBtn}</div>
-              </div>
-            `;
-          });
-
-          if (proofCount === 0) {
-            publicContainer.innerHTML = "<p style='font-size:12px; color:var(--text-muted);'>ابھی تک کسی فاتح کی پیمنٹ مکمل نہیں ہوئی۔</p>";
-          }
-        });
-      });
+    body {
+      font-family: 'Jameel Noori Nastaleeq', 'Plus Jakarta Sans', sans-serif;
+      background: #eef4f1;
+      color: var(--text-main);
+      text-align: center;
+      margin: 0;
+      padding-bottom: 70px;
+      min-height: 100vh;
+      font-size: 16px;
+      line-height: 1.8;
     }
 
-    window.togglePayment = function(userId, status) {
-      db.ref("users/" + userId).update({ paid: status }, (error) => {
-        if (!error) {
-          alert("پیمنٹ کا اسٹیٹس اپڈیٹ ہو گیا!");
-          loadAdminData();
-        }
-      });
-    };
-
-    db.ref("users").on("value", () => {
-      let totalGeneral = 0;
-      db.ref("users").once("value", snap => {
-        snap.forEach(c => { if(c.val().count) totalGeneral += c.val().count; });
-        db.ref("competitions/" + todayDateKey).once("value", compSnap => {
-          let totalComp = 0;
-          compSnap.forEach(c => { if(c.val().count) totalComp += c.val().count; });
-          const globalTotalElem = document.getElementById("globalTotalCount");
-          if (globalTotalElem) globalTotalElem.innerText = (totalGeneral + totalComp).toLocaleString();
-        });
-      });
-      if (currentUser && currentUser.email === ADMIN_EMAIL) loadAdminData();
-    });
-
-    db.ref("competitions/" + todayDateKey).on("value", compSnapshot => {
-      const homeWinnerElem = document.getElementById("homeWinnerHighlight");
-      let compUsers = [];
-      compSnapshot.forEach(child => { compUsers.push({ uid: child.key, ...child.val() }); });
-      compUsers.reverse();
-
-      if (compUsers.length > 0 && homeWinnerElem) {
-        let topUser = compUsers[0];
-        let statusText = topUser.count >= 100 ? " (شرط پوری کر لی ہے! 🎉)" : " (جیتنے کے قریب ہیں!)";
-        homeWinnerElem.innerHTML = `⭐ <b>${topUser.name || "گمنام"}</b> (${topUser.count} درود)${statusText}`;
-      } else if (homeWinnerElem) {
-        homeWinnerElem.innerText = "ابھی تک مقابلے میں کوئی شریک نہیں ہوا۔";
-      }
-
-      if (currentUser && currentUser.email === ADMIN_EMAIL) loadAdminData();
-    });
-
-    db.ref("status").on("value", snapshot => {
-      document.getElementById("onlineCount").innerText = snapshot.numChildren() || 0;
-    });
-
-    function startVoiceRecognition(buttonId, statusId, isComp = false) {
-      if (!currentUser) return;
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!SpeechRecognition) {
-        alert("براؤزر وائس ریکگنیشن سپورٹ نہیں کرتا۔");
-        return;
-      }
-
-      const btn = document.getElementById(buttonId);
-      const status = document.getElementById(statusId);
-      triggerVibration();
-
-      let recognition = new SpeechRecognition();
-      recognition.lang = 'ar-SA';
-      recognition.interimResults = false;
-
-      btn.disabled = true;
-      btn.classList.add("listening");
-      status.style.color = isComp ? "#d97706" : "var(--primary-color)";
-      status.innerText = "سن رہے ہیں، درود شریف پڑھیں...";
-
-      let finalTranscript = "";
-      let recordingTimeout = setTimeout(() => { try { recognition.stop(); } catch(e) {} }, 33000);
-
-      recognition.onresult = (event) => {
-        try { finalTranscript = event.results[0][0].transcript.toLowerCase(); } catch(e) {}
-      };
-
-      recognition.onerror = () => {
-        clearTimeout(recordingTimeout);
-        status.style.color = "#ef4444";
-        status.innerText = "آواز واضح نہیں آئی۔";
-        playErrorSound();
-      };
-
-      recognition.onend = () => {
-        clearTimeout(recordingTimeout);
-        btn.classList.remove("listening");
-        btn.disabled = false;
-        triggerVibration();
-
-        let transcript = finalTranscript ? finalTranscript.toLowerCase() : "";
-
-        let hasAllahummaOrSalat = transcript.includes("صل") || transcript.includes("اللهم") || transcript.includes("اللھم") || transcript.includes("صل وسلم");
-        let hasMuhammad = transcript.includes("محمد") || transcript.includes("النبى") || transcript.includes("النبی");
-        let hasIbrahimOrMajeed = transcript.includes("ابراهيم") || transcript.includes("ابراہیم") || transcript.includes("مجيد") || transcript.includes("مجید") || transcript.includes("آل");
-
-        let isCompleteDarood = (hasAllahummaOrSalat && hasMuhammad) || (hasMuhammad && hasIbrahimOrMajeed);
-
-        if (transcript.length > 5 && isCompleteDarood) {
-          status.style.color = (typeof isComp !== 'undefined' && isComp) ? "#d97706" : "var(--primary-color)";
-          status.innerText = "✓ تصدیق ہو گئی!";
-          if (typeof playSuccessSound === 'function') playSuccessSound();
-
-          const targetPath = (typeof isComp !== 'undefined' && isComp) ? "competitions/" + todayDateKey + "/" + currentUser.uid : "users/" + currentUser.uid;
-          
-          db.ref(targetPath).transaction(current => {
-            if (current) { 
-              current.count = (current.count || 0) + 1; 
-              current.name = currentUser.displayName || currentUser.email; 
-            } else { 
-              current = { name: currentUser.displayName || currentUser.email, count: 1 }; 
-            }
-            return current;
-          });
-        } else {
-          status.style.color = "#ef4444";
-          status.innerText = "مکمل درود شریف پڑھیں، صرف ایک لفظ پر کاؤنٹ نہیں ہوگا۔";
-          if (typeof playErrorSound === 'function') playErrorSound();
-        }
-      };
-
-      recognition.start();
-    }
-
-    document.getElementById("countBtn").onclick = () => startVoiceRecognition("countBtn", "statusMsg", false);
-    document.getElementById("compCountBtn").onclick = () => startVoiceRecognition("compCountBtn", "compStatusMsg", true);
-
-    db.ref("users").orderByChild("count").on("value", snapshot => {
-      renderBoard(snapshot, "board");
-      renderBoard(snapshot, "homeTop10Board", 10);
-    });
-
-    db.ref("competitions/" + todayDateKey).orderByChild("count").on("value", snapshot => {
-      renderBoard(snapshot, "compBoard");
-    });
-
-    function renderBoard(snapshot, elementId, limit = null) {
-      const container = document.getElementById(elementId);
-      if (!container) return;
-      container.innerHTML = "";
-      let users = [];
-      snapshot.forEach(child => { users.push(child.val()); });
-      
-      users.sort((a, b) => (b.count || 0) - (a.count || 0));
-
-      if (limit) {
-        users = users.slice(0, limit);
-      }
-
-      if (users.length === 0) {
-        container.innerHTML = "<tr><td colspan='3'>ابھی تک کوئی ڈیٹا نہیں ہے۔</td></tr>";
-        return;
-      }
-
-      users.forEach((u, index) => {
-        let rankBadge = index + 1;
-        if (index === 0) rankBadge = "👑 1";
-
-        container.innerHTML += `<tr>
-          <td><b>${rankBadge}</b></td>
-          <td><b>${u.name || "گمنام"}</b></td>
-          <td><b>${u.count || 0}</b></td>
-        </tr>`;
-      });
-    }
-  </script>
-</body>
-</html>
+    .top-header {
+      background: linear-gradient(135deg, #0b311c 0%, #134e29 100%);
+      color: white;
+      padding: 20px 16px 30px 16px;
+      border-bottom-left-radius: 25px;
