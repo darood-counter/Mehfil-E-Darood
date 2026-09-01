@@ -1658,6 +1658,7 @@
     }
     loadPublicProofs();
 
+
     function startVoiceRecognition(btnId, statusId, isComp = false) {
       const btn = document.getElementById(btnId);
       const statusEl = document.getElementById(statusId);
@@ -1678,75 +1679,121 @@
       const recognition = new SpeechRecognition();
       recognition.lang = 'ar-SA';
       recognition.interimResults = false;
+      recognition.continuous = false;
+      recognition.maxAlternatives = 5;
 
-      recognition.onresult = (event) => {
-        const text = event.results[0][0].transcript;
+      const normalizeArabic = (value) => {
+        return (value || "")
+          .normalize("NFKC")
+          .replace(/[\u064B-\u065F\u0670\u06D6-\u06ED]/g, "")
+          .replace(/[إأآٱ]/g, "ا")
+          .replace(/ى/g, "ی")
+          .replace(/ئ/g, "ی")
+          .replace(/ؤ/g, "و")
+          .replace(/ة/g, "ه")
+          .replace(/ـ/g, "")
+          .replace(/[^\u0600-\u06FF\s]/g, " ")
+          .replace(/\s+/g, " ")
+          .trim();
+      };
 
-        // Normalize Arabic for speech-recognition comparison.
-        const normalizeArabic = (value) => {
-          return value
-            .normalize("NFKC")
-            .replace(/[\u064B-\u065F\u0670\u06D6-\u06ED]/g, "")
-            .replace(/[إأآٱ]/g, "ا")
-            .replace(/ى/g, "ی")
-            .replace(/ئ/g, "ی")
-            .replace(/ؤ/g, "و")
-            .replace(/ة/g, "ه")
-            .replace(/ـ/g, "")
-            .replace(/[^\u0600-\u06FF\s]/g, " ")
-            .replace(/\s+/g, " ")
-            .trim();
-        };
+      // Small edit-distance tolerance for Arabic speech-recognition mistakes.
+      const levenshtein = (a, b) => {
+        const prev = Array(b.length + 1).fill(0);
+        const curr = Array(b.length + 1).fill(0);
+        for (let j = 0; j <= b.length; j++) prev[j] = j;
 
-        const requiredText = normalizeArabic(
+        for (let i = 1; i <= a.length; i++) {
+          curr[0] = i;
+          for (let j = 1; j <= b.length; j++) {
+            const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+            curr[j] = Math.min(
+              curr[j - 1] + 1,
+              prev[j] + 1,
+              prev[j - 1] + cost
+            );
+          }
+          for (let j = 0; j <= b.length; j++) prev[j] = curr[j];
+        }
+        return prev[b.length];
+      };
+
+      const similarWord = (a, b) => {
+        if (!a || !b) return false;
+        if (a === b) return true;
+        const maxLen = Math.max(a.length, b.length);
+        if (maxLen <= 3) return levenshtein(a, b) <= 1;
+        return levenshtein(a, b) <= Math.max(1, Math.floor(maxLen * 0.25));
+      };
+
+      const isCompleteDarood = (spoken) => {
+        const target = normalizeArabic(
           document.getElementById("daroodArabicText").innerText
         );
-        const spokenText = normalizeArabic(text);
+        const heard = normalizeArabic(spoken);
 
-        // Do not count random speech or a short/partial recitation.
-        // Allow small speech-recognition differences, but require
-        // essentially the whole displayed Darood to be present.
-        const requiredWords = requiredText.split(" ").filter(Boolean);
-        const spokenWords = spokenText.split(" ").filter(Boolean);
+        const targetWords = target.split(" ").filter(Boolean);
+        const heardWords = heard.split(" ").filter(Boolean);
 
-        const wordMatchRatio = (() => {
-          if (!requiredWords.length || !spokenWords.length) return 0;
+        if (targetWords.length < 5 || heardWords.length < 5) return false;
 
-          let matched = 0;
-          let cursor = 0;
+        // Do not allow a clearly short/partial recitation.
+        if (heardWords.length < Math.floor(targetWords.length * 0.75)) return false;
 
-          for (const word of requiredWords) {
-            let found = false;
-            for (let i = cursor; i < spokenWords.length; i++) {
-              if (spokenWords[i] === word) {
-                matched++;
-                cursor = i + 1;
-                found = true;
-                break;
-              }
+        // Match target words in order. Permit recognition to insert a few
+        // words, but require almost the entire Darood to be recognized.
+        let h = 0;
+        let matched = 0;
+        let misses = 0;
+
+        for (let t = 0; t < targetWords.length && h < heardWords.length; t++) {
+          let found = false;
+          const lookAhead = Math.min(heardWords.length, h + 3);
+
+          for (let j = h; j < lookAhead; j++) {
+            if (similarWord(targetWords[t], heardWords[j])) {
+              matched++;
+              h = j + 1;
+              found = true;
+              break;
             }
-            if (!found) break;
           }
-          return matched / requiredWords.length;
-        })();
 
-        // Require at least 90% of the complete Darood and at least
-        // 90% of the recognized words to belong to the Darood.
-        const spokenCoverage = requiredWords.length
-          ? Math.min(1, spokenWords.length / requiredWords.length)
-          : 0;
+          if (!found) {
+            misses++;
+          }
+        }
 
-        const isCompleteDarood =
-          requiredWords.length > 0 &&
-          wordMatchRatio >= 0.90 &&
-          spokenCoverage >= 0.90;
+        const ratio = matched / targetWords.length;
 
+        // 85% allows normal Arabic speech-recognition errors while making
+        // random/partial speech very unlikely to count.
+        return ratio >= 0.85 && matched >= Math.floor(targetWords.length * 0.85);
+      };
+
+      recognition.onresult = (event) => {
+        // Pick the best recognized alternative.
+        let bestText = "";
+        let bestConfidence = -1;
+        const results = event.results[0];
+
+        for (let i = 0; i < results.length; i++) {
+          const candidate = results[i].transcript || "";
+          const confidence = typeof results[i].confidence === "number"
+            ? results[i].confidence
+            : 0;
+          if (confidence > bestConfidence) {
+            bestConfidence = confidence;
+            bestText = candidate;
+          }
+        }
+
+        const text = bestText || results[0].transcript || "";
         statusEl.innerText = `آواز: "${text}"`;
 
-        if (!isCompleteDarood) {
+        if (!isCompleteDarood(text)) {
           statusEl.style.color = "#ef4444";
-          statusEl.innerText =
-            "✗ مکمل درود شریف نہیں پڑھا گیا، اس لیے شمار نہیں ہوگا۔";
+          statusEl.innerText = "✗ مکمل درود شریف نہیں پڑھا گیا، اس لیے شمار نہیں ہوگا۔";
           playErrorSound();
           return;
         }
