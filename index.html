@@ -1634,12 +1634,282 @@
       });
     }
     loadPublicProofs();
+     function startVoiceRecognition(btnId, statusId, isComp = false) {
+  const btn = document.getElementById(btnId);
+  const statusEl = document.getElementById(statusId);
 
-    function startVoiceRecognition(btnId, statusId, isComp = false) {
-      const btn = document.getElementById(btnId);
-      const statusEl = document.getElementById(statusId);
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const SpeechRecognition =
+    window.SpeechRecognition || window.webkitSpeechRecognition;
 
+  if (!SpeechRecognition) {
+    statusEl.style.color = "#ef4444";
+    statusEl.innerText =
+      "آپ کا براؤزر آواز پہچاننے کو سپورٹ نہیں کرتا۔";
+    playErrorSound();
+    return;
+  }
+
+  // مکمل درود شریف
+  const REQUIRED_DAROOD = `
+    اَللّٰھُمَّ صَلِّ عَلٰی مُحَمَّدٍ وَّعَلٰی اٰلِ مُحَمَّدٍ
+    کَمَا صَلَّیْتَ عَلٰی اِبْرَاھِیْمَ وَعَلٰی اٰلِ اِبْرَاھِیْمَ
+    اِنَّکَ حَمِیْدٌ مَّجِیْدٌ
+    اَللّٰھُمَّ بَارِکْ عَلٰی مُحَمَّدٍ وَّعَلٰی اٰلِ مُحَمَّدٍ
+    کَمَا بَارَکْتَ عَلٰی اِبْرَاھِیْمَ وَعَلٰی اٰلِ اِبْرَاھِیْمَ
+    اِنَّکَ حَمِیْدٌ مَّجِیْدٌ
+  `;
+
+  // عربی text کو صاف کرنے کا function
+  function normalizeArabic(text) {
+    return text
+      .toLowerCase()
+
+      // اعراب ختم
+      .replace(/[\u064B-\u065F\u0670]/g, "")
+
+      // مختلف عربی حروف کو ایک شکل میں لائیں
+      .replace(/[إأآا]/g, "ا")
+      .replace(/ى/g, "ی")
+      .replace(/ئ/g, "ی")
+      .replace(/ؤ/g, "و")
+      .replace(/ة/g, "ه")
+
+      // punctuation ختم
+      .replace(/[.,،؛:!?؟۔()"“”'’]/g, " ")
+
+      // اضافی spaces ختم
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  const requiredText = normalizeArabic(REQUIRED_DAROOD);
+
+  // Levenshtein similarity
+  function similarity(a, b) {
+    if (!a || !b) return 0;
+
+    const matrix = [];
+
+    for (let i = 0; i <= b.length; i++) {
+      matrix[i] = [i];
+    }
+
+    for (let j = 0; j <= a.length; j++) {
+      matrix[0][j] = j;
+    }
+
+    for (let i = 1; i <= b.length; i++) {
+      for (let j = 1; j <= a.length; j++) {
+
+        if (b.charAt(i - 1) === a.charAt(j - 1)) {
+          matrix[i][j] = matrix[i - 1][j - 1];
+        } else {
+          matrix[i][j] = Math.min(
+            matrix[i - 1][j - 1] + 1,
+            matrix[i][j - 1] + 1,
+            matrix[i - 1][j] + 1
+          );
+        }
+      }
+    }
+
+    const distance = matrix[b.length][a.length];
+    const maxLength = Math.max(a.length, b.length);
+
+    return 1 - distance / maxLength;
+  }
+
+  btn.disabled = true;
+  btn.classList.add("listening");
+
+  statusEl.style.color = "#d97706";
+  statusEl.innerText =
+    "🎙️ مکمل درود شریف پڑھیں... سن رہا ہوں";
+
+  const recognition = new SpeechRecognition();
+
+  recognition.lang = "ar-SA";
+  recognition.interimResults = false;
+  recognition.continuous = false;
+  recognition.maxAlternatives = 5;
+
+  recognition.onresult = (event) => {
+
+    let bestTranscript = "";
+
+    // Speech recognition کی multiple alternatives چیک کریں
+    for (let i = 0; i < event.results[0].length; i++) {
+      const transcript =
+        event.results[0][i].transcript || "";
+
+      if (transcript.length > bestTranscript.length) {
+        bestTranscript = transcript;
+      }
+    }
+
+    const spokenText = normalizeArabic(bestTranscript);
+
+    console.log("Recognized:", spokenText);
+    console.log("Required:", requiredText);
+
+    // بہت چھوٹا transcript فوراً reject
+    if (spokenText.length < requiredText.length * 0.60) {
+      statusEl.style.color = "#ef4444";
+      statusEl.innerText =
+        "❌ مکمل درود شریف نہیں پڑھا گیا۔ دوبارہ مکمل درود پڑھیں۔";
+      playErrorSound();
+      triggerVibration();
+      return;
+    }
+
+    // Similarity check
+    const score = similarity(spokenText, requiredText);
+
+    console.log("Darood Match Score:", score);
+
+    /*
+      0.82 = تقریباً 82% matching ضروری ہے۔
+      عربی Speech Recognition میں معمولی الفاظ کی غلطی
+      کی اجازت دی گئی ہے۔
+    */
+
+    if (score >= 0.82) {
+
+      // =========================
+      // VERIFIED DAROOD
+      // =========================
+
+      if (currentUser) {
+
+        if (isComp) {
+
+          db.ref(
+            "competitions/" +
+            todayDateKey +
+            "/" +
+            currentUser.uid
+          ).transaction(current => {
+
+            if (!current) {
+              return {
+                count: 1,
+                name:
+                  currentUser.displayName ||
+                  currentUser.email
+              };
+            }
+
+            return {
+              count: (current.count || 0) + 1,
+              name:
+                currentUser.displayName ||
+                currentUser.email
+            };
+          });
+
+        } else {
+
+          db.ref(
+            "users/" +
+            currentUser.uid
+          ).transaction(current => {
+
+            if (!current) {
+              return {
+                count: 1,
+                name:
+                  currentUser.displayName ||
+                  currentUser.email,
+                email: currentUser.email
+              };
+            }
+
+            return {
+              count: (current.count || 0) + 1,
+              name:
+                currentUser.displayName ||
+                currentUser.email,
+              email: currentUser.email,
+
+              accName: current.accName || "",
+              accNumber: current.accNumber || "",
+              accType:
+                current.accType || "JazzCash",
+
+              savedCity:
+                current.savedCity || "",
+
+              savedCountry:
+                current.savedCountry || ""
+            };
+          });
+        }
+
+        statusEl.style.color = "#16a34a";
+
+        statusEl.innerText =
+          "✅ مکمل درود شریف تصدیق ہو گیا — 1 شمار ہوگیا!";
+
+        playSuccessSound();
+        triggerVibration();
+
+      }
+
+    } else {
+
+      // =========================
+      // FAILED VERIFICATION
+      // =========================
+
+      statusEl.style.color = "#ef4444";
+
+      statusEl.innerText =
+        "❌ درود شریف مکمل نہیں تھا۔ براہِ کرم پورا درود دوبارہ پڑھیں۔";
+
+      playErrorSound();
+      triggerVibration();
+    }
+  };
+
+  recognition.onerror = (event) => {
+
+    console.log("Speech Error:", event.error);
+
+    statusEl.style.color = "#ef4444";
+
+    if (event.error === "no-speech") {
+      statusEl.innerText =
+        "❌ کوئی آواز نہیں ملی۔ مکمل درود شریف پڑھیں۔";
+    } else if (event.error === "not-allowed") {
+      statusEl.innerText =
+        "❌ مائیکروفون کی اجازت دیں۔";
+    } else {
+      statusEl.innerText =
+        "❌ آواز واضح نہیں تھی، دوبارہ کوشش کریں۔";
+    }
+
+    playErrorSound();
+  };
+
+  recognition.onend = () => {
+    btn.disabled = false;
+    btn.classList.remove("listening");
+  };
+
+  try {
+    recognition.start();
+  } catch (error) {
+    console.log(error);
+
+    btn.disabled = false;
+    btn.classList.remove("listening");
+
+    statusEl.style.color = "#ef4444";
+    statusEl.innerText =
+      "❌ مائیکروفون شروع نہیں ہو سکا۔ دوبارہ کوشش کریں۔";
+  }
+}
+    
       if (!SpeechRecognition) {
         statusEl.style.color = "#ef4444";
         statusEl.innerText = "آپ کا براؤزر آواز پہچاننے کو سپورٹ نہیں کرتا۔";
