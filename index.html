@@ -1,86 +1,5 @@
 <!DOCTYPE html>
-<html lang="ur" dir="
-        <!-- LATEST DAILY WINNER CERTIFICATE -->
-        
-
-        <h2 style="font-size:19px; color:var(--primary-color); margin:8px 0;">🕌 آج کی محفل</h2>
-        <div style="background:#ffffff; border:1.5px solid #e2e8f0; border-radius:14px; padding:12px; margin:8px 0 12px; box-shadow:0 4px 15px rgba(0,0,0,.03);">
-          <div style="font-size:28px; font-weight:bold; color:var(--primary-color);" id="globalTotalCount">0</div>
-          <div style="font-size:12px; color:var(--text-muted);">آج کے اجتماعی درود (ریئل ٹائم)</div>
-        </div>
-
-        <div style="background:linear-gradient(135deg,#fffbeb,#fef3c7); border:1.5px solid #f59e0b; border-radius:14px; padding:12px; margin:6px 0; text-align:center; box-shadow:0 4px 15px rgba(245,158,11,.15);">
-          <div style="font-size:13px; font-weight:bold; color:#d97706; margin-bottom:3px;">👑 آج کے مقابلے کا لیڈر</div>
-          <div id="homeWinnerHighlight" style="font-size:14px; color:#1f2937; font-weight:bold;">لوڈ ہو رہا ہے...</div>
-        </div>
-
-
-        <!-- PRAYER TIMES CARD (LIVE API) -->
-        <div class="prayer-card-container">
-          <div class="prayer-title">🕌 آج کے نماز کے اوقات</div>
-          <div class="prayer-date" id="prayerDateDisplay">لوڈ ہو رہا ہے...</div>
-          
-          <div class="prayer-config-box">
-            <div style="display: flex; gap: 8px;">
-              <div style="flex: 1;">
-                <label style="font-size: 12px; color: var(--text-muted);">📍 ملک:</label>
-                <input type="text" id="countryInput" value="Pakistan">
-              </div>
-              <div style="flex: 1;">
-                <label style="font-size: 12px; color: var(--text-muted);">📍 شہر:</label>
-                <input type="text" id="cityInput" value="Lahore">
-              </div>
-            </div>
-            
-            <div style="display: flex; gap: 8px; margin-top: 4px;">
-              <button class="save-profile-btn" style="flex: 2; background-color: var(--primary-color);" onclick="saveLocationAndFetch()">💾 محفوظ کریں</button>
-              <button class="save-profile-btn" style="flex: 1; background-color: #2b6cb0;" onclick="detectCurrentLocation()">📍 کرنٹ لوکیشن</button>
-            </div>
-          </div>
-
-          <div class="current-prayer-highlight">
-            <div style="font-size: 12px; color: #555;">اس وقت کی نماز</div>
-            <div id="currentActivePrayerName" style="font-size: 16px; font-weight: bold;">--</div>
-          </div>
-
-          <table class="prayer-table">
-            <thead>
-              <tr>
-                <th>حیثیت</th>
-                <th>وقت</th>
-                <th>نماز</th>
-              </tr>
-            </thead>
-            <tbody id="prayerTableBody">
-              <tr><td colspan="3">اوقات لوڈ ہو رہے ہیں...</td></tr>
-            </tbody>
-          </table>
-
-          <div class="next-prayer-footer" id="nextPrayerFooter">
-            اگلی نماز: --
-          </div>
-        </div>
-        <!-- END PRAYER TIMES CARD -->        <!-- ADMIN PANEL SECTION ON HOME PAGE -->
-        <div id="adminPanelSection" class="admin-panel hidden" style="text-align: right; margin-top: 15px;">
-          <div class="admin-title">👑 ایڈمن پینل (صرف 100+ درود والے فاتحین)</div>
-          
-          <div style="display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap;">
-            <button class="save-profile-btn" style="flex: 1; padding: 6px; font-size: 12px;" onclick="setAdminFilter('today')">آج (Today)</button>
-            <button class="save-profile-btn" style="flex: 1; padding: 6px; font-size: 12px; background-color: #d97706;" onclick="setAdminFilter('weekly')">ہفتہ وار (Weekly)</button>
-            <button class="save-profile-btn" style="flex: 1; padding: 6px; font-size: 12px; background-color: #1e40af;" onclick="setAdminFilter('monthly')">ماہانہ (Monthly)</button>
-          </div>
-
-          <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px; display: flex; gap: 6px; align-items: center;">
-            <span>تاریخ کی حد:</span>
-            <input type="date" id="adminStartDate" style="padding: 4px; border-radius: 6px; border: 1px solid #d1d5db; font-size: 11px;">
-            <span>تا</span>
-            <input type="date" id="adminEndDate" style="padding: 4px; border-radius: 6px; border: 1px solid #d1d5db; font-size: 11px;">
-            <button onclick="applyDateRangeFilter()" style="background:var(--primary-color); color:white; border:none; padding: 4px 10px; border-radius: 6px; font-size: 11px; cursor: pointer;">لاگو کریں</button>
-          </div>
-
-          <div id="adminWinnersList">لوڈ ہو رہا ہے...</div>
-        </div>
-rtl">
+<html lang="ur" dir="rtl">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -668,7 +587,8 @@ rtl">
       <button class="modal-ok-btn" id="modalOkBtn">ٹھیک ہے (OK)</button>
     </div>
   </div>
-<div class="top-header">
+
+  <div class="top-header">
     <div class="brand-title">
       Mehfil-E-Darood 🌙
     </div>
@@ -751,7 +671,107 @@ rtl">
       <div id="mainTab">
 
         
+        <!-- PRAYER TIMES CARD (LIVE API) -->
+        <div class="prayer-card-container">
+          <div class="prayer-title">🕌 آج کے نماز کے اوقات</div>
+          <div class="prayer-date" id="prayerDateDisplay">لوڈ ہو رہا ہے...</div>
+          
+          <div class="prayer-config-box">
+            <div style="display: flex; gap: 8px;">
+              <div style="flex: 1;">
+                <label style="font-size: 12px; color: var(--text-muted);">📍 ملک:</label>
+                <input type="text" id="countryInput" value="Pakistan">
+              </div>
+              <div style="flex: 1;">
+                <label style="font-size: 12px; color: var(--text-muted);">📍 شہر:</label>
+                <input type="text" id="cityInput" value="Lahore">
+              </div>
+            </div>
+            
+            <div style="display: flex; gap: 8px; margin-top: 4px;">
+              <button class="save-profile-btn" style="flex: 2; background-color: var(--primary-color);" onclick="saveLocationAndFetch()">💾 محفوظ کریں</button>
+              <button class="save-profile-btn" style="flex: 1; background-color: #2b6cb0;" onclick="detectCurrentLocation()">📍 کرنٹ لوکیشن</button>
+            </div>
+          </div>
 
+          <div class="current-prayer-highlight">
+            <div style="font-size: 12px; color: #555;">اس وقت کی نماز</div>
+            <div id="currentActivePrayerName" style="font-size: 16px; font-weight: bold;">--</div>
+          </div>
+
+          <table class="prayer-table">
+            <thead>
+              <tr>
+                <th>حیثیت</th>
+                <th>وقت</th>
+                <th>نماز</th>
+              </tr>
+            </thead>
+            <tbody id="prayerTableBody">
+              <tr><td colspan="3">اوقات لوڈ ہو رہے ہیں...</td></tr>
+            </tbody>
+          </table>
+
+          <div class="next-prayer-footer" id="nextPrayerFooter">
+            اگلی نماز: --
+          </div>
+        </div>
+        <!-- END PRAYER TIMES CARD -->
+
+        <!-- LATEST DAILY WINNER CERTIFICATE -->
+        <div id="latestWinnerCertificateCard" class="hidden" style="margin:16px 0 18px;">
+          <div id="latestCertificateContainer" style="background:linear-gradient(145deg,#fffdf7,#fff8e8); border:7px double var(--accent-gold); border-radius:18px; padding:20px 14px; text-align:center; box-shadow:0 10px 28px rgba(197,160,89,.20);">
+            <div style="font-size:28px;">🏆 📜</div>
+            <div style="font-size:21px; font-weight:bold; color:var(--primary-color); font-family:'Jameel Noori Nastaleeq',serif;">سندِ اعزاز</div>
+            <div style="font-size:12px; color:var(--accent-gold); font-weight:bold; margin-bottom:10px;">محفلِ درود — روزانہ مقابلہ</div>
+            <div style="font-size:13px; color:var(--text-muted);">یہ سند بصد خلوص پیش کی جاتی ہے بحق</div>
+            <div id="latestCertWinnerName" style="font-size:25px; font-weight:bold; color:#b7791f; margin:7px 0; border-bottom:2px dashed var(--accent-gold); display:inline-block; padding:0 18px;">—</div>
+            <div style="font-size:13px; color:var(--text-main); line-height:1.8; margin:8px 0;">
+              جنہوں نے <b id="latestCertWinnerScore" style="color:var(--primary-color);">0</b> درودِ پاک پڑھ کر
+              <b style="color:#b7791f;">روزانہ مقابلے میں پہلی پوزیشن</b> حاصل کی۔
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:6px; margin-top:15px; padding-top:10px; border-top:1px solid rgba(197,160,89,.35); font-size:10px; color:var(--text-muted);">
+              <div><b>تاریخ:</b> <span id="latestCertDate">—</span></div>
+              <div style="font-size:13px; font-weight:bold; color:var(--primary-color);">Mehfil-E-Darood 🌙</div>
+              <div><b>🏆 Winner</b></div>
+            </div>
+          </div>
+          <button onclick="downloadLatestWinnerCertificate()" style="background:linear-gradient(135deg,#0d3b22,#166534); color:white; border:none; padding:9px 18px; border-radius:30px; font-size:13px; font-weight:bold; cursor:pointer; margin-top:10px; font-family:'Jameel Noori Nastaleeq',sans-serif; width:100%;">
+            📥 ونر کا سرٹیفکیٹ ڈاؤنلوڈ کریں
+          </button>
+        </div>
+
+        <h2 style="font-size:19px; color:var(--primary-color); margin:8px 0;">🕌 آج کی محفل</h2>
+        <div style="background:#ffffff; border:1.5px solid #e2e8f0; border-radius:14px; padding:12px; margin:8px 0 12px; box-shadow:0 4px 15px rgba(0,0,0,.03);">
+          <div style="font-size:28px; font-weight:bold; color:var(--primary-color);" id="globalTotalCount">0</div>
+          <div style="font-size:12px; color:var(--text-muted);">آج کے اجتماعی درود (ریئل ٹائم)</div>
+        </div>
+
+        <div style="background:linear-gradient(135deg,#fffbeb,#fef3c7); border:1.5px solid #f59e0b; border-radius:14px; padding:12px; margin:10px 0; text-align:center; box-shadow:0 4px 15px rgba(245,158,11,.15);">
+          <div style="font-size:13px; font-weight:bold; color:#d97706; margin-bottom:3px;">👑 آج کے مقابلے کا لیڈر</div>
+          <div id="homeWinnerHighlight" style="font-size:14px; color:#1f2937; font-weight:bold;">لوڈ ہو رہا ہے...</div>
+        </div>
+
+        <!-- ADMIN PANEL SECTION ON HOME PAGE -->
+        <div id="adminPanelSection" class="admin-panel hidden" style="text-align: right; margin-top: 15px;">
+          <div class="admin-title">👑 ایڈمن پینل (صرف 100+ درود والے فاتحین)</div>
+          
+          <div style="display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap;">
+            <button class="save-profile-btn" style="flex: 1; padding: 6px; font-size: 12px;" onclick="setAdminFilter('today')">آج (Today)</button>
+            <button class="save-profile-btn" style="flex: 1; padding: 6px; font-size: 12px; background-color: #d97706;" onclick="setAdminFilter('weekly')">ہفتہ وار (Weekly)</button>
+            <button class="save-profile-btn" style="flex: 1; padding: 6px; font-size: 12px; background-color: #1e40af;" onclick="setAdminFilter('monthly')">ماہانہ (Monthly)</button>
+          </div>
+
+          <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px; display: flex; gap: 6px; align-items: center;">
+            <span>تاریخ کی حد:</span>
+            <input type="date" id="adminStartDate" style="padding: 4px; border-radius: 6px; border: 1px solid #d1d5db; font-size: 11px;">
+            <span>تا</span>
+            <input type="date" id="adminEndDate" style="padding: 4px; border-radius: 6px; border: 1px solid #d1d5db; font-size: 11px;">
+            <button onclick="applyDateRangeFilter()" style="background:var(--primary-color); color:white; border:none; padding: 4px 10px; border-radius: 6px; font-size: 11px; cursor: pointer;">لاگو کریں</button>
+          </div>
+
+          <div id="adminWinnersList">لوڈ ہو رہا ہے...</div>
+        </div>
 
         <h3 style="color:var(--primary-color); margin-top: 20px; font-size: 16px; text-align: right;">🏆 ٹاپ 5 ونرز (Daily Competition Winners — Minimum 100)</h3>
         <div id="homeTop5Winners">
@@ -843,28 +863,6 @@ rtl">
 
       <!-- TAB 5: Profile Tab -->
       <div id="profileTab" class="hidden" style="text-align: right;">
-<div id="latestWinnerCertificateCard" class="hidden" style="margin:10px 0 12px;">
-          <div id="latestCertificateContainer" style="background:linear-gradient(145deg,#fffdf7,#fff8e8); border:4px double var(--accent-gold); border-radius:18px; padding:12px 9px; text-align:center; box-shadow:0 10px 28px rgba(197,160,89,.20);">
-            <div style="font-size:28px;">🏆 📜</div>
-            <div style="font-size:21px; font-weight:bold; color:var(--primary-color); font-family:Arial,sans-serif;">Certificate of Excellence</div>
-            <div style="font-size:12px; color:var(--accent-gold); font-weight:bold; margin-bottom:10px;">Mehfil-E-Darood — Daily Competition</div>
-            <div style="font-size:13px; color:var(--text-muted);">This certificate is proudly presented to</div>
-            <div id="latestCertWinnerName" style="font-size:25px; font-weight:bold; color:#b7791f; margin:7px 0; border-bottom:2px dashed var(--accent-gold); display:inline-block; padding:0 10px;">—</div>
-            <div style="font-size:13px; color:var(--text-main); line-height:1.8; margin:8px 0;">
-              for achieving <b id="latestCertWinnerScore" style="color:var(--primary-color);">0</b> درودِ پاک پڑھ کر
-              <b style="color:#b7791f;">First Position in the Daily Competition</b>.
-            </div>
-            <div style="font-size:13px; color:#6b4f1d; margin:12px 0 2px; line-height:1.8;">
-              🤲 اللہ تعالیٰ آپ کی اس نیک کاوش کو قبول فرمائے، آپ کے درود شریف کو اپنی بارگاہ میں شرفِ قبولیت عطا فرمائے اور آپ کو بہترین اجر عطا فرمائے۔ آمین۔
-            </div>
-            <div style="display:flex; justify-content:space-between; align-items:center; gap:6px; margin-top:8px; padding-top:6px; border-top:1px solid rgba(197,160,89,.35); font-size:10px; color:var(--text-muted);">
-              <div><b>تاریخ:</b> <span id="latestCertDate">—</span></div>
-              <div style="font-size:13px; font-weight:bold; color:var(--primary-color);">Mehfil-E-Darood 🌙</div>
-              <div><b>🏆 Winner</b></div>
-            </div>
-          </div>
-        </div>
-
         <h3 style="color: var(--primary-color); text-align: center; font-size: 18px;">👤 پروفائل کی معلومات</h3>
         <div class="profile-box">
           <p><b>نام:</b> <span id="profileDisplayName">---</span></p>
@@ -1465,12 +1463,11 @@ const wasHidden = certCard.classList.contains("hidden");
       });
       return winner;
     }
-}
 
-    function loadLatestWinnerCertificate(showPopup = false) {
+    function loadLatestWinnerCertificate() {
       const card = document.getElementById("latestWinnerCertificateCard");
       if (!card) return;
-      db.ref("competitions").once("value").then(snapshot => {
+      db.ref("competitions").on("value", snapshot => {
         const winners = [];
         snapshot.forEach(daySnap => {
           const w = getQualifyingDailyWinner(daySnap);
@@ -1479,17 +1476,11 @@ const wasHidden = certCard.classList.contains("hidden");
         winners.sort((a,b) => String(b.dateKey).localeCompare(String(a.dateKey)));
         const w = winners[0];
         if (!w) { card.classList.add("hidden"); return; }
-
         document.getElementById("latestCertWinnerName").innerText = w.name;
         document.getElementById("latestCertWinnerScore").innerText = w.count;
         document.getElementById("latestCertDate").innerText = w.dateKey;
         window.latestWinnerCertificateData = w;
         card.classList.remove("hidden");
-
-        // Show the certificate as a popup after login / page entry.
-        if (showPopup) {
-          setTimeout(() => showWinnerCertificatePopup(w), 350);
-        }
       });
     }
 
@@ -1528,7 +1519,7 @@ const wasHidden = certCard.classList.contains("hidden");
             <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
               <div style="font-size:19px;">${medal}</div>
               <div style="flex:1;text-align:right;"><div style="font-weight:bold;color:var(--primary-color);">${w.name}</div><div style="font-size:11px;color:var(--text-muted);">📅 ${w.dateKey}</div></div>
-              <div style="text-align:center;min-width:65px;"><div style="font-weight:bold;">${w.count}</div><div style="font-size:8px;color:var(--text-muted);">درود</div></div>
+              <div style="text-align:center;min-width:65px;"><div style="font-weight:bold;">${w.count}</div><div style="font-size:10px;color:var(--text-muted);">درود</div></div>
               <button onclick="downloadSpecificCertificate('${safeName}',${w.count},'${safeDate}')" style="border:0;border-radius:8px;padding:7px 8px;cursor:pointer;background:var(--primary-color);color:white;font-size:10px;">📜 Certificate</button>
             </div></div>`;
         }).join("");
@@ -1560,7 +1551,7 @@ const wasHidden = certCard.classList.contains("hidden");
       document.getElementById("board").innerHTML = fullTbody || `<tr><td colspan="3">کوئی ڈیٹا موجود نہیں</td></tr>`;
     });
 
-    loadLatestWinnerCertificate(false);
+    loadLatestWinnerCertificate();
     loadHomeDailyTop5Winners();
 
     db.ref("competitions/" + todayDateKey).on("value", snapshot => {
@@ -1790,6 +1781,9 @@ const wasHidden = certCard.classList.contains("hidden");
                   ${badge}
                 </div>
                 <div style="margin-top:4px;">🏆 <b>فاتح:</b> ${winner.name} (${winner.count} درود شریف)</div>
+                <div style="margin-top:8px; text-align: left;">
+                  <button onclick="downloadSpecificCertificate('${safeName}', '${winner.count}', '${dateKey}')" style="background:linear-gradient(135deg, #0d3b22, #166534); color:white; border:none; padding:5px 12px; border-radius:6px; font-size:11px; font-weight:bold; cursor:pointer; font-family:inherit;">📜 سرٹیفکیٹ ڈاؤنلوڈ کریں</button>
+                </div>
               </div>
             `;
           }
