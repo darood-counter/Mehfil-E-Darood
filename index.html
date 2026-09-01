@@ -1533,32 +1533,45 @@
         playErrorSound();
       };
 
-      recognition.onend = () => {
-        clearTimeout(recordingTimeout);
-        btn.classList.remove("listening");
-        btn.disabled = false;
-        triggerVibration();
+      Recognition.onend = () => {
+    clearTimeout(recordingTimeout);
+    btn.classList.remove("listening");
+    btn.disabled = false;
+    triggerVibration();
 
-        const hasSalat = finalTranscript.includes("مجيد");
-        const hasMajeed = finalTranscript.includes("مجيد") || finalTranscript.includes("مجید");
+    let transcript = finalTranscript ? finalTranscript.toLowerCase() : "";
 
-        if (finalTranscript.length > 0 && (hasSalat || hasMajeed || finalTranscript.length > 3)) {
-          status.style.color = isComp ? "#d97706" : "var(--primary-color)";
-          status.innerText = "✓ تصدیق ہو گئی!";
-          playSuccessSound();
+    // درود شریف کے بنیادی مطلوبہ الفاظ کی مختلف املا کے ساتھ جانچ
+    let hasAllahummaOrSalat = transcript.includes("صل") || transcript.includes("اللهم") || transcript.includes("اللھم") || transcript.includes("صل وسلم");
+    let hasMuhammad = transcript.includes("محمد") || transcript.includes("النبى") || transcript.includes("النبی");
+    let hasIbrahimOrMajeed = transcript.includes("ابراهيم") || transcript.includes("ابراہیم") || transcript.includes("مجيد") || transcript.includes("مجید") || transcript.includes("آل");
 
-          const targetPath = isComp ? "competitions/" + todayDateKey + "/" + currentUser.uid : "users/" + currentUser.uid;
-          db.ref(targetPath).transaction(current => {
-            if (current) { current.count = (current.count || 0) + 1; current.name = currentUser.displayName || currentUser.email; }
-            else { current = { name: currentUser.displayName || currentUser.email, count: 1 }; }
+    // تصدیق صرف تب ہوگی جب تمام لازمی اجزاء یا مکمل درود کا مفہوم پورا ہو
+    let isCompleteDarood = (hasAllahummaOrSalat && hasMuhammad) || (hasMuhammad && hasIbrahimOrMajeed);
+
+    if (transcript.length > 5 && isCompleteDarood) {
+        status.style.color = (typeof isComp !== 'undefined' && isComp) ? "#d97706" : "var(--primary-color)";
+        status.innerText = "✓ تصدیق ہو گئی!";
+        if (typeof playSuccessSound === 'function') playSuccessSound();
+
+        const targetPath = (typeof isComp !== 'undefined' && isComp) ? "competitions/" + todayDateKey + "/" + currentUser.uid : "users/" + currentUser.uid;
+        
+        db.ref(targetPath).transaction(current => {
+            if (current) { 
+                current.count = (current.count || 0) + 1; 
+                current.name = currentUser.displayName || currentUser.email; 
+            } else { 
+                current = { name: currentUser.displayName || currentUser.email, count: 1 }; 
+            }
             return current;
-          });
-        } else {
-          status.style.color = "#ef4444";
-          status.innerText = "آواز واضح نہیں آئی۔";
-          playErrorSound();
-        }
-      };
+        });
+    } else {
+        status.style.color = "#ef4444";
+        status.innerText = "مکمل درود شریف پڑھیں، صرف ایک لفظ پر کاؤنٹ نہیں ہوگا۔";
+        if (typeof playErrorSound === 'function') playErrorSound();
+    }
+};
+
 
       recognition.start();
     }
