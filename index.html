@@ -1658,7 +1658,6 @@
     }
     loadPublicProofs();
 
-
     function startVoiceRecognition(btnId, statusId, isComp = false) {
       const btn = document.getElementById(btnId);
       const statusEl = document.getElementById(statusId);
@@ -1697,103 +1696,87 @@
           .trim();
       };
 
-      // Small edit-distance tolerance for Arabic speech-recognition mistakes.
-      const levenshtein = (a, b) => {
-        const prev = Array(b.length + 1).fill(0);
-        const curr = Array(b.length + 1).fill(0);
-        for (let j = 0; j <= b.length; j++) prev[j] = j;
+      // These key words must ALL be recognized, in order, for one count.
+      // This is intentionally tolerant because Arabic speech recognition
+      // may omit/alter other words.
+      const requiredWords = [
+        "اللهم",
+        "صل",
+        "علی",
+        "محمد",
+        "ابراهیم",
+        "حمید",
+        "مجید",
+        "اللهم",
+        "بارک",
+        "علی",
+        "محمد",
+        "بارکت",
+        "علی",
+        "انک",
+        "حمید",
+        "مجید"
+      ];
 
-        for (let i = 1; i <= a.length; i++) {
-          curr[0] = i;
-          for (let j = 1; j <= b.length; j++) {
-            const cost = a[i - 1] === b[j - 1] ? 0 : 1;
-            curr[j] = Math.min(
-              curr[j - 1] + 1,
-              prev[j] + 1,
-              prev[j - 1] + cost
-            );
-          }
-          for (let j = 0; j <= b.length; j++) prev[j] = curr[j];
-        }
-        return prev[b.length];
+      const aliases = {
+        "اللهم": ["اللهم", "اللهم"],
+        "صل": ["صل", "صلی"],
+        "علی": ["علی", "على", "علا"],
+        "محمد": ["محمد", "محمد"],
+        "ابراهیم": ["ابراهیم", "ابراهيم", "ابراھیم", "ابراھیم"],
+        "حمید": ["حمید", "حميد", "حمید"],
+        "مجید": ["مجید", "مجيد", "مجید"],
+        "بارک": ["بارک", "بارك"],
+        "بارکت": ["بارکت", "باركت"],
+        "انک": ["انک", "انك", "انک"]
       };
 
-      const similarWord = (a, b) => {
-        if (!a || !b) return false;
-        if (a === b) return true;
-        const maxLen = Math.max(a.length, b.length);
-        if (maxLen <= 3) return levenshtein(a, b) <= 1;
-        return levenshtein(a, b) <= Math.max(1, Math.floor(maxLen * 0.25));
+      const isWordMatch = (spoken, required) => {
+        const options = aliases[required] || [required];
+        return options.some(x => spoken === x);
       };
 
       const isCompleteDarood = (spoken) => {
-        const target = normalizeArabic(
-          document.getElementById("daroodArabicText").innerText
-        );
-        const heard = normalizeArabic(spoken);
+        const words = normalizeArabic(spoken).split(" ").filter(Boolean);
+        if (!words.length) return false;
 
-        const targetWords = target.split(" ").filter(Boolean);
-        const heardWords = heard.split(" ").filter(Boolean);
+        // ترتیب لازمی نہیں۔ صرف یہ ضروری الفاظ سب ادا ہونا لازم ہیں۔
+        // Speech Recognition میں ایک لفظ دو بار/مختلف جگہ آ سکتا ہے، اس لیے
+        // ہر required word کو کہیں بھی تلاش کیا جاتا ہے۔
+        const remaining = words.slice();
 
-        if (targetWords.length < 5 || heardWords.length < 5) return false;
+        for (const required of requiredWords) {
+          const foundIndex = remaining.findIndex(word =>
+            isWordMatch(word, required)
+          );
 
-        // Do not allow a clearly short/partial recitation.
-        if (heardWords.length < Math.floor(targetWords.length * 0.75)) return false;
-
-        // Match target words in order. Permit recognition to insert a few
-        // words, but require almost the entire Darood to be recognized.
-        let h = 0;
-        let matched = 0;
-        let misses = 0;
-
-        for (let t = 0; t < targetWords.length && h < heardWords.length; t++) {
-          let found = false;
-          const lookAhead = Math.min(heardWords.length, h + 3);
-
-          for (let j = h; j < lookAhead; j++) {
-            if (similarWord(targetWords[t], heardWords[j])) {
-              matched++;
-              h = j + 1;
-              found = true;
-              break;
-            }
-          }
-
-          if (!found) {
-            misses++;
-          }
+          if (foundIndex === -1) return false;
+          remaining.splice(foundIndex, 1);
         }
 
-        const ratio = matched / targetWords.length;
-
-        // 85% allows normal Arabic speech-recognition errors while making
-        // random/partial speech very unlikely to count.
-        return ratio >= 0.85 && matched >= Math.floor(targetWords.length * 0.85);
+        return true;
       };
 
       recognition.onresult = (event) => {
-        // Pick the best recognized alternative.
-        let bestText = "";
-        let bestConfidence = -1;
-        const results = event.results[0];
+        let bestText = event.results[0][0].transcript || "";
+        let bestValid = isCompleteDarood(bestText);
 
-        for (let i = 0; i < results.length; i++) {
-          const candidate = results[i].transcript || "";
-          const confidence = typeof results[i].confidence === "number"
-            ? results[i].confidence
-            : 0;
-          if (confidence > bestConfidence) {
-            bestConfidence = confidence;
+        // Try all alternatives returned by the browser.
+        for (let i = 0; i < event.results[0].length; i++) {
+          const candidate = event.results[0][i].transcript || "";
+          if (isCompleteDarood(candidate)) {
             bestText = candidate;
+            bestValid = true;
+            break;
           }
         }
 
-        const text = bestText || results[0].transcript || "";
-        statusEl.innerText = `آواز: "${text}"`;
+        statusEl.innerText = `آواز: "${bestText}"`;
 
-        if (!isCompleteDarood(text)) {
+        if (!bestValid) {
           statusEl.style.color = "#ef4444";
-          statusEl.innerText = "✗ مکمل درود شریف نہیں پڑھا گیا، اس لیے شمار نہیں ہوگا۔";
+          statusEl.innerText =
+            "✗ مکمل درود کے ضروری الفاظ نہیں ملے، شمار نہیں ہوگا۔";
           playErrorSound();
           return;
         }
@@ -1802,11 +1785,18 @@
           if (isComp) {
             db.ref("competitions/" + todayDateKey + "/" + currentUser.uid).transaction(current => {
               if (!current) return { count: 1, name: currentUser.displayName || currentUser.email };
-              return { count: (current.count || 0) + 1, name: currentUser.displayName || currentUser.email };
+              return {
+                count: (current.count || 0) + 1,
+                name: currentUser.displayName || currentUser.email
+              };
             });
           } else {
             db.ref("users/" + currentUser.uid).transaction(current => {
-              if (!current) return { count: 1, name: currentUser.displayName || currentUser.email, email: currentUser.email };
+              if (!current) return {
+                count: 1,
+                name: currentUser.displayName || currentUser.email,
+                email: currentUser.email
+              };
               return {
                 count: (current.count || 0) + 1,
                 name: currentUser.displayName || currentUser.email,
@@ -1819,8 +1809,9 @@
               };
             });
           }
+
           statusEl.style.color = "#0d3b22";
-          statusEl.innerText = "✓ مکمل درود شریف شمار ہو گیا!";
+          statusEl.innerText = "✓ درود شریف شمار ہو گیا!";
           playSuccessSound();
           triggerVibration();
         }
