@@ -723,7 +723,7 @@
           <div id="latestCertificateContainer" style="background:linear-gradient(145deg,#fffdf2 0%,#f9edc8 48%,#fffaf0 100%); border:10px double #c9a227; border-radius:24px; padding:28px 20px; text-align:center; box-shadow:0 14px 38px rgba(118,83,12,.28), inset 0 0 0 2px rgba(255,255,255,.8); direction:ltr; position:relative; overflow:hidden;">
             <div style="font-size:30px; letter-spacing:8px;">🏆 ✦ 📜 ✦ 🏆</div>
             <div style="font-size:10px; letter-spacing:3px; color:#9a7415; font-weight:bold; margin:6px 0 2px;">✦ OFFICIAL HONOUR ✦</div>
-            <div style="font-size:27px; font-weight:800; color:#6b4f0b; letter-spacing:.4px; font-family:'Plus Jakarta Sans',sans-serif;">Certificate of Appreciation</div>
+            <div style="font-size:27px; font-weight:800; color:#6b4f0b; letter-spacing:.4px;">Certificate of Appreciation</div>
             <div style="font-size:12px; color:var(--accent-gold); font-weight:bold; margin:7px 0 12px;">Mehfil-E-Darood — Daily Competition</div>
             <div style="font-size:13px; color:var(--text-muted);">This certificate is proudly presented to</div>
             <div id="latestCertWinnerName" style="font-size:29px; font-weight:800; color:#8a6508; margin:9px 0; border-bottom:2px dashed var(--accent-gold); display:inline-block; padding:0 18px;">—</div>
@@ -737,12 +737,6 @@
             </div>
             <div style="display:flex; justify-content:space-between; align-items:center; gap:6px; margin-top:15px; padding-top:10px; border-top:1px solid rgba(197,160,89,.35); font-size:10px; color:var(--text-muted);">
               <div><b>Date:</b> <span id="latestCertDate">—</span></div>
-              <div style="font-size:13px; font-weight:bold; color:var(--primary-color);">Mehfil-E-Darood 🌙</div>
-              <div><b>🏆 Winner</b></div>
-            </div>
-          </div>
-            <div style="display:flex; justify-content:space-between; align-items:center; gap:6px; margin-top:15px; padding-top:10px; border-top:1px solid rgba(197,160,89,.35); font-size:10px; color:var(--text-muted);">
-              <div><b>تاریخ:</b> <span id="latestCertDate">—</span></div>
               <div style="font-size:13px; font-weight:bold; color:var(--primary-color);">Mehfil-E-Darood 🌙</div>
               <div><b>🏆 Winner</b></div>
             </div>
@@ -1006,15 +1000,13 @@
         osc.start(); osc.stop(audioCtx.currentTime + 0.3);
       } catch(e) {}
     }
-}, 150);
-    }
 
 
     // Download certificate from Payment Proofs only.
     function downloadSpecificCertificate(name, score, dateKey) {
       const card = document.getElementById("latestWinnerCertificateCard");
       const cert = document.getElementById("latestCertificateContainer");
-      if (!card || !cert) return;
+      if (!card || !cert || typeof html2canvas === "undefined") return;
       const nameEl = document.getElementById("latestCertWinnerName");
       const scoreEl = document.getElementById("latestCertWinnerScore");
       const dateEl = document.getElementById("latestCertDate");
@@ -1489,8 +1481,7 @@
         card.classList.remove("hidden");
       });
     }
-);
-    }
+
 
     function loadHomeDailyTop5Winners() {
       const container = document.getElementById("homeTop5Winners");
@@ -1508,7 +1499,6 @@
           return;
         }
         container.innerHTML = top5.map((w,i) => {
-
           const medal = i===0 ? "🥇" : i===1 ? "🥈" : i===2 ? "🥉" : "🏆";
           return `<div style="background:#fffdf9;border:1px solid #ead9b0;border-radius:13px;padding:11px;margin:8px 0;">
             <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
@@ -1565,6 +1555,7 @@
 
       const topWinner = compList[0];
       const highlightEl = document.getElementById("homeWinnerHighlight");
+
       if (topWinner && topWinner.count > 0) {
         highlightEl.innerHTML = `🌟 <b>${topWinner.name}</b> (${topWinner.count} درود شریف)`;
         // Latest qualifying winner certificate is handled by loadLatestWinnerCertificate().
@@ -1772,7 +1763,9 @@
                   ${badge}
                 </div>
                 <div style="margin-top:4px;">🏆 <b>فاتح:</b> ${winner.name} (${winner.count} درود شریف)</div>
-                <button onclick="downloadSpecificCertificate('${safeName}', '${winner.count}', '${dateKey}')" style="margin-top:8px; background:linear-gradient(135deg,#b8860b,#d4af37,#8f6b08); color:white; border:none; padding:7px 14px; border-radius:8px; font-size:11px; font-weight:bold; cursor:pointer; font-family:inherit; box-shadow:0 3px 10px rgba(143,107,8,.25);">📜 سرٹیفکیٹ ڈاؤنلوڈ کریں</button>
+                <div style="margin-top:8px; text-align: left;">
+                  <button onclick="downloadSpecificCertificate('${safeName}', '${winner.count}', '${dateKey}')" style="background:linear-gradient(135deg, #0d3b22, #166534); color:white; border:none; padding:5px 12px; border-radius:6px; font-size:11px; font-weight:bold; cursor:pointer; font-family:inherit;">📜 سرٹیفکیٹ ڈاؤنلوڈ کریں</button>
+                </div>
               </div>
             `;
           }
@@ -1970,4 +1963,3 @@
   </script>
 </body>
 </html>
-                
