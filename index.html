@@ -1502,7 +1502,7 @@
         winners.sort((a,b) => String(b.dateKey).localeCompare(String(a.dateKey)));
         // صرف مکمل ہو چکے دن کا تازہ ترین فاتح دکھائیں، تاکہ آج کے مقابلے کے دوران
         // سرٹیفکیٹ پچھلے دن کے فاتح کا رہے اور اگلے دن خود بخود ایک دن آگے بدل جائے۔
-        const todayKey = new Date().toISOString().slice(0, 10);
+        const todayKey = getLocalDateKey();
         const completedWinners = winners.filter(w => String(w.dateKey) < todayKey);
         const w = completedWinners[0] || winners[0];
         if (!w) { card.classList.add("hidden"); return; }
