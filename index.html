@@ -305,6 +305,13 @@
       100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
     }
 
+    .comp-btn-wrap { position: relative; width: 140px; height: 140px; margin: 15px auto; }
+    .comp-btn-wrap .comp-progress { position: absolute; inset: 0; width: 140px; height: 140px; transform: rotate(-90deg); pointer-events: none; }
+    .comp-progress-bg, .comp-progress-bar { fill: none; stroke-width: 5; }
+    .comp-progress-bg { stroke: #dbeafe; }
+    .comp-progress-bar { stroke: #2563eb; stroke-linecap: round; stroke-dasharray: 408.41; stroke-dashoffset: 408.41; }
+    .comp-btn-wrap #compCountBtn { position: absolute; inset: 5px; width: 130px !important; height: 130px !important; margin: 0 !important; }
+
     .status-msg { font-weight: bold; font-size: 13px; margin: 6px 0; min-height: 20px; }
     
     .auth-container {
@@ -674,7 +681,7 @@
           <div style="font-size:12px; font-weight:800; line-height:1.35;">محفلِ درود کی Android App</div>
           <div style="font-size:10px; opacity:.9; line-height:1.35;">اب ویب سائٹ کو موبائل App میں بھی استعمال کریں</div>
         </div>
-        <a href="https://github.com/darood-counter/Mehfil-E-Darood/releases/download/V1.0/mehfil-e-darood.apk" download="Mehfil-E-Darood.apk" style="display:inline-block; background:#f5d05a; color:#173b2d; text-decoration:none; font-size:10px; font-weight:800; padding:7px 9px; border-radius:7px; white-space:nowrap;">⬇️ APK ڈاؤنلوڈ</a>
+        <a href="mehfil-e-darood.apk" download="Mehfil-E-Darood.apk" style="display:inline-block; background:#f5d05a; color:#173b2d; text-decoration:none; font-size:10px; font-weight:800; padding:7px 9px; border-radius:7px; white-space:nowrap;">⬇️ APK ڈاؤنلوڈ</a>
         <button onclick="document.getElementById('appDownloadNotice').style.display='none'" aria-label="بند کریں" style="background:transparent; color:#fff; border:0; font-size:16px; line-height:1; padding:2px 3px; cursor:pointer;">×</button>
       </div>
 
@@ -817,10 +824,16 @@
 
         <div id="compDaroodSlot"></div>
 
-        <button class="mic-btn" style="background: linear-gradient(135deg, #d97706, #b45309); color:white; width: 130px; height: 130px; margin: 15px auto;" id="compCountBtn">
-          <span style="font-size: 24px;">🎙️</span>
-          <span>مقابلے کے لیے بولیں</span>
-        </button>
+        <div class="comp-btn-wrap" id="compTimerWrapper" aria-label="35 سیکنڈ کا مقابلہ ٹائمر">
+          <svg class="comp-progress" viewBox="0 0 140 140" aria-hidden="true">
+            <circle class="comp-progress-bg" cx="70" cy="70" r="65"></circle>
+            <circle id="compTimerRingProgress" class="comp-progress-bar" cx="70" cy="70" r="65"></circle>
+          </svg>
+          <button class="mic-btn" style="background: linear-gradient(135deg, #d97706, #b45309); color:white;" id="compCountBtn">
+            <span style="font-size: 24px;">🎙️</span>
+            <span>مقابلے کے لیے بولیں</span>
+          </button>
+        </div>
         <div id="compStatusMsg" class="status-msg" style="color: #d97706;"></div>
         <div style="font-size: 15px; color: #d97706; margin-top: 8px;">مقابلے میں آپ کا اسکور: <b id="compUserTotal">0</b></div>
 
@@ -950,41 +963,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 
   <script>
-
-    /* KEEP MOBILE SCREEN AWAKE WHILE THIS WEB APP IS OPEN */
-    let screenWakeLock = null;
-
-    async function requestScreenWakeLock() {
-      try {
-        if (!("wakeLock" in navigator)) return;
-        screenWakeLock = await navigator.wakeLock.request("screen");
-
-        screenWakeLock.addEventListener("release", () => {
-          screenWakeLock = null;
-        });
-      } catch (e) {
-        console.log("Screen Wake Lock not available:", e);
-      }
-    }
-
-    // Wake Lock normally requires a visible page, so request again when
-    // the user returns to the browser/app.
-    document.addEventListener("visibilitychange", () => {
-      if (document.visibilityState === "visible") {
-        requestScreenWakeLock();
-      }
-    });
-
-    window.addEventListener("focus", requestScreenWakeLock);
-    window.addEventListener("load", requestScreenWakeLock);
-
-    // Some Android browsers release the lock after a while; refresh it.
-    setInterval(() => {
-      if (document.visibilityState === "visible" && !screenWakeLock) {
-        requestScreenWakeLock();
-      }
-    }, 30000);
-
     const firebaseConfig = {
       apiKey: "AIzaSyB3PjjiQM2IqKmIQJ4d4YOwcc10RiG47FI",
       authDomain: "mehfil-e-darood.firebaseapp.com",
@@ -1083,6 +1061,7 @@
         });
       }, 150);
     }
+
 
     function updateCompCountdown() {
       const now = new Date();
@@ -1856,6 +1835,41 @@
     }
     loadPublicProofs();
 
+    const COMP_DURATION_MS = 35000;
+    const COMP_PROGRESS_CIRCUMFERENCE = 2 * Math.PI * 65;
+    let compTimerInterval = null;
+    let compRecognition = null;
+
+    function startComp35SecondTimer() {
+      const bar = document.getElementById("compTimerRingProgress");
+      if (!bar) return;
+      if (compTimerInterval) clearInterval(compTimerInterval);
+      const startedAt = Date.now();
+      bar.style.strokeDasharray = COMP_PROGRESS_CIRCUMFERENCE.toFixed(2);
+      bar.style.strokeDashoffset = "0";
+
+      compTimerInterval = setInterval(() => {
+        const elapsed = Date.now() - startedAt;
+        const ratio = Math.min(1, elapsed / COMP_DURATION_MS);
+        bar.style.strokeDashoffset = (COMP_PROGRESS_CIRCUMFERENCE * ratio).toFixed(2);
+        if (ratio >= 1) {
+          clearInterval(compTimerInterval);
+          compTimerInterval = null;
+          if (compRecognition) {
+            try { compRecognition.stop(); } catch(e) {}
+            compRecognition = null;
+          }
+          const btn = document.getElementById("compCountBtn");
+          const status = document.getElementById("compStatusMsg");
+          if (btn) { btn.disabled = false; btn.classList.remove("listening"); }
+          if (status) {
+            status.style.color = "#ef4444";
+            status.innerText = "⏰ 35 سیکنڈ مکمل — وقت ختم ہو گیا۔ دوبارہ دبائیں۔";
+          }
+        }
+      }, 50);
+    }
+
     function startVoiceRecognition(btnId, statusId, isComp = false) {
       const btn = document.getElementById(btnId);
       const statusEl = document.getElementById(statusId);
@@ -1874,6 +1888,7 @@
       statusEl.innerText = "سن رہا ہے... درود شریف پڑھیں 🎙️";
 
       const recognition = new SpeechRecognition();
+      if (isComp) compRecognition = recognition;
       recognition.lang = 'ar-SA';
       recognition.interimResults = false;
       recognition.continuous = false;
@@ -2024,6 +2039,7 @@
       recognition.onend = () => {
         btn.disabled = false;
         btn.classList.remove("listening");
+        if (isComp && compRecognition === recognition) compRecognition = null;
       };
 
       recognition.start();
@@ -2034,6 +2050,7 @@
     };
 
     document.getElementById("compCountBtn").onclick = function() {
+      startComp35SecondTimer();
       startVoiceRecognition('compCountBtn', 'compStatusMsg', true);
     };
   </script>
