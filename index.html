@@ -776,10 +776,20 @@
           <div id="adminWinnersList">لوڈ ہو رہا ہے...</div>
         </div>
 
-        <h3 style="color:var(--primary-color); margin-top: 20px; font-size: 16px; text-align: right;">🏆 ٹاپ 10 رینکنگ (Top 10 Users)</h3>
+        <!-- UPDATED SECTION: TOP 5 WINNERS WITH DETAILS -->
+        <h3 style="color:var(--primary-color); margin-top: 20px; font-size: 16px; text-align: right;">🏆 ٹاپ 5 فاتحین (Top 5 Winners)</h3>
         <table>
-          <thead><tr><th>رینک</th><th>صارف</th><th>کل درود</th></tr></thead>
-          <tbody id="homeTop10Board"><tr><td colspan="3">لوڈ ہو رہا ہے...</td></tr></tbody>
+          <thead>
+            <tr>
+              <th>رینک</th>
+              <th>فاتح کا نام</th>
+              <th>کل درود</th>
+              <th>شہر / مقام</th>
+            </tr>
+          </thead>
+          <tbody id="homeTop5WinnersBoard">
+            <tr><td colspan="4">لوڈ ہو رہا ہے...</td></tr>
+          </tbody>
         </table>
 
         <div class="proof-box" style="margin-top: 20px;">
@@ -1324,59 +1334,65 @@
               { key: 'Sunrise', name: 'طلوع آفتاب', icon: '🌅' },
               { key: 'Dhuhr', name: 'ظہر', icon: '☀️' },
               { key: 'Asr', name: 'عصر', icon: '⛅' },
-              { key: 'Maghrib', name: 'مغرب', icon: '🌇' },
+              { key: 'Maghrib', name: 'مغرب', icon: '🌆' },
               { key: 'Isha', name: 'عشاء', icon: '🌌' }
             ];
 
             const now = new Date();
             const currentMinutes = now.getHours() * 60 + now.getMinutes();
 
-            let activePrayer = prayers[0];
+            let activePrayer = null;
             let nextPrayer = null;
 
-            for (let i = 0; i < prayers.length; i++) {
-              const pMinutes = timeToMinutes(format12Hour(timings[prayers[i].key]));
-              if (currentMinutes >= pMinutes) {
-                activePrayer = prayers[i];
-                nextPrayer = prayers[i + 1] || prayers[0];
+            let tableHtml = "";
+
+            prayers.forEach((p, idx) => {
+              const time24 = timings[p.key];
+              const time12 = format12Hour(time24);
+              const prayerMins = timeToMinutes(time12);
+
+              let isActive = false;
+              if (idx < prayers.length - 1) {
+                const nextTime12 = format12Hour(timings[prayers[idx+1].key]);
+                const nextMins = timeToMinutes(nextTime12);
+                if (currentMinutes >= prayerMins && currentMinutes < nextMins) {
+                  isActive = true;
+                  activePrayer = p.name;
+                  nextPrayer = prayers[idx+1].name;
+                }
+              } else {
+                if (currentMinutes >= prayerMins || currentMinutes < timeToMinutes(format12Hour(timings[prayers[0].key]))) {
+                  isActive = true;
+                  activePrayer = p.name;
+                  nextPrayer = prayers[0].name;
+                }
               }
-            }
 
-            document.getElementById("currentActivePrayerName").innerHTML = `${activePrayer.icon} ${activePrayer.name} (${format12Hour(timings[activePrayer.key])})`;
-
-            let tbody = "";
-            prayers.forEach(p => {
-              const formattedTime = format12Hour(timings[p.key]);
-              const isActive = p.key === activePrayer.key;
-              const rowClass = isActive ? "active-row" : "";
-              const badge = isActive ? `<span class="active-badge">جاری</span>` : `--`;
-
-              tbody += `<tr class="${rowClass}">
-                <td>${badge}</td>
-                <td>${formattedTime}</td>
-                <td><b>${p.name}</b> ${p.icon}</td>
-              </tr>`;
+              tableHtml += `
+                <tr class="${isActive ? 'active-row' : ''}">
+                  <td>${isActive ? '<span class="active-badge">جاری</span>' : '---'}</td>
+                  <td><b>${time12}</b></td>
+                  <td>${p.icon} ${p.name}</td>
+                </tr>
+              `;
             });
 
-            document.getElementById("prayerTableBody").innerHTML = tbody;
-
-            if (nextPrayer) {
-              const nextTimeFormatted = format12Hour(timings[nextPrayer.key]);
-              document.getElementById("nextPrayerFooter").innerHTML = `اگلی نماز: <b>${nextPrayer.name}</b> (${nextTimeFormatted})`;
-            }
+            document.getElementById("prayerTableBody").innerHTML = tableHtml;
+            document.getElementById("currentActivePrayerName").innerText = activePrayer || "--";
+            document.getElementById("nextPrayerFooter").innerText = nextPrayer ? `اگلی نماز: ${nextPrayer}` : "اگلی نماز: --";
           }
         })
         .catch(err => {
-          document.getElementById("prayerTableBody").innerHTML = `<tr><td colspan="3">اوقات لوڈ کرنے میں ناکامی</td></tr>`;
+          document.getElementById("prayerTableBody").innerHTML = `<tr><td colspan="3">اوقات لوڈ کرنے میں مسئلہ پیش آیا۔</td></tr>`;
         });
     }
 
     db.ref("status").on("value", snapshot => {
       const count = snapshot.numChildren();
-      const onlineEl = document.getElementById("onlineCount");
-      const onlineCompEl = document.getElementById("onlineCountComp");
-      if(onlineEl) onlineEl.innerText = count;
-      if(onlineCompEl) onlineCompEl.innerText = count;
+      const count1 = document.getElementById("onlineCount");
+      const count2 = document.getElementById("onlineCountComp");
+      if (count1) count1.innerText = count;
+      if (count2) count2.innerText = count;
     });
 
     db.ref("users").on("value", snapshot => {
@@ -1386,7 +1402,13 @@
       snapshot.forEach(child => {
         const val = child.val();
         total += (val.count || 0);
-        userList.push({ uid: child.key, name: val.name || "صارف", count: val.count || 0 });
+        userList.push({
+          uid: child.key,
+          name: val.name || "صارف",
+          count: val.count || 0,
+          savedCity: val.savedCity || "",
+          savedCountry: val.savedCountry || ""
+        });
       });
 
       document.getElementById("globalTotalCount").innerText = total;
@@ -1394,10 +1416,21 @@
       userList.sort((a, b) => b.count - a.count);
 
       let tbody = "";
-      userList.slice(0, 10).forEach((u, i) => {
-        tbody += `<tr><td>${i + 1}</td><td>${u.name}</td><td><b>${u.count}</b></td></tr>`;
+      // RENDER TOP 5 WINNERS DETAILS
+      userList.slice(0, 5).forEach((u, i) => {
+        let location = u.savedCity ? `${u.savedCity}${u.savedCountry ? ', ' + u.savedCountry : ''}` : "---";
+        tbody += `<tr>
+          <td><b>${i + 1}</b></td>
+          <td><b>${u.name}</b></td>
+          <td><b style="color:var(--primary-color);">${u.count}</b></td>
+          <td>${location}</td>
+        </tr>`;
       });
-      document.getElementById("homeTop10Board").innerHTML = tbody || `<tr><td colspan="3">کوئی ڈیٹا موجود نہیں</td></tr>`;
+
+      const winnersBoard = document.getElementById("homeTop5WinnersBoard");
+      if (winnersBoard) {
+        winnersBoard.innerHTML = tbody || `<tr><td colspan="4">کوئی ڈیٹا موجود نہیں</td></tr>`;
+      }
 
       let fullTbody = "";
       userList.forEach((u, i) => {
@@ -1410,101 +1443,34 @@
       let compList = [];
       snapshot.forEach(child => {
         const val = child.val();
-        compList.push({ uid: child.key, name: val.name || "صارف", count: val.count || 0 });
+        compList.push({ name: val.name || "صارف", count: val.count || 0, uid: child.key });
       });
 
       compList.sort((a, b) => b.count - a.count);
 
-      let tbody = "";
-      compList.forEach((u, i) => {
-        tbody += `<tr><td>${i + 1}</td><td>${u.name}</td><td><b>${u.count}</b></td></tr>`;
+      let compTbody = "";
+      compList.slice(0, 10).forEach((u, i) => {
+        compTbody += `<tr><td>${i + 1}</td><td>${u.name}</td><td><b>${u.count}</b></td></tr>`;
       });
-      document.getElementById("compBoard").innerHTML = tbody || `<tr><td colspan="3">آج کوئی مقابلہ نہیں ہوا</td></tr>`;
+      document.getElementById("compBoard").innerHTML = compTbody || `<tr><td colspan="3">کوئی مقابلہ ڈیٹا موجود نہیں</td></tr>`;
 
-      const topWinner = compList[0];
-      const highlightEl = document.getElementById("homeWinnerHighlight");
-      const certCard = document.getElementById("winnerCertificateCard");
-
-      if (topWinner && topWinner.count > 0) {
-        highlightEl.innerHTML = `🌟 <b>${topWinner.name}</b> (${topWinner.count} درود شریف)`;
+      if (compList.length > 0) {
+        const top = compList[0];
+        document.getElementById("homeWinnerHighlight").innerText = `${top.name} (${top.count} اسکور)`;
         
-        if (currentUser && currentUser.uid === topWinner.uid) {
-          document.getElementById("certWinnerName").innerText = topWinner.name;
-          document.getElementById("certWinnerScore").innerText = topWinner.count;
+        if (currentUser && top.uid === currentUser.uid && top.count >= 100) {
+          document.getElementById("winnerCertificateCard").classList.remove("hidden");
+          document.getElementById("certWinnerName").innerText = top.name;
+          document.getElementById("certWinnerScore").innerText = top.count;
           document.getElementById("certDate").innerText = todayDateKey;
-          certCard.classList.remove("hidden");
         } else {
-          certCard.classList.add("hidden");
+          document.getElementById("winnerCertificateCard").classList.add("hidden");
         }
       } else {
-        highlightEl.innerText = "آج کے مقابلے کا آغاز ابھی ہوا ہے!";
-        certCard.classList.add("hidden");
+        document.getElementById("homeWinnerHighlight").innerText = "آج کا مقابلہ جاری ہے...";
+        document.getElementById("winnerCertificateCard").classList.add("hidden");
       }
     });
-
-    document.getElementById("saveProfileBtn").onclick = () => {
-      if (!currentUser) return;
-      const accName = document.getElementById("accName").value.trim();
-      const accNumber = document.getElementById("accNumber").value.trim();
-      const accType = document.getElementById("accType").value;
-      const status = document.getElementById("profileStatus");
-
-      db.ref("users/" + currentUser.uid).update({
-        accName: accName,
-        accNumber: accNumber,
-        accType: accType
-      }).then(() => {
-        status.style.color = "#16a34a";
-        status.innerText = "✓ تمام تفصیلات محفوظ کر لی گئی ہیں!";
-        playSuccessSound();
-      }).catch(err => {
-        status.style.color = "#ef4444";
-        status.innerText = "محفوظ کرنے میں خرابی۔";
-        playErrorSound();
-      });
-    };
-
-    document.getElementById("changePasswordBtn").onclick = () => {
-      if (!currentUser) return;
-      const currentPassword = document.getElementById("currentPassword").value.trim();
-      const newPassword = document.getElementById("newPassword").value.trim();
-      const statusEl = document.getElementById("passwordStatus");
-
-      if (!currentPassword || !newPassword) {
-        statusEl.style.color = "#ef4444";
-        statusEl.innerText = "پرانا اور نیا پاسورڈ دونوں درج کریں۔";
-        playErrorSound();
-        return;
-      }
-
-      if (newPassword.length < 6) {
-        statusEl.style.color = "#ef4444";
-        statusEl.innerText = "نیا پاسورڈ کم از کم 6 ہندسوں کا ہونا چاہیے۔";
-        playErrorSound();
-        return;
-      }
-
-      const credential = firebase.auth.EmailAuthProvider.credential(currentUser.email, currentPassword);
-      
-      currentUser.reauthenticateWithCredential(credential)
-        .then(() => currentUser.updatePassword(newPassword))
-        .then(() => {
-          statusEl.style.color = "#16a34a";
-          statusEl.innerText = "✓ پاسورڈ کامیابی سے تبدیل ہو گیا!";
-          document.getElementById("currentPassword").value = "";
-          document.getElementById("newPassword").value = "";
-          playSuccessSound();
-        })
-        .catch(error => {
-          statusEl.style.color = "#ef4444";
-          playErrorSound();
-          if (error.code === 'auth/wrong-password') {
-            statusEl.innerText = "موجودہ (پرانا) پاسورڈ غلط ہے۔";
-          } else {
-            statusEl.innerText = "پاسورڈ تبدیل کرنے میں ناکامی۔";
-          }
-        });
-    };
 
     function setAdminFilter(filterType) {
       currentAdminFilter = filterType;
@@ -1512,225 +1478,224 @@
     }
 
     function applyDateRangeFilter() {
-      currentAdminFilter = 'custom';
+      currentAdminFilter = "custom";
       loadAdminData();
     }
 
     function loadAdminData() {
-      if (!currentUser || currentUser.email !== ADMIN_EMAIL) return;
-
-      const container = document.getElementById("adminWinnersList");
-      container.innerHTML = "ڈیٹا لوڈ ہو رہا ہے...";
+      const listContainer = document.getElementById("adminWinnersList");
+      listContainer.innerHTML = "لوڈ ہو رہا ہے...";
 
       db.ref("competitions").once("value", snapshot => {
-        let allWinners = [];
-        const data = snapshot.val() || {};
+        let winnersData = [];
 
-        let startDate = null;
-        let endDate = null;
-
-        const today = new Date();
-
-        if (currentAdminFilter === 'today') {
-          startDate = todayDateKey;
-          endDate = todayDateKey;
-        } else if (currentAdminFilter === 'weekly') {
-          const past7 = new Date();
-          past7.setDate(today.getDate() - 7);
-          startDate = past7.toISOString().slice(0, 10);
-          endDate = todayDateKey;
-        } else if (currentAdminFilter === 'monthly') {
-          const past30 = new Date();
-          past30.setDate(today.getDate() - 30);
-          startDate = past30.toISOString().slice(0, 10);
-          endDate = todayDateKey;
-        } else if (currentAdminFilter === 'custom') {
-          startDate = document.getElementById("adminStartDate").value;
-          endDate = document.getElementById("adminEndDate").value;
-        }
-
-        Object.keys(data).forEach(dateKey => {
-          if (startDate && dateKey < startDate) return;
-          if (endDate && dateKey > endDate) return;
-
-          const dateRecords = data[dateKey];
-          let dateList = [];
-          Object.keys(dateRecords).forEach(uid => {
-            dateList.push({ uid: uid, ...dateRecords[uid] });
+        snapshot.forEach(dateSnap => {
+          const dateKey = dateSnap.key;
+          
+          if (currentAdminFilter === "today" && dateKey !== todayDateKey) return;
+          
+          dateSnap.forEach(userSnap => {
+            const u = userSnap.val();
+            if (u.count >= 100) {
+              winnersData.push({
+                date: dateKey,
+                uid: userSnap.key,
+                name: u.name || "صارف",
+                count: u.count,
+                accName: u.accName || "فراہم نہیں کی گئی",
+                accNumber: u.accNumber || "فراہم نہیں کی گئی",
+                accType: u.accType || "فراہم نہیں کی گئی",
+                paidStatus: u.paidStatus || "unpaid"
+              });
+            }
           });
-
-          dateList.sort((a, b) => b.count - a.count);
-
-          const winner = dateList[0];
-          if (winner && winner.count >= 100) {
-            allWinners.push({ date: dateKey, ...winner });
-          }
         });
 
-        if (allWinners.length === 0) {
-          container.innerHTML = "<div style='font-size:12px; color:var(--text-muted);'>منتخب کردہ دورانیے میں کوئی 100+ درود والا فاتح موجود نہیں ہے۔</div>";
+        if (winnersData.length === 0) {
+          listContainer.innerHTML = "<div style='font-size:12px; color:var(--text-muted);'>کوئی 100+ درود والا فاتح موجود نہیں۔</div>";
           return;
         }
 
         let html = "";
-        allWinners.reverse().forEach(w => {
-          const isPaid = w.paymentStatus === "Paid";
-          const badgeHtml = isPaid ? `<span class="paid-badge">Paid ✓</span>` : `<span class="pending-badge">Pending</span>`;
-          const btnHtml = isPaid 
-            ? `<button class="unpaid-btn" onclick="togglePaymentStatus('${w.date}', '${w.uid}', 'Pending')">نامکمل (Unpaid) کریں</button>`
-            : `<button class="paid-btn" onclick="togglePaymentStatus('${w.date}', '${w.uid}', 'Paid')">ادائی (Paid) مارک کریں</button>`;
-
+        winnersData.forEach(w => {
+          const isPaid = w.paidStatus === "paid";
           html += `
             <div class="admin-card">
-              <div style="display:flex; justify-content:space-between; align-items:center;">
-                <b>📅 ${w.date}</b>
-                ${badgeHtml}
+              <div style="display:flex; justify-content:space-between; font-weight:bold;">
+                <span>👤 ${w.name} (${w.count} اسکور)</span>
+                <span>📅 ${w.date}</span>
               </div>
-              <div style="margin-top:4px;"><b>فاتح:</b> ${w.name} (${w.count} درود)</div>
-              <div><b>اکاؤنٹ:</b> ${w.accType || 'غیر معلوم'} — ${w.accNumber || 'نمبر درج نہیں'} (${w.accName || ''})</div>
-              ${btnHtml}
+              <div style="font-size:12px; margin-top:4px;">
+                💳 <b>${w.accType}:</b> ${w.accNumber} (${w.accName})
+              </div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-top:6px;">
+                <span>اسٹیٹس: ${isPaid ? '<span class="paid-badge">✓ Paid</span>' : '<span class="pending-badge">⌛ Unpaid</span>'}</span>
+                <div>
+                  <button class="${isPaid ? 'unpaid-btn' : 'paid-btn'}" onclick="togglePaymentStatus('${w.date}', '${w.uid}', '${w.paidStatus}')">
+                    ${isPaid ? 'Unpaid کریں' : 'Paid نشان زد کریں'}
+                  </button>
+                  <button style="background:#0d3b22; color:white; border:none; padding:4px 8px; border-radius:6px; font-size:11px; margin-right:4px; cursor:pointer;" onclick="downloadSpecificCertificate('${w.name}', ${w.count}, '${w.date}')">
+                    📜 سرٹیفکیٹ
+                  </button>
+                </div>
+              </div>
             </div>
           `;
         });
 
-        container.innerHTML = html;
+        listContainer.innerHTML = html;
       });
+
+      loadPublicProofs();
     }
 
-    function togglePaymentStatus(dateKey, winnerUid, newStatus) {
-      db.ref(`competitions/${dateKey}/${winnerUid}`).update({
-        paymentStatus: newStatus
+    function togglePaymentStatus(dateKey, uid, currentStatus) {
+      const newStatus = currentStatus === "paid" ? "unpaid" : "paid";
+      db.ref("competitions/" + dateKey + "/" + uid).update({
+        paidStatus: newStatus
       }).then(() => {
-        playSuccessSound();
         loadAdminData();
-        loadPublicProofs();
       });
     }
 
     function loadPublicProofs() {
-      const container = document.getElementById("publicProofList");
-      db.ref("competitions").on("value", snapshot => {
-        const data = snapshot.val() || {};
-        let html = "";
-        let count = 0;
-
-        const dateKeys = Object.keys(data).sort().reverse();
-
-        dateKeys.forEach(dateKey => {
-          const dateRecords = data[dateKey];
-          let dateList = [];
-          Object.keys(dateRecords).forEach(uid => {
-            dateList.push({ uid: uid, ...dateRecords[uid] });
+      const proofList = document.getElementById("publicProofList");
+      db.ref("competitions").once("value", snapshot => {
+        let proofsHtml = "";
+        snapshot.forEach(dateSnap => {
+          const dateKey = dateSnap.key;
+          dateSnap.forEach(userSnap => {
+            const u = userSnap.val();
+            if (u.paidStatus === "paid") {
+              proofsHtml += `
+                <div class="proof-item">
+                  <b>🏆 ${u.name}</b> کو <b>${dateKey}</b> کے مقابلے (<b>${u.count}</b> درود) پر انعام کامیابی سے بھیج دیا گیا ہے۔ ✓
+                </div>
+              `;
+            }
           });
-          dateList.sort((a, b) => b.count - a.count);
-
-          const winner = dateList[0];
-          if (winner && winner.count >= 100) {
-            count++;
-            const isPaid = winner.paymentStatus === "Paid";
-            const badge = isPaid 
-              ? `<span class="paid-badge">پیمنٹ بھیج دی گئی ✓</span>` 
-              : `<span class="pending-badge">پروسیسنگ میں ہے</span>`;
-            
-            const safeName = (winner.name || "Winner").replace(/'/g, "\\'");
-
-            html += `
-              <div class="proof-item" style="text-align: right;">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                  <b>📅 ${dateKey}</b>
-                  ${badge}
-                </div>
-                <div style="margin-top:4px;">🏆 <b>فاتح:</b> ${winner.name} (${winner.count} درود شریف)</div>
-                <div style="margin-top:8px; text-align: left;">
-                  <button onclick="downloadSpecificCertificate('${safeName}', '${winner.count}', '${dateKey}')" style="background:linear-gradient(135deg, #0d3b22, #166534); color:white; border:none; padding:5px 12px; border-radius:6px; font-size:11px; font-weight:bold; cursor:pointer; font-family:inherit;">📜 سرٹیفکیٹ ڈاؤنلوڈ کریں</button>
-                </div>
-              </div>
-            `;
-          }
         });
 
-        if (count === 0) {
-          container.innerHTML = "<div style='font-size:12px; color:var(--text-muted);'>ابھی تک کوئی پیمنٹ پروف دستیاب نہیں ہے۔</div>";
-        } else {
-          container.innerHTML = html;
-        }
+        proofList.innerHTML = proofsHtml || "<div style='font-size:12px; color:var(--text-muted);'>ابھی تک کوئی پیمنٹ پروف موجود نہیں۔</div>";
       });
     }
-    loadPublicProofs();
 
-    function startVoiceRecognition(btnId, statusId, isComp = false) {
-      const btn = document.getElementById(btnId);
-      const statusEl = document.getElementById(statusId);
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    document.getElementById("saveProfileBtn").onclick = () => {
+      if (!currentUser) return;
+      const accName = document.getElementById("accName").value.trim();
+      const accNumber = document.getElementById("accNumber").value.trim();
+      const accType = document.getElementById("accType").value;
+      const statusEl = document.getElementById("profileStatus");
 
-      if (!SpeechRecognition) {
+      db.ref("users/" + currentUser.uid).update({
+        accName: accName,
+        accNumber: accNumber,
+        accType: accType
+      }).then(() => {
+        db.ref("competitions/" + todayDateKey + "/" + currentUser.uid).update({
+          accName: accName,
+          accNumber: accNumber,
+          accType: accType
+        });
+        statusEl.style.color = "#16a34a";
+        statusEl.innerText = "✓ تفصیلات کامیابی سے محفوظ ہو گئیں!";
+        playSuccessSound();
+      }).catch(() => {
         statusEl.style.color = "#ef4444";
-        statusEl.innerText = "آپ کا براؤزر آواز پہچاننے کو سپورٹ نہیں کرتا۔";
+        statusEl.innerText = "محفوظ کرنے میں ناکامی۔";
+        playErrorSound();
+      });
+    };
+
+    document.getElementById("changePasswordBtn").onclick = () => {
+      const currentPassword = document.getElementById("currentPassword").value.trim();
+      const newPassword = document.getElementById("newPassword").value.trim();
+      const statusEl = document.getElementById("passwordStatus");
+
+      if (!currentPassword || !newPassword) {
+        statusEl.style.color = "#ef4444";
+        statusEl.innerText = "دونوں پاسورڈ درج کریں۔";
         playErrorSound();
         return;
       }
 
-      btn.disabled = true;
-      btn.classList.add("listening");
-      statusEl.style.color = "#0d3b22";
-      statusEl.innerText = "سن رہا ہے... درود شریف پڑھیں 🎙️";
+      const cred = firebase.auth.EmailAuthProvider.credential(currentUser.email, currentPassword);
+      currentUser.reauthenticateWithCredential(cred).then(() => {
+        currentUser.updatePassword(newPassword).then(() => {
+          statusEl.style.color = "#16a34a";
+          statusEl.innerText = "✓ پاسورڈ کامیابی سے اپڈیٹ ہو گیا!";
+          document.getElementById("currentPassword").value = "";
+          document.getElementById("newPassword").value = "";
+          playSuccessSound();
+        }).catch(() => {
+          statusEl.style.color = "#ef4444";
+          statusEl.innerText = "نیا پاسورڈ لاگو نہیں ہو سکا۔";
+          playErrorSound();
+        });
+      }).catch(() => {
+        statusEl.style.color = "#ef4444";
+        statusEl.innerText = "موجودہ پاسورڈ غلط ہے۔";
+        playErrorSound();
+      });
+    };
 
+    function startVoiceRecognition(btnId, statusId, isComp = false) {
+      if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+        alert("آپ کا براؤزر وائس ریکگنیشن کو سپورٹ نہیں کرتا۔ Chrome استعمال کریں۔");
+        return;
+      }
+
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       const recognition = new SpeechRecognition();
       recognition.lang = 'ar-SA';
+      recognition.continuous = true;
       recognition.interimResults = false;
 
-      recognition.onresult = (event) => {
-        const text = event.results[0][0].transcript;
-        statusEl.innerText = `آواز: "${text}"`;
+      const btn = document.getElementById(btnId);
+      const status = document.getElementById(statusId);
 
+      btn.classList.add("listening");
+      status.innerText = "🎙️ لائیو آواز سن رہے ہیں... درود شریف پڑھیں";
+
+      recognition.onresult = (event) => {
+        const transcript = event.results[event.results.length - 1][0].transcript;
+        
         if (currentUser) {
           if (isComp) {
             db.ref("competitions/" + todayDateKey + "/" + currentUser.uid).transaction(current => {
-              if (!current) return { count: 1, name: currentUser.displayName || currentUser.email };
-              return { count: (current.count || 0) + 1, name: currentUser.displayName || currentUser.email };
+              if (!current) {
+                return { count: 1, name: currentUser.displayName || currentUser.email };
+              } else {
+                current.count = (current.count || 0) + 1;
+                return current;
+              }
             });
           } else {
-            db.ref("users/" + currentUser.uid).transaction(current => {
-              if (!current) return { count: 1, name: currentUser.displayName || currentUser.email, email: currentUser.email };
-              return { 
-                count: (current.count || 0) + 1, 
-                name: currentUser.displayName || currentUser.email,
-                email: currentUser.email,
-                accName: current.accName || '',
-                accNumber: current.accNumber || '',
-                accType: current.accType || 'JazzCash',
-                savedCity: current.savedCity || '',
-                savedCountry: current.savedCountry || ''
-              };
-            });
+            db.ref("users/" + currentUser.uid + "/count").transaction(current => (current || 0) + 1);
           }
-          statusEl.innerText = "✓ درود شریف شمار ہو گیا!";
-          playSuccessSound();
-          triggerVibration();
         }
+
+        playSuccessSound();
+        triggerVibration();
+        status.innerText = `✓ شمار ہو گیا! ("${transcript}")`;
       };
 
-      recognition.onerror = () => {
-        statusEl.style.color = "#ef4444";
-        statusEl.innerText = "آواز واضح نہیں تھی، دوبارہ کوشش کریں۔";
+      recognition.onerror = (e) => {
+        btn.classList.remove("listening");
+        status.innerText = "سننے میں ناکامی، دوبارہ کوشش کریں۔";
         playErrorSound();
       };
 
       recognition.onend = () => {
-        btn.disabled = false;
         btn.classList.remove("listening");
+        status.innerText = "🎙️ دوبارہ شروع کرنے کے لیے بٹن دبائیں۔";
       };
 
       recognition.start();
     }
 
-    document.getElementById("countBtn").onclick = function() {
-      startVoiceRecognition('countBtn', 'statusMsg', false);
-    };
-
-    document.getElementById("compCountBtn").onclick = function() {
-      startVoiceRecognition('compCountBtn', 'compStatusMsg', true);
-    };
+    document.getElementById("countBtn").onclick = () => startVoiceRecognition('countBtn', 'statusMsg', false);
+    document.getElementById("compCountBtn").onclick = () => startVoiceRecognition('compCountBtn', 'compStatusMsg', true);
   </script>
 </body>
 </html>
