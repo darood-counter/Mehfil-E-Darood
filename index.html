@@ -1533,45 +1533,42 @@
         playErrorSound();
       };
 
-      Recognition.onend = () => {
-    clearTimeout(recordingTimeout);
-    btn.classList.remove("listening");
-    btn.disabled = false;
-    triggerVibration();
+      recognition.onend = () => {
+        clearTimeout(recordingTimeout);
+        btn.classList.remove("listening");
+        btn.disabled = false;
+        triggerVibration();
 
-    let transcript = finalTranscript ? finalTranscript.toLowerCase() : "";
+        let transcript = finalTranscript ? finalTranscript.toLowerCase() : "";
 
-    // درود شریف کے بنیادی مطلوبہ الفاظ کی مختلف املا کے ساتھ جانچ
-    let hasAllahummaOrSalat = transcript.includes("صل") || transcript.includes("اللهم") || transcript.includes("اللھم") || transcript.includes("صل وسلم");
-    let hasMuhammad = transcript.includes("محمد") || transcript.includes("النبى") || transcript.includes("النبی");
-    let hasIbrahimOrMajeed = transcript.includes("ابراهيم") || transcript.includes("ابراہیم") || transcript.includes("مجيد") || transcript.includes("مجید") || transcript.includes("آل");
+        let hasAllahummaOrSalat = transcript.includes("صل") || transcript.includes("اللهم") || transcript.includes("اللھم") || transcript.includes("صل وسلم");
+        let hasMuhammad = transcript.includes("محمد") || transcript.includes("النبى") || transcript.includes("النبی");
+        let hasIbrahimOrMajeed = transcript.includes("ابراهيم") || transcript.includes("ابراہیم") || transcript.includes("مجيد") || transcript.includes("مجید") || transcript.includes("آل");
 
-    // تصدیق صرف تب ہوگی جب تمام لازمی اجزاء یا مکمل درود کا مفہوم پورا ہو
-    let isCompleteDarood = (hasAllahummaOrSalat && hasMuhammad) || (hasMuhammad && hasIbrahimOrMajeed);
+        let isCompleteDarood = (hasAllahummaOrSalat && hasMuhammad) || (hasMuhammad && hasIbrahimOrMajeed);
 
-    if (transcript.length > 5 && isCompleteDarood) {
-        status.style.color = (typeof isComp !== 'undefined' && isComp) ? "#d97706" : "var(--primary-color)";
-        status.innerText = "✓ تصدیق ہو گئی!";
-        if (typeof playSuccessSound === 'function') playSuccessSound();
+        if (transcript.length > 5 && isCompleteDarood) {
+          status.style.color = (typeof isComp !== 'undefined' && isComp) ? "#d97706" : "var(--primary-color)";
+          status.innerText = "✓ تصدیق ہو گئی!";
+          if (typeof playSuccessSound === 'function') playSuccessSound();
 
-        const targetPath = (typeof isComp !== 'undefined' && isComp) ? "competitions/" + todayDateKey + "/" + currentUser.uid : "users/" + currentUser.uid;
-        
-        db.ref(targetPath).transaction(current => {
+          const targetPath = (typeof isComp !== 'undefined' && isComp) ? "competitions/" + todayDateKey + "/" + currentUser.uid : "users/" + currentUser.uid;
+          
+          db.ref(targetPath).transaction(current => {
             if (current) { 
-                current.count = (current.count || 0) + 1; 
-                current.name = currentUser.displayName || currentUser.email; 
+              current.count = (current.count || 0) + 1; 
+              current.name = currentUser.displayName || currentUser.email; 
             } else { 
-                current = { name: currentUser.displayName || currentUser.email, count: 1 }; 
+              current = { name: currentUser.displayName || currentUser.email, count: 1 }; 
             }
             return current;
-        });
-    } else {
-        status.style.color = "#ef4444";
-        status.innerText = "مکمل درود شریف پڑھیں، صرف ایک لفظ پر کاؤنٹ نہیں ہوگا۔";
-        if (typeof playErrorSound === 'function') playErrorSound();
-    }
-};
-
+          });
+        } else {
+          status.style.color = "#ef4444";
+          status.innerText = "مکمل درود شریف پڑھیں، صرف ایک لفظ پر کاؤنٹ نہیں ہوگا۔";
+          if (typeof playErrorSound === 'function') playErrorSound();
+        }
+      };
 
       recognition.start();
     }
@@ -1594,41 +1591,29 @@
       container.innerHTML = "";
       let users = [];
       snapshot.forEach(child => { users.push(child.val()); });
-      users.reverse();
-    function renderBoard(snapshot, elementId, limit = null) {
-        const container = document.getElementById(elementId);
-        if (!container) return;
-        container.innerHTML = "";
-        let users = [];
-        snapshot.forEach(child => { users.push(child.val()); });
-        
-        // کاؤنٹ کی بنیاد پر بڑے سے چھوٹے کی طرف ترتیب دیں (سب سے زیادہ کاؤنٹ والا سرفہرست ہوگا)
-        users.sort((a, b) => (b.count || 0) - (a.count || 0));
+      
+      users.sort((a, b) => (b.count || 0) - (a.count || 0));
 
-        // اگر آپ صرف روزانہ کا ایک ہی ونر شو کرنا چاہتے ہیں تو limit کو 1 کر دیں
-        if (elementId === "compBoard" || limit === 1) {
-            users = users.slice(0, 1);
-        } else if (limit) {
-            users = users.slice(0, limit);
-        }
+      if (limit) {
+        users = users.slice(0, limit);
+      }
 
-        if (users.length === 0) {
-            container.innerHTML = "<tr><td colspan='3'>अभी تک کوئی ڈیٹا نہیں ہے۔</td></tr>";
-            return;
-        }
+      if (users.length === 0) {
+        container.innerHTML = "<tr><td colspan='3'>ابھی تک کوئی ڈیٹا نہیں ہے۔</td></tr>";
+        return;
+      }
 
-        users.forEach((u, index) => {
-            let rankBadge = index + 1;
-            if (index === 0) rankBadge = "👑 1"; // صرف پہلے (Winner) کے لیے تاج والا بیج
+      users.forEach((u, index) => {
+        let rankBadge = index + 1;
+        if (index === 0) rankBadge = "👑 1";
 
-            container.innerHTML += `<tr>
-                <td><b>${rankBadge}</b></td>
-                <td><b>${u.name || "گمنام"}</b></td>
-                <td><b>${u.count || 0}</b></td>
-            </tr>`;
-        });
+        container.innerHTML += `<tr>
+          <td><b>${rankBadge}</b></td>
+          <td><b>${u.name || "گمنام"}</b></td>
+          <td><b>${u.count || 0}</b></td>
+        </tr>`;
+      });
     }
-
   </script>
 </body>
 </html>
