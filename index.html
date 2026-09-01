@@ -269,9 +269,11 @@
       position: absolute;
       width: 100%;
       height: 100%;
-      border: 6px solid #e2e8f0;
-      border-top: 6px solid var(--primary-color);
       border-radius: 50%;
+      background: conic-gradient(#2563eb var(--tasbeeh-progress, 0%), #dbeafe 0);
+      -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 6px), #000 0);
+      mask: radial-gradient(farthest-side, transparent calc(100% - 6px), #000 0);
+      pointer-events: none;
     }
 
     .mic-btn {
@@ -850,8 +852,8 @@
         
         <div id="rewardDaroodSlot"></div>
 
-        <div class="mic-circle-wrapper">
-          <div class="circle-progress"></div>
+        <div class="mic-circle-wrapper" id="tasbeehTimerWrapper" aria-label="35 سیکنڈ کا تسبیح ٹائمر">
+          <div class="circle-progress" id="tasbeehTimerRing"></div>
           <button class="mic-btn" id="countBtn">
             <span style="font-size: 32px; font-weight: bold; color: var(--primary-color);" id="userTotal">0</span>
             <span style="font-size: 12px; color: var(--text-muted); font-weight: normal;">آپ کے آج کے درود</span>
@@ -1110,6 +1112,7 @@
     scheduleCompetitionRollover();
 
     function switchBottomTab(tabName) {
+      localStorage.setItem("last_active_tab", tabName);
       document.getElementById("mainTab").classList.add("hidden");
       document.getElementById("compTab").classList.add("hidden");
       document.getElementById("rewardTab").classList.add("hidden");
@@ -1237,6 +1240,14 @@
         document.getElementById("userName").innerText = user.displayName || user.email;
         document.getElementById("profileDisplayName").innerText = user.displayName || "---";
         document.getElementById("profileDisplayEmail").innerText = user.email || "---";
+
+        // Refresh ke baad user ko wahi page dobara dikhayein jahan woh tha.
+        const savedTab = localStorage.getItem("last_active_tab");
+        if (savedTab && ["home", "competition", "reward", "profile", "about"].includes(savedTab)) {
+          setTimeout(() => switchBottomTab(savedTab), 0);
+        } else {
+          switchBottomTab("home");
+        }
 
         db.ref("users/" + user.uid).update({
           name: user.displayName || user.email,
@@ -1840,6 +1851,32 @@
     let compTimerInterval = null;
     let compRecognition = null;
 
+    let tasbeehTimerInterval = null;
+    let tasbeehRecognition = null;
+
+    function startTasbeeh35SecondTimer() {
+      const ring = document.getElementById("tasbeehTimerRing");
+      if (!ring) return;
+      if (tasbeehTimerInterval) clearInterval(tasbeehTimerInterval);
+      const startedAt = Date.now();
+      ring.style.setProperty("--tasbeeh-progress", "100%");
+
+      tasbeehTimerInterval = setInterval(() => {
+        const elapsed = Date.now() - startedAt;
+        const remainingRatio = Math.max(0, 1 - Math.min(1, elapsed / COMP_DURATION_MS));
+        ring.style.setProperty("--tasbeeh-progress", (remainingRatio * 100).toFixed(2) + "%");
+        if (remainingRatio <= 0) {
+          clearInterval(tasbeehTimerInterval);
+          tasbeehTimerInterval = null;
+          if (tasbeehRecognition) { try { tasbeehRecognition.stop(); } catch(e) {} tasbeehRecognition = null; }
+          const btn = document.getElementById("countBtn");
+          const status = document.getElementById("statusMsg");
+          if (btn) { btn.disabled = false; btn.classList.remove("listening"); }
+          if (status) { status.style.color = "#ef4444"; status.innerText = "⏰ 35 سیکنڈ مکمل — وقت ختم ہو گیا۔ دوبارہ دبائیں۔"; }
+        }
+      }, 50);
+    }
+
     function startComp35SecondTimer() {
       const bar = document.getElementById("compTimerRingProgress");
       if (!bar) return;
@@ -1889,6 +1926,10 @@
 
       const recognition = new SpeechRecognition();
       if (isComp) compRecognition = recognition;
+      if (btnId === "countBtn") {
+        tasbeehRecognition = recognition;
+        startTasbeeh35SecondTimer();
+      }
       recognition.lang = 'ar-SA';
       recognition.interimResults = false;
       recognition.continuous = false;
