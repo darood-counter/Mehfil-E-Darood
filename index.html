@@ -647,9 +647,12 @@
     </div>
 
     <div id="userInfo" class="hidden">
-      <div class="user-header">
-        <span>خوش آمدید، <b id="userName"></b>!</span>
-        <button class="logout-btn" id="logoutBtn">لاگ آؤٹ</button>
+      <div class="user-header" style="padding:6px 10px; margin-bottom:10px; font-size:12px; gap:8px;">
+        <span style="font-size:12px;">خوش آمدید، <b id="userName"></b>!</span>
+        <div class="live-badge" style="margin:0; padding:2px 8px; font-size:10px; white-space:nowrap;">
+          <span class="live-dot" style="height:6px; width:6px;"></span> آن لائن: <span id="onlineCount">0</span>
+        </div>
+        <button class="logout-btn" id="logoutBtn" style="padding:3px 8px; font-size:10px; white-space:nowrap;">لاگ آؤٹ</button>
       </div>
 
       <div id="daroodCard" class="darood-card hidden">
@@ -666,9 +669,7 @@
 
       <!-- TAB 1: Home Tab -->
       <div id="mainTab">
-        <div class="live-badge">
-          <span class="live-dot"></span> آن لائن شرکاء: <span id="onlineCount">0</span>
-        </div>
+
         
         <!-- PRAYER TIMES CARD (LIVE API) -->
         <div class="prayer-card-container">
@@ -717,43 +718,39 @@
         </div>
         <!-- END PRAYER TIMES CARD -->
 
-        <h2 style="font-size: 20px; color: var(--primary-color); margin: 10px 0;">🕌 آج کی محفل</h2>
-
-        <div style="background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 14px; padding: 12px; margin: 10px 0; box-shadow: 0 4px 15px rgba(0,0,0,0.03);">
-          <div style="font-size: 28px; font-weight: bold; color: var(--primary-color);" id="globalTotalCount">0</div>
-          <div style="font-size: 12px; color: var(--text-muted);">آج کے اجتماعی درود (ریئل ٹائم)</div>
-        </div>
-
-        <div style="background: linear-gradient(135deg, #fffbeb, #fef3c7); border: 1.5px solid #f59e0b; border-radius: 14px; padding: 14px; margin: 14px 0; text-align: center; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.15);">
-          <div style="font-size: 14px; font-weight: bold; color: #d97706; margin-bottom: 4px;">👑 آج کے مقابلے کا لیڈر (سب سے آگے)</div>
-          <div id="homeWinnerHighlight" style="font-size: 15px; color: #1f2937; font-weight: bold;">لوڈ ہو رہا ہے...</div>
-        </div>
-
-        <!-- WINNER CERTIFICATE SECTION (SHOWN FOR TOP WINNER) -->
-        <div id="winnerCertificateCard" class="hidden" style="margin: 20px 0;">
-          <div id="certificateContainer" style="background: #fffdf9; border: 8px double var(--accent-gold); border-radius: 16px; padding: 25px 15px; text-align: center; box-shadow: 0 10px 30px rgba(197, 160, 89, 0.3); position: relative;">
-            <div style="font-size: 28px; margin-bottom: 5px;">📜</div>
-            <div style="font-size: 22px; font-weight: bold; color: var(--primary-color); font-family: 'Jameel Noori Nastaleeq', serif;">سندِ تقدیر (Certificate of Excellence)</div>
-            <div style="font-size: 13px; color: var(--accent-gold); font-weight: bold; margin-bottom: 15px;">محفلِ درود — روزانہ درود شریف مقابلہ</div>
-            
-            <div style="font-size: 14px; color: var(--text-muted); margin-bottom: 4px;">یہ سند بصد خلوص و احترام پیش کی جاتی ہے بحق:</div>
-            <div id="certWinnerName" style="font-size: 24px; font-weight: bold; color: #d97706; margin: 8px 0; border-bottom: 2px dashed var(--accent-gold); display: inline-block; padding: 0 20px;">نام صارف</div>
-            
-            <div style="font-size: 14px; color: var(--text-main); line-height: 1.8; margin: 12px 0;">
-              نہایت خوشی کے ساتھ یہ تصدیق کی جاتی ہے کہ آپ نے لائیو درود شریف مقابلے میں <b id="certWinnerScore" style="color:var(--primary-color);">0</b> درودِ پاک کا نذرانہ پیش کر کے <b style="color:#d97706;">پہلی پوزیشن (Winner)</b> حاصل کی ہے۔
+        <!-- LATEST DAILY WINNER CERTIFICATE -->
+        <div id="latestWinnerCertificateCard" class="hidden" style="margin:16px 0 18px;">
+          <div id="latestCertificateContainer" style="background:linear-gradient(145deg,#fffdf7,#fff8e8); border:7px double var(--accent-gold); border-radius:18px; padding:20px 14px; text-align:center; box-shadow:0 10px 28px rgba(197,160,89,.20);">
+            <div style="font-size:28px;">🏆 📜</div>
+            <div style="font-size:21px; font-weight:bold; color:var(--primary-color); font-family:'Jameel Noori Nastaleeq',serif;">سندِ اعزاز</div>
+            <div style="font-size:12px; color:var(--accent-gold); font-weight:bold; margin-bottom:10px;">محفلِ درود — روزانہ مقابلہ</div>
+            <div style="font-size:13px; color:var(--text-muted);">یہ سند بصد خلوص پیش کی جاتی ہے بحق</div>
+            <div id="latestCertWinnerName" style="font-size:25px; font-weight:bold; color:#b7791f; margin:7px 0; border-bottom:2px dashed var(--accent-gold); display:inline-block; padding:0 18px;">—</div>
+            <div style="font-size:13px; color:var(--text-main); line-height:1.8; margin:8px 0;">
+              جنہوں نے <b id="latestCertWinnerScore" style="color:var(--primary-color);">0</b> درودِ پاک پڑھ کر
+              <b style="color:#b7791f;">روزانہ مقابلے میں پہلی پوزیشن</b> حاصل کی۔
             </div>
-
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 25px; padding-top: 15px; border-top: 1px solid rgba(197, 160, 89, 0.3); font-size: 11px; color: var(--text-muted);">
-              <div><b>تاریخ:</b> <span id="certDate">2026-09-01</span></div>
-              <div style="font-size: 16px; font-weight: bold; color: var(--primary-color);">Mehfil-E-Darood 🌙</div>
-              <div><b>تصدیق شدہ:</b> 🏆 Winner</div>
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:6px; margin-top:15px; padding-top:10px; border-top:1px solid rgba(197,160,89,.35); font-size:10px; color:var(--text-muted);">
+              <div><b>تاریخ:</b> <span id="latestCertDate">—</span></div>
+              <div style="font-size:13px; font-weight:bold; color:var(--primary-color);">Mehfil-E-Darood 🌙</div>
+              <div><b>🏆 Winner</b></div>
             </div>
           </div>
-          <button onclick="downloadCertificate()" style="background: linear-gradient(135deg, #16a34a, #15803d); color: white; border: none; padding: 10px 20px; border-radius: 30px; font-size: 14px; font-weight: bold; cursor: pointer; margin-top: 12px; font-family: 'Jameel Noori Nastaleeq', sans-serif; box-shadow: 0 4px 15px rgba(22, 163, 74, 0.3); width: 100%;">
-            📥 سرٹیفکیٹ ڈاؤنلوڈ کریں (Download PNG)
+          <button onclick="downloadLatestWinnerCertificate()" style="background:linear-gradient(135deg,#0d3b22,#166534); color:white; border:none; padding:9px 18px; border-radius:30px; font-size:13px; font-weight:bold; cursor:pointer; margin-top:10px; font-family:'Jameel Noori Nastaleeq',sans-serif; width:100%;">
+            📥 ونر کا سرٹیفکیٹ ڈاؤنلوڈ کریں
           </button>
         </div>
-        <!-- END CERTIFICATE SECTION -->
+
+        <h2 style="font-size:19px; color:var(--primary-color); margin:8px 0;">🕌 آج کی محفل</h2>
+        <div style="background:#ffffff; border:1.5px solid #e2e8f0; border-radius:14px; padding:12px; margin:8px 0 12px; box-shadow:0 4px 15px rgba(0,0,0,.03);">
+          <div style="font-size:28px; font-weight:bold; color:var(--primary-color);" id="globalTotalCount">0</div>
+          <div style="font-size:12px; color:var(--text-muted);">آج کے اجتماعی درود (ریئل ٹائم)</div>
+        </div>
+
+        <div style="background:linear-gradient(135deg,#fffbeb,#fef3c7); border:1.5px solid #f59e0b; border-radius:14px; padding:12px; margin:10px 0; text-align:center; box-shadow:0 4px 15px rgba(245,158,11,.15);">
+          <div style="font-size:13px; font-weight:bold; color:#d97706; margin-bottom:3px;">👑 آج کے مقابلے کا لیڈر</div>
+          <div id="homeWinnerHighlight" style="font-size:14px; color:#1f2937; font-weight:bold;">لوڈ ہو رہا ہے...</div>
+        </div>
 
         <!-- ADMIN PANEL SECTION ON HOME PAGE -->
         <div id="adminPanelSection" class="admin-panel hidden" style="text-align: right; margin-top: 15px;">
@@ -1019,9 +1016,7 @@
       document.getElementById("certWinnerName").innerText = name;
       document.getElementById("certWinnerScore").innerText = score;
       document.getElementById("certDate").innerText = dateKey;
-
-      const certCard = document.getElementById("winnerCertificateCard");
-      const wasHidden = certCard.classList.contains("hidden");
+const wasHidden = certCard.classList.contains("hidden");
       certCard.classList.remove("hidden");
 
       setTimeout(() => {
@@ -1456,6 +1451,81 @@
       });
     }
 
+
+    function getQualifyingDailyWinner(daySnap) {
+      let winner = null;
+      daySnap.forEach(userSnap => {
+        const val = userSnap.val() || {};
+        const score = Number(val.count || 0);
+        if (score >= 100 && (!winner || score > winner.count)) {
+          winner = { uid:userSnap.key, name:val.name || "صارف", count:score, dateKey:daySnap.key };
+        }
+      });
+      return winner;
+    }
+
+    function loadLatestWinnerCertificate() {
+      const card = document.getElementById("latestWinnerCertificateCard");
+      if (!card) return;
+      db.ref("competitions").on("value", snapshot => {
+        const winners = [];
+        snapshot.forEach(daySnap => {
+          const w = getQualifyingDailyWinner(daySnap);
+          if (w) winners.push(w);
+        });
+        winners.sort((a,b) => String(b.dateKey).localeCompare(String(a.dateKey)));
+        const w = winners[0];
+        if (!w) { card.classList.add("hidden"); return; }
+        document.getElementById("latestCertWinnerName").innerText = w.name;
+        document.getElementById("latestCertWinnerScore").innerText = w.count;
+        document.getElementById("latestCertDate").innerText = w.dateKey;
+        window.latestWinnerCertificateData = w;
+        card.classList.remove("hidden");
+      });
+    }
+
+    function downloadLatestWinnerCertificate() {
+      const w = window.latestWinnerCertificateData;
+      const cert = document.getElementById("latestCertificateContainer");
+      if (!w || !cert || typeof html2canvas === "undefined") return;
+      html2canvas(cert, {scale:2, useCORS:true}).then(canvas => {
+        const link = document.createElement("a");
+        link.download = `Winner_Certificate_${w.name}_${w.dateKey}.png`;
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+      });
+    }
+
+    function loadHomeDailyTop5Winners() {
+      const container = document.getElementById("homeTop5Winners");
+      if (!container) return;
+      db.ref("competitions").on("value", snapshot => {
+        const winners = [];
+        snapshot.forEach(daySnap => {
+          const w = getQualifyingDailyWinner(daySnap);
+          if (w) winners.push(w);
+        });
+        winners.sort((a,b) => String(b.dateKey).localeCompare(String(a.dateKey)));
+        const top5 = winners.slice(0,5);
+        if (!top5.length) {
+          container.innerHTML = `<div style="text-align:center; padding:14px;">ابھی کوئی qualifying winner موجود نہیں (کم از کم 100 درود ضروری ہیں)</div>`;
+          return;
+        }
+        container.innerHTML = top5.map((w,i) => {
+          const safeName = String(w.name).replace(/\\/g,"\\\\").replace(/'/g,"\\'");
+          const safeDate = String(w.dateKey).replace(/\\/g,"\\\\").replace(/'/g,"\\'");
+          const medal = i===0 ? "🥇" : i===1 ? "🥈" : i===2 ? "🥉" : "🏆";
+          return `<div style="background:#fffdf9;border:1px solid #ead9b0;border-radius:13px;padding:11px;margin:8px 0;">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+              <div style="font-size:19px;">${medal}</div>
+              <div style="flex:1;text-align:right;"><div style="font-weight:bold;color:var(--primary-color);">${w.name}</div><div style="font-size:11px;color:var(--text-muted);">📅 ${w.dateKey}</div></div>
+              <div style="text-align:center;min-width:65px;"><div style="font-weight:bold;">${w.count}</div><div style="font-size:10px;color:var(--text-muted);">درود</div></div>
+              <button onclick="downloadSpecificCertificate('${safeName}',${w.count},'${safeDate}')" style="border:0;border-radius:8px;padding:7px 8px;cursor:pointer;background:var(--primary-color);color:white;font-size:10px;">📜 Certificate</button>
+            </div></div>`;
+        }).join("");
+      });
+    }
+
     db.ref("users").on("value", snapshot => {
       let total = 0;
       let userList = [];
@@ -1481,6 +1551,9 @@
       document.getElementById("board").innerHTML = fullTbody || `<tr><td colspan="3">کوئی ڈیٹا موجود نہیں</td></tr>`;
     });
 
+    loadLatestWinnerCertificate();
+    loadHomeDailyTop5Winners();
+
     db.ref("competitions/" + todayDateKey).on("value", snapshot => {
       let compList = [];
       snapshot.forEach(child => {
@@ -1502,15 +1575,7 @@
 
       if (topWinner && topWinner.count > 0) {
         highlightEl.innerHTML = `🌟 <b>${topWinner.name}</b> (${topWinner.count} درود شریف)`;
-        
-        if (currentUser && currentUser.uid === topWinner.uid) {
-          document.getElementById("certWinnerName").innerText = topWinner.name;
-          document.getElementById("certWinnerScore").innerText = topWinner.count;
-          document.getElementById("certDate").innerText = todayDateKey;
-          certCard.classList.remove("hidden");
-        } else {
-          certCard.classList.add("hidden");
-        }
+        // Latest qualifying winner certificate is handled by loadLatestWinnerCertificate().
       } else {
         highlightEl.innerText = "آج کے مقابلے کا آغاز ابھی ہوا ہے!";
         certCard.classList.add("hidden");
