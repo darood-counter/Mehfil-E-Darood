@@ -720,25 +720,33 @@
 
         <!-- LATEST DAILY WINNER CERTIFICATE -->
         <div id="latestWinnerCertificateCard" class="hidden" style="margin:16px 0 18px;">
-          <div id="latestCertificateContainer" style="background:linear-gradient(145deg,#fffdf7,#fff8e8); border:7px double var(--accent-gold); border-radius:18px; padding:20px 14px; text-align:center; box-shadow:0 10px 28px rgba(197,160,89,.20);">
-            <div style="font-size:28px;">🏆 📜</div>
-            <div style="font-size:21px; font-weight:bold; color:var(--primary-color); font-family:'Jameel Noori Nastaleeq',serif;">سندِ اعزاز</div>
-            <div style="font-size:12px; color:var(--accent-gold); font-weight:bold; margin-bottom:10px;">محفلِ درود — روزانہ مقابلہ</div>
-            <div style="font-size:13px; color:var(--text-muted);">یہ سند بصد خلوص پیش کی جاتی ہے بحق</div>
-            <div id="latestCertWinnerName" style="font-size:25px; font-weight:bold; color:#b7791f; margin:7px 0; border-bottom:2px dashed var(--accent-gold); display:inline-block; padding:0 18px;">—</div>
+          <div id="latestCertificateContainer" style="background:linear-gradient(145deg,#fffdf2 0%,#f9edc8 48%,#fffaf0 100%); border:10px double #c9a227; border-radius:24px; padding:28px 20px; text-align:center; box-shadow:0 14px 38px rgba(118,83,12,.28), inset 0 0 0 2px rgba(255,255,255,.8); direction:ltr; position:relative; overflow:hidden;">
+            <div style="font-size:30px; letter-spacing:8px;">🏆 ✦ 📜 ✦ 🏆</div>
+            <div style="font-size:10px; letter-spacing:3px; color:#9a7415; font-weight:bold; margin:6px 0 2px;">✦ OFFICIAL HONOUR ✦</div>
+            <div style="font-size:27px; font-weight:800; color:#6b4f0b; letter-spacing:.4px; font-family:'Plus Jakarta Sans',sans-serif;">Certificate of Appreciation</div>
+            <div style="font-size:12px; color:var(--accent-gold); font-weight:bold; margin:7px 0 12px;">Mehfil-E-Darood — Daily Competition</div>
+            <div style="font-size:13px; color:var(--text-muted);">This certificate is proudly presented to</div>
+            <div id="latestCertWinnerName" style="font-size:29px; font-weight:800; color:#8a6508; margin:9px 0; border-bottom:2px dashed var(--accent-gold); display:inline-block; padding:0 18px;">—</div>
             <div style="font-size:13px; color:var(--text-main); line-height:1.8; margin:8px 0;">
-              جنہوں نے <b id="latestCertWinnerScore" style="color:var(--primary-color);">0</b> درودِ پاک پڑھ کر
-              <b style="color:#b7791f;">روزانہ مقابلے میں پہلی پوزیشن</b> حاصل کی۔
+              for reciting <b id="latestCertWinnerScore" style="color:var(--primary-color);">0</b> Durood and achieving
+              <b style="color:#b7791f;">1st Position</b> in the Daily Competition.
             </div>
+            <div style="background:linear-gradient(135deg,rgba(255,255,255,.75),rgba(250,239,202,.9)); border:2px solid rgba(201,162,39,.55); box-shadow:inset 0 0 18px rgba(201,162,39,.08); border-radius:12px; padding:10px 12px; margin:13px 0; font-size:12px; line-height:1.7; color:var(--primary-color);">
+              <b>Special Dua</b><br>
+              May Allah accept your Durood, bless you and your family, increase you in faith and goodness, and grant you abundant reward in this world and the Hereafter. Ameen.
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:6px; margin-top:15px; padding-top:10px; border-top:1px solid rgba(197,160,89,.35); font-size:10px; color:var(--text-muted);">
+              <div><b>Date:</b> <span id="latestCertDate">—</span></div>
+              <div style="font-size:13px; font-weight:bold; color:var(--primary-color);">Mehfil-E-Darood 🌙</div>
+              <div><b>🏆 Winner</b></div>
+            </div>
+          </div>
             <div style="display:flex; justify-content:space-between; align-items:center; gap:6px; margin-top:15px; padding-top:10px; border-top:1px solid rgba(197,160,89,.35); font-size:10px; color:var(--text-muted);">
               <div><b>تاریخ:</b> <span id="latestCertDate">—</span></div>
               <div style="font-size:13px; font-weight:bold; color:var(--primary-color);">Mehfil-E-Darood 🌙</div>
               <div><b>🏆 Winner</b></div>
             </div>
           </div>
-          <button onclick="downloadLatestWinnerCertificate()" style="background:linear-gradient(135deg,#0d3b22,#166534); color:white; border:none; padding:9px 18px; border-radius:30px; font-size:13px; font-weight:bold; cursor:pointer; margin-top:10px; font-family:'Jameel Noori Nastaleeq',sans-serif; width:100%;">
-            📥 ونر کا سرٹیفکیٹ ڈاؤنلوڈ کریں
-          </button>
         </div>
 
         <h2 style="font-size:19px; color:var(--primary-color); margin:8px 0;">🕌 آج کی محفل</h2>
@@ -998,32 +1006,34 @@
         osc.start(); osc.stop(audioCtx.currentTime + 0.3);
       } catch(e) {}
     }
-
-    function downloadCertificate() {
-      const certElement = document.getElementById("certificateContainer");
-      if (!certElement) return;
-      
-      html2canvas(certElement, { scale: 2, useCORS: true }).then(canvas => {
-        const link = document.createElement("a");
-        const winnerName = document.getElementById("certWinnerName").innerText || "Winner";
-        link.download = `Certificate_${winnerName}_${todayDateKey}.png`;
-        link.href = canvas.toDataURL("image/png");
-        link.click();
-      });
+}, 150);
     }
 
-    function downloadSpecificCertificate(name, score, dateKey) {
-      document.getElementById("certWinnerName").innerText = name;
-      document.getElementById("certWinnerScore").innerText = score;
-      document.getElementById("certDate").innerText = dateKey;
-const wasHidden = certCard.classList.contains("hidden");
-      certCard.classList.remove("hidden");
 
+    // Download certificate from Payment Proofs only.
+    function downloadSpecificCertificate(name, score, dateKey) {
+      const card = document.getElementById("latestWinnerCertificateCard");
+      const cert = document.getElementById("latestCertificateContainer");
+      if (!card || !cert) return;
+      const nameEl = document.getElementById("latestCertWinnerName");
+      const scoreEl = document.getElementById("latestCertWinnerScore");
+      const dateEl = document.getElementById("latestCertDate");
+      const old = { name:nameEl.innerText, score:scoreEl.innerText, date:dateEl.innerText };
+      nameEl.innerText = name || "Winner";
+      scoreEl.innerText = score || 0;
+      dateEl.innerText = dateKey || "";
+      const wasHidden = card.classList.contains("hidden");
+      card.classList.remove("hidden");
       setTimeout(() => {
-        downloadCertificate();
-        if (wasHidden) {
-          certCard.classList.add("hidden");
-        }
+        html2canvas(cert, { scale: 2, useCORS: true, backgroundColor: null }).then(canvas => {
+          const link = document.createElement("a");
+          link.download = `Certificate_${name || "Winner"}_${dateKey || "date"}.png`;
+          link.href = canvas.toDataURL("image/png");
+          link.click();
+        }).finally(() => {
+          nameEl.innerText = old.name; scoreEl.innerText = old.score; dateEl.innerText = old.date;
+          if (wasHidden) card.classList.add("hidden");
+        });
       }, 150);
     }
 
@@ -1438,10 +1448,6 @@ const wasHidden = certCard.classList.contains("hidden");
                 <div style="font-size:16px; font-weight:bold;">${w.count}</div>
                 <div style="font-size:11px; color:var(--text-muted);">درود شریف</div>
               </div>
-              <button onclick="downloadSpecificCertificate('${String(w.name).replace(/'/g, "\\'")}', ${w.count}, '${String(w.dateKey).replace(/'/g, "\\'")}')" 
-                style="border:0; border-radius:9px; padding:8px 10px; cursor:pointer; background:var(--primary-color); color:white; font-size:11px;">
-                📜 Certificate
-              </button>
             </div>
           </div>
         `).join("");
@@ -1483,17 +1489,7 @@ const wasHidden = certCard.classList.contains("hidden");
         card.classList.remove("hidden");
       });
     }
-
-    function downloadLatestWinnerCertificate() {
-      const w = window.latestWinnerCertificateData;
-      const cert = document.getElementById("latestCertificateContainer");
-      if (!w || !cert || typeof html2canvas === "undefined") return;
-      html2canvas(cert, {scale:2, useCORS:true}).then(canvas => {
-        const link = document.createElement("a");
-        link.download = `Winner_Certificate_${w.name}_${w.dateKey}.png`;
-        link.href = canvas.toDataURL("image/png");
-        link.click();
-      });
+);
     }
 
     function loadHomeDailyTop5Winners() {
@@ -1512,15 +1508,13 @@ const wasHidden = certCard.classList.contains("hidden");
           return;
         }
         container.innerHTML = top5.map((w,i) => {
-          const safeName = String(w.name).replace(/\\/g,"\\\\").replace(/'/g,"\\'");
-          const safeDate = String(w.dateKey).replace(/\\/g,"\\\\").replace(/'/g,"\\'");
+
           const medal = i===0 ? "🥇" : i===1 ? "🥈" : i===2 ? "🥉" : "🏆";
           return `<div style="background:#fffdf9;border:1px solid #ead9b0;border-radius:13px;padding:11px;margin:8px 0;">
             <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
               <div style="font-size:19px;">${medal}</div>
               <div style="flex:1;text-align:right;"><div style="font-weight:bold;color:var(--primary-color);">${w.name}</div><div style="font-size:11px;color:var(--text-muted);">📅 ${w.dateKey}</div></div>
               <div style="text-align:center;min-width:65px;"><div style="font-weight:bold;">${w.count}</div><div style="font-size:10px;color:var(--text-muted);">درود</div></div>
-              <button onclick="downloadSpecificCertificate('${safeName}',${w.count},'${safeDate}')" style="border:0;border-radius:8px;padding:7px 8px;cursor:pointer;background:var(--primary-color);color:white;font-size:10px;">📜 Certificate</button>
             </div></div>`;
         }).join("");
       });
@@ -1571,14 +1565,11 @@ const wasHidden = certCard.classList.contains("hidden");
 
       const topWinner = compList[0];
       const highlightEl = document.getElementById("homeWinnerHighlight");
-      const certCard = document.getElementById("winnerCertificateCard");
-
       if (topWinner && topWinner.count > 0) {
         highlightEl.innerHTML = `🌟 <b>${topWinner.name}</b> (${topWinner.count} درود شریف)`;
         // Latest qualifying winner certificate is handled by loadLatestWinnerCertificate().
       } else {
         highlightEl.innerText = "آج کے مقابلے کا آغاز ابھی ہوا ہے!";
-        certCard.classList.add("hidden");
       }
     });
 
@@ -1781,9 +1772,7 @@ const wasHidden = certCard.classList.contains("hidden");
                   ${badge}
                 </div>
                 <div style="margin-top:4px;">🏆 <b>فاتح:</b> ${winner.name} (${winner.count} درود شریف)</div>
-                <div style="margin-top:8px; text-align: left;">
-                  <button onclick="downloadSpecificCertificate('${safeName}', '${winner.count}', '${dateKey}')" style="background:linear-gradient(135deg, #0d3b22, #166534); color:white; border:none; padding:5px 12px; border-radius:6px; font-size:11px; font-weight:bold; cursor:pointer; font-family:inherit;">📜 سرٹیفکیٹ ڈاؤنلوڈ کریں</button>
-                </div>
+                <button onclick="downloadSpecificCertificate('${safeName}', '${winner.count}', '${dateKey}')" style="margin-top:8px; background:linear-gradient(135deg,#b8860b,#d4af37,#8f6b08); color:white; border:none; padding:7px 14px; border-radius:8px; font-size:11px; font-weight:bold; cursor:pointer; font-family:inherit; box-shadow:0 3px 10px rgba(143,107,8,.25);">📜 سرٹیفکیٹ ڈاؤنلوڈ کریں</button>
               </div>
             `;
           }
@@ -1981,3 +1970,4 @@ const wasHidden = certCard.classList.contains("hidden");
   </script>
 </body>
 </html>
+                
