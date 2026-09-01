@@ -1682,9 +1682,7 @@
       recognition.onresult = (event) => {
         const text = event.results[0][0].transcript;
 
-        // صرف مکمل درودِ شریف پر شمار ہوگا۔
-        // حرکات، اعراب اور عام punctuation کو ignore کیا جاتا ہے،
-        // لیکن کوئی لفظ missing ہو تو count نہیں ہوگا۔
+        // Normalize Arabic for speech-recognition comparison.
         const normalizeArabic = (value) => {
           return value
             .normalize("NFKC")
@@ -1694,7 +1692,7 @@
             .replace(/ئ/g, "ی")
             .replace(/ؤ/g, "و")
             .replace(/ة/g, "ه")
-            .replace(/[ـ]/g, "")
+            .replace(/ـ/g, "")
             .replace(/[^\u0600-\u06FF\s]/g, " ")
             .replace(/\s+/g, " ")
             .trim();
@@ -1705,15 +1703,50 @@
         );
         const spokenText = normalizeArabic(text);
 
-        // Recognition میں اضافی الفاظ بھی قبول نہیں ہوں گے؛
-        // مکمل displayed Darood ہی پڑھا جانا ضروری ہے۔
-        const isCompleteDarood = spokenText === requiredText;
+        // Do not count random speech or a short/partial recitation.
+        // Allow small speech-recognition differences, but require
+        // essentially the whole displayed Darood to be present.
+        const requiredWords = requiredText.split(" ").filter(Boolean);
+        const spokenWords = spokenText.split(" ").filter(Boolean);
+
+        const wordMatchRatio = (() => {
+          if (!requiredWords.length || !spokenWords.length) return 0;
+
+          let matched = 0;
+          let cursor = 0;
+
+          for (const word of requiredWords) {
+            let found = false;
+            for (let i = cursor; i < spokenWords.length; i++) {
+              if (spokenWords[i] === word) {
+                matched++;
+                cursor = i + 1;
+                found = true;
+                break;
+              }
+            }
+            if (!found) break;
+          }
+          return matched / requiredWords.length;
+        })();
+
+        // Require at least 90% of the complete Darood and at least
+        // 90% of the recognized words to belong to the Darood.
+        const spokenCoverage = requiredWords.length
+          ? Math.min(1, spokenWords.length / requiredWords.length)
+          : 0;
+
+        const isCompleteDarood =
+          requiredWords.length > 0 &&
+          wordMatchRatio >= 0.90 &&
+          spokenCoverage >= 0.90;
 
         statusEl.innerText = `آواز: "${text}"`;
 
         if (!isCompleteDarood) {
           statusEl.style.color = "#ef4444";
-          statusEl.innerText = "✗ مکمل درود شریف نہیں پڑھا گیا، اس لیے شمار نہیں ہوگا۔";
+          statusEl.innerText =
+            "✗ مکمل درود شریف نہیں پڑھا گیا، اس لیے شمار نہیں ہوگا۔";
           playErrorSound();
           return;
         }
@@ -1727,8 +1760,8 @@
           } else {
             db.ref("users/" + currentUser.uid).transaction(current => {
               if (!current) return { count: 1, name: currentUser.displayName || currentUser.email, email: currentUser.email };
-              return { 
-                count: (current.count || 0) + 1, 
+              return {
+                count: (current.count || 0) + 1,
                 name: currentUser.displayName || currentUser.email,
                 email: currentUser.email,
                 accName: current.accName || '',
