@@ -1016,6 +1016,23 @@
       });
     }
 
+    function downloadSpecificCertificate(name, score, dateKey) {
+      document.getElementById("certWinnerName").innerText = name;
+      document.getElementById("certWinnerScore").innerText = score;
+      document.getElementById("certDate").innerText = dateKey;
+
+      const certCard = document.getElementById("winnerCertificateCard");
+      const wasHidden = certCard.classList.contains("hidden");
+      certCard.classList.remove("hidden");
+
+      setTimeout(() => {
+        downloadCertificate();
+        if (wasHidden) {
+          certCard.classList.add("hidden");
+        }
+      }, 150);
+    }
+
     function updateCompCountdown() {
       const now = new Date();
       const midnight = new Date();
@@ -1411,7 +1428,6 @@
       if (topWinner && topWinner.count > 0) {
         highlightEl.innerHTML = `🌟 <b>${topWinner.name}</b> (${topWinner.count} درود شریف)`;
         
-        // Show certificate if current logged-in user is the top winner
         if (currentUser && currentUser.uid === topWinner.uid) {
           document.getElementById("certWinnerName").innerText = topWinner.name;
           document.getElementById("certWinnerScore").innerText = topWinner.count;
@@ -1612,15 +1628,22 @@
           if (winner && winner.count >= 100) {
             count++;
             const isPaid = winner.paymentStatus === "Paid";
-            const badge = isPaid ? `<span class="paid-badge">پیمنٹ بھیج دی گئی ✓</span>` : `<span class="pending-badge">پروسیسنگ میں ہے</span>`;
+            const badge = isPaid 
+              ? `<span class="paid-badge">پیمنٹ بھیج دی گئی ✓</span>` 
+              : `<span class="pending-badge">پروسیسنگ میں ہے</span>`;
             
+            const safeName = (winner.name || "Winner").replace(/'/g, "\\'");
+
             html += `
-              <div class="proof-item">
-                <div style="display:flex; justify-content:space-between;">
+              <div class="proof-item" style="text-align: right;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
                   <b>📅 ${dateKey}</b>
                   ${badge}
                 </div>
-                <div>🏆 <b>فاتح:</b> ${winner.name} (${winner.count} درود شریف)</div>
+                <div style="margin-top:4px;">🏆 <b>فاتح:</b> ${winner.name} (${winner.count} درود شریف)</div>
+                <div style="margin-top:8px; text-align: left;">
+                  <button onclick="downloadSpecificCertificate('${safeName}', '${winner.count}', '${dateKey}')" style="background:linear-gradient(135deg, #0d3b22, #166534); color:white; border:none; padding:5px 12px; border-radius:6px; font-size:11px; font-weight:bold; cursor:pointer; font-family:inherit;">📜 سرٹیفکیٹ ڈاؤنلوڈ کریں</button>
+                </div>
               </div>
             `;
           }
