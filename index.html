@@ -950,6 +950,41 @@
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 
   <script>
+
+    /* KEEP MOBILE SCREEN AWAKE WHILE THIS WEB APP IS OPEN */
+    let screenWakeLock = null;
+
+    async function requestScreenWakeLock() {
+      try {
+        if (!("wakeLock" in navigator)) return;
+        screenWakeLock = await navigator.wakeLock.request("screen");
+
+        screenWakeLock.addEventListener("release", () => {
+          screenWakeLock = null;
+        });
+      } catch (e) {
+        console.log("Screen Wake Lock not available:", e);
+      }
+    }
+
+    // Wake Lock normally requires a visible page, so request again when
+    // the user returns to the browser/app.
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") {
+        requestScreenWakeLock();
+      }
+    });
+
+    window.addEventListener("focus", requestScreenWakeLock);
+    window.addEventListener("load", requestScreenWakeLock);
+
+    // Some Android browsers release the lock after a while; refresh it.
+    setInterval(() => {
+      if (document.visibilityState === "visible" && !screenWakeLock) {
+        requestScreenWakeLock();
+      }
+    }, 30000);
+
     const firebaseConfig = {
       apiKey: "AIzaSyB3PjjiQM2IqKmIQJ4d4YOwcc10RiG47FI",
       authDomain: "mehfil-e-darood.firebaseapp.com",
