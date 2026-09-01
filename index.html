@@ -955,14 +955,7 @@
 
     let currentUser = null;
     const ADMIN_EMAIL = "kamran7078127@gmail.com";
-    // Current competition date (local browser time, not UTC).
-    function getLocalDateKey(date = new Date()) {
-      const y = date.getFullYear();
-      const m = String(date.getMonth() + 1).padStart(2, '0');
-      const d = String(date.getDate()).padStart(2, '0');
-      return `${y}-${m}-${d}`;
-    }
-    let todayDateKey = getLocalDateKey();
+    const todayDateKey = new Date().toISOString().slice(0, 10);
     let currentAdminFilter = "today";
 
     let ytPlayer = null;
@@ -1064,25 +1057,6 @@
     }
     setInterval(updateCompCountdown, 1000);
     updateCompCountdown();
-
-    // When the countdown reaches local midnight, reload once so the app
-    // switches to the new competition date and all live listeners use the
-    // new date key. Historical competition data is NOT deleted.
-    function scheduleCompetitionRollover() {
-      const now = new Date();
-      const midnight = new Date();
-      midnight.setHours(24, 0, 0, 0);
-      const delay = Math.max(1000, midnight.getTime() - now.getTime() + 500);
-      setTimeout(() => {
-        const newDateKey = getLocalDateKey();
-        if (newDateKey !== todayDateKey) {
-          location.reload();
-        } else {
-          scheduleCompetitionRollover();
-        }
-      }, delay);
-    }
-    scheduleCompetitionRollover();
 
     function switchBottomTab(tabName) {
       document.getElementById("mainTab").classList.add("hidden");
@@ -1502,7 +1476,7 @@
         winners.sort((a,b) => String(b.dateKey).localeCompare(String(a.dateKey)));
         // صرف مکمل ہو چکے دن کا تازہ ترین فاتح دکھائیں، تاکہ آج کے مقابلے کے دوران
         // سرٹیفکیٹ پچھلے دن کے فاتح کا رہے اور اگلے دن خود بخود ایک دن آگے بدل جائے۔
-        const todayKey = getLocalDateKey();
+        const todayKey = new Date().toISOString().slice(0, 10);
         const completedWinners = winners.filter(w => String(w.dateKey) < todayKey);
         const w = completedWinners[0] || winners[0];
         if (!w) { card.classList.add("hidden"); return; }
