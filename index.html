@@ -1723,8 +1723,8 @@
       if (!container) return;
       container.innerHTML = "ڈیٹا لوڈ ہو رہا ہے...";
 
-      db.ref("competitions").once("value").then(snapshot => {
-        let allWinners = [];
+      db.ref("competitions").once("value").then(function(snapshot) {
+        const allWinners = [];
         const data = snapshot.val() || {};
         const today = new Date();
         let startDate = null;
@@ -1744,19 +1744,23 @@
           startDate = past30.toISOString().slice(0, 10);
           endDate = todayDateKey;
         } else if (currentAdminFilter === 'custom') {
-          startDate = document.getElementById("adminStartDate")?.value || null;
-          endDate = document.getElementById("adminEndDate")?.value || null;
+          const startEl = document.getElementById("adminStartDate");
+          const endEl = document.getElementById("adminEndDate");
+          startDate = startEl ? startEl.value : null;
+          endDate = endEl ? endEl.value : null;
         }
 
-        Object.keys(data).forEach(dateKey => {
+        Object.keys(data).forEach(function(dateKey) {
           if (startDate && dateKey < startDate) return;
           if (endDate && dateKey > endDate) return;
+
           const dateRecords = data[dateKey] || {};
-          const dateList = Object.keys(dateRecords).map(uid => ({
-            uid,
-            ...(dateRecords[uid] || {})
-          }));
-          dateList.sort((a, b) => Number(b.count || 0) - Number(a.count || 0));
+          const dateList = [];
+          Object.keys(dateRecords).forEach(function(uid) {
+            dateList.push({ uid: uid, ...(dateRecords[uid] || {}) });
+          });
+          dateList.sort(function(a, b) { return Number(b.count || 0) - Number(a.count || 0); });
+
           const winner = dateList[0];
           if (winner && Number(winner.count || 0) >= 100) {
             allWinners.push({ date: dateKey, ...winner });
@@ -1765,41 +1769,47 @@
 
         if (!allWinners.length) {
           container.innerHTML = "<div style='font-size:12px; color:var(--text-muted);'>منتخب کردہ دورانیے میں کوئی 100+ درود والا فاتح موجود نہیں ہے۔</div>";
-          return null;
+          return;
         }
 
-        // Read user records in one request. This avoids one database request per winner
-        // and keeps the login/auth flow independent from the Admin account-detail lookup.
-        return db.ref("users").once("value").then(usersSnapshot => {
-          const users = usersSnapshot.val() || {};
-          let html = "";
+        // Render the winners first so Admin login is never dependent on the
+        // separate account-details read. Then fill account details from users/UID.
+        allWinners.reverse();
+        container.innerHTML = allWinners.map(function(w, index) {
+          const isPaid = w.paymentStatus === "Paid";
+          const badgeHtml = isPaid ? `<span class="paid-badge">Paid ✓</span>` : `<span class="pending-badge">Pending</span>`;
+          const btnHtml = isPaid
+            ? `<button class="unpaid-btn" onclick="togglePaymentStatus('${w.date}', '${w.uid}', 'Pending')">نامکمل (Unpaid) کریں</button>`
+            : `<button class="paid-btn" onclick="togglePaymentStatus('${w.date}', '${w.uid}', 'Paid')">ادائی (Paid) مارک کریں</button>`;
+          return `<div class="admin-card" data-admin-winner-index="${index}">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <b>📅 ${w.date}</b>${badgeHtml}
+            </div>
+            <div style="margin-top:4px;"><b>فاتح:</b> ${w.name || 'صارف'} (${Number(w.count || 0)} درود)</div>
+            <div><b>اکاؤنٹ:</b> <span class="admin-account-detail">تفصیلات لوڈ ہو رہی ہیں...</span></div>
+            ${btnHtml}
+          </div>`;
+        }).join('');
 
-          allWinners.reverse().forEach(w => {
+        db.ref("users").once("value").then(function(usersSnapshot) {
+          const users = usersSnapshot.val() || {};
+          const cards = container.querySelectorAll('[data-admin-winner-index]');
+          allWinners.forEach(function(w, index) {
             const account = users[w.uid] || {};
             const accType = account.accType || w.accType || 'غیر معلوم';
             const accNumber = account.accNumber || w.accNumber || 'نمبر درج نہیں';
             const accName = account.accName || w.accName || '';
-            const isPaid = w.paymentStatus === "Paid";
-            const badgeHtml = isPaid ? `<span class="paid-badge">Paid ✓</span>` : `<span class="pending-badge">Pending</span>`;
-            const btnHtml = isPaid
-              ? `<button class="unpaid-btn" onclick="togglePaymentStatus('${w.date}', '${w.uid}', 'Pending')">نامکمل (Unpaid) کریں</button>`
-              : `<button class="paid-btn" onclick="togglePaymentStatus('${w.date}', '${w.uid}', 'Paid')">ادائی (Paid) مارک کریں</button>`;
-
-            html += `
-              <div class="admin-card">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                  <b>📅 ${w.date}</b>
-                  ${badgeHtml}
-                </div>
-                <div style="margin-top:4px;"><b>فاتح:</b> ${w.name || account.name || 'صارف'} (${Number(w.count || 0)} درود)</div>
-                <div><b>اکاؤنٹ:</b> ${accType} — ${accNumber} (${accName})</div>
-                ${btnHtml}
-              </div>
-            `;
+            if (cards[index]) {
+              const detail = cards[index].querySelector('.admin-account-detail');
+              if (detail) detail.innerText = accType + ' — ' + accNumber + ' (' + accName + ')';
+            }
           });
-          container.innerHTML = html;
+        }).catch(function(err) {
+          console.error('Account details load error:', err);
+          const details = container.querySelectorAll('.admin-account-detail');
+          details.forEach(function(el) { el.innerText = 'تفصیلات دستیاب نہیں'; });
         });
-      }).catch(err => {
+      }).catch(function(err) {
         console.error("Admin data load error:", err);
         container.innerHTML = "<div style='font-size:12px; color:#ef4444;'>Admin ڈیٹا لوڈ نہیں ہو سکا۔</div>";
       });
@@ -2031,7 +2041,7 @@
           }
 
           if (bestTranscript) {
-            const elapsed = Math.min(23, Math.floor((Date.now() - startedAt) / 1000));
+            const elapsed = Math.min(20, Math.floor((Date.now() - startedAt) / 1000));
             statusEl.style.color = "#0d3b22";
             statusEl.innerText = `سن رہا ہے... ${elapsed}/23 سیکنڈ 🎙️`;
           }
