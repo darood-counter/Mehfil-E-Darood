@@ -657,7 +657,7 @@
 
       <div id="daroodCard" class="darood-card hidden">
         <div class="arabic-text" id="daroodArabicText">
-          اَللّٰھُمَّ صَلِّ عَلٰی مُحَمَّدٍ وَّعَلٰی اٰلِ مُحَمَّدٍ کَمَا صَلَّیْتَ عَلٰی اِبْرَاھِیْمَ وَعَلٰی اٰلِ اِبْرَاھِیْمَ اِنَّکَ اِبْرَاھِیْمَ۔ اَللّٰھُمَّ بَارِکْ عَلٰی مُحَمَّدٍ وَّعَلٰی اٰلِ مُحَمَّدٍ کَمَا بَارَکْتَ عَلٰی اِبْرَاھِیْمَ وَعَلٰی اٰلِ اِبْرَاھِیْمَ اِنَّکَ اِبْرَاھِیْمَ
+          اَللّٰھُمَّ صَلِّ عَلٰی مُحَمَّدٍ وَّعَلٰی اٰلِ مُحَمَّدٍ کَمَا صَلَّیْتَ عَلٰی اِبْرَاھِیْمَ وَعَلٰی اٰلِ اِبْرَاھِیْمَ اِنَّکَ حَمِیْدٌ مَّجِیْدٌ۔ اَللّٰھُمَّ بَارِکْ عَلٰی مُحَمَّدٍ وَّعَلٰی اٰلِ مُحَمَّدٍ کَمَا بَارَکْتَ عَلٰی اِبْرَاھِیْمَ وَعَلٰی اٰلِ اِبْرَاھِیْمَ اِنَّکَ حَمِیْدٌ مَّجِیْدٌ
         </div>
         <div class="translation">
           اے اللہ! رحمت نازل فرما حضرت محمد ﷺ پر اور ان کی آل پر جیسے تو نے رحمت نازل فرمائی حضرت ابراہیم علیہ السلام پر اور ان کی آل پر، بے شک تو تعریف کے لائق اور بزرگی والا ہے۔
@@ -1908,7 +1908,7 @@
       // Verification words are based on the complete Darood supplied by the user.
       // They are checked only AFTER the full 23-second listening window.
       const requiredWords = [
-        "اللهم", "بارک", "ابراھیم"
+        "اللهم", "صل", "علی", "بارک", "ابراھیم"
       ];
 
       const aliases = {
@@ -1947,7 +1947,7 @@
 
         try { recognition.stop(); } catch (e) {}
 
-        // Verification starts only after the complete 23-second listening window.
+        // Verification starts only after the complete 20-second listening window.
         const finalText = collectedSpeech.join(" ");
         const valid = isCompleteDarood(finalText);
 
@@ -1994,7 +1994,7 @@
         btn.classList.remove("listening");
       };
 
-      // Live 20-second countdown while the microphone remains active.
+      // Live 23-second countdown while the microphone remains active.
       const countdownTimer = setInterval(() => {
         if (finished) { clearInterval(countdownTimer); return; }
         const elapsedSeconds = Math.floor((Date.now() - startedAt) / 1000);
@@ -2004,7 +2004,7 @@
         if (remainingSeconds <= 0) clearInterval(countdownTimer);
       }, 250);
 
-      // Always stop at exactly 20 seconds, even if there is silence.
+      // Always stop at exactly 23 seconds, even if there is silence.
       finishTimer = setTimeout(finishListening, LISTEN_DURATION_MS);
 
       recognition.onresult = (event) => {
@@ -2026,7 +2026,7 @@
           }
 
           if (bestTranscript) {
-            const elapsed = Math.min(23, Math.floor((Date.now() - startedAt) / 1000));
+            const elapsed = Math.min(20, Math.floor((Date.now() - startedAt) / 1000));
             statusEl.style.color = "#0d3b22";
             statusEl.innerText = `سن رہا ہے... ${elapsed}/23 سیکنڈ 🎙️`;
           }
