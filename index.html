@@ -575,24 +575,9 @@
   </style>
 
 <style>
-/* 35-second blue speaking countdown ring */
-.mic-btn.voice-timing {
-  position: relative;
-  overflow: visible;
-  isolation: isolate;
-}
-.mic-btn.voice-timing::before {
-  content: "";
-  position: absolute;
-  inset: -7px;
-  border-radius: 50%;
-  background: conic-gradient(#1683ff var(--voice-progress, 100%), rgba(22,131,255,.10) 0);
-  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 3px));
-  mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 3px));
-  z-index: -1;
-}
+.mic-btn.voice-timing{position:relative;overflow:visible;isolation:isolate;}
+.mic-btn.voice-timing::before{content:"";position:absolute;inset:-9px;border-radius:50%;background:conic-gradient(#1683ff var(--voice-progress,100%),rgba(22,131,255,.12) 0);-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 5px),#000 calc(100% - 4px));mask:radial-gradient(farthest-side,transparent calc(100% - 5px),#000 calc(100% - 4px));z-index:-1;pointer-events:none;}
 </style>
-
 </head>
 <body>
 
@@ -1841,26 +1826,12 @@
     }
     loadPublicProofs();
 
-    window.stopVoiceRecognition = function() {
-  try {
-    if (window.__activeRecognition) {
-      window.__activeVoiceActive = false;
-      clearTimeout(window.__activeVoiceTimer);
-      if (window.__activeSilenceWarningTimer) clearTimeout(window.__activeSilenceWarningTimer);
-      window.__activeRecognition.stop();
-    }
-  } catch(e) {}
-  if (window.__activeVoiceButton) {
-    window.__activeVoiceButton.classList.remove("listening", "voice-timing");
-    window.__activeVoiceButton.style.removeProperty("--voice-progress");
-    window.__activeVoiceButton.disabled = false;
-  }
-};
-
-function startVoiceRecognition(btnId, statusId, isComp = false) {
+    function startVoiceRecognition(btnId, statusId, isComp = false) {
       const btn = document.getElementById(btnId);
       const statusEl = document.getElementById(statusId);
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const VOICE_WINDOW_MS = 35000;
+      const SILENCE_WARNING_MS = 5000;
 
       if (!SpeechRecognition) {
         statusEl.style.color = "#ef4444";
@@ -1869,38 +1840,57 @@ function startVoiceRecognition(btnId, statusId, isComp = false) {
         return;
       }
 
-      btn.disabled = true;
-      btn.classList.add("listening");
+      // Start/Stop: clicking the same button again stops listening immediately.
+      if (btn.dataset.voiceActive === "1") {
+        btn.dataset.voiceStop = "1";
+        return;
+      }
+
+      btn.dataset.voiceActive = "1";
+      btn.dataset.voiceStop = "0";
+      btn.disabled = false;
+      btn.classList.add("listening", "voice-timing");
+      btn.style.setProperty("--voice-progress", "100%");
       statusEl.style.color = "#0d3b22";
-      statusEl.innerText = "سن رہا ہے... درود شریف پڑھیں 🎙️";
+      statusEl.innerText = "سن رہا ہوں... 35 سیکنڈ تک درود شریف پڑھیں 🎙️";
 
       const recognition = new SpeechRecognition();
-      window.__activeRecognition = recognition;
-      window.__activeVoiceButton = btn;
       recognition.lang = 'ar-SA';
       recognition.interimResults = false;
       recognition.continuous = false;
       recognition.maxAlternatives = 5;
 
-      // Each voice attempt gets a 35-second speaking window.
-      // The result is shown only after this window ends.
-      let voiceActive = false;
-      let voiceTimer = null;
-      let voiceStarting = false;
-      let lastVoiceActivity = 0;
-      let silenceWarningTimer = null;
-      const SILENCE_WARNING_MS = 5000;
-      const VOICE_WINDOW_MS = 35000;
-      const VOICE_RESTART_DELAY_MS = 5000;
+      let allSpokenText = "";
+      let finished = false;
+      let recognitionRunning = false;
+      let lastVoiceActivity = Date.now();
+      const startedAt = Date.now();
+      let ringFrame = null;
+      let windowTimer = null;
+      let silenceTimer = null;
 
-      const updateVoiceRing = (startedAt) => {
-        if (!voiceActive || !btn.classList.contains("voice-timing")) return;
+      const cleanup = () => {
+        if (finished) return;
+        finished = true;
+        clearTimeout(windowTimer);
+        clearTimeout(silenceTimer);
+        if (ringFrame) cancelAnimationFrame(ringFrame);
+        btn.dataset.voiceActive = "0";
+        btn.dataset.voiceStop = "0";
+        btn.classList.remove("listening", "voice-timing");
+        btn.style.removeProperty("--voice-progress");
+        btn.disabled = false;
+      };
+
+      const updateRing = () => {
+        if (finished) return;
         const elapsed = Date.now() - startedAt;
         const remaining = Math.max(0, VOICE_WINDOW_MS - elapsed);
-        const progress = (remaining / VOICE_WINDOW_MS) * 100;
-        btn.style.setProperty("--voice-progress", progress + "%");
-        if (remaining > 0) requestAnimationFrame(() => updateVoiceRing(startedAt));
+        const percent = (remaining / VOICE_WINDOW_MS) * 100;
+        btn.style.setProperty("--voice-progress", percent + "%");
+        if (remaining > 0) ringFrame = requestAnimationFrame(updateRing);
       };
+      updateRing();
 
       const normalizeArabic = (value) => {
         return (value || "")
@@ -1917,239 +1907,155 @@ function startVoiceRecognition(btnId, statusId, isComp = false) {
           .trim();
       };
 
-      // These key words must ALL be recognized, in order, for one count.
-      // This is intentionally tolerant because Arabic speech recognition
-      // may omit/alter other words.
       const requiredWords = [
-        "اللهم",
-        "صل",
-        "علی",
-        "محمد",
-        "ابراهیم",
-        "حمید",
-        "مجید",
-        "اللهم",
-        "بارک",
-        "علی",
-        "محمد",
-        "بارکت",
-        "علی",
-        "انک",
-        "حمید",
-        "مجید"
+        "اللهم","صل","علی","محمد","ابراهیم","حمید","مجید",
+        "اللهم","بارک","علی","محمد","بارکت","علی","انک","حمید","مجید"
       ];
 
       const aliases = {
-        "اللهم": ["اللهم", "اللهم"],
+        "اللهم": ["اللهم"],
         "صل": ["صل", "صلی"],
         "علی": ["علی", "على", "علا"],
-        "محمد": ["محمد", "محمد"],
-        "ابراهیم": ["ابراهیم", "ابراهيم", "ابراھیم", "ابراھیم"],
-        "حمید": ["حمید", "حميد", "حمید"],
-        "مجید": ["مجید", "مجيد", "مجید"],
+        "محمد": ["محمد"],
+        "ابراهیم": ["ابراهیم", "ابراهيم", "ابراھیم"],
+        "حمید": ["حمید", "حميد"],
+        "مجید": ["مجید", "مجيد"],
         "بارک": ["بارک", "بارك"],
         "بارکت": ["بارکت", "باركت"],
-        "انک": ["انک", "انك", "انک"]
+        "انک": ["انک", "انك"]
       };
 
-      const isWordMatch = (spoken, required) => {
-        const options = aliases[required] || [required];
-        return options.some(x => spoken === x);
-      };
+      const isWordMatch = (spoken, required) => (aliases[required] || [required]).some(x => spoken === x);
 
       const isCompleteDarood = (spoken) => {
         const words = normalizeArabic(spoken).split(" ").filter(Boolean);
         if (!words.length) return false;
-
-        // ترتیب لازمی نہیں۔ صرف یہ ضروری الفاظ سب ادا ہونا لازم ہیں۔
-        // Speech Recognition میں ایک لفظ دو بار/مختلف جگہ آ سکتا ہے، اس لیے
-        // ہر required word کو کہیں بھی تلاش کیا جاتا ہے۔
         const remaining = words.slice();
-
         for (const required of requiredWords) {
-          const foundIndex = remaining.findIndex(word =>
-            isWordMatch(word, required)
-          );
-
+          const foundIndex = remaining.findIndex(word => isWordMatch(word, required));
           if (foundIndex === -1) return false;
           remaining.splice(foundIndex, 1);
         }
-
         return true;
+      };
+
+      const finishAndJudge = () => {
+        if (finished) return;
+        const spoken = allSpokenText.trim();
+        cleanup();
+
+        if (!spoken) {
+          statusEl.style.color = "#ef4444";
+          statusEl.innerText = "✗ کوئی آواز نہیں ملی، درود شریف دوبارہ پڑھیں۔";
+          playErrorSound();
+          return;
+        }
+
+        if (!isCompleteDarood(spoken)) {
+          statusEl.style.color = "#ef4444";
+          statusEl.innerText = "✗ آپ نے درود شریف صحیح/مکمل نہیں پڑھا، شمار نہیں ہوگا۔";
+          playErrorSound();
+          return;
+        }
+
+        if (currentUser) {
+          if (isComp) {
+            db.ref("competitions/" + todayDateKey + "/" + currentUser.uid).transaction(current => {
+              if (!current) return { count: 1, name: currentUser.displayName || currentUser.email };
+              return { count: (current.count || 0) + 1, name: currentUser.displayName || currentUser.email };
+            });
+          } else {
+            db.ref("users/" + currentUser.uid).transaction(current => {
+              if (!current) return { count: 1, name: currentUser.displayName || currentUser.email, email: currentUser.email };
+              return {
+                count: (current.count || 0) + 1,
+                name: currentUser.displayName || currentUser.email,
+                email: currentUser.email,
+                accName: current.accName || '', accNumber: current.accNumber || '',
+                accType: current.accType || 'JazzCash', savedCity: current.savedCity || '', savedCountry: current.savedCountry || ''
+              };
+            });
+          }
+          statusEl.style.color = "#0d3b22";
+          statusEl.innerText = "✓ درست درود شریف ہے، شمار ہو گیا!";
+          playSuccessSound();
+          triggerVibration();
+        }
+      };
+
+      const startRecognitionAgain = () => {
+        if (finished || btn.dataset.voiceStop === "1") return;
+        try {
+          recognition.start();
+          recognitionRunning = true;
+        } catch (e) {
+          setTimeout(startRecognitionAgain, 250);
+        }
       };
 
       recognition.onresult = (event) => {
         lastVoiceActivity = Date.now();
-        if (silenceWarningTimer) {
-          clearTimeout(silenceWarningTimer);
-          silenceWarningTimer = null;
-        }
-
-        // Keep the best transcript hidden while the 35-second window is active.
-        // It will be processed when the window finishes.
-        let bestText = "";
-        let bestValid = false;
-
-        for (let r = 0; r < event.results.length; r++) {
-          for (let i = 0; i < event.results[r].length; i++) {
-            const candidate = event.results[r][i].transcript || "";
-            if (candidate.length > bestText.length) bestText = candidate;
-            if (isCompleteDarood(candidate)) {
-              bestText = candidate;
-              bestValid = true;
-              break;
-            }
+        let gotText = "";
+        for (let i = 0; i < event.results.length; i++) {
+          for (let j = 0; j < event.results[i].length; j++) {
+            const t = event.results[i][j].transcript || "";
+            if (t.length > gotText.length) gotText = t;
           }
-          if (bestValid) break;
         }
-
-        recognition._pendingText = bestText;
-        recognition._pendingValid = bestValid;
+        if (gotText) {
+          allSpokenText += " " + gotText;
+          statusEl.style.color = "#0d3b22";
+          statusEl.innerText = "سن رہا ہوں... پڑھتے جائیں 🎙️";
+        }
       };
 
       recognition.onerror = (event) => {
-        // Normal no-speech/timeout errors should not immediately show
-        // "آپ نے نہیں پڑھا" because the 35-second window may still be active.
-        if (event && (event.error === "not-allowed" || event.error === "service-not-allowed")) {
-          voiceActive = false;
-          clearTimeout(voiceTimer);
+        if (finished) return;
+        // Normal browser end/errors are handled by onend and the 35-second timer.
+        if (event.error === "not-allowed" || event.error === "service-not-allowed") {
           statusEl.style.color = "#ef4444";
-          statusEl.innerText = "مائیکروفون کی اجازت درکار ہے۔";
+          statusEl.innerText = "مائیکروفون کی اجازت نہیں ملی۔";
           playErrorSound();
+          cleanup();
         }
       };
 
       recognition.onend = () => {
-        clearTimeout(voiceTimer);
-
-        if (!voiceActive) {
-          btn.disabled = false;
-          btn.classList.remove("listening");
+        recognitionRunning = false;
+        if (finished) return;
+        if (btn.dataset.voiceStop === "1") {
+          finishAndJudge();
           return;
         }
-
-        // Wait until the full 35-second window has elapsed before showing
-        // the result. This prevents an early "آپ نے نہیں پڑھا" message.
-        const pendingText = recognition._pendingText || "";
-        const pendingValid = recognition._pendingValid === true;
-
-        statusEl.style.color = "#0d3b22";
-        statusEl.innerText = "نتیجہ چیک ہو رہا ہے…";
-
-        setTimeout(() => {
-          if (!voiceActive) return;
-
-          if (pendingValid || isCompleteDarood(pendingText)) {
-            statusEl.innerText = "✓ درود شریف شمار ہو گیا!";
-            playSuccessSound();
-            triggerVibration();
-
-            if (currentUser) {
-              if (isComp) {
-                db.ref("competitions/" + todayDateKey + "/" + currentUser.uid).transaction(current => {
-                  if (!current) return { count: 1, name: currentUser.displayName || currentUser.email };
-                  return {
-                    count: (current.count || 0) + 1,
-                    name: currentUser.displayName || currentUser.email
-                  };
-                });
-              } else {
-                db.ref("users/" + currentUser.uid).transaction(current => {
-                  if (!current) return {
-                    count: 1,
-                    name: currentUser.displayName || currentUser.email,
-                    email: currentUser.email
-                  };
-                  return {
-                    count: (current.count || 0) + 1,
-                    name: currentUser.displayName || currentUser.email,
-                    email: currentUser.email,
-                    accName: current.accName || '',
-                    accNumber: current.accNumber || '',
-                    accType: current.accType || 'JazzCash',
-                    savedCity: current.savedCity || '',
-                    savedCountry: current.savedCountry || ''
-                  };
-                });
-              }
-            }
-          } else {
-            statusEl.style.color = "#ef4444";
-            statusEl.innerText = "✗ مکمل درود کے ضروری الفاظ نہیں ملے، شمار نہیں ہوگا۔";
-            playErrorSound();
-          }
-
-          // Prepare the next 35-second attempt after a 5-second breathing gap.
-          recognition._pendingText = "";
-          recognition._pendingValid = false;
-
-          if (voiceActive) {
-            statusEl.style.color = "#0d3b22";
-            statusEl.innerText = "5 سیکنڈ بعد دوبارہ شروع ہوگا…";
-            setTimeout(() => {
-              if (!voiceActive) return;
-              try {
-                recognition.start();
-                voiceStarting = true;
-                lastVoiceActivity = Date.now();
-                statusEl.innerText = "🎙️ پڑھیں… 35 سیکنڈ باقی";
-                btn.classList.add("voice-timing");
-                silenceWarningTimer = setTimeout(() => {
-                  if (voiceActive && Date.now() - lastVoiceActivity >= SILENCE_WARNING_MS) {
-                    statusEl.innerText = "🎙️ پڑھتے جائیں، میں سن رہا ہوں…";
-                  }
-                }, SILENCE_WARNING_MS);
-                updateVoiceRing(Date.now());
-                voiceTimer = setTimeout(() => {
-                  try { recognition.stop(); } catch(e) {}
-                }, VOICE_WINDOW_MS);
-              } catch(e) {}
-            }, VOICE_RESTART_DELAY_MS);
-          }
-        }, Math.max(0, VOICE_WINDOW_MS - (recognition._elapsedMs || VOICE_WINDOW_MS)));
+        // Chrome/Android often ends recognition after a short pause. Restart it
+        // while the same 35-second listening window is still active.
+        if (Date.now() - startedAt < VOICE_WINDOW_MS) {
+          setTimeout(startRecognitionAgain, 150);
+        }
       };
 
-      recognition._pendingText = "";
-      recognition._pendingValid = false;
-      recognition._elapsedMs = 0;
-      voiceActive = true;
+      silenceTimer = setInterval(() => {
+        if (!finished && Date.now() - lastVoiceActivity >= SILENCE_WARNING_MS && Date.now() - startedAt < VOICE_WINDOW_MS) {
+          statusEl.style.color = "#0d3b22";
+          statusEl.innerText = "🎙️ پڑھتے جائیں، میں سن رہا ہوں…";
+        }
+      }, 1000);
 
-      try {
-        recognition.start();
-        voiceStarting = true;
-        lastVoiceActivity = Date.now();
-        statusEl.innerText = "🎙️ پڑھیں… 35 سیکنڈ باقی";
-        btn.classList.add("voice-timing");
-        silenceWarningTimer = setTimeout(() => {
-          if (voiceActive && Date.now() - lastVoiceActivity >= SILENCE_WARNING_MS) {
-            statusEl.innerText = "🎙️ پڑھتے جائیں، میں سن رہا ہوں…";
-          }
-        }, SILENCE_WARNING_MS);
-        updateVoiceRing(Date.now());
-        voiceTimer = setTimeout(() => {
-          recognition._elapsedMs = VOICE_WINDOW_MS;
-          try { recognition.stop(); } catch(e) {}
-        }, VOICE_WINDOW_MS);
-      } catch(e) {
-        voiceActive = false;
-        btn.disabled = false;
-        btn.classList.remove("listening");
-      }
+      windowTimer = setTimeout(() => {
+        // Stop recognition at exactly 35 seconds. The result is judged ONLY now,
+        // after the blue circular progress ring has finished.
+        try { recognition.stop(); } catch (e) {}
+        setTimeout(finishAndJudge, 120);
+      }, VOICE_WINDOW_MS);
+
+      startRecognitionAgain();
     }
 
     document.getElementById("countBtn").onclick = function() {
-      if (typeof window.stopVoiceRecognition === "function") {
-        window.stopVoiceRecognition();
-        return;
-      }
       startVoiceRecognition('countBtn', 'statusMsg', false);
     };
 
     document.getElementById("compCountBtn").onclick = function() {
-      if (typeof window.stopVoiceRecognition === "function") {
-        window.stopVoiceRecognition();
-        return;
-      }
       startVoiceRecognition('compCountBtn', 'compStatusMsg', true);
     };
   </script>
