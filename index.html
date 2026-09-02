@@ -573,11 +573,6 @@
       text-align: center;
     }
   </style>
-
-<style>
-.mic-btn.voice-timing{position:relative;overflow:visible;isolation:isolate;}
-.mic-btn.voice-timing::before{content:"";position:absolute;inset:-9px;border-radius:50%;background:conic-gradient(#1683ff var(--voice-progress,100%),rgba(22,131,255,.12) 0);-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 5px),#000 calc(100% - 4px));mask:radial-gradient(farthest-side,transparent calc(100% - 5px),#000 calc(100% - 4px));z-index:-1;pointer-events:none;}
-</style>
 </head>
 <body>
 
@@ -1100,41 +1095,53 @@
     }
     scheduleCompetitionRollover();
 
-    function switchBottomTab(tabName) {
-      document.getElementById("mainTab").classList.add("hidden");
-      document.getElementById("compTab").classList.add("hidden");
-      document.getElementById("rewardTab").classList.add("hidden");
-      document.getElementById("profileTab").classList.add("hidden");
-      document.getElementById("aboutTab").classList.add("hidden");
-      document.getElementById("daroodCard").classList.add("hidden");
+    const CURRENT_TAB_KEY = "mehfilDarood_currentTab";
+const LOGIN_JUST_HAPPENED_KEY = "mehfilDarood_loginJustHappened";
 
-      document.querySelectorAll(".bottom-nav .nav-item").forEach(el => el.classList.remove("active"));
+function markLoginStarted() {
+  sessionStorage.setItem(LOGIN_JUST_HAPPENED_KEY, "1");
+}
 
-      if (tabName === 'home') {
-        document.getElementById("mainTab").classList.remove("hidden");
-        document.getElementById("navHome").classList.add("active");
-      } else if (tabName === 'competition') {
-        document.getElementById("customModal").classList.remove("hidden");
-        document.getElementById("compTab").classList.remove("hidden");
-        document.getElementById("navCompetition").classList.add("active");
-        
-        const compSlot = document.getElementById("compDaroodSlot");
-        if (compSlot) compSlot.appendChild(document.getElementById("daroodCard"));
-        document.getElementById("daroodCard").classList.remove("hidden");
-      } else if (tabName === 'about') {
-        document.getElementById("aboutTab").classList.remove("hidden");
-        document.getElementById("navAbout").classList.add("active");
-      } else if (tabName === 'reward') {
-        const rewardSlot = document.getElementById("rewardDaroodSlot");
-        if (rewardSlot) rewardSlot.appendChild(document.getElementById("daroodCard"));
-        document.getElementById("rewardTab").classList.remove("hidden");
-        document.getElementById("navTasbeeh").classList.add("active");
-        document.getElementById("daroodCard").classList.remove("hidden");
-      } else if (tabName === 'profile') {
-        document.getElementById("profileTab").classList.remove("hidden");
-        document.getElementById("navProfile").classList.add("active");
-      }
-    }
+function switchBottomTab(tabName) {
+  sessionStorage.setItem("mehfilDarood_currentTab", tabName);
+
+  const customModal = document.getElementById("customModal");
+  if (customModal) customModal.classList.add("hidden");
+
+  document.getElementById("mainTab").classList.add("hidden");
+  document.getElementById("compTab").classList.add("hidden");
+  document.getElementById("rewardTab").classList.add("hidden");
+  document.getElementById("profileTab").classList.add("hidden");
+  document.getElementById("aboutTab").classList.add("hidden");
+  document.getElementById("daroodCard").classList.add("hidden");
+
+  document.querySelectorAll(".bottom-nav .nav-item").forEach(el => el.classList.remove("active"));
+
+  if (tabName === 'home') {
+    document.getElementById("mainTab").classList.remove("hidden");
+    document.getElementById("navHome").classList.add("active");
+  } else if (tabName === 'competition') {
+    if (customModal) customModal.classList.remove("hidden");
+    document.getElementById("compTab").classList.remove("hidden");
+    document.getElementById("navCompetition").classList.add("active");
+
+    const compSlot = document.getElementById("compDaroodSlot");
+    if (compSlot) compSlot.appendChild(document.getElementById("daroodCard"));
+    document.getElementById("daroodCard").classList.remove("hidden");
+  } else if (tabName === 'about') {
+    document.getElementById("aboutTab").classList.remove("hidden");
+    document.getElementById("navAbout").classList.add("active");
+  } else if (tabName === 'reward') {
+    const rewardSlot = document.getElementById("rewardDaroodSlot");
+    if (rewardSlot) rewardSlot.appendChild(document.getElementById("daroodCard"));
+    document.getElementById("rewardTab").classList.remove("hidden");
+    document.getElementById("navTasbeeh").classList.add("active");
+    document.getElementById("daroodCard").classList.remove("hidden");
+  } else if (tabName === 'profile') {
+    document.getElementById("profileTab").classList.remove("hidden");
+    document.getElementById("navProfile").classList.add("active");
+  }
+}
 
     document.getElementById("modalOkBtn").onclick = function() {
       document.getElementById("customModal").classList.add("hidden");
@@ -1151,6 +1158,7 @@
     };
 
     document.getElementById("signupBtn").onclick = () => {
+  markLoginStarted();
       const name = document.getElementById("signupName").value.trim();
       const email = document.getElementById("signupEmail").value.trim();
       const password = document.getElementById("signupPassword").value.trim();
@@ -1177,6 +1185,7 @@
     };
 
     document.getElementById("loginSubmitBtn").onclick = () => {
+  markLoginStarted();
       const email = document.getElementById("loginEmail").value.trim();
       const password = document.getElementById("loginPassword").value.trim();
       const statusEl = document.getElementById("loginStatus");
@@ -1201,6 +1210,7 @@
     };
 
     function handleGoogleAuth() {
+  markLoginStarted();
       const provider = new firebase.auth.GoogleAuthProvider();
       auth.signInWithPopup(provider).then(() => {
         playSuccessSound();
@@ -1228,6 +1238,11 @@
         document.getElementById("userName").innerText = user.displayName || user.email;
         document.getElementById("profileDisplayName").innerText = user.displayName || "---";
         document.getElementById("profileDisplayEmail").innerText = user.email || "---";
+
+    const justLoggedIn = sessionStorage.getItem("mehfilDarood_loginJustHappened") === "1";
+    sessionStorage.removeItem("mehfilDarood_loginJustHappened");
+    const savedTab = sessionStorage.getItem("mehfilDarood_currentTab");
+    switchBottomTab(justLoggedIn ? "home" : (savedTab || "home"));
 
         db.ref("users/" + user.uid).update({
           name: user.displayName || user.email,
@@ -1830,8 +1845,6 @@
       const btn = document.getElementById(btnId);
       const statusEl = document.getElementById(statusId);
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      const VOICE_WINDOW_MS = 35000;
-      const SILENCE_WARNING_MS = 5000;
 
       if (!SpeechRecognition) {
         statusEl.style.color = "#ef4444";
@@ -1840,57 +1853,16 @@
         return;
       }
 
-      // Start/Stop: clicking the same button again stops listening immediately.
-      if (btn.dataset.voiceActive === "1") {
-        btn.dataset.voiceStop = "1";
-        return;
-      }
-
-      btn.dataset.voiceActive = "1";
-      btn.dataset.voiceStop = "0";
-      btn.disabled = false;
-      btn.classList.add("listening", "voice-timing");
-      btn.style.setProperty("--voice-progress", "100%");
+      btn.disabled = true;
+      btn.classList.add("listening");
       statusEl.style.color = "#0d3b22";
-      statusEl.innerText = "سن رہا ہوں... درود شریف پڑھیں 🎙️";
+      statusEl.innerText = "سن رہا ہے... درود شریف پڑھیں 🎙️";
 
       const recognition = new SpeechRecognition();
       recognition.lang = 'ar-SA';
       recognition.interimResults = false;
       recognition.continuous = false;
       recognition.maxAlternatives = 5;
-
-      let allSpokenText = "";
-      let finished = false;
-      let recognitionRunning = false;
-      let lastVoiceActivity = Date.now();
-      const startedAt = Date.now();
-      let ringFrame = null;
-      let windowTimer = null;
-      let silenceTimer = null;
-
-      const cleanup = () => {
-        if (finished) return;
-        finished = true;
-        clearTimeout(windowTimer);
-        clearTimeout(silenceTimer);
-        if (ringFrame) cancelAnimationFrame(ringFrame);
-        btn.dataset.voiceActive = "0";
-        btn.dataset.voiceStop = "0";
-        btn.classList.remove("listening", "voice-timing");
-        btn.style.removeProperty("--voice-progress");
-        btn.disabled = false;
-      };
-
-      const updateRing = () => {
-        if (finished) return;
-        const elapsed = Date.now() - startedAt;
-        const remaining = Math.max(0, VOICE_WINDOW_MS - elapsed);
-        const percent = (remaining / VOICE_WINDOW_MS) * 100;
-        btn.style.setProperty("--voice-progress", percent + "%");
-        if (remaining > 0) ringFrame = requestAnimationFrame(updateRing);
-      };
-      updateRing();
 
       const normalizeArabic = (value) => {
         return (value || "")
@@ -1907,53 +1879,87 @@
           .trim();
       };
 
+      // These key words must ALL be recognized, in order, for one count.
+      // This is intentionally tolerant because Arabic speech recognition
+      // may omit/alter other words.
       const requiredWords = [
-        "اللهم","صل","علی","محمد","ابراهیم","حمید","مجید",
-        "اللهم","بارک","علی","محمد","بارکت","علی","انک","حمید","مجید"
+        "اللهم",
+        "صل",
+        "علی",
+        "محمد",
+        "ابراهیم",
+        "حمید",
+        "مجید",
+        "اللهم",
+        "بارک",
+        "علی",
+        "محمد",
+        "بارکت",
+        "علی",
+        "انک",
+        "حمید",
+        "مجید"
       ];
 
       const aliases = {
-        "اللهم": ["اللهم"],
+        "اللهم": ["اللهم", "اللهم"],
         "صل": ["صل", "صلی"],
         "علی": ["علی", "على", "علا"],
-        "محمد": ["محمد"],
-        "ابراهیم": ["ابراهیم", "ابراهيم", "ابراھیم"],
-        "حمید": ["حمید", "حميد"],
-        "مجید": ["مجید", "مجيد"],
+        "محمد": ["محمد", "محمد"],
+        "ابراهیم": ["ابراهیم", "ابراهيم", "ابراھیم", "ابراھیم"],
+        "حمید": ["حمید", "حميد", "حمید"],
+        "مجید": ["مجید", "مجيد", "مجید"],
         "بارک": ["بارک", "بارك"],
         "بارکت": ["بارکت", "باركت"],
-        "انک": ["انک", "انك"]
+        "انک": ["انک", "انك", "انک"]
       };
 
-      const isWordMatch = (spoken, required) => (aliases[required] || [required]).some(x => spoken === x);
+      const isWordMatch = (spoken, required) => {
+        const options = aliases[required] || [required];
+        return options.some(x => spoken === x);
+      };
 
       const isCompleteDarood = (spoken) => {
         const words = normalizeArabic(spoken).split(" ").filter(Boolean);
         if (!words.length) return false;
+
+        // ترتیب لازمی نہیں۔ صرف یہ ضروری الفاظ سب ادا ہونا لازم ہیں۔
+        // Speech Recognition میں ایک لفظ دو بار/مختلف جگہ آ سکتا ہے، اس لیے
+        // ہر required word کو کہیں بھی تلاش کیا جاتا ہے۔
         const remaining = words.slice();
+
         for (const required of requiredWords) {
-          const foundIndex = remaining.findIndex(word => isWordMatch(word, required));
+          const foundIndex = remaining.findIndex(word =>
+            isWordMatch(word, required)
+          );
+
           if (foundIndex === -1) return false;
           remaining.splice(foundIndex, 1);
         }
+
         return true;
       };
 
-      const finishAndJudge = () => {
-        if (finished) return;
-        const spoken = allSpokenText.trim();
-        cleanup();
+      recognition.onresult = (event) => {
+        let bestText = event.results[0][0].transcript || "";
+        let bestValid = isCompleteDarood(bestText);
 
-        if (!spoken) {
-          statusEl.style.color = "#ef4444";
-          statusEl.innerText = "✗ کوئی آواز نہیں ملی، درود شریف دوبارہ پڑھیں۔";
-          playErrorSound();
-          return;
+        // Try all alternatives returned by the browser.
+        for (let i = 0; i < event.results[0].length; i++) {
+          const candidate = event.results[0][i].transcript || "";
+          if (isCompleteDarood(candidate)) {
+            bestText = candidate;
+            bestValid = true;
+            break;
+          }
         }
 
-        if (!isCompleteDarood(spoken)) {
+        statusEl.innerText = `آواز: "${bestText}"`;
+
+        if (!bestValid) {
           statusEl.style.color = "#ef4444";
-          statusEl.innerText = "✗ آپ نے درود شریف صحیح/مکمل نہیں پڑھا، شمار نہیں ہوگا۔";
+          statusEl.innerText =
+            "✗ مکمل درود کے ضروری الفاظ نہیں ملے، شمار نہیں ہوگا۔";
           playErrorSound();
           return;
         }
@@ -1962,93 +1968,50 @@
           if (isComp) {
             db.ref("competitions/" + todayDateKey + "/" + currentUser.uid).transaction(current => {
               if (!current) return { count: 1, name: currentUser.displayName || currentUser.email };
-              return { count: (current.count || 0) + 1, name: currentUser.displayName || currentUser.email };
+              return {
+                count: (current.count || 0) + 1,
+                name: currentUser.displayName || currentUser.email
+              };
             });
           } else {
             db.ref("users/" + currentUser.uid).transaction(current => {
-              if (!current) return { count: 1, name: currentUser.displayName || currentUser.email, email: currentUser.email };
+              if (!current) return {
+                count: 1,
+                name: currentUser.displayName || currentUser.email,
+                email: currentUser.email
+              };
               return {
                 count: (current.count || 0) + 1,
                 name: currentUser.displayName || currentUser.email,
                 email: currentUser.email,
-                accName: current.accName || '', accNumber: current.accNumber || '',
-                accType: current.accType || 'JazzCash', savedCity: current.savedCity || '', savedCountry: current.savedCountry || ''
+                accName: current.accName || '',
+                accNumber: current.accNumber || '',
+                accType: current.accType || 'JazzCash',
+                savedCity: current.savedCity || '',
+                savedCountry: current.savedCountry || ''
               };
             });
           }
+
           statusEl.style.color = "#0d3b22";
-          statusEl.innerText = "✓ درست درود شریف ہے، شمار ہو گیا!";
+          statusEl.innerText = "✓ درود شریف شمار ہو گیا!";
           playSuccessSound();
           triggerVibration();
         }
       };
 
-      const startRecognitionAgain = () => {
-        if (finished || btn.dataset.voiceStop === "1") return;
-        try {
-          recognition.start();
-          recognitionRunning = true;
-        } catch (e) {
-          setTimeout(startRecognitionAgain, 250);
-        }
-      };
-
-      recognition.onresult = (event) => {
-        lastVoiceActivity = Date.now();
-        let gotText = "";
-        for (let i = 0; i < event.results.length; i++) {
-          for (let j = 0; j < event.results[i].length; j++) {
-            const t = event.results[i][j].transcript || "";
-            if (t.length > gotText.length) gotText = t;
-          }
-        }
-        if (gotText) {
-          allSpokenText += " " + gotText;
-          statusEl.style.color = "#0d3b22";
-          statusEl.innerText = "سن رہا ہوں... پڑھتے جائیں 🎙️";
-        }
-      };
-
-      recognition.onerror = (event) => {
-        if (finished) return;
-        // Normal browser end/errors are handled by onend and the 35-second timer.
-        if (event.error === "not-allowed" || event.error === "service-not-allowed") {
-          statusEl.style.color = "#ef4444";
-          statusEl.innerText = "مائیکروفون کی اجازت نہیں ملی۔";
-          playErrorSound();
-          cleanup();
-        }
+      recognition.onerror = () => {
+        statusEl.style.color = "#ef4444";
+        statusEl.innerText = "آواز واضح نہیں تھی، دوبارہ کوشش کریں۔";
+        playErrorSound();
       };
 
       recognition.onend = () => {
-        recognitionRunning = false;
-        if (finished) return;
-        if (btn.dataset.voiceStop === "1") {
-          finishAndJudge();
-          return;
-        }
-        // Chrome/Android often ends recognition after a short pause. Restart it
-        // while the same 35-second listening window is still active.
-        if (Date.now() - startedAt < VOICE_WINDOW_MS) {
-          setTimeout(startRecognitionAgain, 150);
-        }
+        btn.disabled = false;
+        btn.classList.remove("listening");
       };
 
-      silenceTimer = setInterval(() => {
-        if (!finished && Date.now() - lastVoiceActivity >= SILENCE_WARNING_MS && Date.now() - startedAt < VOICE_WINDOW_MS) {
-          statusEl.style.color = "#0d3b22";
-          statusEl.innerText = "🎙️ پڑھتے جائیں، میں سن رہا ہوں…";
-        }
-      }, 1000);
-
-      windowTimer = setTimeout(() => {
-        // Stop recognition at exactly 35 seconds. The result is judged ONLY now,
-        // after the blue circular progress ring has finished.
-        try { recognition.stop(); } catch (e) {}
-        setTimeout(finishAndJudge, 120);
-      }, VOICE_WINDOW_MS);
-
-      startRecognitionAgain();
+      recognition.start();
     }
 
     document.getElementById("countBtn").onclick = function() {
@@ -2064,98 +2027,27 @@
 (function () {
   let wakeLock = null;
 
-  async function keepScreenAwake() {
+  async function requestWakeLock() {
     try {
       if ("wakeLock" in navigator && document.visibilityState === "visible") {
-        wakeLock = await navigator.wakeLock.request("screen");
+        if (!wakeLock || wakeLock.released) {
+          wakeLock = await navigator.wakeLock.request("screen");
+          wakeLock.addEventListener("release", () => {
+            wakeLock = null;
+          });
+        }
       }
-    } catch (e) {
-      console.log("Screen Wake Lock unavailable:", e);
+    } catch (err) {
+      console.log("Screen Wake Lock unavailable:", err);
     }
   }
 
+  window.addEventListener("load", requestWakeLock);
   document.addEventListener("visibilitychange", () => {
-    if (document.visibilityState === "visible") keepScreenAwake();
+    if (document.visibilityState === "visible") requestWakeLock();
   });
-
-  window.addEventListener("load", keepScreenAwake);
+  document.addEventListener("click", requestWakeLock, { passive: true });
 })();
 </script>
-
-
-<script>
-(function () {
-  const KEY = "mehfilDarood_currentPage";
-
-  function getVisiblePageId() {
-    const candidates = [
-      "homeTab", "compTab", "leaderboardTab", "aboutTab",
-      "profileTab", "adminTab", "settingsTab"
-    ];
-    for (const id of candidates) {
-      const el = document.getElementById(id);
-      if (el && !el.classList.contains("hidden") &&
-          getComputedStyle(el).display !== "none") return id;
-    }
-    return null;
-  }
-
-  function saveCurrentPage() {
-    const id = getVisiblePageId();
-    if (id) sessionStorage.setItem(KEY, id);
-  }
-
-  function restoreCurrentPage() {
-    const saved = sessionStorage.getItem(KEY);
-    if (!saved) return;
-
-    const target = document.getElementById(saved);
-    if (!target) return;
-
-    // Find the site's tab-navigation controls and activate the saved tab
-    // by clicking the control that points to this section.
-    const controls = Array.from(document.querySelectorAll("button, a"));
-    const control = controls.find(el => {
-      const txt = (el.getAttribute("onclick") || "") + " " +
-                  (el.getAttribute("data-tab") || "") + " " +
-                  (el.getAttribute("href") || "");
-      return txt.includes(saved);
-    });
-
-    if (control) {
-      try { control.click(); } catch (e) {}
-    } else {
-      // Fallback: hide the tab sections and show the saved one.
-      const ids = [
-        "homeTab", "compTab", "leaderboardTab", "aboutTab",
-        "profileTab", "adminTab", "settingsTab"
-      ];
-      ids.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.classList.add("hidden");
-      });
-      target.classList.remove("hidden");
-    }
-  }
-
-  // Capture tab changes after the site's own handlers run.
-  document.addEventListener("click", () => {
-    setTimeout(saveCurrentPage, 50);
-  }, true);
-
-  window.addEventListener("beforeunload", saveCurrentPage);
-
-  // Give login/auth code time to finish, then restore the last page.
-  window.addEventListener("load", () => {
-    setTimeout(restoreCurrentPage, 250);
-    setTimeout(restoreCurrentPage, 1000);
-  });
-
-  // If the app exposes a login success handler later, home should be the
-  // first page after a fresh login; refreshes keep the current page.
-  window.__mehfilSavePage = saveCurrentPage;
-})();
-</script>
-
 </body>
 </html>
