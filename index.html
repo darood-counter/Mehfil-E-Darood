@@ -1871,7 +1871,7 @@
       btn.disabled = true;
       btn.classList.add("listening");
       statusEl.style.color = "#0d3b22";
-      statusEl.innerText = "سن رہا ہے... 23 سیکنڈ تک درود شریف پڑھیں 🎙️";
+      statusEl.innerText = "سن رہا ہے... 20 سیکنڈ تک درود شریف پڑھیں 🎙️";
 
       // Keep the mobile display awake while the user is reciting.
       requestScreenWakeLock();
@@ -1882,7 +1882,7 @@
       recognition.continuous = true;
       recognition.maxAlternatives = 5;
 
-      const LISTEN_DURATION_MS = 23000;
+      const LISTEN_DURATION_MS = 20000;
       const startedAt = Date.now();
       let finishTimer = null;
       let finished = false;
@@ -1904,19 +1904,17 @@
           .trim();
       };
 
-      // These words are checked only AFTER the full 23-second listening window.
+      // These words are checked only AFTER the full 20-second listening window.
       // Verification words are based on the complete Darood supplied by the user.
-      // They are checked only AFTER the full 23-second listening window.
+      // They are checked only AFTER the full 20-second listening window.
       const requiredWords = [
-        "اللهم", "صل", "علی", "محمد",
-        "بارک", "حمید", "مجید"
+        "اللهم", "صل", "علی", "بارک", "حمید", "مجید"
       ];
 
       const aliases = {
         "اللهم": ["اللهم"],
         "صل": ["صل", "صلی"],
         "علی": ["علی", "على", "علا"],
-        "محمد": ["محمد"],
         "بارک": ["بارک", "بارك"],
         "حمید": ["حمید", "حميد"],
         "مجید": ["مجید", "مجيد"]
@@ -2009,7 +2007,7 @@
         if (remainingSeconds <= 0) clearInterval(countdownTimer);
       }, 250);
 
-      // Always stop at exactly 23 seconds, even if there is silence.
+      // Always stop at exactly 20 seconds, even if there is silence.
       finishTimer = setTimeout(finishListening, LISTEN_DURATION_MS);
 
       recognition.onresult = (event) => {
@@ -2031,9 +2029,9 @@
           }
 
           if (bestTranscript) {
-            const elapsed = Math.min(23, Math.floor((Date.now() - startedAt) / 1000));
+            const elapsed = Math.min(20, Math.floor((Date.now() - startedAt) / 1000));
             statusEl.style.color = "#0d3b22";
-            statusEl.innerText = `سن رہا ہے... ${elapsed}/23 سیکنڈ 🎙️`;
+            statusEl.innerText = `سن رہا ہے... ${elapsed}/20 سیکنڈ 🎙️`;
           }
         }
       };
@@ -2043,7 +2041,7 @@
         // If the engine stopped unexpectedly, onend below will restart it while time remains.
         if (!finished && Date.now() - startedAt < LISTEN_DURATION_MS) {
           statusEl.style.color = "#0d3b22";
-          statusEl.innerText = "سن رہا ہے... 23 سیکنڈ مکمل ہونے تک مائیک آن رہے گا 🎙️";
+          statusEl.innerText = "سن رہا ہے... 20 سیکنڈ مکمل ہونے تک مائیک آن رہے گا 🎙️";
         }
       };
 
@@ -2059,7 +2057,7 @@
             try {
               recognition.start();
               statusEl.style.color = "#0d3b22";
-              statusEl.innerText = "سن رہا ہے... 23 سیکنڈ مکمل ہونے تک مائیک آن رہے گا 🎙️";
+              statusEl.innerText = "سن رہا ہے... 20 سیکنڈ مکمل ہونے تک مائیک آن رہے گا 🎙️";
             } catch (e) {}
           }, 50);
         } else if (elapsed >= LISTEN_DURATION_MS) {
