@@ -270,8 +270,28 @@
       width: 100%;
       height: 100%;
       border: 6px solid #e2e8f0;
-      border-top: 6px solid var(--primary-color);
       border-radius: 50%;
+      box-sizing: border-box;
+      transform: rotate(-90deg);
+      background: conic-gradient(var(--primary-color) 0deg, var(--primary-color) 0deg, transparent 0deg, transparent 360deg);
+      transition: background 0.1s linear;
+      pointer-events: none;
+    }
+
+    .voice-round-wrapper .circle-progress {
+      --voice-progress: 0deg;
+      background: conic-gradient(#2563eb 0deg, #2563eb var(--voice-progress), #e2e8f0 var(--voice-progress), #e2e8f0 360deg);
+      box-shadow: 0 0 0 2px rgba(37,99,235,0.06);
+    }
+
+    .voice-round-wrapper.listening-round .circle-progress {
+      border-color: #e2e8f0;
+    }
+
+    .voice-round-wrapper .mic-btn.listening {
+      background: linear-gradient(135deg, #2563eb, #1d4ed8) !important;
+      color: white !important;
+      animation: none;
     }
 
     .mic-btn {
@@ -572,7 +592,19 @@
       font-weight: bold;
       text-align: center;
     }
-  </style>
+  
+    <style>
+      .circle-progress.voice-round-active {
+        animation: voiceRoundProgress 30s linear forwards;
+        transform-origin: center;
+      }
+      @keyframes voiceRoundProgress {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+    </style>
+
+</style>
 </head>
 <body>
 
@@ -817,10 +849,13 @@
 
         <div id="compDaroodSlot"></div>
 
-        <button class="mic-btn" style="background: linear-gradient(135deg, #d97706, #b45309); color:white; width: 130px; height: 130px; margin: 15px auto;" id="compCountBtn">
-          <span style="font-size: 24px;">🎙️</span>
-          <span>مقابلے کے لیے بولیں</span>
-        </button>
+        <div class="mic-circle-wrapper voice-round-wrapper competition-voice-round">
+          <div class="circle-progress" id="compCircleProgress"></div>
+          <button class="mic-btn" style="background: linear-gradient(135deg, #d97706, #b45309); color:white; width: 130px; height: 130px; margin: 15px auto;" id="compCountBtn">
+            <span style="font-size: 24px;">🎙️</span>
+            <span>مقابلے کے لیے بولیں</span>
+          </button>
+        </div>
         <div id="compStatusMsg" class="status-msg" style="color: #d97706;"></div>
         <div style="font-size: 15px; color: #d97706; margin-top: 8px;">مقابلے میں آپ کا اسکور: <b id="compUserTotal">0</b></div>
 
@@ -837,8 +872,8 @@
         
         <div id="rewardDaroodSlot"></div>
 
-        <div class="mic-circle-wrapper">
-          <div class="circle-progress"></div>
+        <div class="mic-circle-wrapper voice-round-wrapper">
+          <div class="circle-progress" id="tasbeehCircleProgress"></div>
           <button class="mic-btn" id="countBtn">
             <span style="font-size: 32px; font-weight: bold; color: var(--primary-color);" id="userTotal">0</span>
             <span style="font-size: 12px; color: var(--text-muted); font-weight: normal;">آپ کے آج کے درود</span>
@@ -1868,16 +1903,34 @@
         return;
       }
 
+      // One complete voice round = exactly 30 seconds.
+      const ROUND_MS = 30000;
+
       btn.disabled = true;
       btn.classList.add("listening");
       statusEl.style.color = "#0d3b22";
-      statusEl.innerText = "سن رہا ہے... درود شریف پڑھیں 🎙️";
+      statusEl.innerText = "پڑھتے رہیں، میں سن رہا ہوں 🎙️ (30 سیکنڈ)";
+
+      // Make the existing circular progress ring visibly run for 30 seconds.
+      const wrapper = btn.closest(".mic-circle-wrapper");
+      const progress = wrapper ? wrapper.querySelector(".circle-progress") : null;
+      if (progress) {
+        progress.style.setProperty("--voice-progress-duration", "30s");
+        progress.classList.remove("voice-round-active");
+        void progress.offsetWidth;
+        progress.classList.add("voice-round-active");
+      }
 
       const recognition = new SpeechRecognition();
-      recognition.lang = 'ar-SA';
-      recognition.interimResults = false;
-      recognition.continuous = false;
+      recognition.lang = "ar-SA";
+      recognition.interimResults = true;
+      recognition.continuous = true;
       recognition.maxAlternatives = 5;
+
+      let allTranscripts = [];
+      let roundFinished = false;
+      let restartTimer = null;
+      const roundStart = Date.now();
 
       const normalizeArabic = (value) => {
         return (value || "")
@@ -1894,39 +1947,23 @@
           .trim();
       };
 
-      // These key words must ALL be recognized, in order, for one count.
-      // This is intentionally tolerant because Arabic speech recognition
-      // may omit/alter other words.
+      // Required words for one complete Darood.
       const requiredWords = [
-        "اللهم",
-        "صل",
-        "علی",
-        "محمد",
-        "ابراهیم",
-        "حمید",
-        "مجید",
-        "اللهم",
-        "بارک",
-        "علی",
-        "محمد",
-        "بارکت",
-        "علی",
-        "انک",
-        "حمید",
-        "مجید"
+        "اللهم", "صل", "علی", "محمد", "ابراهیم", "حمید", "مجید",
+        "اللهم", "بارک", "علی", "محمد", "بارکت", "علی", "انک", "حمید", "مجید"
       ];
 
       const aliases = {
-        "اللهم": ["اللهم", "اللهم"],
+        "اللهم": ["اللهم"],
         "صل": ["صل", "صلی"],
         "علی": ["علی", "على", "علا"],
-        "محمد": ["محمد", "محمد"],
-        "ابراهیم": ["ابراهیم", "ابراهيم", "ابراھیم", "ابراھیم"],
-        "حمید": ["حمید", "حميد", "حمید"],
-        "مجید": ["مجید", "مجيد", "مجید"],
+        "محمد": ["محمد"],
+        "ابراهیم": ["ابراهیم", "ابراهيم", "ابراھیم"],
+        "حمید": ["حمید", "حميد"],
+        "مجید": ["مجید", "مجيد"],
         "بارک": ["بارک", "بارك"],
         "بارکت": ["بارکت", "باركت"],
-        "انک": ["انک", "انك", "انک"]
+        "انک": ["انک", "انك"]
       };
 
       const isWordMatch = (spoken, required) => {
@@ -1934,99 +1971,118 @@
         return options.some(x => spoken === x);
       };
 
-      const isCompleteDarood = (spoken) => {
-        const words = normalizeArabic(spoken).split(" ").filter(Boolean);
+      const isCompleteDarood = (spokenText) => {
+        const words = normalizeArabic(spokenText).split(" ").filter(Boolean);
         if (!words.length) return false;
 
-        // ترتیب لازمی نہیں۔ صرف یہ ضروری الفاظ سب ادا ہونا لازم ہیں۔
-        // Speech Recognition میں ایک لفظ دو بار/مختلف جگہ آ سکتا ہے، اس لیے
-        // ہر required word کو کہیں بھی تلاش کیا جاتا ہے۔
-        const remaining = words.slice();
-
+        // Check the required words in order, while allowing recognition
+        // to insert or omit harmless words.
+        let pos = 0;
         for (const required of requiredWords) {
-          const foundIndex = remaining.findIndex(word =>
-            isWordMatch(word, required)
-          );
-
-          if (foundIndex === -1) return false;
-          remaining.splice(foundIndex, 1);
+          let found = false;
+          while (pos < words.length) {
+            if (isWordMatch(words[pos], required)) {
+              found = true;
+              pos++;
+              break;
+            }
+            pos++;
+          }
+          if (!found) return false;
         }
-
         return true;
       };
 
-      recognition.onresult = (event) => {
-        let bestText = event.results[0][0].transcript || "";
-        let bestValid = isCompleteDarood(bestText);
+      const cleanup = () => {
+        clearTimeout(restartTimer);
+        try { recognition.onend = null; } catch (_) {}
+        try { recognition.onerror = null; } catch (_) {}
+        try { recognition.onresult = null; } catch (_) {}
+        try { recognition.stop(); } catch (_) {}
+        btn.disabled = false;
+        btn.classList.remove("listening");
+        if (progress) progress.classList.remove("voice-round-active");
+      };
 
-        // Try all alternatives returned by the browser.
-        for (let i = 0; i < event.results[0].length; i++) {
-          const candidate = event.results[0][i].transcript || "";
-          if (isCompleteDarood(candidate)) {
-            bestText = candidate;
-            bestValid = true;
-            break;
-          }
-        }
+      const finishRound = () => {
+        if (roundFinished) return;
+        roundFinished = true;
 
-        statusEl.innerText = `آواز: "${bestText}"`;
+        const combined = allTranscripts.join(" ");
+        const valid = isCompleteDarood(combined);
 
-        if (!bestValid) {
-          statusEl.style.color = "#ef4444";
-          statusEl.innerText =
-            "✗ مکمل درود کے ضروری الفاظ نہیں ملے، شمار نہیں ہوگا۔";
-          playErrorSound();
-          return;
-        }
+        cleanup();
 
-        if (currentUser) {
-          if (isComp) {
-            db.ref("competitions/" + todayDateKey + "/" + currentUser.uid).transaction(current => {
-              if (!current) return { count: 1, name: currentUser.displayName || currentUser.email };
-              return {
-                count: (current.count || 0) + 1,
-                name: currentUser.displayName || currentUser.email
-              };
-            });
-          } else {
-            db.ref("users/" + currentUser.uid).transaction(current => {
-              if (!current) return {
-                count: 1,
-                name: currentUser.displayName || currentUser.email,
-                email: currentUser.email
-              };
-              return {
-                count: (current.count || 0) + 1,
-                name: currentUser.displayName || currentUser.email,
-                email: currentUser.email,
-                accName: current.accName || '',
-                accNumber: current.accNumber || '',
-                accType: current.accType || 'JazzCash',
-                savedCity: current.savedCity || '',
-                savedCountry: current.savedCountry || ''
-              };
-            });
-          }
-
-          statusEl.style.color = "#0d3b22";
-          statusEl.innerText = "✓ درود شریف شمار ہو گیا!";
+        if (valid) {
+          statusEl.style.color = "#16a34a";
+          statusEl.innerText = "✓ آپ نے درود شریف صحیح پڑھا، 1 درود شمار ہو گیا۔";
           playSuccessSound();
-          triggerVibration();
+
+          // Use the existing counter button flow: one verified Darood = one count.
+          if (typeof btn.click === "function") {
+            // Avoid recursively starting voice recognition when this is the voice button.
+            const countButton = document.getElementById("countBtn");
+            if (countButton && btnId !== "countBtn") countButton.click();
+            else if (typeof updateCount === "function") updateCount();
+          }
+        } else {
+          statusEl.style.color = "#ef4444";
+          statusEl.innerText = "آپ نے درود شریف صحیح نہیں پڑھا۔ دوبارہ کوشش کریں۔";
+          playErrorSound();
         }
       };
 
-      recognition.onerror = () => {
-        statusEl.style.color = "#ef4444";
-        statusEl.innerText = "آواز واضح نہیں تھی، دوبارہ کوشش کریں۔";
-        playErrorSound();
+      recognition.onresult = (event) => {
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const result = event.results[i];
+          const transcript = result[0] && result[0].transcript ? result[0].transcript : "";
+          if (transcript.trim()) allTranscripts.push(transcript);
+        }
+      };
+
+      recognition.onerror = (event) => {
+        // Do not fail the 30-second round on temporary silence/no-speech.
+        // The browser may stop recognition automatically; onend will restart it.
+        const recoverable = ["no-speech", "audio-capture", "network", "aborted"];
+        if (recoverable.includes(event.error) && !roundFinished) return;
+
+        if (!roundFinished && Date.now() - roundStart < ROUND_MS) {
+          return;
+        }
       };
 
       recognition.onend = () => {
-        btn.disabled = false;
-        btn.classList.remove("listening");
+        if (roundFinished) return;
+
+        const elapsed = Date.now() - roundStart;
+        if (elapsed >= ROUND_MS) {
+          finishRound();
+          return;
+        }
+
+        // Keep the microphone recognition alive until the full 30 seconds.
+        const remaining = ROUND_MS - elapsed;
+        restartTimer = setTimeout(() => {
+          if (!roundFinished && Date.now() - roundStart < ROUND_MS) {
+            try { recognition.start(); } catch (_) {}
+          }
+        }, Math.min(250, remaining));
       };
 
-      recognition.start();
+      try {
+        recognition.start();
+      } catch (_) {
+        cleanup();
+        statusEl.style.color = "#ef4444";
+        statusEl.innerText = "مائیک شروع نہیں ہو سکا۔ دوبارہ کوشش کریں۔";
+        playErrorSound();
+        return;
+      }
+
+      // Hard 30-second stop/verification timer.
+      setTimeout(() => {
+        if (!roundFinished) finishRound();
+      }, ROUND_MS);
     }
 
     document.getElementById("countBtn").onclick = function() {
