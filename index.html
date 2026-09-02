@@ -674,7 +674,7 @@
           <div style="font-size:12px; font-weight:800; line-height:1.35;">محفلِ درود کی Android App</div>
           <div style="font-size:10px; opacity:.9; line-height:1.35;">اب ویب سائٹ کو موبائل App میں بھی استعمال کریں</div>
         </div>
-        <a href="mehfil-e-darood.apk" download="Mehfil-E-Darood.apk" style="display:inline-block; background:#f5d05a; color:#173b2d; text-decoration:none; font-size:10px; font-weight:800; padding:7px 9px; border-radius:7px; white-space:nowrap;">⬇️ APK ڈاؤنلوڈ</a>
+        <a href="https://github.com/darood-counter/Mehfil-E-Darood/releases/download/V1.0/mehfil-e-darood.apk" download="Mehfil-E-Darood.apk" style="display:inline-block; background:#f5d05a; color:#173b2d; text-decoration:none; font-size:10px; font-weight:800; padding:7px 9px; border-radius:7px; white-space:nowrap;">⬇️ APK ڈاؤنلوڈ</a>
         <button onclick="document.getElementById('appDownloadNotice').style.display='none'" aria-label="بند کریں" style="background:transparent; color:#fff; border:0; font-size:16px; line-height:1; padding:2px 3px; cursor:pointer;">×</button>
       </div>
 
@@ -950,6 +950,41 @@
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 
   <script>
+
+    /* KEEP MOBILE SCREEN AWAKE WHILE THIS WEB APP IS OPEN */
+    let screenWakeLock = null;
+
+    async function requestScreenWakeLock() {
+      try {
+        if (!("wakeLock" in navigator)) return;
+        screenWakeLock = await navigator.wakeLock.request("screen");
+
+        screenWakeLock.addEventListener("release", () => {
+          screenWakeLock = null;
+        });
+      } catch (e) {
+        console.log("Screen Wake Lock not available:", e);
+      }
+    }
+
+    // Wake Lock normally requires a visible page, so request again when
+    // the user returns to the browser/app.
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") {
+        requestScreenWakeLock();
+      }
+    });
+
+    window.addEventListener("focus", requestScreenWakeLock);
+    window.addEventListener("load", requestScreenWakeLock);
+
+    // Some Android browsers release the lock after a while; refresh it.
+    setInterval(() => {
+      if (document.visibilityState === "visible" && !screenWakeLock) {
+        requestScreenWakeLock();
+      }
+    }, 30000);
+
     const firebaseConfig = {
       apiKey: "AIzaSyB3PjjiQM2IqKmIQJ4d4YOwcc10RiG47FI",
       authDomain: "mehfil-e-darood.firebaseapp.com",
@@ -1840,10 +1875,8 @@
 
       const recognition = new SpeechRecognition();
       recognition.lang = 'ar-SA';
-      recognition.interimResults = true;
-      recognition.continuous = true;
-      recognition._restartTimer = null;
-      recognition._stoppedByUser = false;
+      recognition.interimResults = false;
+      recognition.continuous = false;
       recognition.maxAlternatives = 5;
 
       const normalizeArabic = (value) => {
@@ -1989,23 +2022,8 @@
       };
 
       recognition.onend = () => {
-        if (!recognition._stoppedByUser) {
-          // Chrome/Android SpeechRecognition often ends after a short silence.
-          // Wait 5 seconds before restarting so the user has time to breathe.
-          clearTimeout(recognition._restartTimer);
-          recognition._restartTimer = setTimeout(() => {
-            try {
-              recognition.start();
-              btn.disabled = true;
-              btn.classList.add("listening");
-              statusEl.style.color = "#0d3b22";
-              statusEl.innerText = "سن رہا ہے... آرام سے درود شریف پڑھیں 🎙️";
-            } catch(e) {}
-          }, 5000);
-        } else {
-          btn.disabled = false;
-          btn.classList.remove("listening");
-        }
+        btn.disabled = false;
+        btn.classList.remove("listening");
       };
 
       recognition.start();
