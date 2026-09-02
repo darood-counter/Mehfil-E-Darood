@@ -674,7 +674,7 @@
           <div style="font-size:12px; font-weight:800; line-height:1.35;">محفلِ درود کی Android App</div>
           <div style="font-size:10px; opacity:.9; line-height:1.35;">اب ویب سائٹ کو موبائل App میں بھی استعمال کریں</div>
         </div>
-        <a href="mehfil-e-darood.apk" download="Mehfil-E-Darood.apk" style="display:inline-block; background:#f5d05a; color:#173b2d; text-decoration:none; font-size:10px; font-weight:800; padding:7px 9px; border-radius:7px; white-space:nowrap;">⬇️ APK ڈاؤنلوڈ</a>
+        <a href="https://github.com/darood-counter/Mehfil-E-Darood/releases/download/V1.0/mehfil-e-darood.apk" download="Mehfil-E-Darood.apk" style="display:inline-block; background:#f5d05a; color:#173b2d; text-decoration:none; font-size:10px; font-weight:800; padding:7px 9px; border-radius:7px; white-space:nowrap;">⬇️ APK ڈاؤنلوڈ</a>
         <button onclick="document.getElementById('appDownloadNotice').style.display='none'" aria-label="بند کریں" style="background:transparent; color:#fff; border:0; font-size:16px; line-height:1; padding:2px 3px; cursor:pointer;">×</button>
       </div>
 
@@ -950,6 +950,41 @@
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 
   <script>
+
+    /* KEEP MOBILE SCREEN AWAKE WHILE THIS WEB APP IS OPEN */
+    let screenWakeLock = null;
+
+    async function requestScreenWakeLock() {
+      try {
+        if (!("wakeLock" in navigator)) return;
+        screenWakeLock = await navigator.wakeLock.request("screen");
+
+        screenWakeLock.addEventListener("release", () => {
+          screenWakeLock = null;
+        });
+      } catch (e) {
+        console.log("Screen Wake Lock not available:", e);
+      }
+    }
+
+    // Wake Lock normally requires a visible page, so request again when
+    // the user returns to the browser/app.
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") {
+        requestScreenWakeLock();
+      }
+    });
+
+    window.addEventListener("focus", requestScreenWakeLock);
+    window.addEventListener("load", requestScreenWakeLock);
+
+    // Some Android browsers release the lock after a while; refresh it.
+    setInterval(() => {
+      if (document.visibilityState === "visible" && !screenWakeLock) {
+        requestScreenWakeLock();
+      }
+    }, 30000);
+
     const firebaseConfig = {
       apiKey: "AIzaSyB3PjjiQM2IqKmIQJ4d4YOwcc10RiG47FI",
       authDomain: "mehfil-e-darood.firebaseapp.com",
@@ -1095,53 +1130,41 @@
     }
     scheduleCompetitionRollover();
 
-    const CURRENT_TAB_KEY = "mehfilDarood_currentTab";
-const LOGIN_JUST_HAPPENED_KEY = "mehfilDarood_loginJustHappened";
+    function switchBottomTab(tabName) {
+      document.getElementById("mainTab").classList.add("hidden");
+      document.getElementById("compTab").classList.add("hidden");
+      document.getElementById("rewardTab").classList.add("hidden");
+      document.getElementById("profileTab").classList.add("hidden");
+      document.getElementById("aboutTab").classList.add("hidden");
+      document.getElementById("daroodCard").classList.add("hidden");
 
-function markLoginStarted() {
-  sessionStorage.setItem(LOGIN_JUST_HAPPENED_KEY, "1");
-}
+      document.querySelectorAll(".bottom-nav .nav-item").forEach(el => el.classList.remove("active"));
 
-function switchBottomTab(tabName) {
-  sessionStorage.setItem("mehfilDarood_currentTab", tabName);
-
-  const customModal = document.getElementById("customModal");
-  if (customModal) customModal.classList.add("hidden");
-
-  document.getElementById("mainTab").classList.add("hidden");
-  document.getElementById("compTab").classList.add("hidden");
-  document.getElementById("rewardTab").classList.add("hidden");
-  document.getElementById("profileTab").classList.add("hidden");
-  document.getElementById("aboutTab").classList.add("hidden");
-  document.getElementById("daroodCard").classList.add("hidden");
-
-  document.querySelectorAll(".bottom-nav .nav-item").forEach(el => el.classList.remove("active"));
-
-  if (tabName === 'home') {
-    document.getElementById("mainTab").classList.remove("hidden");
-    document.getElementById("navHome").classList.add("active");
-  } else if (tabName === 'competition') {
-    if (customModal) customModal.classList.remove("hidden");
-    document.getElementById("compTab").classList.remove("hidden");
-    document.getElementById("navCompetition").classList.add("active");
-
-    const compSlot = document.getElementById("compDaroodSlot");
-    if (compSlot) compSlot.appendChild(document.getElementById("daroodCard"));
-    document.getElementById("daroodCard").classList.remove("hidden");
-  } else if (tabName === 'about') {
-    document.getElementById("aboutTab").classList.remove("hidden");
-    document.getElementById("navAbout").classList.add("active");
-  } else if (tabName === 'reward') {
-    const rewardSlot = document.getElementById("rewardDaroodSlot");
-    if (rewardSlot) rewardSlot.appendChild(document.getElementById("daroodCard"));
-    document.getElementById("rewardTab").classList.remove("hidden");
-    document.getElementById("navTasbeeh").classList.add("active");
-    document.getElementById("daroodCard").classList.remove("hidden");
-  } else if (tabName === 'profile') {
-    document.getElementById("profileTab").classList.remove("hidden");
-    document.getElementById("navProfile").classList.add("active");
-  }
-}
+      if (tabName === 'home') {
+        document.getElementById("mainTab").classList.remove("hidden");
+        document.getElementById("navHome").classList.add("active");
+      } else if (tabName === 'competition') {
+        document.getElementById("customModal").classList.remove("hidden");
+        document.getElementById("compTab").classList.remove("hidden");
+        document.getElementById("navCompetition").classList.add("active");
+        
+        const compSlot = document.getElementById("compDaroodSlot");
+        if (compSlot) compSlot.appendChild(document.getElementById("daroodCard"));
+        document.getElementById("daroodCard").classList.remove("hidden");
+      } else if (tabName === 'about') {
+        document.getElementById("aboutTab").classList.remove("hidden");
+        document.getElementById("navAbout").classList.add("active");
+      } else if (tabName === 'reward') {
+        const rewardSlot = document.getElementById("rewardDaroodSlot");
+        if (rewardSlot) rewardSlot.appendChild(document.getElementById("daroodCard"));
+        document.getElementById("rewardTab").classList.remove("hidden");
+        document.getElementById("navTasbeeh").classList.add("active");
+        document.getElementById("daroodCard").classList.remove("hidden");
+      } else if (tabName === 'profile') {
+        document.getElementById("profileTab").classList.remove("hidden");
+        document.getElementById("navProfile").classList.add("active");
+      }
+    }
 
     document.getElementById("modalOkBtn").onclick = function() {
       document.getElementById("customModal").classList.add("hidden");
@@ -1158,7 +1181,6 @@ function switchBottomTab(tabName) {
     };
 
     document.getElementById("signupBtn").onclick = () => {
-  markLoginStarted();
       const name = document.getElementById("signupName").value.trim();
       const email = document.getElementById("signupEmail").value.trim();
       const password = document.getElementById("signupPassword").value.trim();
@@ -1185,7 +1207,6 @@ function switchBottomTab(tabName) {
     };
 
     document.getElementById("loginSubmitBtn").onclick = () => {
-  markLoginStarted();
       const email = document.getElementById("loginEmail").value.trim();
       const password = document.getElementById("loginPassword").value.trim();
       const statusEl = document.getElementById("loginStatus");
@@ -1210,7 +1231,6 @@ function switchBottomTab(tabName) {
     };
 
     function handleGoogleAuth() {
-  markLoginStarted();
       const provider = new firebase.auth.GoogleAuthProvider();
       auth.signInWithPopup(provider).then(() => {
         playSuccessSound();
@@ -1238,11 +1258,6 @@ function switchBottomTab(tabName) {
         document.getElementById("userName").innerText = user.displayName || user.email;
         document.getElementById("profileDisplayName").innerText = user.displayName || "---";
         document.getElementById("profileDisplayEmail").innerText = user.email || "---";
-
-    const justLoggedIn = sessionStorage.getItem("mehfilDarood_loginJustHappened") === "1";
-    sessionStorage.removeItem("mehfilDarood_loginJustHappened");
-    const savedTab = sessionStorage.getItem("mehfilDarood_currentTab");
-    switchBottomTab(justLoggedIn ? "home" : (savedTab || "home"));
 
         db.ref("users/" + user.uid).update({
           name: user.displayName || user.email,
@@ -2022,224 +2037,5 @@ function switchBottomTab(tabName) {
       startVoiceRecognition('compCountBtn', 'compStatusMsg', true);
     };
   </script>
-
-<script>
-(function () {
-  let wakeLock = null;
-
-  async function requestWakeLock() {
-    try {
-      if ("wakeLock" in navigator && document.visibilityState === "visible") {
-        if (!wakeLock || wakeLock.released) {
-          wakeLock = await navigator.wakeLock.request("screen");
-          wakeLock.addEventListener("release", () => {
-            wakeLock = null;
-          });
-        }
-      }
-    } catch (err) {
-      console.log("Screen Wake Lock unavailable:", err);
-    }
-  }
-
-  window.addEventListener("load", requestWakeLock);
-  document.addEventListener("visibilitychange", () => {
-    if (document.visibilityState === "visible") requestWakeLock();
-  });
-  document.addEventListener("click", requestWakeLock, { passive: true });
-})();
-</script>
-
-<style>
-.mic-btn.voice-timing{position:relative;overflow:visible;isolation:isolate}
-.mic-btn.voice-timing::before{
-  content:"";position:absolute;inset:-9px;border-radius:50%;
-  background:conic-gradient(#1683ff var(--voice-progress,100%),rgba(22,131,255,.12) 0);
-  -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 5px),#000 calc(100% - 4px));
-  mask:radial-gradient(farthest-side,transparent calc(100% - 5px),#000 calc(100% - 4px));
-  z-index:-1;pointer-events:none
-}
-.voice-countdown{
-  display:inline-flex;align-items:center;justify-content:center;
-  min-width:34px;height:24px;margin-left:7px;padding:0 7px;
-  border-radius:12px;font-size:13px;font-weight:700;
-  background:rgba(22,131,255,.10)
-}
-</style>
-<script>
-(function(){
-  const VOICE_WINDOW_MS = 35000;
-  const SILENCE_WARNING_MS = 5000;
-
-  window.startVoiceRecognition = function(btn, isCompetition){
-    if(!btn) return;
-
-    if(btn.dataset.voiceActive === "1"){
-      // Stop button: do not judge early; let the 35-second window finish.
-      btn.dataset.voiceStop = "1";
-      return;
-    }
-
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if(!SpeechRecognition){
-      alert("آپ کے موبائل براؤزر میں Voice Recognition دستیاب نہیں ہے۔");
-      return;
-    }
-
-    btn.dataset.voiceActive = "1";
-    btn.dataset.voiceStop = "0";
-    btn.classList.add("voice-timing");
-    btn.style.setProperty("--voice-progress","100%");
-
-    let countdown = btn.querySelector(".voice-countdown");
-    if(!countdown){
-      countdown = document.createElement("span");
-      countdown.className = "voice-countdown";
-      btn.appendChild(countdown);
-    }
-    countdown.textContent = "35";
-
-    let allSpokenText = "";
-    let startedAt = Date.now();
-    let lastVoiceActivity = Date.now();
-    let finished = false;
-    let recognition = null;
-    let restartTimer = null;
-    let animationFrame = null;
-    let silenceTimer = null;
-
-    function showStatus(msg){
-      const el = document.getElementById("voiceStatus") ||
-                 document.getElementById("result") ||
-                 document.querySelector(".voice-status");
-      if(el) el.textContent = msg;
-    }
-
-    function cleanup(){
-      finished = true;
-      clearTimeout(restartTimer);
-      clearInterval(silenceTimer);
-      cancelAnimationFrame(animationFrame);
-      try{ if(recognition) recognition.onend = null; recognition && recognition.stop(); }catch(e){}
-      btn.dataset.voiceActive = "0";
-      btn.dataset.voiceStop = "0";
-      btn.classList.remove("voice-timing");
-      btn.style.removeProperty("--voice-progress");
-      if(countdown) countdown.remove();
-    }
-
-    async function finishAndJudge(){
-      if(finished) return;
-      const elapsed = Date.now() - startedAt;
-      if(elapsed < VOICE_WINDOW_MS){
-        setTimeout(finishAndJudge, VOICE_WINDOW_MS - elapsed);
-        return;
-      }
-
-      const spoken = allSpokenText.trim();
-      cleanup();
-
-      if(!spoken){
-        showStatus("✗ کوئی آواز نہیں ملی، درود شریف دوبارہ پڑھیں۔");
-        if(typeof playErrorSound === "function") playErrorSound();
-        return;
-      }
-
-      let correct = false;
-      try{
-        correct = typeof isCompleteDarood === "function" && isCompleteDarood(spoken);
-      }catch(e){ correct = false; }
-
-      if(correct){
-        showStatus("✓ درست درود شریف ہے، شمار ہو گیا!");
-        if(typeof playSuccessSound === "function") playSuccessSound();
-        if(typeof navigator.vibrate === "function") navigator.vibrate(120);
-        // Preserve the existing app's counting flow.
-        try{
-          if(isCompetition && typeof incrementCompetitionCount === "function")
-            incrementCompetitionCount();
-          else if(!isCompetition && typeof incrementNormalCount === "function")
-            incrementNormalCount();
-          else if(typeof handleVoiceCountResult === "function")
-            handleVoiceCountResult(true, isCompetition);
-        }catch(e){}
-      }else{
-        showStatus("✗ آپ نے درود شریف صحیح/مکمل نہیں پڑھا، شمار نہیں ہوگا۔");
-        if(typeof playErrorSound === "function") playErrorSound();
-      }
-    }
-
-    function updateTimer(){
-      if(finished) return;
-      const elapsed = Date.now() - startedAt;
-      const remainingMs = Math.max(0, VOICE_WINDOW_MS - elapsed);
-      const remaining = Math.ceil(remainingMs / 1000);
-      const progress = Math.max(0, Math.min(100, remainingMs / VOICE_WINDOW_MS * 100));
-      btn.style.setProperty("--voice-progress", progress + "%");
-      if(countdown) countdown.textContent = String(remaining);
-      if(remainingMs <= 0){
-        finishAndJudge();
-        return;
-      }
-      animationFrame = requestAnimationFrame(updateTimer);
-    }
-
-    function startRecognitionAgain(){
-      if(finished || Date.now() - startedAt >= VOICE_WINDOW_MS) return;
-      try{
-        recognition = new SpeechRecognition();
-        recognition.lang = "ar-SA";
-        recognition.interimResults = false;
-        recognition.continuous = false;
-        recognition.maxAlternatives = 5;
-
-        recognition.onresult = function(event){
-          lastVoiceActivity = Date.now();
-          let text = "";
-          for(let i=0;i<event.results.length;i++){
-            text += " " + (event.results[i][0]?.transcript || "");
-          }
-          text = text.trim();
-          if(text) allSpokenText += " " + text;
-        };
-
-        recognition.onerror = function(event){
-          if(event && event.error === "not-allowed"){
-            showStatus("🎙️ مائیکروفون کی اجازت دیں، پھر دوبارہ کوشش کریں۔");
-          }
-        };
-
-        recognition.onend = function(){
-          if(finished) return;
-          if(Date.now() - startedAt < VOICE_WINDOW_MS){
-            clearTimeout(restartTimer);
-            restartTimer = setTimeout(startRecognitionAgain, 120);
-          }
-        };
-
-        recognition.start();
-      }catch(e){
-        clearTimeout(restartTimer);
-        restartTimer = setTimeout(startRecognitionAgain, 250);
-      }
-    }
-
-    showStatus("🎙️ پڑھتے جائیں، میں سن رہا ہوں…");
-
-    silenceTimer = setInterval(function(){
-      if(finished) return;
-      if(Date.now() - lastVoiceActivity >= SILENCE_WARNING_MS){
-        showStatus("🎙️ پڑھتے جائیں، میں سن رہا ہوں…");
-      }
-    }, 1000);
-
-    updateTimer();
-    startRecognitionAgain();
-
-    setTimeout(finishAndJudge, VOICE_WINDOW_MS + 50);
-  };
-})();
-</script>
-
 </body>
 </html>
