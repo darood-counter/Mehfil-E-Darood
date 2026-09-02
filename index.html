@@ -1925,7 +1925,6 @@
       recognition.maxAlternatives = 5;
 
       let allTranscripts = [];
-      const roundEndAt = Date.now() + ROUND_MS;
       let startedAt = Date.now();
       let finished = false;
       let restartTimer = null;
@@ -2058,7 +2057,8 @@
           text += " " + (result[0] && result[0].transcript || "");
           if (result.isFinal) allTranscripts.push(result[0].transcript || "");
         }
-        const remaining = Math.max(0, Math.ceil((roundEndAt - Date.now()) / 1000));
+        const elapsed = Date.now() - startedAt;
+        const remaining = Math.max(0, Math.ceil((ROUND_MS - elapsed) / 1000));
         statusEl.style.color = "#2563eb";
         statusEl.innerText = `پڑھتے رہیں، میں سن رہا ہوں 🎙️ (${remaining} سیکنڈ)`;
       };
@@ -2077,14 +2077,15 @@
 
       recognition.onend = () => {
         if (finished) return;
-        if (Date.now() >= roundEndAt) { finishRound(); return; }
+        const elapsed = Date.now() - startedAt;
+        if (elapsed >= ROUND_MS) { finishRound(); return; }
         restartTimer = setTimeout(() => {
           if (finished) return;
           try { recognition.start(); } catch (e) {}
         }, 250);
       };
 
-      finishTimer = setTimeout(finishRound, Math.max(0, roundEndAt - Date.now()));
+      finishTimer = setTimeout(finishRound, ROUND_MS);
 
       try {
         recognition.start();
