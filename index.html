@@ -306,14 +306,6 @@
     }
 
     .status-msg { font-weight: bold; font-size: 13px; margin: 6px 0; min-height: 20px; }
-    .darood-word { transition: color .2s ease, background .2s ease; }
-    .darood-word.spoken { color: #16a34a !important; background: #dcfce7; border-radius: 4px; padding: 0 2px; }
-    .voice-controls { display:flex; gap:8px; justify-content:center; margin-top:12px; }
-    .voice-start-btn, .voice-stop-btn { border:none; padding:10px 24px; border-radius:12px; font-family:inherit; font-size:14px; font-weight:bold; cursor:pointer; }
-    .voice-start-btn { background:#0d3b22; color:#fff; }
-    .voice-start-btn.active { background:#16a34a; }
-    .voice-stop-btn { background:#dc2626; color:#fff; }
-    .voice-stop-btn:disabled { opacity:.45; cursor:not-allowed; }
     
     .auth-container {
       background: #fffdf9;
@@ -825,18 +817,11 @@
 
         <div id="compDaroodSlot"></div>
 
-        <div class="mic-circle-wrapper" style="width:150px;height:150px;">
-          <div class="circle-progress"></div>
-          <button class="mic-btn" style="background: linear-gradient(135deg, #d97706, #b45309); color:white; width: 125px; height: 125px;" id="compCountBtn">
-            <span style="font-size: 24px;">🎙️</span>
-            <span>مائیک</span>
-          </button>
-        </div>
+        <button class="mic-btn" style="background: linear-gradient(135deg, #d97706, #b45309); color:white; width: 130px; height: 130px; margin: 15px auto;" id="compCountBtn">
+          <span style="font-size: 24px;">🎙️</span>
+          <span>مقابلے کے لیے بولیں</span>
+        </button>
         <div id="compStatusMsg" class="status-msg" style="color: #d97706;"></div>
-        <div class="voice-controls">
-          <button id="compVoiceStartBtn" class="voice-start-btn" style="background:#d97706;" onclick="startVoiceRecognition('compCountBtn', 'compStatusMsg', true)">▶️ START</button>
-          <button id="compVoiceStopBtn" class="voice-stop-btn" onclick="stopVoiceRecognition(true)" disabled>⏹️ STOP</button>
-        </div>
         <div style="font-size: 15px; color: #d97706; margin-top: 8px;">مقابلے میں آپ کا اسکور: <b id="compUserTotal">0</b></div>
 
         <h3 style="color:#d97706; margin-top: 20px; font-size: 16px;">🥇 مقابلے کا Leaderboard</h3>
@@ -861,9 +846,8 @@
         </div>
         <div id="statusMsg" class="status-msg" style="color: var(--primary-color);"></div>
 
-        <div class="voice-controls">
-          <button id="voiceStartBtn" class="voice-start-btn" onclick="startVoiceRecognition('countBtn', 'statusMsg', false)">▶️ START</button>
-          <button id="voiceStopBtn" class="voice-stop-btn" onclick="stopVoiceRecognition(false)" disabled>⏹️ STOP</button>
+        <div style="display: flex; gap: 8px; justify-content: center; margin-top: 15px;">
+          <button style="background: #0d3b22; color: white; border: none; padding: 10px 24px; border-radius: 12px; font-family: inherit; font-size: 14px; font-weight: bold; cursor: pointer;" onclick="startVoiceRecognition('countBtn', 'statusMsg', false)">🎙️ 1+ درود شریف پڑھیں</button>
         </div>
 
         <h3 style="color:var(--primary-color); margin-top: 25px; font-size: 16px; text-align: right;">🏆 لائیو Leaderboard</h3>
@@ -966,6 +950,41 @@
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 
   <script>
+
+    /* KEEP MOBILE SCREEN AWAKE WHILE THIS WEB APP IS OPEN */
+    let screenWakeLock = null;
+
+    async function requestScreenWakeLock() {
+      try {
+        if (!("wakeLock" in navigator)) return;
+        screenWakeLock = await navigator.wakeLock.request("screen");
+
+        screenWakeLock.addEventListener("release", () => {
+          screenWakeLock = null;
+        });
+      } catch (e) {
+        console.log("Screen Wake Lock not available:", e);
+      }
+    }
+
+    // Wake Lock normally requires a visible page, so request again when
+    // the user returns to the browser/app.
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") {
+        requestScreenWakeLock();
+      }
+    });
+
+    window.addEventListener("focus", requestScreenWakeLock);
+    window.addEventListener("load", requestScreenWakeLock);
+
+    // Some Android browsers release the lock after a while; refresh it.
+    setInterval(() => {
+      if (document.visibilityState === "visible" && !screenWakeLock) {
+        requestScreenWakeLock();
+      }
+    }, 30000);
+
     const firebaseConfig = {
       apiKey: "AIzaSyB3PjjiQM2IqKmIQJ4d4YOwcc10RiG47FI",
       authDomain: "mehfil-e-darood.firebaseapp.com",
@@ -1837,209 +1856,10 @@
     }
     loadPublicProofs();
 
-    // Voice recognition: reads the ACTUAL Darood already displayed on the page.
-    // Each recognized word turns green in the same on-page Darood. A count is
-    // added only after the complete displayed Darood has been matched in order.
-    const voiceSessions = { normal: null, comp: null };
-    let daroodWordsReady = false;
-
-    function normalizeArabic(value) {
-      return (value || "")
-        .normalize("NFKC")
-        .replace(/[\u064B-\u065F\u0670\u06D6-\u06ED]/g, "")
-        .replace(/[إأآٱ]/g, "ا")
-        .replace(/[ى]/g, "ی")
-        .replace(/[ئ]/g, "ی")
-        .replace(/[ؤ]/g, "و")
-        .replace(/[ة]/g, "ه")
-        .replace(/[ھ]/g, "ه")
-        .replace(/ـ/g, "")
-        .replace(/[^\u0600-\u06FF\s]/g, " ")
-        .replace(/\s+/g, " ")
-        .trim();
-    }
-
-    function prepareDaroodWords() {
-      const el = document.getElementById("daroodArabicText");
-      if (!el) return [];
-      if (!daroodWordsReady || !el.querySelector(".darood-word")) {
-        const text = el.textContent.trim();
-        const parts = text.split(/(\s+)/);
-        el.innerHTML = parts.map(part => {
-          if (/^\s+$/.test(part)) return part;
-          return `<span class="darood-word">${part}</span>`;
-        }).join("");
-        daroodWordsReady = true;
-      }
-      return Array.from(el.querySelectorAll(".darood-word"));
-    }
-
-    function resetDaroodHighlight() {
-      prepareDaroodWords().forEach(w => w.classList.remove("spoken"));
-    }
-
-    function getTargetTokens() {
-      return prepareDaroodWords().map((el, index) => ({
-        el,
-        index,
-        raw: el.textContent,
-        norm: normalizeArabic(el.textContent)
-      })).filter(x => x.norm);
-    }
-
-    // The displayed Darood sometimes has "و" attached to the next word (وعلی),
-    // while speech recognition may return "و علی". This matcher accepts both.
-    function tokenMatches(spoken, target) {
-      const s = normalizeArabic(spoken);
-      const t = normalizeArabic(target);
-      if (!s || !t) return false;
-      if (s === t) return true;
-      if (t.startsWith("و") && s === t.slice(1)) return true;
-      if (t === "صل" && (s === "صلی" || s === "صل")) return true;
-      if (t === "بارک" && (s === "بارك" || s === "بارک")) return true;
-      if (t === "بارکت" && (s === "باركت" || s === "بارکت")) return true;
-      return false;
-    }
-
-    function updateVoiceButtons(isComp, listening) {
-      const start = document.getElementById(isComp ? "compVoiceStartBtn" : "voiceStartBtn");
-      const stop = document.getElementById(isComp ? "compVoiceStopBtn" : "voiceStopBtn");
-      if (start) {
-        start.disabled = listening;
-        start.classList.toggle("active", listening);
-        start.innerText = listening ? "🟢 STARTED" : "▶️ START";
-      }
-      if (stop) stop.disabled = !listening;
-    }
-
-    function renderProgress(session) {
-      const total = session.targets.length;
-      const done = session.matchIndex;
-      session.targets.forEach((item, i) => item.el.classList.toggle("spoken", i < done));
-      session.statusEl.style.color = isCompColor(session.isComp);
-      session.statusEl.innerHTML = `🎙️ سن رہا ہے... <b>${done}/${total}</b> الفاظ مکمل`;
-    }
-
-    function isCompColor(isComp) {
-      return isComp ? "#d97706" : "#0d3b22";
-    }
-
-    function addDaroodCount(isComp, statusEl) {
-      if (!currentUser) {
-        statusEl.style.color = "#ef4444";
-        statusEl.innerText = "پہلے لاگ اِن کریں۔";
-        return;
-      }
-
-      if (isComp) {
-        db.ref("competitions/" + todayDateKey + "/" + currentUser.uid).transaction(current => {
-          if (!current) return { count: 1, name: currentUser.displayName || currentUser.email };
-          return {
-            count: (current.count || 0) + 1,
-            name: currentUser.displayName || currentUser.email
-          };
-        });
-      } else {
-        db.ref("users/" + currentUser.uid).transaction(current => {
-          if (!current) return {
-            count: 1,
-            name: currentUser.displayName || currentUser.email,
-            email: currentUser.email
-          };
-          return {
-            count: (current.count || 0) + 1,
-            name: currentUser.displayName || currentUser.email,
-            email: currentUser.email,
-            accName: current.accName || '',
-            accNumber: current.accNumber || '',
-            accType: current.accType || 'JazzCash',
-            savedCity: current.savedCity || '',
-            savedCountry: current.savedCountry || ''
-          };
-        });
-      }
-
-      statusEl.style.color = "#16a34a";
-      statusEl.innerText = "✓ مکمل درود شریف شمار ہو گیا! +1";
-      playSuccessSound();
-      triggerVibration();
-    }
-
-    function processRecognizedText(session, text) {
-      const words = normalizeArabic(text).split(" ").filter(Boolean);
-      if (!words.length) return;
-      session.lastSpeechAt = Date.now();
-
-      for (const spoken of words) {
-        if (session.matchIndex >= session.targets.length) break;
-
-        const target = session.targets[session.matchIndex];
-        if (tokenMatches(spoken, target.norm)) {
-          session.matchIndex++;
-          continue;
-        }
-
-        // If the displayed word starts with "و" and recognition split it as
-        // "و" then the actual word, wait for the next recognized word.
-        if (normalizeArabic(target.norm).startsWith("و") && normalizeArabic(spoken) === "و") {
-          continue;
-        }
-
-        // Ignore recognition noise/filler; the required order is never skipped.
-      }
-
-      renderProgress(session);
-
-      if (session.matchIndex >= session.targets.length && !session.countedForCycle) {
-        session.countedForCycle = true;
-        addDaroodCount(session.isComp, session.statusEl);
-
-        // Prepare for the NEXT Darood while keeping the microphone running.
-        setTimeout(() => {
-          if (!session.active) return;
-          session.matchIndex = 0;
-          session.countedForCycle = false;
-          resetDaroodHighlight();
-          renderProgress(session);
-        }, 900);
-      }
-    }
-
-    function scheduleInactivityStop(session) {
-      clearTimeout(session.inactivityTimer);
-      session.inactivityTimer = setTimeout(() => {
-        if (!session.active) return;
-        const silentFor = Date.now() - session.lastSpeechAt;
-        if (silentFor >= 5000) {
-          stopVoiceRecognition(session.isComp, "5 سیکنڈ تک نئی آواز نہ ملنے پر سننا بند ہو گیا۔");
-        } else {
-          scheduleInactivityStop(session);
-        }
-      }, 5100);
-    }
-
-    function stopVoiceRecognition(isComp, message) {
-      const key = isComp ? "comp" : "normal";
-      const session = voiceSessions[key];
-      if (!session) return;
-      session.active = false;
-      clearTimeout(session.restartTimer);
-      clearTimeout(session.inactivityTimer);
-      try { session.recognition.stop(); } catch (e) {}
-      updateVoiceButtons(isComp, false);
-      session.btn.classList.remove("listening");
-      if (message) {
-        session.statusEl.style.color = "#64748b";
-        session.statusEl.innerText = message;
-      }
-      voiceSessions[key] = null;
-    }
-
     function startVoiceRecognition(btnId, statusId, isComp = false) {
       const btn = document.getElementById(btnId);
       const statusEl = document.getElementById(statusId);
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      const key = isComp ? "comp" : "normal";
 
       if (!SpeechRecognition) {
         statusEl.style.color = "#ef4444";
@@ -2048,116 +1868,174 @@
         return;
       }
 
-      // If already running, START does nothing.
-      if (voiceSessions[key]?.active) return;
-
-      const targets = getTargetTokens();
-      if (!targets.length) {
-        statusEl.style.color = "#ef4444";
-        statusEl.innerText = "صفحے پر Darood متن نہیں ملا۔";
-        return;
-      }
-
-      const session = {
-        key,
-        isComp,
-        btn,
-        statusEl,
-        targets,
-        matchIndex: 0,
-        active: true,
-        countedForCycle: false,
-        lastSpeechAt: Date.now(),
-        restartTimer: null,
-        inactivityTimer: null,
-        recognition: null
-      };
-      voiceSessions[key] = session;
-
-      resetDaroodHighlight();
+      btn.disabled = true;
       btn.classList.add("listening");
-      updateVoiceButtons(isComp, true);
-      renderProgress(session);
-      scheduleInactivityStop(session);
+      statusEl.style.color = "#0d3b22";
+      statusEl.innerText = "سن رہا ہے... درود شریف پڑھیں 🎙️";
 
-      function makeRecognition() {
-        const recognition = new SpeechRecognition();
-        recognition.lang = "ar-SA";
-        recognition.interimResults = false;
-        recognition.continuous = false;
-        recognition.maxAlternatives = 5;
-        session.recognition = recognition;
+      const recognition = new SpeechRecognition();
+      recognition.lang = 'ar-SA';
+      recognition.interimResults = false;
+      recognition.continuous = false;
+      recognition.maxAlternatives = 5;
 
-        recognition.onresult = (event) => {
-          if (!session.active) return;
-          // Process every final result in this event; do not re-process old results.
-          for (let i = event.resultIndex || 0; i < event.results.length; i++) {
-            if (!event.results[i].isFinal) continue;
-            let best = event.results[i][0]?.transcript || "";
-            // Prefer an alternative that advances the target more.
-            let bestIndex = session.matchIndex;
-            for (let a = 0; a < event.results[i].length; a++) {
-              const candidate = event.results[i][a]?.transcript || "";
-              const before = session.matchIndex;
-              processRecognizedTextPreview(session, candidate);
-              if (session.matchIndex > bestIndex) {
-                bestIndex = session.matchIndex;
-                best = candidate;
-              }
-              session.matchIndex = before;
-            }
-            processRecognizedText(session, best);
-          }
-          scheduleInactivityStop(session);
-        };
+      const normalizeArabic = (value) => {
+        return (value || "")
+          .normalize("NFKC")
+          .replace(/[\u064B-\u065F\u0670\u06D6-\u06ED]/g, "")
+          .replace(/[إأآٱ]/g, "ا")
+          .replace(/ى/g, "ی")
+          .replace(/ئ/g, "ی")
+          .replace(/ؤ/g, "و")
+          .replace(/ة/g, "ه")
+          .replace(/ـ/g, "")
+          .replace(/[^\u0600-\u06FF\s]/g, " ")
+          .replace(/\s+/g, " ")
+          .trim();
+      };
 
-        recognition.onerror = (event) => {
-          if (!session.active) return;
-          if (event.error === "not-allowed" || event.error === "service-not-allowed") {
-            statusEl.style.color = "#ef4444";
-            statusEl.innerText = "مائیکروفون کی اجازت دیں، پھر START دبائیں۔";
-            playErrorSound();
-            stopVoiceRecognition(isComp);
-          }
-        };
+      // These key words must ALL be recognized, in order, for one count.
+      // This is intentionally tolerant because Arabic speech recognition
+      // may omit/alter other words.
+      const requiredWords = [
+        "اللهم",
+        "صل",
+        "علی",
+        "محمد",
+        "ابراهیم",
+        "حمید",
+        "مجید",
+        "اللهم",
+        "بارک",
+        "علی",
+        "محمد",
+        "بارکت",
+        "علی",
+        "انک",
+        "حمید",
+        "مجید"
+      ];
 
-        recognition.onend = () => {
-          if (!session.active) return;
-          // Android Chrome often ends short recognition sessions automatically.
-          // Restart without resetting the matched Darood words.
-          clearTimeout(session.restartTimer);
-          session.restartTimer = setTimeout(() => {
-            if (!session.active) return;
-            try { recognition.start(); } catch (e) {
-              try {
-                makeRecognition();
-                session.recognition.start();
-              } catch (ignore) {}
-            }
-          }, 180);
-        };
+      const aliases = {
+        "اللهم": ["اللهم", "اللهم"],
+        "صل": ["صل", "صلی"],
+        "علی": ["علی", "على", "علا"],
+        "محمد": ["محمد", "محمد"],
+        "ابراهیم": ["ابراهیم", "ابراهيم", "ابراھیم", "ابراھیم"],
+        "حمید": ["حمید", "حميد", "حمید"],
+        "مجید": ["مجید", "مجيد", "مجید"],
+        "بارک": ["بارک", "بارك"],
+        "بارکت": ["بارکت", "باركت"],
+        "انک": ["انک", "انك", "انک"]
+      };
 
-        try { recognition.start(); } catch (e) {
-          session.active = false;
-          updateVoiceButtons(isComp, false);
-          btn.classList.remove("listening");
-          statusEl.style.color = "#ef4444";
-          statusEl.innerText = "مائیک شروع نہیں ہو سکا۔ دوبارہ START دبائیں۔";
+      const isWordMatch = (spoken, required) => {
+        const options = aliases[required] || [required];
+        return options.some(x => spoken === x);
+      };
+
+      const isCompleteDarood = (spoken) => {
+        const words = normalizeArabic(spoken).split(" ").filter(Boolean);
+        if (!words.length) return false;
+
+        // ترتیب لازمی نہیں۔ صرف یہ ضروری الفاظ سب ادا ہونا لازم ہیں۔
+        // Speech Recognition میں ایک لفظ دو بار/مختلف جگہ آ سکتا ہے، اس لیے
+        // ہر required word کو کہیں بھی تلاش کیا جاتا ہے۔
+        const remaining = words.slice();
+
+        for (const required of requiredWords) {
+          const foundIndex = remaining.findIndex(word =>
+            isWordMatch(word, required)
+          );
+
+          if (foundIndex === -1) return false;
+          remaining.splice(foundIndex, 1);
         }
-      }
 
-      makeRecognition();
+        return true;
+      };
+
+      recognition.onresult = (event) => {
+        let bestText = event.results[0][0].transcript || "";
+        let bestValid = isCompleteDarood(bestText);
+
+        // Try all alternatives returned by the browser.
+        for (let i = 0; i < event.results[0].length; i++) {
+          const candidate = event.results[0][i].transcript || "";
+          if (isCompleteDarood(candidate)) {
+            bestText = candidate;
+            bestValid = true;
+            break;
+          }
+        }
+
+        statusEl.innerText = `آواز: "${bestText}"`;
+
+        if (!bestValid) {
+          statusEl.style.color = "#ef4444";
+          statusEl.innerText =
+            "✗ مکمل درود کے الفاظ نہیں ملے، شمار نہیں ہوگا۔";
+          playErrorSound();
+          return;
+        }
+
+        if (currentUser) {
+          if (isComp) {
+            db.ref("competitions/" + todayDateKey + "/" + currentUser.uid).transaction(current => {
+              if (!current) return { count: 1, name: currentUser.displayName || currentUser.email };
+              return {
+                count: (current.count || 0) + 1,
+                name: currentUser.displayName || currentUser.email
+              };
+            });
+          } else {
+            db.ref("users/" + currentUser.uid).transaction(current => {
+              if (!current) return {
+                count: 1,
+                name: currentUser.displayName || currentUser.email,
+                email: currentUser.email
+              };
+              return {
+                count: (current.count || 0) + 1,
+                name: currentUser.displayName || currentUser.email,
+                email: currentUser.email,
+                accName: current.accName || '',
+                accNumber: current.accNumber || '',
+                accType: current.accType || 'JazzCash',
+                savedCity: current.savedCity || '',
+                savedCountry: current.savedCountry || ''
+              };
+            });
+          }
+
+          statusEl.style.color = "#0d3b22";
+          statusEl.innerText = "✓ درود شریف شمار ہو گیا!";
+          playSuccessSound();
+          triggerVibration();
+        }
+      };
+
+      recognition.onerror = () => {
+        statusEl.style.color = "#ef4444";
+        statusEl.innerText = "آواز واضح نہیں تھی، دوبارہ کوشش کریں۔";
+        playErrorSound();
+      };
+
+      recognition.onend = () => {
+        btn.disabled = false;
+        btn.classList.remove("listening");
+      };
+
+      recognition.start();
     }
 
-    function processRecognizedTextPreview(session, text) {
-      const words = normalizeArabic(text).split(" ").filter(Boolean);
-      for (const spoken of words) {
-        if (session.matchIndex >= session.targets.length) break;
-        const target = session.targets[session.matchIndex];
-        if (tokenMatches(spoken, target.norm)) session.matchIndex++;
-      }
-    }
+    document.getElementById("countBtn").onclick = function() {
+      startVoiceRecognition('countBtn', 'statusMsg', false);
+    };
 
+    document.getElementById("compCountBtn").onclick = function() {
+      startVoiceRecognition('compCountBtn', 'compStatusMsg', true);
+    };
   </script>
 </body>
 </html>
