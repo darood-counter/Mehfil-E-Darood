@@ -1871,12 +1871,17 @@
       btn.disabled = true;
       btn.classList.add("listening");
       statusEl.style.color = "#0d3b22";
-      statusEl.innerText = "سن رہا ہے... درود شریف پڑھیں 🎙️";
+      statusEl.innerText = "سن رہا ہے... مکمل درود شریف پڑھیں 🎙️";
+
+      let fullTranscript = "";
+      let counted = false;
+      let manuallyStopped = false;
+      let restartTimer = null;
 
       const recognition = new SpeechRecognition();
       recognition.lang = 'ar-SA';
-      recognition.interimResults = false;
-      recognition.continuous = false;
+      recognition.interimResults = true;
+      recognition.continuous = true;
       recognition.maxAlternatives = 5;
 
       const normalizeArabic = (value) => {
@@ -1894,90 +1899,48 @@
           .trim();
       };
 
-      // These key words must ALL be recognized, in order, for one count.
-      // This is intentionally tolerant because Arabic speech recognition
-      // may omit/alter other words.
       const requiredWords = [
-        "اللهم",
-        "صل",
-        "علی",
-        "محمد",
-        "ابراهیم",
-        "حمید",
-        "مجید",
-        "اللهم",
-        "بارک",
-        "علی",
-        "محمد",
-        "بارکت",
-        "علی",
-        "انک",
-        "حمید",
-        "مجید"
+        "اللهم", "صل", "علی", "محمد", "ابراهیم", "حمید", "مجید",
+        "اللهم", "بارک", "علی", "محمد", "بارکت", "علی", "انک", "حمید", "مجید"
       ];
 
       const aliases = {
-        "اللهم": ["اللهم", "اللهم"],
+        "اللهم": ["اللهم"],
         "صل": ["صل", "صلی"],
         "علی": ["علی", "على", "علا"],
-        "محمد": ["محمد", "محمد"],
-        "ابراهیم": ["ابراهیم", "ابراهيم", "ابراھیم", "ابراھیم"],
-        "حمید": ["حمید", "حميد", "حمید"],
-        "مجید": ["مجید", "مجيد", "مجید"],
+        "محمد": ["محمد"],
+        "ابراهیم": ["ابراهیم", "ابراهيم", "ابراھیم"],
+        "حمید": ["حمید", "حميد"],
+        "مجید": ["مجید", "مجيد"],
         "بارک": ["بارک", "بارك"],
         "بارکت": ["بارکت", "باركت"],
-        "انک": ["انک", "انك", "انک"]
+        "انک": ["انک", "انك"]
       };
 
       const isWordMatch = (spoken, required) => {
         const options = aliases[required] || [required];
-        return options.some(x => spoken === x);
+        return options.includes(spoken);
       };
 
       const isCompleteDarood = (spoken) => {
         const words = normalizeArabic(spoken).split(" ").filter(Boolean);
         if (!words.length) return false;
-
-        // ترتیب لازمی نہیں۔ صرف یہ ضروری الفاظ سب ادا ہونا لازم ہیں۔
-        // Speech Recognition میں ایک لفظ دو بار/مختلف جگہ آ سکتا ہے، اس لیے
-        // ہر required word کو کہیں بھی تلاش کیا جاتا ہے۔
         const remaining = words.slice();
-
         for (const required of requiredWords) {
-          const foundIndex = remaining.findIndex(word =>
-            isWordMatch(word, required)
-          );
-
+          const foundIndex = remaining.findIndex(word => isWordMatch(word, required));
           if (foundIndex === -1) return false;
           remaining.splice(foundIndex, 1);
         }
-
         return true;
       };
 
-      recognition.onresult = (event) => {
-        let bestText = event.results[0][0].transcript || "";
-        let bestValid = isCompleteDarood(bestText);
+      const finishCount = () => {
+        if (counted) return;
+        counted = true;
+        manuallyStopped = true;
+        if (restartTimer) clearTimeout(restartTimer);
 
-        // Try all alternatives returned by the browser.
-        for (let i = 0; i < event.results[0].length; i++) {
-          const candidate = event.results[0][i].transcript || "";
-          if (isCompleteDarood(candidate)) {
-            bestText = candidate;
-            bestValid = true;
-            break;
-          }
-        }
-
-        statusEl.innerText = `آواز: "${bestText}"`;
-
-        if (!bestValid) {
-          statusEl.style.color = "#ef4444";
-          statusEl.innerText =
-            "✗ مکمل درود کے ضروری الفاظ نہیں ملے، شمار نہیں ہوگا۔";
-          playErrorSound();
-          return;
-        }
+        try { recognition.stop(); } catch (e) {}
 
         if (currentUser) {
           if (isComp) {
@@ -2009,24 +1972,100 @@
           }
 
           statusEl.style.color = "#0d3b22";
-          statusEl.innerText = "✓ درود شریف شمار ہو گیا!";
+          statusEl.innerText = "✓ مکمل درود شریف شمار ہو گیا!";
           playSuccessSound();
           triggerVibration();
         }
       };
 
-      recognition.onerror = () => {
-        statusEl.style.color = "#ef4444";
-        statusEl.innerText = "آواز واضح نہیں تھی، دوبارہ کوشش کریں۔";
-        playErrorSound();
+      recognition.onresult = (event) => {
+        let latestText = "";
+
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const result = event.results[i];
+          let best = result[0] ? (result[0].transcript || "") : "";
+
+          // Prefer an alternative that completes the full Darood when available.
+          for (let j = 0; j < result.length; j++) {
+            const candidate = result[j].transcript || "";
+            if (isCompleteDarood(fullTranscript + " " + candidate)) {
+              best = candidate;
+              break;
+            }
+          }
+
+          if (result.isFinal) {
+            fullTranscript += " " + best;
+          } else {
+            latestText = best;
+          }
+        }
+
+        const combinedText = (fullTranscript + " " + latestText).trim();
+        statusEl.style.color = "#0d3b22";
+        statusEl.innerText = combinedText ? `آواز: "${combinedText}"` : "سن رہا ہے... 🎙️";
+
+        // IMPORTANT: Do not reject/count merely because the user paused.
+        // Count only after the complete Darood is actually recognized.
+        if (isCompleteDarood(combinedText)) {
+          finishCount();
+        }
+      };
+
+      recognition.onerror = (event) => {
+        // Mobile Chrome may report no-speech/audio-capture while the user is
+        // simply pausing. Do not show an error or cancel the session for those.
+        if (counted || manuallyStopped) return;
+
+        if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+          manuallyStopped = true;
+          btn.disabled = false;
+          btn.classList.remove("listening");
+          statusEl.style.color = "#ef4444";
+          statusEl.innerText = "مائیکروفون کی اجازت درکار ہے۔";
+          playErrorSound();
+          return;
+        }
+
+        statusEl.style.color = "#0d3b22";
+        statusEl.innerText = "سن رہا ہے... دوبارہ سن رہا ہوں 🎙️";
       };
 
       recognition.onend = () => {
-        btn.disabled = false;
-        btn.classList.remove("listening");
+        if (counted || manuallyStopped) {
+          btn.disabled = false;
+          btn.classList.remove("listening");
+          return;
+        }
+
+        // Some Android browsers stop SpeechRecognition automatically after
+        // silence. Restart it without losing the transcript already collected.
+        statusEl.style.color = "#0d3b22";
+        statusEl.innerText = "سن رہا ہے... وقفہ ہو سکتا ہے، جاری رکھیں 🎙️";
+
+        restartTimer = setTimeout(() => {
+          if (counted || manuallyStopped) return;
+          try {
+            recognition.start();
+          } catch (e) {
+            // If the browser is still transitioning, try once more shortly.
+            restartTimer = setTimeout(() => {
+              if (counted || manuallyStopped) return;
+              try { recognition.start(); } catch (e2) {}
+            }, 400);
+          }
+        }, 250);
       };
 
-      recognition.start();
+      try {
+        recognition.start();
+      } catch (e) {
+        btn.disabled = false;
+        btn.classList.remove("listening");
+        statusEl.style.color = "#ef4444";
+        statusEl.innerText = "مائیکروفون شروع نہیں ہو سکا، دوبارہ کوشش کریں۔";
+        playErrorSound();
+      }
     }
 
     document.getElementById("countBtn").onclick = function() {
