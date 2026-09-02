@@ -2059,5 +2059,103 @@
       startVoiceRecognition('compCountBtn', 'compStatusMsg', true);
     };
   </script>
+
+<script>
+(function () {
+  let wakeLock = null;
+
+  async function keepScreenAwake() {
+    try {
+      if ("wakeLock" in navigator && document.visibilityState === "visible") {
+        wakeLock = await navigator.wakeLock.request("screen");
+      }
+    } catch (e) {
+      console.log("Screen Wake Lock unavailable:", e);
+    }
+  }
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") keepScreenAwake();
+  });
+
+  window.addEventListener("load", keepScreenAwake);
+})();
+</script>
+
+
+<script>
+(function () {
+  const KEY = "mehfilDarood_currentPage";
+
+  function getVisiblePageId() {
+    const candidates = [
+      "homeTab", "compTab", "leaderboardTab", "aboutTab",
+      "profileTab", "adminTab", "settingsTab"
+    ];
+    for (const id of candidates) {
+      const el = document.getElementById(id);
+      if (el && !el.classList.contains("hidden") &&
+          getComputedStyle(el).display !== "none") return id;
+    }
+    return null;
+  }
+
+  function saveCurrentPage() {
+    const id = getVisiblePageId();
+    if (id) sessionStorage.setItem(KEY, id);
+  }
+
+  function restoreCurrentPage() {
+    const saved = sessionStorage.getItem(KEY);
+    if (!saved) return;
+
+    const target = document.getElementById(saved);
+    if (!target) return;
+
+    // Find the site's tab-navigation controls and activate the saved tab
+    // by clicking the control that points to this section.
+    const controls = Array.from(document.querySelectorAll("button, a"));
+    const control = controls.find(el => {
+      const txt = (el.getAttribute("onclick") || "") + " " +
+                  (el.getAttribute("data-tab") || "") + " " +
+                  (el.getAttribute("href") || "");
+      return txt.includes(saved);
+    });
+
+    if (control) {
+      try { control.click(); } catch (e) {}
+    } else {
+      // Fallback: hide the tab sections and show the saved one.
+      const ids = [
+        "homeTab", "compTab", "leaderboardTab", "aboutTab",
+        "profileTab", "adminTab", "settingsTab"
+      ];
+      ids.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.add("hidden");
+      });
+      target.classList.remove("hidden");
+    }
+  }
+
+  // Capture tab changes after the site's own handlers run.
+  document.addEventListener("click", () => {
+    setTimeout(saveCurrentPage, 50);
+  }, true);
+
+  window.addEventListener("beforeunload", saveCurrentPage);
+
+  // Give login/auth code time to finish, then restore the last page.
+  window.addEventListener("load", () => {
+    setTimeout(restoreCurrentPage, 250);
+    setTimeout(restoreCurrentPage, 1000);
+  });
+
+  // If the app exposes a login success handler later, home should be the
+  // first page after a fresh login; refreshes keep the current page.
+  window.__mehfilSavePage = saveCurrentPage;
+})();
+</script>
+
 </body>
 </html>
