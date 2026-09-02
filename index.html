@@ -1039,15 +1039,101 @@
     let currentAdminFilter = "today";
 
     let ytPlayer = null;
+    let listenPlaybackActive = false;
+    let listenCountedForPlayback = false;
+    let listenFinishWatcher = null;
+
     function onYouTubeIframeAPIReady() {
       ytPlayer = new YT.Player('youtubeAudioFrame', {
-        events: { 'onReady': () => {} }
+        events: {
+          onReady: () => {},
+          onStateChange: onYouTubeAudioStateChange
+        }
       });
     }
 
+    function stopListenFinishWatcher() {
+      if (listenFinishWatcher) {
+        clearInterval(listenFinishWatcher);
+        listenFinishWatcher = null;
+      }
+    }
+
+    async function countCompletedListen() {
+      if (!listenPlaybackActive || listenCountedForPlayback) return;
+      if (!currentUser) {
+        console.warn('Listen completed but user is not authenticated.');
+        return;
+      }
+
+      listenCountedForPlayback = true;
+      listenPlaybackActive = false;
+      stopListenFinishWatcher();
+
+      try {
+        const ref = db.ref('users/' + currentUser.uid);
+        const name = currentUser.displayName || currentUser.email || 'صارف';
+        await ref.transaction(current => ({
+          ...(current || {}),
+          count: Number(current && current.count || 0) + 1,
+          name,
+          email: currentUser.email,
+          accName: current && current.accName || '',
+          accNumber: current && current.accNumber || '',
+          accType: current && current.accType || 'JazzCash',
+          savedCity: current && current.savedCity || '',
+          savedCountry: current && current.savedCountry || ''
+        }));
+        console.log('Listen completed: +1 count saved');
+      } catch (error) {
+        listenCountedForPlayback = false;
+        listenPlaybackActive = true;
+        console.error('Listen count save failed:', error);
+      }
+    }
+
+    function watchListenUntilFinished() {
+      stopListenFinishWatcher();
+      listenFinishWatcher = setInterval(() => {
+        if (!listenPlaybackActive || !ytPlayer) return;
+        try {
+          const duration = Number(ytPlayer.getDuration && ytPlayer.getDuration());
+          const current = Number(ytPlayer.getCurrentTime && ytPlayer.getCurrentTime());
+          if (duration > 0 && current >= duration - 0.35) {
+            countCompletedListen();
+          }
+        } catch (e) {}
+      }, 250);
+    }
+
+    function onYouTubeAudioStateChange(event) {
+      if (!window.YT) return;
+
+      if (event.data === YT.PlayerState.PLAYING) {
+        listenPlaybackActive = true;
+        listenCountedForPlayback = false;
+        watchListenUntilFinished();
+        return;
+      }
+
+      // Count on YouTube's normal ENDED event as well as the duration watcher.
+      if (event.data === YT.PlayerState.ENDED) {
+        countCompletedListen();
+      }
+    }
+
     function playYouTubeAudioOnly() {
-      if (ytPlayer && typeof ytPlayer.playVideo === 'function') {
-        try { ytPlayer.seekTo(0); ytPlayer.playVideo(); } catch(e) {}
+      if (!ytPlayer || typeof ytPlayer.playVideo !== 'function') return;
+
+      try {
+        stopListenFinishWatcher();
+        listenPlaybackActive = true;
+        listenCountedForPlayback = false;
+        ytPlayer.seekTo(0, true);
+        ytPlayer.playVideo();
+        watchListenUntilFinished();
+      } catch (e) {
+        console.error('Could not start Listen audio:', e);
       }
     }
 
@@ -1925,6 +2011,7 @@
       recognition.maxAlternatives = 5;
 
       let allTranscripts = [];
+      const roundEndAt = Date.now() + ROUND_MS;
       let startedAt = Date.now();
       let finished = false;
       let restartTimer = null;
@@ -2057,8 +2144,7 @@
           text += " " + (result[0] && result[0].transcript || "");
           if (result.isFinal) allTranscripts.push(result[0].transcript || "");
         }
-        const elapsed = Date.now() - startedAt;
-        const remaining = Math.max(0, Math.ceil((ROUND_MS - elapsed) / 1000));
+        const remaining = Math.max(0, Math.ceil((roundEndAt - Date.now()) / 1000));
         statusEl.style.color = "#2563eb";
         statusEl.innerText = `پڑھتے رہیں، میں سن رہا ہوں 🎙️ (${remaining} سیکنڈ)`;
       };
@@ -2077,15 +2163,14 @@
 
       recognition.onend = () => {
         if (finished) return;
-        const elapsed = Date.now() - startedAt;
-        if (elapsed >= ROUND_MS) { finishRound(); return; }
+        if (Date.now() >= roundEndAt) { finishRound(); return; }
         restartTimer = setTimeout(() => {
           if (finished) return;
           try { recognition.start(); } catch (e) {}
         }, 250);
       };
 
-      finishTimer = setTimeout(finishRound, ROUND_MS);
+      finishTimer = setTimeout(finishRound, Math.max(0, roundEndAt - Date.now()));
 
       try {
         recognition.start();
