@@ -307,6 +307,54 @@
 
     .status-msg { font-weight: bold; font-size: 13px; margin: 6px 0; min-height: 20px; }
     
+
+    .security-words-btn {
+      width: 100%;
+      border: 0;
+      background: linear-gradient(135deg,#c5a059,#e2bf6a);
+      color: #fff;
+      padding: 10px 14px;
+      border-radius: 30px;
+      font-family: 'Jameel Noori Nastaleeq', sans-serif;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 5px 15px rgba(197,160,89,.25);
+    }
+    .security-words-btn:disabled { opacity:.7; cursor:not-allowed; }
+    .security-voice-box {
+      margin: 12px auto 10px;
+      padding: 12px;
+      border: 1px solid rgba(197,160,89,.55);
+      border-radius: 16px;
+      background: #fffdf8;
+      text-align: center;
+    }
+    .security-words-text {
+      color: var(--primary-color);
+      font-family: 'Traditional Arabic','Amiri',serif;
+      font-size: 20px;
+      font-weight: bold;
+      line-height: 1.65;
+      direction: rtl;
+    }
+    .security-countdown-wrap { margin: 8px auto; display:flex; justify-content:center; }
+    .security-countdown-ring {
+      --progress: 100%;
+      width: 92px; height: 92px; border-radius: 50%;
+      display:flex; align-items:center; justify-content:center;
+      background: conic-gradient(#2563eb var(--progress), #dbeafe 0);
+      position:relative;
+      box-shadow: 0 4px 14px rgba(37,99,235,.18);
+    }
+    .security-countdown-ring::before {
+      content:''; position:absolute; width:76px; height:76px; border-radius:50%; background:#fffdf8;
+    }
+    .security-countdown-inner { position:relative; z-index:1; display:flex; flex-direction:column; align-items:center; line-height:1; color:#1d4ed8; }
+    .security-countdown-inner span { font-family:'Plus Jakarta Sans',sans-serif; font-size:27px; font-weight:800; direction:ltr; }
+    .security-countdown-inner small { font-family:'Jameel Noori Nastaleeq',sans-serif; font-size:11px; margin-top:4px; }
+    .security-voice-status { color:#1d4ed8; font-size:12px; font-weight:bold; min-height:20px; }
+
     .auth-container {
       background: #fffdf9;
       border: 1px solid #fde68a;
@@ -892,7 +940,17 @@
           <label style="font-size: 12px; color: var(--text-muted);">نیا پاسورڈ:</label>
           <input type="password" id="newPassword" placeholder="کم از کم 6 ہندسوں کا نیا پاسورڈ">
 
-          <button class="save-profile-btn" id="changePasswordBtn" style="background-color: #d97706;">پاسورڈ اپڈیٹ کریں</button>
+          <button class="security-words-btn" id="securityWordsBtn" type="button">🔐 سیکیورٹی الفاظ تبدیل کریں</button>
+          <div id="securityVoiceBox" class="security-voice-box hidden">
+            <div class="security-words-text">اَللّٰھُمَّ صَلِّ عَلٰی<br>بَارِکْ<br>حَمِیْدٌ مَّجِیْدٌ</div>
+            <div class="security-countdown-wrap">
+              <div class="security-countdown-ring" id="securityCountdownRing">
+                <div class="security-countdown-inner"><span id="securityCountdown">20</span><small>ثانیے</small></div>
+              </div>
+            </div>
+            <div id="securityVoiceStatus" class="security-voice-status">🎙️ 20 سیکنڈ تک سن رہا ہے...</div>
+          </div>
+          <button class="save-profile-btn" id="changePasswordBtn" style="background-color: #d97706;" disabled>پاسورڈ اپڈیٹ کریں</button>
           <div id="passwordStatus" style="font-size: 12px; margin-top: 6px; text-align: center; font-weight: bold;"></div>
         </div>
 
@@ -1664,6 +1722,132 @@
       });
     };
 
+
+    // 20-second voice verification for the security words.
+    let securityRecognition = null;
+    let securityTimer = null;
+    let securitySecondsLeft = 20;
+    const SECURITY_WORDS = ["اللهم", "صل", "علی", "بارک", "حمید", "مجید"];
+
+    function normalizeSecurityArabic(value) {
+      return (value || "")
+        .normalize("NFKC")
+        .replace(/[\u064B-\u065F\u0670\u06D6-\u06ED]/g, "")
+        .replace(/[إأآٱ]/g, "ا")
+        .replace(/ى/g, "ی")
+        .replace(/ئ/g, "ی")
+        .replace(/ؤ/g, "و")
+        .replace(/ة/g, "ه")
+        .replace(/ـ/g, "")
+        .replace(/[^\u0600-\u06FF\s]/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
+    function securityWordsValid(spoken) {
+      const words = normalizeSecurityArabic(spoken).split(" ").filter(Boolean);
+      const remaining = words.slice();
+      return SECURITY_WORDS.every(required => {
+        const i = remaining.findIndex(w => {
+          if (required === "اللهم") return w === "اللهم";
+          if (required === "صل") return w === "صل" || w === "صلی";
+          if (required === "علی") return w === "علی" || w === "على" || w === "علا";
+          if (required === "بارک") return w === "بارک" || w === "بارك";
+          if (required === "حمید") return w === "حمید" || w === "حميد";
+          if (required === "مجید") return w === "مجید" || w === "مجيد";
+          return w === required;
+        });
+        if (i < 0) return false;
+        remaining.splice(i,1);
+        return true;
+      });
+    }
+
+    function stopSecurityVoice(success, message) {
+      clearInterval(securityTimer);
+      securityTimer = null;
+      if (securityRecognition) { try { securityRecognition.stop(); } catch(e) {} }
+      securityRecognition = null;
+      const btn = document.getElementById('securityWordsBtn');
+      const status = document.getElementById('securityVoiceStatus');
+      const ring = document.getElementById('securityCountdownRing');
+      if (btn) btn.disabled = false;
+      if (status) { status.style.color = success ? '#16a34a' : '#ef4444'; status.innerText = message; }
+      if (ring) ring.style.setProperty('--progress', '0%');
+      if (success) {
+        const pwBtn = document.getElementById('changePasswordBtn');
+        if (pwBtn) pwBtn.disabled = false;
+        playSuccessSound();
+      } else {
+        playErrorSound();
+      }
+    }
+
+    function startSecurityWordsRecognition() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const box = document.getElementById('securityVoiceBox');
+      const btn = document.getElementById('securityWordsBtn');
+      const status = document.getElementById('securityVoiceStatus');
+      const countdown = document.getElementById('securityCountdown');
+      const ring = document.getElementById('securityCountdownRing');
+      const pwBtn = document.getElementById('changePasswordBtn');
+      if (!SpeechRecognition) {
+        status.innerText = 'آپ کا براؤزر آواز پہچاننے کو سپورٹ نہیں کرتا۔';
+        status.style.color = '#ef4444';
+        return;
+      }
+      if (securityRecognition) return;
+      if (pwBtn) pwBtn.disabled = true;
+      box.classList.remove('hidden');
+      btn.disabled = true;
+      securitySecondsLeft = 20;
+      countdown.innerText = securitySecondsLeft;
+      ring.style.setProperty('--progress','100%');
+      status.style.color = '#1d4ed8';
+      status.innerText = '🎙️ 20 سیکنڈ تک سن رہا ہے...';
+
+      const recognition = new SpeechRecognition();
+      securityRecognition = recognition;
+      recognition.lang = 'ar-SA';
+      recognition.interimResults = false;
+      recognition.continuous = true;
+      recognition.maxAlternatives = 5;
+      let heard = '';
+
+      recognition.onresult = (event) => {
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          for (let j = 0; j < event.results[i].length; j++) {
+            heard += ' ' + (event.results[i][j].transcript || '');
+          }
+        }
+        if (securityWordsValid(heard)) {
+          stopSecurityVoice(true, '✓ سیکیورٹی الفاظ کامیابی سے پہچان لیے گئے۔ اب پاسورڈ اپڈیٹ کر سکتے ہیں۔');
+        }
+      };
+      recognition.onerror = (event) => {
+        if (event.error !== 'no-speech' && event.error !== 'aborted') {
+          stopSecurityVoice(false, 'آواز پہچاننے میں مسئلہ ہوا، دوبارہ کوشش کریں۔');
+        }
+      };
+      recognition.onend = () => {
+        if (securityRecognition && securitySecondsLeft > 0) {
+          try { recognition.start(); } catch(e) {}
+        }
+      };
+      try { recognition.start(); } catch(e) { stopSecurityVoice(false, 'آواز شروع نہیں ہو سکی، دوبارہ کوشش کریں۔'); return; }
+
+      securityTimer = setInterval(() => {
+        securitySecondsLeft--;
+        countdown.innerText = Math.max(0, securitySecondsLeft);
+        ring.style.setProperty('--progress', ((securitySecondsLeft / 20) * 100) + '%');
+        if (securitySecondsLeft <= 0 && securityRecognition) {
+          stopSecurityVoice(false, '✗ 20 سیکنڈ میں تمام سیکیورٹی الفاظ نہیں ملے، دوبارہ کوشش کریں۔');
+        }
+      }, 1000);
+    }
+
+    document.getElementById('securityWordsBtn').onclick = startSecurityWordsRecognition;
+
     document.getElementById("changePasswordBtn").onclick = () => {
       if (!currentUser) return;
       const currentPassword = document.getElementById("currentPassword").value.trim();
@@ -1871,23 +2055,13 @@
       btn.disabled = true;
       btn.classList.add("listening");
       statusEl.style.color = "#0d3b22";
-      statusEl.innerText = "سن رہا ہے... 20 سیکنڈ تک درود شریف پڑھیں 🎙️";
-
-      // Keep the mobile display awake while the user is reciting.
-      requestScreenWakeLock();
+      statusEl.innerText = "سن رہا ہے... درود شریف پڑھیں 🎙️";
 
       const recognition = new SpeechRecognition();
       recognition.lang = 'ar-SA';
       recognition.interimResults = false;
-      recognition.continuous = true;
+      recognition.continuous = false;
       recognition.maxAlternatives = 5;
-
-      const LISTEN_DURATION_MS = 20000;
-      const startedAt = Date.now();
-      let finishTimer = null;
-      let finished = false;
-      let collectedSpeech = [];
-      let restartPending = false;
 
       const normalizeArabic = (value) => {
         return (value || "")
@@ -1904,20 +2078,39 @@
           .trim();
       };
 
-      // These words are checked only AFTER the full 20-second listening window.
-      // Verification words are based on the complete Darood supplied by the user.
-      // They are checked only AFTER the full 20-second listening window.
+      // These key words must ALL be recognized, in order, for one count.
+      // This is intentionally tolerant because Arabic speech recognition
+      // may omit/alter other words.
       const requiredWords = [
-        "اللهم", "صل", "علی", "بارک", "حمید", "مجید"
+        "اللهم",
+        "صل",
+        "علی",
+        "محمد",
+        "ابراهیم",
+        "حمید",
+        "مجید",
+        "اللهم",
+        "بارک",
+        "علی",
+        "محمد",
+        "بارکت",
+        "علی",
+        "انک",
+        "حمید",
+        "مجید"
       ];
 
       const aliases = {
-        "اللهم": ["اللهم"],
+        "اللهم": ["اللهم", "اللهم"],
         "صل": ["صل", "صلی"],
         "علی": ["علی", "على", "علا"],
+        "محمد": ["محمد", "محمد"],
+        "ابراهیم": ["ابراهیم", "ابراهيم", "ابراھیم", "ابراھیم"],
+        "حمید": ["حمید", "حميد", "حمید"],
+        "مجید": ["مجید", "مجيد", "مجید"],
         "بارک": ["بارک", "بارك"],
-        "حمید": ["حمید", "حميد"],
-        "مجید": ["مجید", "مجيد"]
+        "بارکت": ["بارکت", "باركت"],
+        "انک": ["انک", "انك", "انک"]
       };
 
       const isWordMatch = (spoken, required) => {
@@ -1929,33 +2122,48 @@
         const words = normalizeArabic(spoken).split(" ").filter(Boolean);
         if (!words.length) return false;
 
-        // ترتیب ضروری نہیں؛ تمام required words کم از کم مطلوبہ تعداد میں ملنے چاہئیں۔
+        // ترتیب لازمی نہیں۔ صرف یہ ضروری الفاظ سب ادا ہونا لازم ہیں۔
+        // Speech Recognition میں ایک لفظ دو بار/مختلف جگہ آ سکتا ہے، اس لیے
+        // ہر required word کو کہیں بھی تلاش کیا جاتا ہے۔
         const remaining = words.slice();
+
         for (const required of requiredWords) {
-          const foundIndex = remaining.findIndex(word => isWordMatch(word, required));
+          const foundIndex = remaining.findIndex(word =>
+            isWordMatch(word, required)
+          );
+
           if (foundIndex === -1) return false;
           remaining.splice(foundIndex, 1);
         }
+
         return true;
       };
 
-      const finishListening = () => {
-        if (finished) return;
-        finished = true;
-        if (finishTimer) clearTimeout(finishTimer);
-        if (countdownTimer) clearInterval(countdownTimer);
+      recognition.onresult = (event) => {
+        let bestText = event.results[0][0].transcript || "";
+        let bestValid = isCompleteDarood(bestText);
 
-        try { recognition.stop(); } catch (e) {}
+        // Try all alternatives returned by the browser.
+        for (let i = 0; i < event.results[0].length; i++) {
+          const candidate = event.results[0][i].transcript || "";
+          if (isCompleteDarood(candidate)) {
+            bestText = candidate;
+            bestValid = true;
+            break;
+          }
+        }
 
-        // Verification starts only after the complete 23-second listening window.
-        const finalText = collectedSpeech.join(" ");
-        const valid = isCompleteDarood(finalText);
+        statusEl.innerText = `آواز: "${bestText}"`;
 
-        if (!valid) {
+        if (!bestValid) {
           statusEl.style.color = "#ef4444";
-          statusEl.innerText = "✗ مکمل درود کے ضروری الفاظ نہیں ملے، شمار نہیں ہوگا۔";
+          statusEl.innerText =
+            "✗ مکمل درود کے ضروری الفاظ نہیں ملے، شمار نہیں ہوگا۔";
           playErrorSound();
-        } else if (currentUser) {
+          return;
+        }
+
+        if (currentUser) {
           if (isComp) {
             db.ref("competitions/" + todayDateKey + "/" + currentUser.uid).transaction(current => {
               if (!current) return { count: 1, name: currentUser.displayName || currentUser.email };
@@ -1989,87 +2197,20 @@
           playSuccessSound();
           triggerVibration();
         }
+      };
 
+      recognition.onerror = () => {
+        statusEl.style.color = "#ef4444";
+        statusEl.innerText = "آواز واضح نہیں تھی، دوبارہ کوشش کریں۔";
+        playErrorSound();
+      };
+
+      recognition.onend = () => {
         btn.disabled = false;
         btn.classList.remove("listening");
       };
 
-      // Show a live 23-second countdown while the microphone remains active.
-      const countdownTimer = setInterval(() => {
-        if (finished) {
-          clearInterval(countdownTimer);
-          return;
-        }
-        const elapsedSeconds = Math.floor((Date.now() - startedAt) / 1000);
-        const remainingSeconds = Math.max(0, 23 - elapsedSeconds);
-        statusEl.style.color = "#0d3b22";
-        statusEl.innerText = `سن رہا ہے... ${remainingSeconds} سیکنڈ باقی 🎙️`;
-        if (remainingSeconds <= 0) clearInterval(countdownTimer);
-      }, 250);
-
-      // Always stop at exactly 20 seconds, even if there is silence.
-      finishTimer = setTimeout(finishListening, LISTEN_DURATION_MS);
-
-      recognition.onresult = (event) => {
-        // Collect every recognized segment for the whole listening window.
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-          const result = event.results[i];
-          let bestTranscript = result[0]?.transcript || "";
-          let bestValid = false;
-
-          // Keep all alternatives available from the browser, not just the first one.
-          for (let j = 0; j < result.length; j++) {
-            const candidate = result[j]?.transcript || "";
-            if (candidate) collectedSpeech.push(candidate);
-            if (isCompleteDarood(candidate)) {
-              bestTranscript = candidate;
-              bestValid = true;
-              break;
-            }
-          }
-
-          if (bestTranscript) {
-            const elapsed = Math.min(20, Math.floor((Date.now() - startedAt) / 1000));
-            statusEl.style.color = "#0d3b22";
-            statusEl.innerText = `سن رہا ہے... ${elapsed}/20 سیکنڈ 🎙️`;
-          }
-        }
-      };
-
-      recognition.onerror = (event) => {
-        // A browser recognition error must NOT end the 23-second listening window.
-        // If the engine stopped unexpectedly, onend below will restart it while time remains.
-        if (!finished && Date.now() - startedAt < LISTEN_DURATION_MS) {
-          statusEl.style.color = "#0d3b22";
-          statusEl.innerText = "سن رہا ہے... 20 سیکنڈ مکمل ہونے تک مائیک آن رہے گا 🎙️";
-        }
-      };
-
-      recognition.onend = () => {
-        if (finished) return;
-
-        const elapsed = Date.now() - startedAt;
-        if (elapsed < LISTEN_DURATION_MS && !restartPending) {
-          restartPending = true;
-          setTimeout(() => {
-            restartPending = false;
-            if (finished) return;
-            try {
-              recognition.start();
-              statusEl.style.color = "#0d3b22";
-              statusEl.innerText = "سن رہا ہے... 20 سیکنڈ مکمل ہونے تک مائیک آن رہے گا 🎙️";
-            } catch (e) {}
-          }, 50);
-        } else if (elapsed >= LISTEN_DURATION_MS) {
-          finishListening();
-        }
-      };
-
-      try {
-        recognition.start();
-      } catch (e) {
-        finishListening();
-      }
+      recognition.start();
     }
 
     document.getElementById("countBtn").onclick = function() {
