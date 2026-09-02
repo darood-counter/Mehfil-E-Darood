@@ -1042,11 +1042,13 @@
     let listenPlaybackActive = false;
     let listenCountedForPlayback = false;
     let listenFinishWatcher = null;
+    let listenLastTime = 0;
+    let listenReady = false;
 
     function onYouTubeIframeAPIReady() {
       ytPlayer = new YT.Player('youtubeAudioFrame', {
         events: {
-          onReady: () => {},
+          onReady: () => { listenReady = true; },
           onStateChange: onYouTubeAudioStateChange
         }
       });
@@ -1061,10 +1063,7 @@
 
     async function countCompletedListen() {
       if (!listenPlaybackActive || listenCountedForPlayback) return;
-      if (!currentUser) {
-        console.warn('Listen completed but user is not authenticated.');
-        return;
-      }
+      if (!currentUser) return;
 
       listenCountedForPlayback = true;
       listenPlaybackActive = false;
@@ -1084,7 +1083,7 @@
           savedCity: current && current.savedCity || '',
           savedCountry: current && current.savedCountry || ''
         }));
-        console.log('Listen completed: +1 count saved');
+        console.log('LISTEN COMPLETE -> +1 saved');
       } catch (error) {
         listenCountedForPlayback = false;
         listenPlaybackActive = true;
@@ -1094,45 +1093,61 @@
 
     function watchListenUntilFinished() {
       stopListenFinishWatcher();
+      listenLastTime = 0;
+
       listenFinishWatcher = setInterval(() => {
         if (!listenPlaybackActive || !ytPlayer) return;
         try {
-          const duration = Number(ytPlayer.getDuration && ytPlayer.getDuration());
-          const current = Number(ytPlayer.getCurrentTime && ytPlayer.getCurrentTime());
-          if (duration > 0 && current >= duration - 0.35) {
+          const state = typeof ytPlayer.getPlayerState === 'function' ? ytPlayer.getPlayerState() : -1;
+          const duration = Number(typeof ytPlayer.getDuration === 'function' ? ytPlayer.getDuration() : 0);
+          const current = Number(typeof ytPlayer.getCurrentTime === 'function' ? ytPlayer.getCurrentTime() : 0);
+
+          // Primary: YouTube says the video/audio has ended.
+          if (window.YT && state === YT.PlayerState.ENDED) {
             countCompletedListen();
+            return;
           }
-        } catch (e) {}
-      }, 250);
+
+          // Backup: current time has reached the actual duration.
+          if (duration > 0 && current >= duration - 0.75) {
+            countCompletedListen();
+            return;
+          }
+
+          listenLastTime = current;
+        } catch (e) {
+          console.warn('Listen watcher:', e);
+        }
+      }, 200);
     }
 
     function onYouTubeAudioStateChange(event) {
       if (!window.YT) return;
-
       if (event.data === YT.PlayerState.PLAYING) {
         listenPlaybackActive = true;
         listenCountedForPlayback = false;
         watchListenUntilFinished();
-        return;
-      }
-
-      // Count on YouTube's normal ENDED event as well as the duration watcher.
-      if (event.data === YT.PlayerState.ENDED) {
+      } else if (event.data === YT.PlayerState.ENDED) {
         countCompletedListen();
       }
     }
 
     function playYouTubeAudioOnly() {
-      if (!ytPlayer || typeof ytPlayer.playVideo !== 'function') return;
+      if (!ytPlayer || typeof ytPlayer.playVideo !== 'function') {
+        console.warn('YouTube player is not ready yet.');
+        return;
+      }
+
+      stopListenFinishWatcher();
+      listenPlaybackActive = true;
+      listenCountedForPlayback = false;
 
       try {
-        stopListenFinishWatcher();
-        listenPlaybackActive = true;
-        listenCountedForPlayback = false;
         ytPlayer.seekTo(0, true);
         ytPlayer.playVideo();
         watchListenUntilFinished();
       } catch (e) {
+        listenPlaybackActive = false;
         console.error('Could not start Listen audio:', e);
       }
     }
