@@ -1855,6 +1855,29 @@
       let accumulatedText = "";
       let lastInterimText = "";
       let restartTimer = null;
+      let wakeLock = null;
+      let wakeLockRetryTimer = null;
+
+      const requestWakeLock = async () => {
+        if (!("wakeLock" in navigator)) return;
+        try {
+          if (wakeLock && !wakeLock.released) return;
+          wakeLock = await navigator.wakeLock.request("screen");
+          wakeLock.addEventListener("release", () => {
+            wakeLock = null;
+            if (!finished && !stopping) {
+              clearTimeout(wakeLockRetryTimer);
+              wakeLockRetryTimer = setTimeout(requestWakeLock, 500);
+            }
+          });
+        } catch (e) {}
+      };
+
+      const wakeLockVisibilityHandler = () => {
+        if (document.visibilityState === "visible" && !finished && !stopping) requestWakeLock();
+      };
+      document.addEventListener("visibilitychange", wakeLockVisibilityHandler);
+      requestWakeLock();
 
       statusEl.style.color = "#0d3b22";
       statusEl.innerText = "سن رہا ہے... 25 سیکنڈ تک درود شریف پڑھتے رہیں 🎙️";
@@ -1890,8 +1913,9 @@
         ["مجید"]
       ];
 
-      const verificationGroups2 =
+      const verificationGroups2 = [
         ["اللهم"],
+        ["بارک"],
         ["علی"],
         ["محمد"],
         ["بارکت"],
@@ -1902,22 +1926,43 @@
       ];
 
       const aliases = {
-        "اللهم": ["اللهم", "اللھم", "اللہم", "اللهمّ"],
-        "صل": ["صل", "صلی", "صلي", "صلّ", "صلا", "صلیت", "صليت"],
-        "علی": ["علی", "على", "علا", "علي", "عَلَی"],
-        "محمد": ["محمد", "محمّد"],
-        "ابراهیم": ["ابراهیم", "ابراهيم", "ابراھیم", "ابراہم", "ابراھم"],
-        "حمید": ["حمید", "حميد", "حَمِيد"],
-        "مجید": ["مجید", "مجيد", "مَجِيد"],
+        "اللهم": ["اللهم", "اللھم", "اللہم", "اللهمّ", "اللہُم", "اللهمہ"],
+        "صل": ["صل", "صلی", "صلي", "صلّ", "صلا", "صلیت", "صليت", "صلى"],
+        "علی": ["علی", "على", "علا", "علي", "عَلَی", "عليٰ"],
+        "محمد": ["محمد", "محمّد", "محمدٍ", "محمدا"],
+        "ابراهیم": ["ابراهیم", "ابراهيم", "ابراھیم", "ابراہم", "ابراھم", "ابراهام"],
+        "حمید": ["حمید", "حميد", "حَمِيد", "حميدا"],
+        "مجید": ["مجید", "مجيد", "مَجِيد", "مجيدا"],
         "بارک": ["بارک", "بارك", "بارِک", "بارکْ", "بارکِ"],
-        "بارکت": ["بارکت", "باركت", "بارکَت"],
+        "بارکت": ["بارکت", "باركت", "بارکَت", "بارکتَ"],
         "انک": ["انک", "انك", "إنك", "انّک", "انکّ"]
       };
 
+      // Speech-to-text can make small Arabic/Urdu spelling substitutions.
+      const levenshtein = (a, b) => {
+        const prev = Array.from({length: b.length + 1}, (_, i) => i);
+        for (let i = 1; i <= a.length; i++) {
+          const cur = [i];
+          for (let j = 1; j <= b.length; j++) {
+            cur[j] = Math.min(cur[j - 1] + 1, prev[j] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+          }
+          for (let j = 0; j <= b.length; j++) prev[j] = cur[j];
+        }
+        return prev[b.length];
+      };
+
+      const speechNormalise = (value) => normalizeArabic(value)
+        .replace(/[کك]/g, "ک")
+        .replace(/[ہهھ]/g, "ہ")
+        .replace(/[یىئ]/g, "ی")
+        .replace(/[وؤ]/g, "و");
+
       const isWordMatch = (spoken, required) => {
-        const word = normalizeArabic(spoken);
-        const options = aliases[required] || [required];
-        return options.some(x => normalizeArabic(x) === word);
+        const word = speechNormalise(spoken);
+        const options = (aliases[required] || [required]).map(speechNormalise);
+        if (!word) return false;
+        if (options.some(x => x === word)) return true;
+        return options.some(x => x.length >= 4 && word.length >= 4 && levenshtein(word, x) <= 1);
       };
 
       // Extra ordinary words are allowed between verification words.
@@ -1974,6 +2019,10 @@
         if (timerId) clearTimeout(timerId);
         if (countdownId) clearInterval(countdownId);
         if (restartTimer) clearTimeout(restartTimer);
+        if (wakeLockRetryTimer) clearTimeout(wakeLockRetryTimer);
+        document.removeEventListener("visibilitychange", wakeLockVisibilityHandler);
+        if (wakeLock) { try { wakeLock.release(); } catch (e) {} }
+        wakeLock = null;
         timerId = null;
         countdownId = null;
         restartTimer = null;
