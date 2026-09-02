@@ -674,7 +674,7 @@
           <div style="font-size:12px; font-weight:800; line-height:1.35;">محفلِ درود کی Android App</div>
           <div style="font-size:10px; opacity:.9; line-height:1.35;">اب ویب سائٹ کو موبائل App میں بھی استعمال کریں</div>
         </div>
-        <a href="mehfil-e-darood.apk" download="Mehfil-E-Darood.apk" style="display:inline-block; background:#f5d05a; color:#173b2d; text-decoration:none; font-size:10px; font-weight:800; padding:7px 9px; border-radius:7px; white-space:nowrap;">⬇️ APK ڈاؤنلوڈ</a>
+        <a href="https://github.com/darood-counter/Mehfil-E-Darood/releases/download/V1.0/mehfil-e-darood.apk" download="Mehfil-E-Darood.apk" style="display:inline-block; background:#f5d05a; color:#173b2d; text-decoration:none; font-size:10px; font-weight:800; padding:7px 9px; border-radius:7px; white-space:nowrap;">⬇️ APK ڈاؤنلوڈ</a>
         <button onclick="document.getElementById('appDownloadNotice').style.display='none'" aria-label="بند کریں" style="background:transparent; color:#fff; border:0; font-size:16px; line-height:1; padding:2px 3px; cursor:pointer;">×</button>
       </div>
 
@@ -950,6 +950,41 @@
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 
   <script>
+
+    /* KEEP MOBILE SCREEN AWAKE WHILE THIS WEB APP IS OPEN */
+    let screenWakeLock = null;
+
+    async function requestScreenWakeLock() {
+      try {
+        if (!("wakeLock" in navigator)) return;
+        screenWakeLock = await navigator.wakeLock.request("screen");
+
+        screenWakeLock.addEventListener("release", () => {
+          screenWakeLock = null;
+        });
+      } catch (e) {
+        console.log("Screen Wake Lock not available:", e);
+      }
+    }
+
+    // Wake Lock normally requires a visible page, so request again when
+    // the user returns to the browser/app.
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") {
+        requestScreenWakeLock();
+      }
+    });
+
+    window.addEventListener("focus", requestScreenWakeLock);
+    window.addEventListener("load", requestScreenWakeLock);
+
+    // Some Android browsers release the lock after a while; refresh it.
+    setInterval(() => {
+      if (document.visibilityState === "visible" && !screenWakeLock) {
+        requestScreenWakeLock();
+      }
+    }, 30000);
+
     const firebaseConfig = {
       apiKey: "AIzaSyB3PjjiQM2IqKmIQJ4d4YOwcc10RiG47FI",
       authDomain: "mehfil-e-darood.firebaseapp.com",
@@ -1821,15 +1856,10 @@
     }
     loadPublicProofs();
 
-    // VOICE DAROOD COUNTER — 25 SECOND VERIFIED SESSION
-    // One button press = one listening session = maximum ONE +1.
-    // The result is NEVER given before the full 25-second session ends.
     function startVoiceRecognition(btnId, statusId, isComp = false) {
       const btn = document.getElementById(btnId);
       const statusEl = document.getElementById(statusId);
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-
-      if (!btn || !statusEl) return;
 
       if (!SpeechRecognition) {
         statusEl.style.color = "#ef4444";
@@ -1838,49 +1868,26 @@
         return;
       }
 
-      // Prevent a second session from being started while one is active.
-      if (btn.dataset.voiceActive === "1") return;
-      btn.dataset.voiceActive = "1";
       btn.disabled = true;
       btn.classList.add("listening");
-
-      const SESSION_MS = 25000;
-      const startedAt = Date.now();
-      let recognition = null;
-      let timerId = null;
-      let countdownId = null;
-      let finished = false;
-      let stopping = false;
-      let counted = false;
-      let accumulatedText = "";
-      let lastInterimText = "";
-      let restartTimer = null;
-      let wakeLock = null;
-      let wakeLockRetryTimer = null;
-
-      const requestWakeLock = async () => {
-        if (!("wakeLock" in navigator)) return;
-        try {
-          if (wakeLock && !wakeLock.released) return;
-          wakeLock = await navigator.wakeLock.request("screen");
-          wakeLock.addEventListener("release", () => {
-            wakeLock = null;
-            if (!finished && !stopping) {
-              clearTimeout(wakeLockRetryTimer);
-              wakeLockRetryTimer = setTimeout(requestWakeLock, 500);
-            }
-          });
-        } catch (e) {}
-      };
-
-      const wakeLockVisibilityHandler = () => {
-        if (document.visibilityState === "visible" && !finished && !stopping) requestWakeLock();
-      };
-      document.addEventListener("visibilitychange", wakeLockVisibilityHandler);
-      requestWakeLock();
-
       statusEl.style.color = "#0d3b22";
-      statusEl.innerText = "سن رہا ہے... 25 سیکنڈ تک درود شریف پڑھتے رہیں 🎙️";
+      statusEl.innerText = "سن رہا ہے... 23 سیکنڈ تک درود شریف پڑھیں 🎙️";
+
+      // Keep the mobile display awake while the user is reciting.
+      requestScreenWakeLock();
+
+      const recognition = new SpeechRecognition();
+      recognition.lang = 'ar-SA';
+      recognition.interimResults = false;
+      recognition.continuous = true;
+      recognition.maxAlternatives = 5;
+
+      const LISTEN_DURATION_MS = 23000;
+      const startedAt = Date.now();
+      let finishTimer = null;
+      let finished = false;
+      let collectedSpeech = [];
+      let restartPending = false;
 
       const normalizeArabic = (value) => {
         return (value || "")
@@ -1888,213 +1895,86 @@
           .replace(/[\u064B-\u065F\u0670\u06D6-\u06ED]/g, "")
           .replace(/[إأآٱ]/g, "ا")
           .replace(/ى/g, "ی")
-          .replace(/ي/g, "ی")
           .replace(/ئ/g, "ی")
           .replace(/ؤ/g, "و")
           .replace(/ة/g, "ه")
-          .replace(/ھ/g, "ہ")
           .replace(/ـ/g, "")
           .replace(/[^\u0600-\u06FF\s]/g, " ")
           .replace(/\s+/g, " ")
           .trim();
       };
 
-      // Verification is based on the actual Darood displayed above.
-      // Speech recognition can omit common words such as "و", "کما" and "آل",
-      // so we verify the distinctive words of BOTH halves in the correct order.
-      const verificationGroups1 = [
-        ["اللهم"],
-        ["صل", "صلی", "صلي", "صلا"],
-        ["علی"],
-        ["محمد"],
-        ["ابراهیم"],
-        ["انک"],
-        ["حمید"],
-        ["مجید"]
-      ];
-
-      const verificationGroups2 = [
-        ["اللهم"],
-        ["بارک"],
-        ["علی"],
-        ["محمد"],
-        ["بارکت"],
-        ["ابراهیم"],
-        ["انک"],
-        ["حمید"],
-        ["مجید"]
+      // These words are checked only AFTER the full 23-second listening window.
+      const requiredWords = [
+        "اللهم", "صل", "علی", "محمد", "ابراهیم", "حمید", "مجید",
+        "اللهم", "بارک", "علی", "محمد", "بارکت", "علی", "انک", "حمید", "مجید"
       ];
 
       const aliases = {
-        "اللهم": ["اللهم", "اللھم", "اللہم", "اللهمّ", "اللہُم", "اللهمہ"],
-        "صل": ["صل", "صلی", "صلي", "صلّ", "صلا", "صلیت", "صليت", "صلى"],
-        "علی": ["علی", "على", "علا", "علي", "عَلَی", "عليٰ"],
-        "محمد": ["محمد", "محمّد", "محمدٍ", "محمدا"],
-        "ابراهیم": ["ابراهیم", "ابراهيم", "ابراھیم", "ابراہم", "ابراھم", "ابراهام"],
-        "حمید": ["حمید", "حميد", "حَمِيد", "حميدا"],
-        "مجید": ["مجید", "مجيد", "مَجِيد", "مجيدا"],
-        "بارک": ["بارک", "بارك", "بارِک", "بارکْ", "بارکِ"],
-        "بارکت": ["بارکت", "باركت", "بارکَت", "بارکتَ"],
-        "انک": ["انک", "انك", "إنك", "انّک", "انکّ"]
+        "اللهم": ["اللهم"],
+        "صل": ["صل", "صلی"],
+        "علی": ["علی", "على", "علا"],
+        "محمد": ["محمد"],
+        "ابراهیم": ["ابراهیم", "ابراهيم", "ابراھیم"],
+        "حمید": ["حمید", "حميد"],
+        "مجید": ["مجید", "مجيد"],
+        "بارک": ["بارک", "بارك"],
+        "بارکت": ["بارکت", "باركت"],
+        "انک": ["انک", "انك"]
       };
-
-      // Speech-to-text can make small Arabic/Urdu spelling substitutions.
-      const levenshtein = (a, b) => {
-        const prev = Array.from({length: b.length + 1}, (_, i) => i);
-        for (let i = 1; i <= a.length; i++) {
-          const cur = [i];
-          for (let j = 1; j <= b.length; j++) {
-            cur[j] = Math.min(cur[j - 1] + 1, prev[j] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
-          }
-          for (let j = 0; j <= b.length; j++) prev[j] = cur[j];
-        }
-        return prev[b.length];
-      };
-
-      const speechNormalise = (value) => normalizeArabic(value)
-        .replace(/[کك]/g, "ک")
-        .replace(/[ہهھ]/g, "ہ")
-        .replace(/[یىئ]/g, "ی")
-        .replace(/[وؤ]/g, "و");
 
       const isWordMatch = (spoken, required) => {
-        const word = speechNormalise(spoken);
-        const options = (aliases[required] || [required]).map(speechNormalise);
-        if (!word) return false;
-        if (options.some(x => x === word)) return true;
-        return options.some(x => x.length >= 4 && word.length >= 4 && levenshtein(word, x) <= 1);
-      };
-
-      // Extra ordinary words are allowed between verification words.
-      // This makes Android/Chrome recognition much more tolerant.
-      const matchesGroupsInOrder = (words, groups) => {
-        let pos = 0;
-        for (const group of groups) {
-          let found = false;
-          for (; pos < words.length; pos++) {
-            if (group.some(required => isWordMatch(words[pos], required))) {
-              found = true;
-              pos++;
-              break;
-            }
-          }
-          if (!found) return false;
-        }
-        return true;
+        const options = aliases[required] || [required];
+        return options.some(x => spoken === x);
       };
 
       const isCompleteDarood = (spoken) => {
         const words = normalizeArabic(spoken).split(" ").filter(Boolean);
         if (!words.length) return false;
 
-        // Both parts of the displayed Darood must be recognized.
-        return matchesGroupsInOrder(words, verificationGroups1) &&
-               matchesGroupsInOrder(words, verificationGroups2);
-      };
-
-      const getBestTranscript = (result) => {
-        let best = "";
-        let bestScore = -1;
-        for (let i = 0; i < result.length; i++) {
-          const candidate = result[i].transcript || "";
-          // Prefer the alternative containing more verification words.
-          let score = 0;
-          const candidateWords = normalizeArabic(candidate).split(" ").filter(Boolean);
-          let ri = 0;
-          for (const word of candidateWords) {
-            if (ri < requiredWords.length && isWordMatch(word, requiredWords[ri])) {
-              score++;
-              ri++;
-            }
-          }
-          if (score > bestScore) {
-            bestScore = score;
-            best = candidate;
-          }
+        // ترتیب ضروری نہیں؛ تمام required words کم از کم مطلوبہ تعداد میں ملنے چاہئیں۔
+        const remaining = words.slice();
+        for (const required of requiredWords) {
+          const foundIndex = remaining.findIndex(word => isWordMatch(word, required));
+          if (foundIndex === -1) return false;
+          remaining.splice(foundIndex, 1);
         }
-        return best;
+        return true;
       };
 
-      const cleanup = () => {
-        if (timerId) clearTimeout(timerId);
-        if (countdownId) clearInterval(countdownId);
-        if (restartTimer) clearTimeout(restartTimer);
-        if (wakeLockRetryTimer) clearTimeout(wakeLockRetryTimer);
-        document.removeEventListener("visibilitychange", wakeLockVisibilityHandler);
-        if (wakeLock) { try { wakeLock.release(); } catch (e) {} }
-        wakeLock = null;
-        timerId = null;
-        countdownId = null;
-        restartTimer = null;
-        btn.disabled = false;
-        btn.classList.remove("listening");
-        btn.dataset.voiceActive = "0";
-      };
-
-      const finishSession = async () => {
+      const finishListening = () => {
         if (finished) return;
         finished = true;
-        stopping = true;
+        if (finishTimer) clearTimeout(finishTimer);
 
-        if (recognition) {
-          try { recognition.stop(); } catch (e) {}
-        }
+        try { recognition.stop(); } catch (e) {}
 
-        const finalText = normalizeArabic(accumulatedText);
-        statusEl.innerText = "🔎 25 سیکنڈ مکمل — آواز کی تصدیق ہو رہی ہے...";
-
+        // Verification starts only after the complete 23-second listening window.
+        const finalText = collectedSpeech.join(" ");
         const valid = isCompleteDarood(finalText);
 
         if (!valid) {
-          cleanup();
           statusEl.style.color = "#ef4444";
-          statusEl.innerText = "✗ تصدیق ناکام: مطلوبہ درود کے تمام verification الفاظ درست ترتیب میں نہیں ملے۔ شمار نہیں ہوگا۔";
+          statusEl.innerText = "✗ مکمل درود کے ضروری الفاظ نہیں ملے، شمار نہیں ہوگا۔";
           playErrorSound();
-          return;
-        }
-
-        // Exactly one database increment for the whole 25-second session.
-        if (!currentUser) {
-          cleanup();
-          statusEl.style.color = "#ef4444";
-          statusEl.innerText = "براہِ کرم پہلے لاگ اِن کریں۔";
-          playErrorSound();
-          return;
-        }
-
-        if (counted) {
-          cleanup();
-          return;
-        }
-        counted = true;
-
-        try {
+        } else if (currentUser) {
           if (isComp) {
-            await db.ref("competitions/" + todayDateKey + "/" + currentUser.uid).transaction(current => {
-              if (!current) {
-                return {
-                  count: 1,
-                  name: currentUser.displayName || currentUser.email
-                };
-              }
+            db.ref("competitions/" + todayDateKey + "/" + currentUser.uid).transaction(current => {
+              if (!current) return { count: 1, name: currentUser.displayName || currentUser.email };
               return {
-                ...current,
-                count: (Number(current.count) || 0) + 1,
+                count: (current.count || 0) + 1,
                 name: currentUser.displayName || currentUser.email
               };
             });
           } else {
-            await db.ref("users/" + currentUser.uid).transaction(current => {
-              if (!current) {
-                return {
-                  count: 1,
-                  name: currentUser.displayName || currentUser.email,
-                  email: currentUser.email
-                };
-              }
+            db.ref("users/" + currentUser.uid).transaction(current => {
+              if (!current) return {
+                count: 1,
+                name: currentUser.displayName || currentUser.email,
+                email: currentUser.email
+              };
               return {
-                ...current,
-                count: (Number(current.count) || 0) + 1,
+                count: (current.count || 0) + 1,
                 name: currentUser.displayName || currentUser.email,
                 email: currentUser.email,
                 accName: current.accName || '',
@@ -2106,149 +1986,79 @@
             });
           }
 
-          cleanup();
           statusEl.style.color = "#0d3b22";
-          statusEl.innerText = "✓ 25 سیکنڈ مکمل — درود شریف کامیابی سے تصدیق اور شمار ہو گیا (+1)";
+          statusEl.innerText = "✓ درود شریف شمار ہو گیا!";
           playSuccessSound();
           triggerVibration();
-        } catch (error) {
-          counted = false;
-          cleanup();
-          statusEl.style.color = "#ef4444";
-          statusEl.innerText = "✗ تصدیق ہو گئی لیکن شمار محفوظ نہیں ہو سکا۔ دوبارہ کوشش کریں۔";
-          playErrorSound();
-          console.error("Darood count transaction error:", error);
+        }
+
+        btn.disabled = false;
+        btn.classList.remove("listening");
+      };
+
+      // Always stop at exactly 23 seconds, even if there is silence.
+      finishTimer = setTimeout(finishListening, LISTEN_DURATION_MS);
+
+      recognition.onresult = (event) => {
+        // Collect every recognized segment for the whole listening window.
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const result = event.results[i];
+          let bestTranscript = result[0]?.transcript || "";
+          let bestValid = false;
+
+          // Keep all alternatives available from the browser, not just the first one.
+          for (let j = 0; j < result.length; j++) {
+            const candidate = result[j]?.transcript || "";
+            if (candidate) collectedSpeech.push(candidate);
+            if (isCompleteDarood(candidate)) {
+              bestTranscript = candidate;
+              bestValid = true;
+              break;
+            }
+          }
+
+          if (bestTranscript) {
+            const elapsed = Math.min(23, Math.floor((Date.now() - startedAt) / 1000));
+            statusEl.style.color = "#0d3b22";
+            statusEl.innerText = `سن رہا ہے... ${elapsed}/23 سیکنڈ 🎙️`;
+          }
         }
       };
 
-      const updateCountdown = () => {
+      recognition.onerror = (event) => {
+        // A browser recognition error must NOT end the 23-second listening window.
+        // If the engine stopped unexpectedly, onend below will restart it while time remains.
+        if (!finished && Date.now() - startedAt < LISTEN_DURATION_MS) {
+          statusEl.style.color = "#0d3b22";
+          statusEl.innerText = "سن رہا ہے... 23 سیکنڈ مکمل ہونے تک مائیک آن رہے گا 🎙️";
+        }
+      };
+
+      recognition.onend = () => {
         if (finished) return;
+
         const elapsed = Date.now() - startedAt;
-        const remaining = Math.max(0, SESSION_MS - elapsed);
-        const seconds = Math.ceil(remaining / 1000);
-        statusEl.style.color = "#0d3b22";
-        statusEl.innerText = `🎙️ سن رہا ہے... مزید ${seconds} سیکنڈ — درود شریف پڑھتے رہیں`;
+        if (elapsed < LISTEN_DURATION_MS && !restartPending) {
+          restartPending = true;
+          setTimeout(() => {
+            restartPending = false;
+            if (finished) return;
+            try {
+              recognition.start();
+              statusEl.style.color = "#0d3b22";
+              statusEl.innerText = "سن رہا ہے... 23 سیکنڈ مکمل ہونے تک مائیک آن رہے گا 🎙️";
+            } catch (e) {}
+          }, 50);
+        } else if (elapsed >= LISTEN_DURATION_MS) {
+          finishListening();
+        }
       };
 
-      const createRecognition = () => {
-        recognition = new SpeechRecognition();
-        recognition.lang = 'ar-SA';
-        recognition.interimResults = true;
-        recognition.continuous = true;
-        recognition.maxAlternatives = 5;
-
-        recognition.onresult = (event) => {
-          if (finished) return;
-
-          let interim = "";
-          // Read ALL new results. The old code only read event.results[0],
-          // which could discard later pieces of the spoken Darood.
-          for (let i = event.resultIndex; i < event.results.length; i++) {
-            const result = event.results[i];
-            const transcript = getBestTranscript(result);
-            if (result.isFinal) {
-              if (transcript) accumulatedText += " " + transcript;
-            } else {
-              interim += " " + transcript;
-            }
-          }
-
-          lastInterimText = interim.trim();
-          const preview = normalizeArabic((accumulatedText + " " + lastInterimText)).trim();
-          if (preview) {
-            const elapsed = Date.now() - startedAt;
-            const remaining = Math.max(0, SESSION_MS - elapsed);
-            const seconds = Math.ceil(remaining / 1000);
-            statusEl.style.color = "#0d3b22";
-            statusEl.innerText = `🎙️ سن رہا ہے... ${seconds} سیکنڈ باقی`;
-          }
-        };
-
-        recognition.onerror = (event) => {
-          if (finished) return;
-
-          const fatalErrors = [
-            "not-allowed",
-            "service-not-allowed",
-            "audio-capture",
-            "language-not-supported",
-            "bad-grammar"
-          ];
-
-          if (fatalErrors.includes(event.error)) {
-            finished = true;
-            stopping = true;
-            cleanup();
-            statusEl.style.color = "#ef4444";
-            if (event.error === "not-allowed" || event.error === "service-not-allowed") {
-              statusEl.innerText = "✗ مائیکروفون کی اجازت نہیں ملی۔ براہِ کرم Microphone Permission دیں۔";
-            } else if (event.error === "audio-capture") {
-              statusEl.innerText = "✗ مائیکروفون دستیاب نہیں ہے۔";
-            } else {
-              statusEl.innerText = "✗ آواز کی شناخت میں مسئلہ آیا، دوبارہ کوشش کریں۔";
-            }
-            playErrorSound();
-            return;
-          }
-
-          // no-speech / network / aborted can happen on Android/Chrome.
-          // We keep the 25-second session alive and restart recognition.
-          if (!stopping && Date.now() - startedAt < SESSION_MS) {
-            statusEl.style.color = "#0d3b22";
-            statusEl.innerText = "🎙️ دوبارہ سن رہا ہے... 25 سیکنڈ مکمل ہونے تک جاری رہے گا";
-          }
-        };
-
-        recognition.onend = () => {
-          if (finished) return;
-
-          // Chrome/Android may end SpeechRecognition by itself even when
-          // continuous=true. Restart it during the same 25-second session.
-          const elapsed = Date.now() - startedAt;
-          if (!stopping && elapsed < SESSION_MS) {
-            if (restartTimer) clearTimeout(restartTimer);
-            restartTimer = setTimeout(() => {
-              restartTimer = null;
-              if (finished || stopping) return;
-              try {
-                createRecognition();
-                recognition.start();
-              } catch (e) {
-                // If start races with the browser, try once more shortly.
-                restartTimer = setTimeout(() => {
-                  if (finished || stopping) return;
-                  try {
-                    createRecognition();
-                    recognition.start();
-                  } catch (e2) {}
-                }, 250);
-              }
-            }, 120);
-          }
-        };
-      };
-
-      // Keep the browser listening until the full 25 seconds are complete.
-      createRecognition();
       try {
         recognition.start();
-      } catch (error) {
-        finished = true;
-        cleanup();
-        statusEl.style.color = "#ef4444";
-        statusEl.innerText = "✗ مائیکروفون شروع نہیں ہو سکا۔ دوبارہ کوشش کریں۔";
-        playErrorSound();
-        console.error("SpeechRecognition start error:", error);
-        return;
+      } catch (e) {
+        finishListening();
       }
-
-      updateCountdown();
-      countdownId = setInterval(updateCountdown, 250);
-
-      // IMPORTANT: the result is finalized only here, after 25 seconds.
-      timerId = setTimeout(() => {
-        finishSession();
-      }, SESSION_MS);
     }
 
     document.getElementById("countBtn").onclick = function() {
