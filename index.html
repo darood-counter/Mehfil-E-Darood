@@ -1909,9 +1909,7 @@
       // They are checked only AFTER the full 23-second listening window.
       const requiredWords = [
         "اللهم", "صل", "علی", "محمد",
-        "انک", "حمید", "مجید",
-        "اللهم", "بارک", "علی", "محمد",
-        "وعلی", "ال", "ابراهیم"
+        "بارک", "حمید", "مجید"
       ];
 
       const aliases = {
@@ -1919,13 +1917,9 @@
         "صل": ["صل", "صلی"],
         "علی": ["علی", "على", "علا"],
         "محمد": ["محمد"],
-        "انک": ["انک", "انك"],
-        "حمید": ["حمید", "حميد"],
-        "مجید": ["مجید", "مجيد"],
         "بارک": ["بارک", "بارك"],
-        "وعلی": ["وعلی", "وعلى", "وعلا"],
-        "ال": ["ال", "آل"],
-        "ابراهیم": ["ابراهیم", "ابراهيم", "ابراھیم"]
+        "حمید": ["حمید", "حميد"],
+        "مجید": ["مجید", "مجيد"]
       };
 
       const isWordMatch = (spoken, required) => {
@@ -1951,6 +1945,7 @@
         if (finished) return;
         finished = true;
         if (finishTimer) clearTimeout(finishTimer);
+        if (countdownTimer) clearInterval(countdownTimer);
 
         try { recognition.stop(); } catch (e) {}
 
@@ -2000,6 +1995,19 @@
         btn.disabled = false;
         btn.classList.remove("listening");
       };
+
+      // Show a live 23-second countdown while the microphone remains active.
+      const countdownTimer = setInterval(() => {
+        if (finished) {
+          clearInterval(countdownTimer);
+          return;
+        }
+        const elapsedSeconds = Math.floor((Date.now() - startedAt) / 1000);
+        const remainingSeconds = Math.max(0, 23 - elapsedSeconds);
+        statusEl.style.color = "#0d3b22";
+        statusEl.innerText = `سن رہا ہے... ${remainingSeconds} سیکنڈ باقی 🎙️`;
+        if (remainingSeconds <= 0) clearInterval(countdownTimer);
+      }, 250);
 
       // Always stop at exactly 23 seconds, even if there is silence.
       finishTimer = setTimeout(finishListening, LISTEN_DURATION_MS);
