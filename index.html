@@ -2002,7 +2002,7 @@
       }
 
       statusEl.style.color = "#2563eb";
-      statusEl.innerText = "پڑھتے رہیں، میں سن رہا ہوں 🎙️ (30 سیکنڈ)";
+      statusEl.innerText = "پڑھتے رہیں، میں سن رہا ہوں 🎙️ (25 سیکنڈ)";
 
       const recognition = new SpeechRecognition();
       recognition.lang = "ar-SA";
@@ -2106,7 +2106,7 @@
         if (restartTimer) clearTimeout(restartTimer);
 
         statusEl.style.color = "#2563eb";
-        statusEl.innerText = "30 سیکنڈ مکمل۔ اب درود کی تصدیق ہو رہی ہے…";
+        statusEl.innerText = "25 سیکنڈ مکمل۔ اب درود کی تصدیق ہو رہی ہے…";
 
         const combined = allTranscripts.join(" ");
         const valid = isCompleteDarood(combined);
