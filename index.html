@@ -2049,5 +2049,197 @@ function switchBottomTab(tabName) {
   document.addEventListener("click", requestWakeLock, { passive: true });
 })();
 </script>
+
+<style>
+.mic-btn.voice-timing{position:relative;overflow:visible;isolation:isolate}
+.mic-btn.voice-timing::before{
+  content:"";position:absolute;inset:-9px;border-radius:50%;
+  background:conic-gradient(#1683ff var(--voice-progress,100%),rgba(22,131,255,.12) 0);
+  -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 5px),#000 calc(100% - 4px));
+  mask:radial-gradient(farthest-side,transparent calc(100% - 5px),#000 calc(100% - 4px));
+  z-index:-1;pointer-events:none
+}
+.voice-countdown{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:34px;height:24px;margin-left:7px;padding:0 7px;
+  border-radius:12px;font-size:13px;font-weight:700;
+  background:rgba(22,131,255,.10)
+}
+</style>
+<script>
+(function(){
+  const VOICE_WINDOW_MS = 35000;
+  const SILENCE_WARNING_MS = 5000;
+
+  window.startVoiceRecognition = function(btn, isCompetition){
+    if(!btn) return;
+
+    if(btn.dataset.voiceActive === "1"){
+      // Stop button: do not judge early; let the 35-second window finish.
+      btn.dataset.voiceStop = "1";
+      return;
+    }
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if(!SpeechRecognition){
+      alert("آپ کے موبائل براؤزر میں Voice Recognition دستیاب نہیں ہے۔");
+      return;
+    }
+
+    btn.dataset.voiceActive = "1";
+    btn.dataset.voiceStop = "0";
+    btn.classList.add("voice-timing");
+    btn.style.setProperty("--voice-progress","100%");
+
+    let countdown = btn.querySelector(".voice-countdown");
+    if(!countdown){
+      countdown = document.createElement("span");
+      countdown.className = "voice-countdown";
+      btn.appendChild(countdown);
+    }
+    countdown.textContent = "35";
+
+    let allSpokenText = "";
+    let startedAt = Date.now();
+    let lastVoiceActivity = Date.now();
+    let finished = false;
+    let recognition = null;
+    let restartTimer = null;
+    let animationFrame = null;
+    let silenceTimer = null;
+
+    function showStatus(msg){
+      const el = document.getElementById("voiceStatus") ||
+                 document.getElementById("result") ||
+                 document.querySelector(".voice-status");
+      if(el) el.textContent = msg;
+    }
+
+    function cleanup(){
+      finished = true;
+      clearTimeout(restartTimer);
+      clearInterval(silenceTimer);
+      cancelAnimationFrame(animationFrame);
+      try{ if(recognition) recognition.onend = null; recognition && recognition.stop(); }catch(e){}
+      btn.dataset.voiceActive = "0";
+      btn.dataset.voiceStop = "0";
+      btn.classList.remove("voice-timing");
+      btn.style.removeProperty("--voice-progress");
+      if(countdown) countdown.remove();
+    }
+
+    async function finishAndJudge(){
+      if(finished) return;
+      const elapsed = Date.now() - startedAt;
+      if(elapsed < VOICE_WINDOW_MS){
+        setTimeout(finishAndJudge, VOICE_WINDOW_MS - elapsed);
+        return;
+      }
+
+      const spoken = allSpokenText.trim();
+      cleanup();
+
+      if(!spoken){
+        showStatus("✗ کوئی آواز نہیں ملی، درود شریف دوبارہ پڑھیں۔");
+        if(typeof playErrorSound === "function") playErrorSound();
+        return;
+      }
+
+      let correct = false;
+      try{
+        correct = typeof isCompleteDarood === "function" && isCompleteDarood(spoken);
+      }catch(e){ correct = false; }
+
+      if(correct){
+        showStatus("✓ درست درود شریف ہے، شمار ہو گیا!");
+        if(typeof playSuccessSound === "function") playSuccessSound();
+        if(typeof navigator.vibrate === "function") navigator.vibrate(120);
+        // Preserve the existing app's counting flow.
+        try{
+          if(isCompetition && typeof incrementCompetitionCount === "function")
+            incrementCompetitionCount();
+          else if(!isCompetition && typeof incrementNormalCount === "function")
+            incrementNormalCount();
+          else if(typeof handleVoiceCountResult === "function")
+            handleVoiceCountResult(true, isCompetition);
+        }catch(e){}
+      }else{
+        showStatus("✗ آپ نے درود شریف صحیح/مکمل نہیں پڑھا، شمار نہیں ہوگا۔");
+        if(typeof playErrorSound === "function") playErrorSound();
+      }
+    }
+
+    function updateTimer(){
+      if(finished) return;
+      const elapsed = Date.now() - startedAt;
+      const remainingMs = Math.max(0, VOICE_WINDOW_MS - elapsed);
+      const remaining = Math.ceil(remainingMs / 1000);
+      const progress = Math.max(0, Math.min(100, remainingMs / VOICE_WINDOW_MS * 100));
+      btn.style.setProperty("--voice-progress", progress + "%");
+      if(countdown) countdown.textContent = String(remaining);
+      if(remainingMs <= 0){
+        finishAndJudge();
+        return;
+      }
+      animationFrame = requestAnimationFrame(updateTimer);
+    }
+
+    function startRecognitionAgain(){
+      if(finished || Date.now() - startedAt >= VOICE_WINDOW_MS) return;
+      try{
+        recognition = new SpeechRecognition();
+        recognition.lang = "ar-SA";
+        recognition.interimResults = false;
+        recognition.continuous = false;
+        recognition.maxAlternatives = 5;
+
+        recognition.onresult = function(event){
+          lastVoiceActivity = Date.now();
+          let text = "";
+          for(let i=0;i<event.results.length;i++){
+            text += " " + (event.results[i][0]?.transcript || "");
+          }
+          text = text.trim();
+          if(text) allSpokenText += " " + text;
+        };
+
+        recognition.onerror = function(event){
+          if(event && event.error === "not-allowed"){
+            showStatus("🎙️ مائیکروفون کی اجازت دیں، پھر دوبارہ کوشش کریں۔");
+          }
+        };
+
+        recognition.onend = function(){
+          if(finished) return;
+          if(Date.now() - startedAt < VOICE_WINDOW_MS){
+            clearTimeout(restartTimer);
+            restartTimer = setTimeout(startRecognitionAgain, 120);
+          }
+        };
+
+        recognition.start();
+      }catch(e){
+        clearTimeout(restartTimer);
+        restartTimer = setTimeout(startRecognitionAgain, 250);
+      }
+    }
+
+    showStatus("🎙️ پڑھتے جائیں، میں سن رہا ہوں…");
+
+    silenceTimer = setInterval(function(){
+      if(finished) return;
+      if(Date.now() - lastVoiceActivity >= SILENCE_WARNING_MS){
+        showStatus("🎙️ پڑھتے جائیں، میں سن رہا ہوں…");
+      }
+    }, 1000);
+
+    updateTimer();
+    startRecognitionAgain();
+
+    setTimeout(finishAndJudge, VOICE_WINDOW_MS + 50);
+  };
+})();
+</script>
+
 </body>
 </html>
