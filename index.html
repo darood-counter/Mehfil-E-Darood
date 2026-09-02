@@ -950,57 +950,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 
   <script>
-    // Keep the device screen awake for as long as this website is open and visible.
-    // Uses the Screen Wake Lock API where the browser supports it (HTTPS/GitHub Pages).
-    let siteWakeLock = null;
-    let siteWakeLockTimer = null;
-
-    async function keepWebsiteScreenAwake() {
-      try {
-        if (!('wakeLock' in navigator)) return;
-        if (document.visibilityState !== 'visible') return;
-        if (siteWakeLock && !siteWakeLock.released) return;
-
-        siteWakeLock = await navigator.wakeLock.request('screen');
-        siteWakeLock.addEventListener('release', () => {
-          siteWakeLock = null;
-        });
-      } catch (error) {
-        siteWakeLock = null;
-      }
-    }
-
-    function startWebsiteWakeLock() {
-      keepWebsiteScreenAwake();
-
-      // Some Android browsers may release Wake Lock automatically.
-      // Re-request it while the website remains open and visible.
-      if (!siteWakeLockTimer) {
-        siteWakeLockTimer = setInterval(() => {
-          if (document.visibilityState === 'visible') {
-            keepWebsiteScreenAwake();
-          }
-        }, 15000);
-      }
-    }
-
-    document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible') {
-        keepWebsiteScreenAwake();
-      }
-    });
-
-    // A user gesture makes Wake Lock more reliable on some mobile browsers.
-    ['touchstart', 'click', 'keydown'].forEach(eventName => {
-      document.addEventListener(eventName, keepWebsiteScreenAwake, { passive: true });
-    });
-
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', startWebsiteWakeLock, { once: true });
-    } else {
-      startWebsiteWakeLock();
-    }
-
     const firebaseConfig = {
       apiKey: "AIzaSyB3PjjiQM2IqKmIQJ4d4YOwcc10RiG47FI",
       authDomain: "mehfil-e-darood.firebaseapp.com",
@@ -1906,42 +1855,6 @@
       let accumulatedText = "";
       let lastInterimText = "";
       let restartTimer = null;
-      let wakeLock = null;
-
-      // Keep the phone screen awake for the complete 25-second voice session.
-      // Android Chrome supports the Screen Wake Lock API on HTTPS pages.
-      const requestWakeLock = async () => {
-        try {
-          if ("wakeLock" in navigator) {
-            wakeLock = await navigator.wakeLock.request("screen");
-            wakeLock.addEventListener("release", () => {
-              wakeLock = null;
-            });
-          }
-        } catch (e) {
-          // Wake Lock can be unavailable or temporarily denied; voice counting
-          // itself must continue normally.
-          wakeLock = null;
-        }
-      };
-
-      const releaseWakeLock = async () => {
-        try {
-          if (wakeLock) {
-            await wakeLock.release();
-          }
-        } catch (e) {}
-        wakeLock = null;
-      };
-
-      // If the browser releases the lock when the page becomes visible again,
-      // request it again while the same 25-second session is still active.
-      const handleVisibilityChange = async () => {
-        if (!finished && document.visibilityState === "visible" && Date.now() - startedAt < SESSION_MS) {
-          await requestWakeLock();
-        }
-      };
-      document.addEventListener("visibilitychange", handleVisibilityChange);
 
       statusEl.style.color = "#0d3b22";
       statusEl.innerText = "سن رہا ہے... 25 سیکنڈ تک درود شریف پڑھتے رہیں 🎙️";
@@ -2065,8 +1978,6 @@
         timerId = null;
         countdownId = null;
         restartTimer = null;
-        document.removeEventListener("visibilitychange", handleVisibilityChange);
-        releaseWakeLock();
         btn.disabled = false;
         btn.classList.remove("listening");
         btn.dataset.voiceActive = "0";
@@ -2268,10 +2179,6 @@
           }
         };
       };
-
-      // Prevent Android/browser screen timeout during the 25-second session.
-      // This is intentionally limited to the active voice session.
-      requestWakeLock();
 
       // Keep the browser listening until the full 25 seconds are complete.
       createRecognition();
