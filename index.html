@@ -762,11 +762,6 @@
           <div style="font-size:12px; color:var(--text-muted);">آج کے اجتماعی درود (ریئل ٹائم)</div>
         </div>
 
-        <div style="background:linear-gradient(135deg,#fffbeb,#fef3c7); border:1.5px solid #f59e0b; border-radius:14px; padding:12px; margin:10px 0; text-align:center; box-shadow:0 4px 15px rgba(245,158,11,.15);">
-          <div style="font-size:13px; font-weight:bold; color:#d97706; margin-bottom:3px;">👑 آج کے مقابلے کا لیڈر</div>
-          <div id="homeWinnerHighlight" style="font-size:14px; color:#1f2937; font-weight:bold;">لوڈ ہو رہا ہے...</div>
-        </div>
-
         <!-- ADMIN PANEL SECTION ON HOME PAGE -->
         <div id="adminPanelSection" class="admin-panel hidden" style="text-align: right; margin-top: 15px;">
           <div class="admin-title">👑 ایڈمن پینل (صرف 100+ درود والے فاتحین)</div>
@@ -803,6 +798,11 @@
       <!-- TAB 2: Competition Tab -->
       <div id="compTab" class="hidden">
         <h2 style="font-size: 20px; color: #d97706; margin: 5px 0 10px 0;">🎯 مقابلے کا سیکشن</h2>
+
+        <div style="background:linear-gradient(135deg,#fffbeb,#fef3c7); border:1.5px solid #f59e0b; border-radius:14px; padding:12px; margin:10px 0; text-align:center; box-shadow:0 4px 15px rgba(245,158,11,.15);">
+          <div style="font-size:13px; font-weight:bold; color:#d97706; margin-bottom:3px;">👑 آج کے مقابلے کا لیڈر</div>
+          <div id="compWinnerHighlight" style="font-size:14px; color:#1f2937; font-weight:bold;">لوڈ ہو رہا ہے...</div>
+        </div>
 
         <!-- Top Bar: Online Users + Countdown Timer -->
         <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px; margin-bottom: 12px; flex-wrap: wrap;">
@@ -1632,7 +1632,7 @@
       document.getElementById("compBoard").innerHTML = tbody || `<tr><td colspan="3">آج کوئی مقابلہ نہیں ہوا</td></tr>`;
 
       const topWinner = compList[0];
-      const highlightEl = document.getElementById("homeWinnerHighlight");
+      const highlightEl = document.getElementById("compWinnerHighlight");
 
       if (topWinner && topWinner.count > 0) {
         highlightEl.innerHTML = `🌟 <b>${topWinner.name}</b> (${topWinner.count} درود شریف)`;
@@ -1900,7 +1900,7 @@
       recognition.continuous = true;
       recognition.maxAlternatives = 5;
 
-      const LISTEN_DURATION_MS = 23000;
+      const LISTEN_DURATION_MS = 30000;
       const startedAt = Date.now();
       let finishTimer = null;
       let finished = false;
@@ -1922,17 +1922,17 @@
           .trim();
       };
 
-      // These words are checked only AFTER the full 23-second listening window.
+      // These words are checked only AFTER the full 30-second listening window.
       // Verification words are based on the complete Darood supplied by the user.
-      // They are checked only AFTER the full 23-second listening window.
+      // They are checked only AFTER the full 30-second listening window.
       const requiredWords = [
-        "اللهم", "بارک", "انك"
+        "اللهم", "بارکت", "مجید"
       ];
 
       const aliases = {
         "اللهم": ["اللهم"],
-        "بارک": ["بارک", "بارك"],
-        "انك": ["انك", "إنك", "انک"]
+        "بارکت": ["بارکت", "بارکتا", "بارکتااا", "باركت", "باركتا", "باركتااا"],
+        "مجید": ["مجید", "مجيد"]
       };
 
       const isWordMatch = (spoken, required) => {
@@ -1962,7 +1962,7 @@
 
         try { recognition.stop(); } catch (e) {}
 
-        // Verification starts only after the complete 23-second listening window.
+        // Verification starts only after the complete 30-second listening window.
         const finalText = collectedSpeech.join(" ");
         const valid = isCompleteDarood(finalText);
 
@@ -2009,17 +2009,17 @@
         btn.classList.remove("listening");
       };
 
-      // Live 23-second countdown while the microphone remains active.
+      // Live 30-second countdown while the microphone remains active.
       const countdownTimer = setInterval(() => {
         if (finished) { clearInterval(countdownTimer); return; }
         const elapsedSeconds = Math.floor((Date.now() - startedAt) / 1000);
-        const remainingSeconds = Math.max(0, 23 - elapsedSeconds);
+        const remainingSeconds = Math.max(0, 30 - elapsedSeconds);
         statusEl.style.color = "#0d3b22";
         statusEl.innerText = `سن رہا ہے... ${remainingSeconds} سیکنڈ باقی 🎙️`;
         if (remainingSeconds <= 0) clearInterval(countdownTimer);
       }, 250);
 
-      // Always stop at exactly 23 seconds, even if there is silence.
+      // Always stop at exactly 30 seconds, even if there is silence.
       finishTimer = setTimeout(finishListening, LISTEN_DURATION_MS);
 
       recognition.onresult = (event) => {
@@ -2041,19 +2041,19 @@
           }
 
           if (bestTranscript) {
-            const elapsed = Math.min(20, Math.floor((Date.now() - startedAt) / 1000));
+            const elapsed = Math.min(30, Math.floor((Date.now() - startedAt) / 1000));
             statusEl.style.color = "#0d3b22";
-            statusEl.innerText = `سن رہا ہے... ${elapsed}/23 سیکنڈ 🎙️`;
+            statusEl.innerText = `سن رہا ہے... ${elapsed}/30 سیکنڈ 🎙️`;
           }
         }
       };
 
       recognition.onerror = (event) => {
-        // A browser recognition error must NOT end the 20-second listening window.
+        // A browser recognition error must NOT end the 30-second listening window.
         // If the engine stopped unexpectedly, onend below will restart it while time remains.
         if (!finished && Date.now() - startedAt < LISTEN_DURATION_MS) {
           statusEl.style.color = "#0d3b22";
-          statusEl.innerText = "سن رہا ہے... 23 سیکنڈ مکمل ہونے تک مائیک آن رہے گا 🎙️";
+          statusEl.innerText = "سن رہا ہے... 30 سیکنڈ مکمل ہونے تک مائیک آن رہے گا 🎙️";
         }
       };
 
@@ -2069,7 +2069,7 @@
             try {
               recognition.start();
               statusEl.style.color = "#0d3b22";
-              statusEl.innerText = "سن رہا ہے... 23 سیکنڈ مکمل ہونے تک مائیک آن رہے گا 🎙️";
+              statusEl.innerText = "سن رہا ہے... 30 سیکنڈ مکمل ہونے تک مائیک آن رہے گا 🎙️";
             } catch (e) {}
           }, 50);
         } else if (elapsed >= LISTEN_DURATION_MS) {
