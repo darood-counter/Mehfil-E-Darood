@@ -1287,7 +1287,7 @@ function startChatNotifications(){
   chatNotificationListener=snap=>{
     if(first){first=false;return;}
     snap.forEach(r=>{
-      let latest=null;r.forEach(m=>{latest={key:m.key,...(m.val()||{})};});
+      let latest=null;r.forEach(m=>{const v=m.val()||{};if(!v.broadcast)latest={key:m.key,...v};});
       if(!latest||latest.sender===currentUser.uid)return;
       const open=activeChatUser&&chatUserKey(currentUser.uid,activeChatUser.uid)===r.key;
       if(!open){const k='chatNotified_'+currentUser.uid+'_'+latest.key;if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,'1');showChatNotification(latest.senderName,latest.text,latest.sender);}
