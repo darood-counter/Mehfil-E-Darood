@@ -1504,7 +1504,7 @@ function sendChatMessage(){
   const room=chatUserKey(currentUser.uid,activeChatUser.uid);
   db.ref('chats/'+room).push({
     sender:currentUser.uid,
-    senderName:currentUser.displayName||currentUser.email||'صارف',
+    senderName:(currentUser.email===ADMIN_EMAIL?'Admin':(currentUser.displayName||currentUser.email||'صارف')),
     receiver:activeChatUser.uid,text:text,
     timestamp:firebase.database.ServerValue.TIMESTAMP
   }).then(()=>{
@@ -1543,7 +1543,7 @@ function sendAdminBroadcast(){
     snap.forEach(u=>{
       if(u.key===currentUser.uid)return;
       const room=chatUserKey(currentUser.uid,u.key);
-      const msg={sender:currentUser.uid,senderName:currentUser.displayName||currentUser.email||'Admin',receiver:u.key,text:text,timestamp:firebase.database.ServerValue.TIMESTAMP};
+      const msg={sender:currentUser.uid,senderName:'Admin',receiver:u.key,text:text,timestamp:firebase.database.ServerValue.TIMESTAMP};
       jobs.push(db.ref('chats/'+room).push(msg).then(()=>
         Promise.all([
           db.ref('chatUnreadByUser/'+u.key+'/'+currentUser.uid).transaction(v=>Number(v||0)+1),
