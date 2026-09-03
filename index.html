@@ -880,8 +880,8 @@
             <div id="recentChatsList" class="recent-chats-scroll"><div style="font-size:12px;color:var(--text-muted);padding:10px;">لوڈ ہو رہا ہے...</div></div>
             <div style="font-size:13px;font-weight:bold;color:var(--primary-color);margin-bottom:9px;">📞 رابطہ کریں</div>
             <button type="button" id="contactAdminBtn" class="online-user" style="width:100%;font-family:inherit;text-align:right;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:8px;background:#f0fdf4;border-color:#bbf7d0;">
-              <span><span class="online-dot"></span> <b>Admin</b><div style="font-size:10px;color:var(--text-muted);margin-top:3px;">کسی مسئلے کی صورت میں براہِ راست پیغام کریں</div></span>
-              <span style="font-size:11px;color:#0d3b22;">💬 پیغام</span>
+              <span><span class="online-dot"></span> <b>💬 Admin Chat</b><div style="font-size:10px;color:var(--text-muted);margin-top:3px;">Admin سے براہِ راست چیٹ کریں</div></span>
+              <span style="font-size:11px;color:#0d3b22;">پیغام کریں</span>
             </button>
           </div>
           <div class="chat-panel" id="adminOnlineUsersPanel" style="background:#f0fdf4;border-color:#bbf7d0;display:none;">
@@ -896,7 +896,7 @@
           </div>
           <div class="chat-panel" id="adminChatPanel" style="background:#fffbeb;border-color:#fef08a;display:none;">
             <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:9px;">
-              <div style="font-size:13px;font-weight:bold;color:#d97706;">👑 Admin Chat — صارفین کے پیغامات</div>
+              <div style="font-size:13px;font-weight:bold;color:#d97706;">👥 User All Chat — صارفین کے پیغامات</div>
               <button type="button" class="chat-history-clear" onclick="clearAllAdminChats()">🗑️ تمام ہسٹری صاف</button>
             </div>
             <div id="adminChatRooms" class="admin-chat-scroll"><div style="font-size:12px;color:var(--text-muted);">لوڈ ہو رہا ہے...</div></div>
@@ -1432,7 +1432,7 @@ function openPrivateChat(uid,name,isAdmin=false){
   if(!listView || !privateView) return;
   listView.classList.add('hidden');
   privateView.classList.remove('hidden');
-  document.getElementById('chatWithName').innerText=activeChatUser.name;
+  document.getElementById('chatWithName').innerText=activeChatUser.isAdmin?'👑 Admin':activeChatUser.name;
   document.getElementById('chatWithStatus').innerText='لوڈ ہو رہا ہے...';
   markChatRead(uid);
   db.ref('status/'+uid).once('value').then(st=>{ const el=document.getElementById('chatWithStatus'); if(el) el.innerText=st.exists()&&st.val()!==false?'آن لائن':'آف لائن'; }).catch(()=>{});
