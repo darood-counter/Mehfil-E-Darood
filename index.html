@@ -2663,6 +2663,13 @@ function switchBottomTab(tabName) {
       finishTimer = setTimeout(finishListening, LISTEN_DURATION_MS);
 
       recognition.onresult = (event) => {
+        // At/after 30 seconds, never show a listening/progress message even if
+        // the browser delivers a delayed microphone result; finish first.
+        if (Date.now() - startedAt >= LISTEN_DURATION_MS) {
+          finishListening();
+          return;
+        }
+
         // Collect every recognized segment for the whole listening window.
         for (let i = event.resultIndex; i < event.results.length; i++) {
           const result = event.results[i];
