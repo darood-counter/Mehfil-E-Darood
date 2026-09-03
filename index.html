@@ -395,14 +395,29 @@
     .chat-panel{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:12px;margin-top:10px;text-align:right;box-shadow:0 4px 15px rgba(0,0,0,.04)}
     .online-user{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px;border:1px solid #e5e7eb;border-radius:11px;margin-bottom:7px;background:#fafafa;cursor:pointer}
     .online-dot{width:9px;height:9px;border-radius:50%;background:#16a34a;display:inline-block;box-shadow:0 0 0 3px #dcfce7}
-    .chat-messages{height:52vh;min-height:280px;max-height:520px;overflow-y:auto;padding:8px;background:#f5f7f6;border-radius:12px;border:1px solid #e5e7eb}
-    .chat-bubble{max-width:78%;padding:8px 11px;border-radius:13px;margin:6px 0;font-size:13px;line-height:1.6;word-break:break-word}
-    .chat-me{margin-right:auto;background:#dcefe4;color:#12351f;border-bottom-right-radius:4px}
-    .chat-them{margin-left:auto;background:#fff;color:#1f2937;border:1px solid #e5e7eb;border-bottom-left-radius:4px}
+    .chat-messages{height:52vh;min-height:280px;max-height:520px;overflow-y:auto;padding:10px 6px;background:#f5f7f6;border-radius:12px;border:1px solid #e5e7eb}
+    .chat-bubble{max-width:min(78%,520px);padding:9px 12px;border-radius:13px;margin:6px 0;font-size:13px;line-height:1.65;word-break:break-word}
+    /* Own messages on the right, received messages on the left. */
+    .chat-me{margin-left:auto;margin-right:0;background:#dcefe4;color:#12351f;border-bottom-right-radius:4px}
+    .chat-them{margin-right:auto;margin-left:0;background:#fff;color:#1f2937;border:1px solid #e5e7eb;border-bottom-left-radius:4px}
     .chat-meta{font-size:9px;opacity:.6;margin-top:2px}
-    .chat-compose{display:flex;gap:7px;margin-top:8px;align-items:center}
-    .chat-compose input{flex:1;margin:0!important;padding:10px 14px!important;border-radius:22px!important;direction:ltr!important;text-align:left!important;font-family:Arial,sans-serif!important;font-size:14px!important;line-height:1.5!important}.chat-compose input::placeholder{direction:ltr;text-align:left}.chat-send{min-width:72px}
-    .chat-send{border:0;background:#0d3b22;color:#fff;border-radius:22px;padding:10px 16px;font-family:inherit;font-weight:bold;cursor:pointer}
+    .chat-compose{display:flex;flex-direction:row;direction:ltr;gap:8px;margin-top:8px;align-items:flex-end}
+    .chat-compose input,.chat-compose textarea{flex:1;min-width:0;box-sizing:border-box;margin:0!important;padding:10px 14px!important;border-radius:22px!important;direction:ltr!important;text-align:left!important;font-family:Arial,sans-serif!important;font-size:15px!important;line-height:1.45!important;border:2px solid #d1d5db;background:#fff;outline:none;resize:none;min-height:48px;max-height:145px;overflow-y:auto}
+    .chat-compose input::placeholder,.chat-compose textarea::placeholder{direction:ltr;text-align:left}
+    .chat-compose textarea:focus{border-color:#0d3b22}
+    .chat-send{min-width:82px;height:48px;border:0;background:#0d3b22;color:#fff;border-radius:24px;padding:10px 16px;font-family:inherit;font-weight:bold;cursor:pointer;flex:0 0 auto}
+
+    /* When a conversation is opened, use the whole screen instead of the narrow page card. */
+    #privateChatView:not(.hidden){position:fixed;inset:0 0 70px 0;z-index:999;background:#fff;padding:10px 8px;box-sizing:border-box;overflow:hidden}
+    #privateChatView:not(.hidden)>.chat-panel{width:100%;height:100%;min-height:0;box-sizing:border-box;margin:0;padding:10px 6px;border-radius:0;border:0;box-shadow:none;display:flex;flex-direction:column}
+    #privateChatView:not(.hidden) .chat-messages{flex:1;height:auto;min-height:0;max-height:none}
+    #privateChatView:not(.hidden) .chat-compose{flex:0 0 auto;padding-bottom:2px}
+    @media (max-width:480px){
+      #privateChatView:not(.hidden){padding:7px 4px}
+      #privateChatView:not(.hidden)>.chat-panel{padding:7px 2px}
+      .chat-bubble{max-width:86%}
+      .chat-send{min-width:78px;padding-left:13px;padding-right:13px}
+    }
     .chat-back{border:0;background:#fef3c7;color:#92400e;border:1px solid #f59e0b;border-radius:9px;padding:6px 10px;font-family:inherit;cursor:pointer}
     .recent-chats-scroll{max-height:330px;overflow-y:auto;padding-right:2px;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
 .chat-history-clear{border:1px solid #fecaca;background:#fef2f2;color:#dc2626;border-radius:8px;padding:5px 8px;font-family:inherit;font-size:10px;font-weight:bold;cursor:pointer}
@@ -411,8 +426,8 @@
 .chat-clear{border:1px solid #fecaca;background:#fef2f2;color:#dc2626;border-radius:9px;padding:6px 9px;font-family:inherit;font-size:10px;font-weight:bold;cursor:pointer}
     .chat-delete{border:1px solid #fecaca;background:#fff1f2;color:#dc2626;border-radius:6px;font-size:10px;padding:3px 6px;margin-right:5px;cursor:pointer;font-family:inherit;font-weight:bold;display:inline-block;opacity:1}.chat-delete:hover{background:#fee2e2}
     .chat-bubble-row{display:flex;align-items:flex-end;gap:4px;max-width:82%;margin:6px 0}
-    .chat-bubble-row.me{margin-right:auto;justify-content:flex-start}
-    .chat-bubble-row.them{margin-left:auto;justify-content:flex-end}
+    .chat-bubble-row.me{margin-left:auto;margin-right:0;justify-content:flex-end}
+    .chat-bubble-row.them{margin-right:auto;margin-left:0;justify-content:flex-start}
     .chat-bubble-row .chat-bubble{margin:0}
     .chat-admin-room{border:1px solid #e5e7eb;border-radius:10px;padding:9px;margin:7px 0;background:#fafafa;cursor:pointer}
     .chat-search-box{display:flex;gap:7px;align-items:center;margin-bottom:10px}
@@ -603,6 +618,142 @@
       font-weight: bold;
       text-align: center;
     }
+  
+    /* ===== FINAL CHAT UI POLISH ===== */
+    #privateChatView:not(.hidden){
+      position:fixed;
+      left:0;right:0;top:0;
+      bottom:70px;
+      width:100%;
+      height:auto;
+      z-index:999;
+      background:#fff;
+      padding:6px 4px;
+      box-sizing:border-box;
+      overflow:hidden;
+    }
+    #privateChatView:not(.hidden)>.chat-panel{
+      width:100%;height:100%;min-height:0;
+      margin:0;padding:7px 3px;
+      box-sizing:border-box;
+      border-radius:14px;
+      display:flex;flex-direction:column;
+      overflow:hidden;
+    }
+    #privateChatView:not(.hidden) .chat-messages{
+      flex:1 1 auto;
+      width:100%;
+      min-height:0;
+      height:auto;max-height:none;
+      overflow-y:auto;
+      overflow-x:hidden;
+      padding:12px 5px;
+      box-sizing:border-box;
+      border-radius:12px;
+      -webkit-overflow-scrolling:touch;
+      overscroll-behavior:contain;
+      scroll-behavior:smooth;
+    }
+    .chat-bubble-row{
+      display:flex;
+      width:100%;
+      max-width:100%;
+      margin-top:6px;margin-bottom:6px;
+      box-sizing:border-box;
+    }
+    .chat-bubble-row.me{
+      margin-left:auto;margin-right:0;
+      justify-content:flex-end;
+    }
+    .chat-bubble-row.them{
+      margin-right:auto;margin-left:0;
+      justify-content:flex-start;
+    }
+    .chat-bubble-row .chat-bubble{
+      width:auto;
+      max-width:min(82%, 520px);
+      box-sizing:border-box;
+      padding:9px 12px;
+      border-radius:16px;
+      line-height:1.55;
+      white-space:pre-wrap;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+    .chat-bubble>div:not(.chat-meta){
+      direction:ltr;
+      text-align:left;
+      white-space:pre-wrap;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+    .chat-compose{
+      display:flex;
+      flex-direction:row;
+      direction:ltr;
+      align-items:flex-end;
+      gap:8px;
+      width:100%;
+      flex:0 0 auto;
+      margin-top:8px;
+      padding:0 2px 2px;
+      box-sizing:border-box;
+    }
+    .chat-compose textarea#chatInput{
+      order:1;
+      flex:1 1 auto;
+      width:auto;
+      min-width:0;
+      min-height:48px;
+      max-height:145px;
+      height:48px;
+      margin:0!important;
+      padding:11px 14px!important;
+      box-sizing:border-box;
+      border:2px solid #d1d5db;
+      border-radius:24px!important;
+      background:#fff;
+      color:#111827;
+      direction:ltr!important;
+      text-align:left!important;
+      font-family:Arial,sans-serif!important;
+      font-size:16px!important;
+      line-height:1.45!important;
+      resize:none;
+      outline:none;
+      overflow-y:hidden;
+    }
+    .chat-compose textarea#chatInput:focus{border-color:#0d3b22;}
+    .chat-compose .chat-send{
+      order:2;
+      flex:0 0 auto;
+      width:88px;
+      min-width:88px;
+      height:48px;
+      margin:0!important;
+      border:0;
+      border-radius:24px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:#0d3b22;
+      color:#fff;
+      font-family:Arial,sans-serif;
+      font-size:16px;
+      font-weight:700;
+      cursor:pointer;
+      -webkit-tap-highlight-color:transparent;
+    }
+    .chat-compose .chat-send:active{transform:scale(.98);}
+    @media(max-width:480px){
+      #privateChatView:not(.hidden){bottom:66px;padding:4px 2px;}
+      #privateChatView:not(.hidden)>.chat-panel{padding:6px 2px;}
+      .chat-bubble-row .chat-bubble{max-width:86%;}
+      .chat-compose{gap:6px;padding-left:1px;padding-right:1px;}
+      .chat-compose textarea#chatInput{font-size:16px!important;padding-left:13px!important;padding-right:13px!important;}
+      .chat-compose .chat-send{width:82px;min-width:82px;font-size:15px;}
+    }
+
   </style>
 </head>
 <body>
@@ -915,8 +1066,8 @@
             </div>
             <div id="chatMessages" class="chat-messages"></div>
             <div class="chat-compose">
-              <input id="chatInput" type="text" maxlength="500" placeholder="Type a message..." autocomplete="off">
-              <button class="chat-send" onclick="sendChatMessage()">Send</button>
+              <textarea id="chatInput" maxlength="500" rows="1" placeholder="Type a message..." autocomplete="off"></textarea>
+              <button type="button" class="chat-send" onclick="sendChatMessage()">Send</button>
             </div>
           </div>
         </div>
@@ -1266,8 +1417,30 @@ function updateChatUnreadBadge(){
   if(!currentUser||!db)return;
   const normalRef=db.ref('chatUnread/'+currentUser.uid),adminRef=db.ref('adminChatUnread/'+currentUser.uid);
   if(chatUnreadListener)normalRef.off('value',chatUnreadListener);
-  chatUnreadListener=s=>{chatUnreadCount=Number(s.val()||0)+Number(window.__adminChatUnread||0);ensureChatBadge();};normalRef.on('value',chatUnreadListener);
-  adminRef.on('value',s=>{window.__adminChatUnread=Number(s.val()||0);normalRef.once('value').then(n=>{chatUnreadCount=Number(n.val()||0)+window.__adminChatUnread;ensureChatBadge();});});
+  chatUnreadListener=s=>{chatUnreadCount=Number(s.val()||0)+Number(window.__adminChatUnread||0);ensureChatBadge();};
+  normalRef.on('value',chatUnreadListener);
+
+  // adminChatUnread is a total counter, so old Broadcast messages that were
+  // created before this fix can remain inside that counter.  Keep a session
+  // baseline: the value that exists when the app opens is treated as old,
+  // while any increase after opening is treated as a genuinely new message.
+  let adminUnreadBaseline=null;
+  adminRef.on('value',s=>{
+    const current=Math.max(0,Number(s.val()||0));
+    if(adminUnreadBaseline===null){
+      adminUnreadBaseline=current;
+      window.__adminChatUnread=0;
+    }else{
+      // If the chat was marked read, reset the baseline so future messages
+      // can immediately produce a badge again.
+      if(current<adminUnreadBaseline)adminUnreadBaseline=current;
+      window.__adminChatUnread=Math.max(0,current-adminUnreadBaseline);
+    }
+    normalRef.once('value').then(n=>{
+      chatUnreadCount=Number(n.val()||0)+Number(window.__adminChatUnread||0);
+      ensureChatBadge();
+    });
+  });
 }
 function markChatRead(uid){
   if(!currentUser||!uid)return;
@@ -1287,15 +1460,27 @@ function startChatNotifications(){
   chatNotificationListener=snap=>{
     if(first){first=false;return;}
     snap.forEach(r=>{
-      let latest=null;r.forEach(m=>{latest={key:m.key,...(m.val()||{})};});
+      let latest=null;r.forEach(m=>{const v=m.val()||{};if(!v.broadcast)latest={key:m.key,...v};});
       if(!latest||latest.sender===currentUser.uid)return;
       const open=activeChatUser&&chatUserKey(currentUser.uid,activeChatUser.uid)===r.key;
       if(!open){const k='chatNotified_'+currentUser.uid+'_'+latest.key;if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,'1');showChatNotification(latest.senderName,latest.text,latest.sender);}
     });
   };
   ref.on('value',chatNotificationListener);
-  const adminRef=db.ref('adminChats/'+currentUser.uid);
-  adminRef.on('value',snap=>{let latest=null;snap.forEach(m=>{latest={key:m.key,...(m.val()||{})};});if(!latest||latest.sender===currentUser.uid)return;const open=activeChatUser&&activeChatUser.adminChat; if(open)return;const k='adminChatNotified_'+currentUser.uid+'_'+latest.key;if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,'1');showChatNotification('Admin',latest.text,'admin_'+currentUser.uid);});
+  const adminRef=db.ref('adminChats/'+currentUser.uid); let adminFirst=true;
+  adminRef.on('value',snap=>{
+    let latest=null;
+    snap.forEach(m=>{latest={key:m.key,...(m.val()||{})};});
+    // Existing Admin/Broadcast messages must not create a notification when the app first opens.
+    if(adminFirst){adminFirst=false;return;}
+    if(!latest||latest.sender===currentUser.uid)return;
+    const open=activeChatUser&&activeChatUser.adminChat;
+    if(open)return;
+    const k='adminChatNotified_'+currentUser.uid+'_'+latest.key;
+    if(sessionStorage.getItem(k))return;
+    sessionStorage.setItem(k,'1');
+    showChatNotification('Admin',latest.text,'admin_'+currentUser.uid);
+  });
 }
 
 function cleanupOldMessages(roomKey){
@@ -1443,7 +1628,7 @@ function sendChatMessage(){
     db.ref('adminChats/'+userUid).push({sender:String(currentUser.uid),senderName:senderName,receiver:receiver,text:text,timestamp:firebase.database.ServerValue.TIMESTAMP}).then(()=>{
       if(isAdminSender) db.ref('adminChatUnread/'+userUid).transaction(v=>Number(v||0)+1).catch(()=>{});
       else db.ref('adminChatUnreadByUser/'+ADMIN_UID+'/'+userUid).transaction(v=>Number(v||0)+1).catch(()=>{});
-      input.value='';input.focus();
+      input.value='';input.style.height='48px';input.style.overflowY='hidden';input.focus();
     }).catch(()=>{});return;
   }
   const room=chatUserKey(currentUser.uid,activeChatUser.uid);db.ref('chats/'+room).push({sender:currentUser.uid,senderName:senderName,receiver:activeChatUser.uid,text:text,timestamp:firebase.database.ServerValue.TIMESTAMP}).then(()=>{const recipient=activeChatUser.uid;db.ref('chatUnreadByUser/'+recipient+'/'+currentUser.uid).transaction(v=>Number(v||0)+1).catch(()=>{});db.ref('chatUnread/'+recipient).transaction(v=>Number(v||0)+1).catch(()=>{});input.value='';input.focus();loadRecentChats();}).catch(()=>{});
@@ -1554,7 +1739,22 @@ function initChatSystem(){
   if(adminPanel)adminPanel.style.display=(currentUser&&currentUser.email===ADMIN_EMAIL)?'block':'none';
   if(currentUser&&currentUser.email===ADMIN_EMAIL){loadAdminChatRooms();loadAdminRecentChats();}
   setInterval(()=>{if(currentUser){loadRecentChats();if(currentUser.email===ADMIN_EMAIL)loadAdminRecentChats();if(activeChatUser){if(activeChatUser.adminChat)cleanupOldAdminMessages(currentUser.email===ADMIN_EMAIL?activeChatUser.uid:currentUser.uid);else cleanupOldMessages(chatUserKey(currentUser.uid,activeChatUser.uid));}}},60000);
-  const inp=document.getElementById('chatInput'); if(inp)inp.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();sendChatMessage();}});
+  const inp=document.getElementById('chatInput');
+  if(inp){
+    const grow=()=>{
+      inp.style.height='auto';
+      inp.style.height=Math.min(inp.scrollHeight,145)+'px';
+      inp.style.overflowY=(inp.scrollHeight>145)?'auto':'hidden';
+    };
+    inp.addEventListener('input',grow);
+    inp.addEventListener('keydown',e=>{
+      if(e.key==='Enter'&&!e.shiftKey){
+        e.preventDefault();
+        sendChatMessage();
+      }
+    });
+    grow();
+  }
   const search=document.getElementById('chatUserSearch'); if(search){search.addEventListener('input',searchChatUsers);search.addEventListener('keydown',e=>{if(e.key==='Escape'){search.value='';const r=document.getElementById('chatSearchResults');if(r)r.innerHTML='';}});}
   const contact=document.getElementById('contactAdminBtn'); if(contact){contact.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();openAdminContact();});}
 }
