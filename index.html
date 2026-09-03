@@ -1187,6 +1187,49 @@ function chatUserKey(a,b){ return [String(a),String(b)].sort().join('_'); }
 function escapeChatHtml(v){ const d=document.createElement('div'); d.textContent=v||''; return d.innerHTML; }
 function chatTime(ts){ try{return new Date(ts).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});}catch(e){return '';} }
 
+let chatUnreadCount=0, chatUnreadListener=null, chatNotificationListener=null, browserNotificationRequested=false;
+function ensureChatBadge(){
+  const nav=document.getElementById('navChat'); if(!nav)return;
+  let b=document.getElementById('chatUnreadBadge');
+  if(!b){b=document.createElement('span');b.id='chatUnreadBadge';b.style.cssText='position:absolute;top:-5px;right:-5px;min-width:18px;height:18px;padding:0 5px;border-radius:10px;background:#ef4444;color:#fff;font-size:10px;font-weight:bold;display:none;align-items:center;justify-content:center;z-index:20';nav.style.position='relative';nav.appendChild(b);}
+  b.textContent=chatUnreadCount>99?'99+':String(chatUnreadCount);b.style.display=chatUnreadCount>0?'flex':'none';
+}
+function requestChatNotificationPermission(){
+  if(browserNotificationRequested)return; browserNotificationRequested=true;
+  if('Notification' in window&&Notification.permission==='default'){try{Notification.requestPermission().catch(()=>{});}catch(e){}}
+}
+function showChatNotification(name,text){
+  if(!('Notification' in window)||Notification.permission!=='granted')return;
+  try{const n=new Notification('💬 Mehfil-e-Darood',{body:(name||'صارف')+': '+(text||'نیا پیغام'),tag:'darood-chat',renotify:true});n.onclick=()=>{try{window.focus();}catch(e){};n.close();};}catch(e){}
+}
+function updateChatUnreadBadge(){
+  if(!currentUser||!db)return;
+  const ref=db.ref('chatUnread/'+currentUser.uid);
+  if(chatUnreadListener)ref.off('value',chatUnreadListener);
+  chatUnreadListener=s=>{chatUnreadCount=Number(s.val()||0);ensureChatBadge();};
+  ref.on('value',chatUnreadListener);
+}
+function markChatRead(uid){
+  if(!currentUser||!uid)return;
+  db.ref('chatUnreadByUser/'+currentUser.uid+'/'+uid).set(0).catch(()=>{});
+  db.ref('chatUnread/'+currentUser.uid).transaction(v=>Math.max(0,Number(v||0)-1)).catch(()=>{});
+}
+function startChatNotifications(){
+  if(!currentUser||!db||chatNotificationListener)return;
+  requestChatNotificationPermission();
+  const ref=db.ref('chats'); let first=true;
+  chatNotificationListener=snap=>{
+    if(first){first=false;return;}
+    snap.forEach(r=>{
+      let latest=null;r.forEach(m=>{latest={key:m.key,...(m.val()||{})};});
+      if(!latest||latest.sender===currentUser.uid)return;
+      const open=activeChatUser&&chatUserKey(currentUser.uid,activeChatUser.uid)===r.key;
+      if(!open){const k='chatNotified_'+currentUser.uid+'_'+latest.key;if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,'1');showChatNotification(latest.senderName,latest.text);}
+    });
+  };
+  ref.on('value',chatNotificationListener);
+}
+
 function cleanupOldMessages(roomKey){
   const cutoff = Date.now() - CHAT_EXPIRY_MS;
   db.ref('chats/'+roomKey).once('value').then(s=>{
@@ -1250,7 +1293,17 @@ function sendChatMessage(){
   const input=document.getElementById('chatInput'); const text=(input.value||'').trim();
   if(!currentUser||!activeChatUser||!text)return;
   const room=chatUserKey(currentUser.uid,activeChatUser.uid);
-  db.ref('chats/'+room).push({sender:currentUser.uid,senderName:currentUser.displayName||currentUser.email||'صارف',receiver:activeChatUser.uid,text:text,timestamp:firebase.database.ServerValue.TIMESTAMP}).then(()=>{input.value='';input.focus();}).catch(()=>{});
+  db.ref('chats/'+room).push({
+    sender:currentUser.uid,
+    senderName:currentUser.displayName||currentUser.email||'صارف',
+    receiver:activeChatUser.uid,text:text,
+    timestamp:firebase.database.ServerValue.TIMESTAMP
+  }).then(()=>{
+    const recipient=activeChatUser.uid;
+    db.ref('chatUnreadByUser/'+recipient+'/'+currentUser.uid).transaction(v=>Number(v||0)+1).catch(()=>{});
+    db.ref('chatUnread/'+recipient).transaction(v=>Number(v||0)+1).catch(()=>{});
+    input.value='';input.focus();
+  }).catch(()=>{});
 }
 function loadAdminChatRooms(){
   const panel=document.getElementById('adminChatPanel'),box=document.getElementById('adminChatRooms');
@@ -1267,15 +1320,57 @@ function loadAdminChatRooms(){
   });
 }
 function openAdminRoom(room){
-  document.getElementById('chatListView').classList.add('hidden'); document.getElementById('privateChatView').classList.remove('hidden');
-  document.getElementById('chatWithName').innerText='👑 Admin Chat View'; document.getElementById('chatWithStatus').innerText='تمام پیغامات (24 گھنٹے)';
+  document.getElementById('chatListView').classList.add('hidden');
+  document.getElementById('privateChatView').classList.remove('hidden');
+  document.getElementById('chatWithName').innerText='👑 Admin — User Chat';
+  document.getElementById('chatWithStatus').innerText='جواب دیں';
   if(activeChatListener)activeChatListener();
+
   const ref=db.ref('chats/'+room).orderByChild('timestamp');
-  const handler=s=>{const box=document.getElementById('chatMessages');const arr=[];s.forEach(m=>{const v=m.val()||{};if(Number(v.timestamp||0)>=Date.now()-CHAT_EXPIRY_MS)arr.push(v);});box.innerHTML=arr.map(m=>`<div class="chat-bubble chat-them"><b>${escapeChatHtml(m.senderName||'صارف')}</b><div>${escapeChatHtml(m.text)}</div><div class="chat-meta">${chatTime(m.timestamp)}</div></div>`).join('')||'<div style="text-align:center;padding:30px;font-size:12px;">کوئی پیغام نہیں۔</div>';box.scrollTop=box.scrollHeight;};
-  ref.on('value',handler);activeChatListener=()=>ref.off('value',handler);
+
+  const handler=s=>{
+    const box=document.getElementById('chatMessages');
+    const arr=[];
+    let otherUid=null;
+    let otherName='صارف';
+
+    s.forEach(m=>{
+      const v=m.val()||{};
+      if(Number(v.timestamp||0)>=Date.now()-CHAT_EXPIRY_MS){
+        arr.push(v);
+        if(currentUser){
+          if(v.sender && v.sender!==currentUser.uid){
+            otherUid=v.sender;
+            otherName=v.senderName||otherName;
+          }else if(v.receiver && v.receiver!==currentUser.uid){
+            otherUid=v.receiver;
+          }
+        }
+      }
+    });
+
+    // IMPORTANT: set the user for the reply box.
+    // Previously admin room view did not set activeChatUser, so sendChatMessage()
+    // returned immediately and the admin could read messages but not reply.
+    if(otherUid){
+      activeChatUser={uid:otherUid,name:otherName||'صارف'};
+      markChatRead(otherUid);
+      document.getElementById('chatWithName').innerText='💬 '+activeChatUser.name;
+      document.getElementById('chatWithStatus').innerText='Admin Reply';
+    }
+
+    box.innerHTML=arr.map(m=>`<div class="chat-bubble ${currentUser&&m.sender===currentUser.uid?'chat-me':'chat-them'}"><b>${escapeChatHtml(m.senderName||'صارف')}</b><div>${escapeChatHtml(m.text||'')}</div><div class="chat-meta">${chatTime(m.timestamp)}</div></div>`).join('')||'<div style="text-align:center;padding:30px;font-size:12px;">کوئی پیغام نہیں۔</div>';
+    box.scrollTop=box.scrollHeight;
+  };
+
+  ref.on('value',handler);
+  activeChatListener=()=>ref.off('value',handler);
 }
 function initChatSystem(){
   loadOnlineUsers();
+  updateChatUnreadBadge();
+  startChatNotifications();
+  requestChatNotificationPermission();
   if(currentUser&&currentUser.email===ADMIN_EMAIL)loadAdminChatRooms();
   setInterval(()=>{ if(currentUser){loadOnlineUsers(); if(activeChatUser)cleanupOldMessages(chatUserKey(currentUser.uid,activeChatUser.uid));} },60000);
   const inp=document.getElementById('chatInput'); if(inp)inp.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();sendChatMessage();}});
