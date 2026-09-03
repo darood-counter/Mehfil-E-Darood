@@ -895,7 +895,10 @@
             <div id="adminBroadcastStatus" style="font-size:11px;margin-top:7px;color:var(--text-muted);"></div>
           </div>
           <div class="chat-panel" id="adminChatPanel" style="background:#fffbeb;border-color:#fef08a;display:none;">
-            <div style="font-size:13px;font-weight:bold;color:#d97706;margin-bottom:9px;">👑 Admin — تمام چیٹس</div>
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:9px;">
+              <div style="font-size:13px;font-weight:bold;color:#d97706;">👑 Admin — تمام چیٹس</div>
+              <button type="button" class="chat-history-clear" onclick="clearAllAdminChats()">🗑️ تمام ہسٹری صاف</button>
+            </div>
             <div id="adminChatRooms" class="admin-chat-scroll"><div style="font-size:12px;color:var(--text-muted);">لوڈ ہو رہا ہے...</div></div>
           </div>
         </div>
@@ -1485,6 +1488,29 @@ function clearChatHistory(){
     if(!Object.keys(updates).length){alert('چیٹ ہسٹری پہلے ہی خالی ہے۔');return;}
     return db.ref('chats').update(updates).then(()=>Promise.all([db.ref('chatUnread/'+currentUser.uid).set(0),db.ref('chatUnreadByUser/'+currentUser.uid).remove()])).then(()=>{loadRecentChats();alert('چیٹ ہسٹری صاف کر دی گئی ہے۔');});
   }).catch(()=>alert('چیٹ ہسٹری صاف نہیں ہو سکی۔'));
+}
+
+function clearAllAdminChats(){
+  if(!currentUser || currentUser.email!==ADMIN_EMAIL)return;
+  if(!confirm('تمام صارفین کی Admin کے ساتھ چیٹ ہسٹری حذف ہو جائے گی اور سب کے اکاؤنٹس سے پیغامات ختم ہو جائیں گے۔ کیا آپ واقعی تمام ہسٹری صاف کرنا چاہتے ہیں؟'))return;
+  Promise.all([db.ref('chats').once('value'),db.ref('users').once('value')]).then(([chatSnap,userSnap])=>{
+    const updates={};
+    chatSnap.forEach(room=>{ updates['chats/'+room.key]=null; });
+    userSnap.forEach(u=>{
+      updates['chatUnread/'+u.key]=0;
+      updates['chatUnreadByUser/'+u.key]=null;
+    });
+    if(!Object.keys(updates).length){alert('چیٹ ہسٹری پہلے ہی خالی ہے۔');return;}
+    return db.ref().update(updates).then(()=>{
+      loadRecentChats();
+      loadAdminChatRooms();
+      if(activeChatListener){activeChatListener();activeChatListener=null;}
+      activeChatUser=null;
+      document.getElementById('privateChatView').classList.add('hidden');
+      document.getElementById('chatListView').classList.remove('hidden');
+      alert('تمام صارفین کی چیٹ ہسٹری صاف کر دی گئی ہے۔');
+    });
+  }).catch(()=>alert('تمام چیٹ ہسٹری صاف نہیں ہو سکی۔'));
 }
 
 function clearCurrentChat(){
