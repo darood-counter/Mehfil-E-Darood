@@ -1605,42 +1605,31 @@ function openAdminRoom(room){
     s.forEach(m=>{
       const v=m.val()||{};
       if(Number(v.timestamp||0)>=Date.now()-CHAT_EXPIRY_MS){
-        arr.push({key:m.key,...v});
+        arr.push(v);
         if(currentUser){
           if(v.sender && v.sender!==currentUser.uid){
-            otherUid=String(v.sender);
-            if(v.senderName && v.senderName!=='Admin') otherName=v.senderName;
+            otherUid=v.sender;
+            otherName=v.senderName||otherName;
           }else if(v.receiver && v.receiver!==currentUser.uid){
-            otherUid=String(v.receiver);
+            otherUid=v.receiver;
           }
         }
       }
     });
 
-    // Admin کو ہمیشہ سامنے والے User کا اصل نام دکھائیں۔
-    const finish=(name)=>{
-      activeChatUser={uid:otherUid,name:name||otherName||'صارف',isAdmin:false};
+    // IMPORTANT: set the user for the reply box.
+    // Previously admin room view did not set activeChatUser, so sendChatMessage()
+    // returned immediately and the admin could read messages but not reply.
+    if(otherUid){
+      activeChatUser={uid:otherUid,name:otherName||'صارف'};
       markChatRead(otherUid);
       document.getElementById('chatWithName').innerText='💬 '+activeChatUser.name;
-      document.getElementById('chatWithStatus').innerText='جواب دیں';
-
-      box.innerHTML=arr.map(m=>{
-        const mine=currentUser&&m.sender===currentUser.uid;
-        const displayName=mine?'Admin':(m.senderName&&m.senderName!=='Admin'?m.senderName:activeChatUser.name);
-        return `<div class="chat-bubble-row ${mine?'me':'them'} chat-longpress" data-message-key="${escapeChatHtml(m.key)}" data-admin-room="${escapeChatHtml(room)}"><div class="chat-bubble ${mine?'chat-me':'chat-them'}"><b>${escapeChatHtml(displayName)}</b><div>${escapeChatHtml(m.text||'')}</div><div class="chat-meta">${chatTime(m.timestamp)}</div></div></div>`;
-      }).join('')||'<div style="text-align:center;padding:30px;font-size:12px;">کوئی پیغام نہیں۔</div>';
-      box.scrollTop=box.scrollHeight;
-      attachChatLongPress();
-    };
-
-    if(otherUid){
-      db.ref('users/'+otherUid).once('value').then(us=>{
-        const u=us.val()||{};
-        finish(u.name||u.displayName||otherName||'صارف');
-      }).catch(()=>finish(otherName));
-    }else{
-      box.innerHTML='<div style="text-align:center;padding:30px;font-size:12px;">کوئی پیغام نہیں۔</div>';
+      document.getElementById('chatWithStatus').innerText='Admin Reply';
     }
+
+    box.innerHTML=arr.map(m=>`<div class="chat-bubble-row ${currentUser&&m.sender===currentUser.uid?'me':'them'} chat-longpress" data-message-key="${escapeChatHtml(m.key)}" data-admin-room="${escapeChatHtml(room)}"><div class="chat-bubble ${currentUser&&m.sender===currentUser.uid?'chat-me':'chat-them'}"><b>${escapeChatHtml(m.senderName||'صارف')}</b><div>${escapeChatHtml(m.text||'')}</div><div class="chat-meta">${chatTime(m.timestamp)}</div></div></div>`).join('')||'<div style="text-align:center;padding:30px;font-size:12px;">کوئی پیغام نہیں۔</div>';
+    box.scrollTop=box.scrollHeight;
+    attachChatLongPress();
   };
 
   ref.on('value',handler);
