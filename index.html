@@ -1371,7 +1371,10 @@ function loadRecentChats(){
         if(v.sender===currentUser.uid && v.receiver) otherUid=String(v.receiver);
         else if(v.receiver===currentUser.uid && v.sender) otherUid=String(v.sender);
         if(v.sender!==currentUser.uid && v.senderName) otherName=v.senderName;
-        if(v.timestamp) last={key:m.key,...v};
+        // Admin broadcast messages belong to the Admin contact, but they must
+        // not create/update the user's Recent Chats entry. Keep the latest
+        // normal/direct message as the recent-chat preview instead.
+        if(v.timestamp && !v.broadcast) last={key:m.key,...v};
       });
       if(last && otherUid){
         otherName=(users[otherUid]&&users[otherUid].name)||otherName||'صارف';
@@ -1569,7 +1572,7 @@ function sendAdminBroadcast(){
     snap.forEach(u=>{
       if(u.key===currentUser.uid)return;
       const room=chatUserKey(currentUser.uid,u.key);
-      const msg={sender:currentUser.uid,senderName:'Admin',receiver:u.key,text:text,timestamp:firebase.database.ServerValue.TIMESTAMP};
+      const msg={sender:currentUser.uid,senderName:'Admin',receiver:u.key,text:text,broadcast:true,timestamp:firebase.database.ServerValue.TIMESTAMP};
       jobs.push(db.ref('chats/'+room).push(msg).then(()=>
         Promise.all([
           db.ref('chatUnreadByUser/'+u.key+'/'+currentUser.uid).transaction(v=>Number(v||0)+1),
@@ -1605,31 +1608,42 @@ function openAdminRoom(room){
     s.forEach(m=>{
       const v=m.val()||{};
       if(Number(v.timestamp||0)>=Date.now()-CHAT_EXPIRY_MS){
-        arr.push(v);
+        arr.push({key:m.key,...v});
         if(currentUser){
           if(v.sender && v.sender!==currentUser.uid){
-            otherUid=v.sender;
-            otherName=v.senderName||otherName;
+            otherUid=String(v.sender);
+            if(v.senderName && v.senderName!=='Admin') otherName=v.senderName;
           }else if(v.receiver && v.receiver!==currentUser.uid){
-            otherUid=v.receiver;
+            otherUid=String(v.receiver);
           }
         }
       }
     });
 
-    // IMPORTANT: set the user for the reply box.
-    // Previously admin room view did not set activeChatUser, so sendChatMessage()
-    // returned immediately and the admin could read messages but not reply.
-    if(otherUid){
-      activeChatUser={uid:otherUid,name:otherName||'صارف'};
+    // Admin کو ہمیشہ سامنے والے User کا اصل نام دکھائیں۔
+    const finish=(name)=>{
+      activeChatUser={uid:otherUid,name:name||otherName||'صارف',isAdmin:false};
       markChatRead(otherUid);
       document.getElementById('chatWithName').innerText='💬 '+activeChatUser.name;
-      document.getElementById('chatWithStatus').innerText='Admin Reply';
-    }
+      document.getElementById('chatWithStatus').innerText='جواب دیں';
 
-    box.innerHTML=arr.map(m=>`<div class="chat-bubble-row ${currentUser&&m.sender===currentUser.uid?'me':'them'} chat-longpress" data-message-key="${escapeChatHtml(m.key)}" data-admin-room="${escapeChatHtml(room)}"><div class="chat-bubble ${currentUser&&m.sender===currentUser.uid?'chat-me':'chat-them'}"><b>${escapeChatHtml(m.senderName||'صارف')}</b><div>${escapeChatHtml(m.text||'')}</div><div class="chat-meta">${chatTime(m.timestamp)}</div></div></div>`).join('')||'<div style="text-align:center;padding:30px;font-size:12px;">کوئی پیغام نہیں۔</div>';
-    box.scrollTop=box.scrollHeight;
-    attachChatLongPress();
+      box.innerHTML=arr.map(m=>{
+        const mine=currentUser&&m.sender===currentUser.uid;
+        const displayName=mine?'Admin':(m.senderName&&m.senderName!=='Admin'?m.senderName:activeChatUser.name);
+        return `<div class="chat-bubble-row ${mine?'me':'them'} chat-longpress" data-message-key="${escapeChatHtml(m.key)}" data-admin-room="${escapeChatHtml(room)}"><div class="chat-bubble ${mine?'chat-me':'chat-them'}"><b>${escapeChatHtml(displayName)}</b><div>${escapeChatHtml(m.text||'')}</div><div class="chat-meta">${chatTime(m.timestamp)}</div></div></div>`;
+      }).join('')||'<div style="text-align:center;padding:30px;font-size:12px;">کوئی پیغام نہیں۔</div>';
+      box.scrollTop=box.scrollHeight;
+      attachChatLongPress();
+    };
+
+    if(otherUid){
+      db.ref('users/'+otherUid).once('value').then(us=>{
+        const u=us.val()||{};
+        finish(u.name||u.displayName||otherName||'صارف');
+      }).catch(()=>finish(otherName));
+    }else{
+      box.innerHTML='<div style="text-align:center;padding:30px;font-size:12px;">کوئی پیغام نہیں۔</div>';
+    }
   };
 
   ref.on('value',handler);
