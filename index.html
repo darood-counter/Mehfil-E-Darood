@@ -852,6 +852,9 @@
         <h2 style="font-size:20px;color:var(--primary-color);margin:10px 0;">💬 پیغامات</h2>
         <div id="chatListView">
           <div class="chat-panel">
+            <div style="font-size:13px;font-weight:bold;color:var(--primary-color);margin-bottom:9px;">💬 حالیہ چیٹس</div>
+            <div id="recentChatsList"><div style="font-size:12px;color:var(--text-muted);padding:10px;">لوڈ ہو رہا ہے...</div></div>
+            <div style="height:1px;background:#e5e7eb;margin:12px 0;"></div>
             <div style="font-size:13px;font-weight:bold;color:var(--primary-color);margin-bottom:9px;">🟢 ابھی آن لائن صارفین</div>
             <div id="onlineUsersList"><div style="font-size:12px;color:var(--text-muted);padding:10px;">لوڈ ہو رہا ہے...</div></div>
           </div>
@@ -1257,29 +1260,73 @@ function cleanupOldMessages(roomKey){
   }).catch(()=>{});
 }
 
+function loadRecentChats(){
+  const box=document.getElementById('recentChatsList'); if(!box)return;
+  if(!currentUser){box.innerHTML='<div style="padding:10px;font-size:12px;">لاگ اِن کریں۔</div>';return;}
+  Promise.all([
+    db.ref('chats').once('value'),
+    db.ref('users').once('value'),
+    db.ref('status').once('value'),
+    db.ref('chatUnreadByUser/'+currentUser.uid).once('value')
+  ]).then(([cs,us,ss,ur])=>{
+    const users=us.val()||{};
+    const online=ss.val()||{};
+    const unread=ur.val()||{};
+    const chats=[];
+    cs.forEach(roomSnap=>{
+      let last=null, otherUid=null, otherName='صارف';
+      roomSnap.forEach(m=>{
+        const v=m.val()||{};
+        if(v.sender===currentUser.uid && v.receiver) otherUid=String(v.receiver);
+        else if(v.receiver===currentUser.uid && v.sender) otherUid=String(v.sender);
+        if(v.sender!==currentUser.uid && v.senderName) otherName=v.senderName;
+        if(v.timestamp) last={key:m.key,...v};
+      });
+      if(last && otherUid){
+        otherName=(users[otherUid]&&users[otherUid].name)||otherName||'صارف';
+        chats.push({uid:otherUid,name:otherName,last,unread:Number(unread[otherUid]||0),isOnline:!!online[otherUid]});
+      }
+    });
+    chats.sort((a,b)=>Number(b.last.timestamp||0)-Number(a.last.timestamp||0));
+    if(!chats.length){
+      box.innerHTML='<div style="padding:10px;font-size:12px;color:var(--text-muted);">ابھی کوئی حالیہ چیٹ نہیں۔</div>';
+      return;
+    }
+    box.innerHTML=chats.map(c=>{
+      const preview=String(c.last.text||'').slice(0,55);
+      const badge=c.unread>0?`<span style="min-width:20px;height:20px;padding:0 6px;border-radius:10px;background:#ef4444;color:#fff;font-size:10px;font-weight:bold;display:inline-flex;align-items:center;justify-content:center;">${c.unread>99?'99+':c.unread}</span>`:'';
+      const dot=c.isOnline?'<span class="online-dot"></span>':'<span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#9ca3af;margin-left:4px;"></span>';
+      const status=c.isOnline?'آن لائن':'آف لائن';
+      return `<button type="button" class="online-user" data-chat-uid="${escapeChatHtml(c.uid)}" style="width:100%;font-family:inherit;text-align:right;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;"><span style="min-width:0;text-align:right;flex:1;"><span>${dot}</span> <b>${escapeChatHtml(c.name)}</b><div style="font-size:10px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:3px;">${escapeChatHtml(preview)} · ${status}</div></span><span style="display:flex;align-items:center;gap:5px;flex-shrink:0;">${badge}<span style="font-size:11px;color:#0d3b22;">چیٹ 💬</span></span></button>`;
+    }).join('');
+    box.querySelectorAll('[data-chat-uid]').forEach(el=>{
+      const open=()=>{
+        const uid=el.getAttribute('data-chat-uid');
+        const name=el.querySelector('b') ? el.querySelector('b').textContent : 'صارف';
+        openPrivateChat(uid,name);
+      };
+      el.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();open();});
+      el.addEventListener('touchend',e=>{e.preventDefault();e.stopPropagation();open();},{passive:false});
+    });
+  }).catch(()=>{box.innerHTML='<div style="padding:10px;font-size:12px;color:#ef4444;">حالیہ چیٹس لوڈ نہیں ہو سکیں۔</div>';});
+}
+
 function loadOnlineUsers(){
   const box=document.getElementById('onlineUsersList'); if(!box) return;
   if(!currentUser){box.innerHTML='<div style="padding:10px;font-size:12px;">لاگ اِن کریں۔</div>';return;}
   Promise.all([db.ref('status').once('value'), db.ref('users').once('value')]).then(([ss,us])=>{
     const online=[]; const users=us.val()||{};
-    ss.forEach(x=>{ if(x.key!==currentUser.uid) online.push({uid:x.key,name:(users[x.key]&&users[x.key].name)||'صارف'}); });
+    ss.forEach(x=>{ if(x.key!==currentUser.uid && x.exists() && x.val()!==false) online.push({uid:x.key,name:(users[x.key]&&users[x.key].name)||'صارف'}); });
     if(!online.length){box.innerHTML='<div style="padding:10px;font-size:12px;color:var(--text-muted);">اس وقت کوئی دوسرا صارف آن لائن نہیں۔</div>';return;}
     box.innerHTML=online.map(u=>`<button type="button" class="online-user" data-chat-uid="${escapeChatHtml(u.uid)}" style="width:100%;font-family:inherit;text-align:right;cursor:pointer;display:flex;"><span><span class="online-dot"></span> <b>${escapeChatHtml(u.name)}</b></span><span style="font-size:11px;color:#0d3b22;">چیٹ 💬</span></button>`).join('');
     box.querySelectorAll('.online-user[data-chat-uid]').forEach(el=>{
-      el.addEventListener('click',function(e){
-        e.preventDefault();
-        e.stopPropagation();
-        const uid=this.getAttribute('data-chat-uid');
-        const name=this.querySelector('b') ? this.querySelector('b').textContent : 'صارف';
+      const open=()=>{
+        const uid=el.getAttribute('data-chat-uid');
+        const name=el.querySelector('b') ? el.querySelector('b').textContent : 'صارف';
         openPrivateChat(uid,name);
-      });
-      el.addEventListener('touchend',function(e){
-        e.preventDefault();
-        e.stopPropagation();
-        const uid=this.getAttribute('data-chat-uid');
-        const name=this.querySelector('b') ? this.querySelector('b').textContent : 'صارف';
-        openPrivateChat(uid,name);
-      },{passive:false});
+      };
+      el.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();open();});
+      el.addEventListener('touchend',e=>{e.preventDefault();e.stopPropagation();open();},{passive:false});
     });
   }).catch(()=>{box.innerHTML='<div style="padding:10px;font-size:12px;color:#ef4444;">آن لائن صارفین لوڈ نہیں ہو سکے۔</div>';});
 }
@@ -1293,7 +1340,10 @@ function openPrivateChat(uid,name){
   listView.classList.add('hidden');
   privateView.classList.remove('hidden');
   document.getElementById('chatWithName').innerText=activeChatUser.name;
-  document.getElementById('chatWithStatus').innerText='آن لائن';
+  document.getElementById('chatWithStatus').innerText='لوڈ ہو رہا ہے...';
+  markChatRead(uid);
+  db.ref('status/'+uid).once('value').then(st=>{ const el=document.getElementById('chatWithStatus'); if(el) el.innerText=st.exists()&&st.val()!==false?'آن لائن':'آف لائن'; }).catch(()=>{});
+  loadRecentChats();
   const room=chatUserKey(currentUser.uid,uid);
   cleanupOldMessages(room);
   if(activeChatListener) activeChatListener();
@@ -1306,7 +1356,7 @@ function openPrivateChat(uid,name){
   };
   ref.on('value',handler); activeChatListener=()=>ref.off('value',handler);
 }
-function closePrivateChat(){ if(activeChatListener){activeChatListener();activeChatListener=null;} activeChatUser=null; document.getElementById('privateChatView').classList.add('hidden'); document.getElementById('chatListView').classList.remove('hidden'); loadOnlineUsers(); }
+function closePrivateChat(){ if(activeChatListener){activeChatListener();activeChatListener=null;} activeChatUser=null; document.getElementById('privateChatView').classList.add('hidden'); document.getElementById('chatListView').classList.remove('hidden'); loadRecentChats(); loadOnlineUsers(); }
 function sendChatMessage(){
   const input=document.getElementById('chatInput'); const text=(input.value||'').trim();
   if(!currentUser||!activeChatUser||!text)return;
@@ -1321,6 +1371,7 @@ function sendChatMessage(){
     db.ref('chatUnreadByUser/'+recipient+'/'+currentUser.uid).transaction(v=>Number(v||0)+1).catch(()=>{});
     db.ref('chatUnread/'+recipient).transaction(v=>Number(v||0)+1).catch(()=>{});
     input.value='';input.focus();
+    loadRecentChats();
   }).catch(()=>{});
 }
 function loadAdminChatRooms(){
@@ -1385,12 +1436,13 @@ function openAdminRoom(room){
   activeChatListener=()=>ref.off('value',handler);
 }
 function initChatSystem(){
+  loadRecentChats();
   loadOnlineUsers();
   updateChatUnreadBadge();
   startChatNotifications();
   requestChatNotificationPermission();
   if(currentUser&&currentUser.email===ADMIN_EMAIL)loadAdminChatRooms();
-  setInterval(()=>{ if(currentUser){loadOnlineUsers(); if(activeChatUser)cleanupOldMessages(chatUserKey(currentUser.uid,activeChatUser.uid));} },60000);
+  setInterval(()=>{ if(currentUser){loadRecentChats(); loadOnlineUsers(); if(activeChatUser)cleanupOldMessages(chatUserKey(currentUser.uid,activeChatUser.uid));} },60000);
   const inp=document.getElementById('chatInput'); if(inp)inp.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();sendChatMessage();}});
 }
 /* ================= END CHAT SYSTEM ================= */
@@ -1423,6 +1475,7 @@ function switchBottomTab(tabName) {
       } else if (tabName === 'chat') {
         document.getElementById("chatTab").classList.remove("hidden");
         document.getElementById("navChat").classList.add("active");
+        loadRecentChats();
         loadOnlineUsers();
         if(currentUser && currentUser.email === ADMIN_EMAIL) loadAdminChatRooms();
       } else if (tabName === 'reward') {
