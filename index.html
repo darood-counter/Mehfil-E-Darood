@@ -1266,30 +1266,8 @@ function updateChatUnreadBadge(){
   if(!currentUser||!db)return;
   const normalRef=db.ref('chatUnread/'+currentUser.uid),adminRef=db.ref('adminChatUnread/'+currentUser.uid);
   if(chatUnreadListener)normalRef.off('value',chatUnreadListener);
-  chatUnreadListener=s=>{chatUnreadCount=Number(s.val()||0)+Number(window.__adminChatUnread||0);ensureChatBadge();};
-  normalRef.on('value',chatUnreadListener);
-
-  // adminChatUnread is a total counter, so old Broadcast messages that were
-  // created before this fix can remain inside that counter.  Keep a session
-  // baseline: the value that exists when the app opens is treated as old,
-  // while any increase after opening is treated as a genuinely new message.
-  let adminUnreadBaseline=null;
-  adminRef.on('value',s=>{
-    const current=Math.max(0,Number(s.val()||0));
-    if(adminUnreadBaseline===null){
-      adminUnreadBaseline=current;
-      window.__adminChatUnread=0;
-    }else{
-      // If the chat was marked read, reset the baseline so future messages
-      // can immediately produce a badge again.
-      if(current<adminUnreadBaseline)adminUnreadBaseline=current;
-      window.__adminChatUnread=Math.max(0,current-adminUnreadBaseline);
-    }
-    normalRef.once('value').then(n=>{
-      chatUnreadCount=Number(n.val()||0)+Number(window.__adminChatUnread||0);
-      ensureChatBadge();
-    });
-  });
+  chatUnreadListener=s=>{chatUnreadCount=Number(s.val()||0)+Number(window.__adminChatUnread||0);ensureChatBadge();};normalRef.on('value',chatUnreadListener);
+  adminRef.on('value',s=>{window.__adminChatUnread=Number(s.val()||0);normalRef.once('value').then(n=>{chatUnreadCount=Number(n.val()||0)+window.__adminChatUnread;ensureChatBadge();});});
 }
 function markChatRead(uid){
   if(!currentUser||!uid)return;
@@ -1309,27 +1287,15 @@ function startChatNotifications(){
   chatNotificationListener=snap=>{
     if(first){first=false;return;}
     snap.forEach(r=>{
-      let latest=null;r.forEach(m=>{const v=m.val()||{};if(!v.broadcast)latest={key:m.key,...v};});
+      let latest=null;r.forEach(m=>{latest={key:m.key,...(m.val()||{})};});
       if(!latest||latest.sender===currentUser.uid)return;
       const open=activeChatUser&&chatUserKey(currentUser.uid,activeChatUser.uid)===r.key;
       if(!open){const k='chatNotified_'+currentUser.uid+'_'+latest.key;if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,'1');showChatNotification(latest.senderName,latest.text,latest.sender);}
     });
   };
   ref.on('value',chatNotificationListener);
-  const adminRef=db.ref('adminChats/'+currentUser.uid); let adminFirst=true;
-  adminRef.on('value',snap=>{
-    let latest=null;
-    snap.forEach(m=>{latest={key:m.key,...(m.val()||{})};});
-    // Existing Admin/Broadcast messages must not create a notification when the app first opens.
-    if(adminFirst){adminFirst=false;return;}
-    if(!latest||latest.sender===currentUser.uid)return;
-    const open=activeChatUser&&activeChatUser.adminChat;
-    if(open)return;
-    const k='adminChatNotified_'+currentUser.uid+'_'+latest.key;
-    if(sessionStorage.getItem(k))return;
-    sessionStorage.setItem(k,'1');
-    showChatNotification('Admin',latest.text,'admin_'+currentUser.uid);
-  });
+  const adminRef=db.ref('adminChats/'+currentUser.uid);
+  adminRef.on('value',snap=>{let latest=null;snap.forEach(m=>{latest={key:m.key,...(m.val()||{})};});if(!latest||latest.sender===currentUser.uid)return;const open=activeChatUser&&activeChatUser.adminChat; if(open)return;const k='adminChatNotified_'+currentUser.uid+'_'+latest.key;if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,'1');showChatNotification('Admin',latest.text,'admin_'+currentUser.uid);});
 }
 
 function cleanupOldMessages(roomKey){
