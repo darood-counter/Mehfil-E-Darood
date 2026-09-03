@@ -2566,13 +2566,13 @@ function switchBottomTab(tabName) {
       // Verification words are based on the complete Darood supplied by the user.
       // They are checked only AFTER the full 30-second listening window.
       const requiredWords = [
-        "اللهم", "بارکت", "مجید"
+        "اللهم", "بارکت", "ابراہیم"
       ];
 
       const aliases = {
         "اللهم": ["اللهم"],
         "بارکت": ["بارکت", "بارکتا", "بارکتااا", "باركت", "باركتا", "باركتااا"],
-        "مجید": ["مجید", "مجيد"]
+        "ابراہیم": ["ابراہیم", "ابراهيم", "إبراهيم", "ابراھیم", "Ibrahim", "Ibraahim", "Ibrahimaaa", "Ibraahimaaa"]
       };
 
       const isWordMatch = (spoken, required) => {
@@ -2683,7 +2683,7 @@ function switchBottomTab(tabName) {
           if (bestTranscript) {
             const elapsed = Math.min(30, Math.floor((Date.now() - startedAt) / 1000));
             statusEl.style.color = "#0d3b22";
-            statusEl.innerText = `سن رہا ہے... ${elapsed} سیکنڈ 🎙️`;
+            statusEl.innerText = `سن رہا ہے... ${elapsed}/30 سیکنڈ 🎙️`;
           }
         }
       };
