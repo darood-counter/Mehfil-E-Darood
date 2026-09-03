@@ -1266,8 +1266,30 @@ function updateChatUnreadBadge(){
   if(!currentUser||!db)return;
   const normalRef=db.ref('chatUnread/'+currentUser.uid),adminRef=db.ref('adminChatUnread/'+currentUser.uid);
   if(chatUnreadListener)normalRef.off('value',chatUnreadListener);
-  chatUnreadListener=s=>{chatUnreadCount=Number(s.val()||0)+Number(window.__adminChatUnread||0);ensureChatBadge();};normalRef.on('value',chatUnreadListener);
-  adminRef.on('value',s=>{window.__adminChatUnread=Number(s.val()||0);normalRef.once('value').then(n=>{chatUnreadCount=Number(n.val()||0)+window.__adminChatUnread;ensureChatBadge();});});
+  chatUnreadListener=s=>{chatUnreadCount=Number(s.val()||0)+Number(window.__adminChatUnread||0);ensureChatBadge();};
+  normalRef.on('value',chatUnreadListener);
+
+  // adminChatUnread is a total counter, so old Broadcast messages that were
+  // created before this fix can remain inside that counter.  Keep a session
+  // baseline: the value that exists when the app opens is treated as old,
+  // while any increase after opening is treated as a genuinely new message.
+  let adminUnreadBaseline=null;
+  adminRef.on('value',s=>{
+    const current=Math.max(0,Number(s.val()||0));
+    if(adminUnreadBaseline===null){
+      adminUnreadBaseline=current;
+      window.__adminChatUnread=0;
+    }else{
+      // If the chat was marked read, reset the baseline so future messages
+      // can immediately produce a badge again.
+      if(current<adminUnreadBaseline)adminUnreadBaseline=current;
+      window.__adminChatUnread=Math.max(0,current-adminUnreadBaseline);
+    }
+    normalRef.once('value').then(n=>{
+      chatUnreadCount=Number(n.val()||0)+Number(window.__adminChatUnread||0);
+      ensureChatBadge();
+    });
+  });
 }
 function markChatRead(uid){
   if(!currentUser||!uid)return;
