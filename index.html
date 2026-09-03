@@ -965,10 +965,14 @@
     </div>
   </div>
 
-  <div id="bottomNav" class="bottom-nav hidden">
-    <button class="nav-item" id="navProfile" onclick="switchBottomTab('profile')">
-      <span class="icon">👤</span>
-      Profile
+  <div id="bottomNav" class="bottom-nav hidden" style="direction:ltr;">
+    <button class="nav-item active" id="navHome" onclick="switchBottomTab('home')">
+      <span class="icon">🏠</span>
+      Home
+    </button>
+    <button class="nav-item" id="navTasbeeh" onclick="switchBottomTab('reward')">
+      <span class="icon">📿</span>
+      Tasbeeh
     </button>
     <button class="nav-item" id="navCompetition" onclick="switchBottomTab('competition')">
       <span class="icon">🏆</span>
@@ -982,13 +986,9 @@
       <span class="icon">ℹ️</span>
       About
     </button>
-    <button class="nav-item" id="navTasbeeh" onclick="switchBottomTab('reward')">
-      <span class="icon">📿</span>
-      Tasbeeh
-    </button>
-    <button class="nav-item active" id="navHome" onclick="switchBottomTab('home')">
-      <span class="icon">🏠</span>
-      Home
+    <button class="nav-item" id="navProfile" onclick="switchBottomTab('profile')">
+      <span class="icon">👤</span>
+      Profile
     </button>
   </div>
 
