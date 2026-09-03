@@ -401,13 +401,13 @@
     .chat-them{margin-left:auto;background:#fff;color:#1f2937;border:1px solid #e5e7eb;border-bottom-left-radius:4px}
     .chat-meta{font-size:9px;opacity:.6;margin-top:2px}
     .chat-compose{display:flex;gap:7px;margin-top:8px;align-items:center}
-    .chat-compose input{flex:1;margin:0!important;padding:10px!important;border-radius:22px!important}
+    .chat-compose input{flex:1;margin:0!important;padding:10px 14px!important;border-radius:22px!important;direction:ltr!important;text-align:left!important;font-family:Arial,sans-serif!important;font-size:14px!important;line-height:1.5!important}.chat-compose input::placeholder{direction:ltr;text-align:left}.chat-send{min-width:72px}
     .chat-send{border:0;background:#0d3b22;color:#fff;border-radius:22px;padding:10px 16px;font-family:inherit;font-weight:bold;cursor:pointer}
     .chat-back{border:0;background:#fef3c7;color:#92400e;border:1px solid #f59e0b;border-radius:9px;padding:6px 10px;font-family:inherit;cursor:pointer}
     .recent-chats-scroll{max-height:330px;overflow-y:auto;padding-right:2px;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
 .chat-history-clear{border:1px solid #fecaca;background:#fef2f2;color:#dc2626;border-radius:8px;padding:5px 8px;font-family:inherit;font-size:10px;font-weight:bold;cursor:pointer}
 .admin-chat-scroll{max-height:360px;overflow-y:auto;padding-right:2px;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
-.chat-longpress{touch-action:manipulation;-webkit-user-select:none;user-select:none}
+.chat-longpress{touch-action:manipulation;-webkit-user-select:none;user-select:none}.admin-recent-room{padding:11px 10px;margin-bottom:7px;border-radius:12px;border:1px solid #e5e7eb;background:#fafafa;cursor:pointer;line-height:1.55}.admin-recent-room:hover{background:#f1f5f9}.admin-recent-name{font-size:13px;font-weight:700;direction:rtl}.admin-recent-preview{font-family:Arial,sans-serif;direction:ltr;text-align:left;font-size:12px;color:var(--text-muted);margin-top:4px;white-space:pre-wrap;overflow-wrap:anywhere}.chat-bubble>div:not(.chat-meta){font-family:Arial,sans-serif;direction:ltr;text-align:left;white-space:pre-wrap;overflow-wrap:anywhere}
 .chat-clear{border:1px solid #fecaca;background:#fef2f2;color:#dc2626;border-radius:9px;padding:6px 9px;font-family:inherit;font-size:10px;font-weight:bold;cursor:pointer}
     .chat-delete{border:1px solid #fecaca;background:#fff1f2;color:#dc2626;border-radius:6px;font-size:10px;padding:3px 6px;margin-right:5px;cursor:pointer;font-family:inherit;font-weight:bold;display:inline-block;opacity:1}.chat-delete:hover{background:#fee2e2}
     .chat-bubble-row{display:flex;align-items:flex-end;gap:4px;max-width:82%;margin:6px 0}
@@ -896,10 +896,14 @@
           </div>
           <div class="chat-panel" id="adminChatPanel" style="background:#fffbeb;border-color:#fef08a;display:none;">
             <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:9px;">
-              <div style="font-size:13px;font-weight:bold;color:#d97706;">👑 Admin — تمام چیٹس</div>
+              <div style="font-size:13px;font-weight:bold;color:#d97706;">👑 Admin Chat — صارفین</div>
               <button type="button" class="chat-history-clear" onclick="clearAllAdminChats()">🗑️ تمام ہسٹری صاف</button>
             </div>
             <div id="adminChatRooms" class="admin-chat-scroll"><div style="font-size:12px;color:var(--text-muted);">لوڈ ہو رہا ہے...</div></div>
+          </div>
+          <div class="chat-panel" id="adminRecentChatsPanel" style="background:#f8fafc;border-color:#cbd5e1;display:none;">
+            <div style="font-size:13px;font-weight:bold;color:#334155;margin-bottom:9px;">💬 User All Recent Chats — تمام صارفین کی حالیہ چیٹس</div>
+            <div id="adminRecentChats" class="admin-chat-scroll"><div style="font-size:12px;color:var(--text-muted);">لوڈ ہو رہا ہے...</div></div>
           </div>
         </div>
         <div id="privateChatView" class="hidden">
@@ -911,8 +915,8 @@
             </div>
             <div id="chatMessages" class="chat-messages"></div>
             <div class="chat-compose">
-              <input id="chatInput" type="text" maxlength="500" placeholder="پیغام لکھیں..." autocomplete="off">
-              <button class="chat-send" onclick="sendChatMessage()">بھیجیں</button>
+              <input id="chatInput" type="text" maxlength="500" placeholder="Type a message..." autocomplete="off">
+              <button class="chat-send" onclick="sendChatMessage()">Send</button>
             </div>
           </div>
         </div>
@@ -1457,6 +1461,55 @@ function loadAdminChatRooms(){
 }
 function cleanupOldAdminMessages(userUid){if(!userUid)return;const cutoff=Date.now()-CHAT_EXPIRY_MS;db.ref('adminChats/'+userUid).once('value').then(s=>{const updates={};s.forEach(m=>{const v=m.val()||{};if(Number(v.timestamp||0)<cutoff)updates[m.key]=null;});if(Object.keys(updates).length)return db.ref('adminChats/'+userUid).update(updates);}).catch(()=>{});}
 
+function loadAdminRecentChats(){
+  const panel=document.getElementById('adminRecentChatsPanel'),box=document.getElementById('adminRecentChats');
+  if(!panel||!box||!currentUser||currentUser.email!==ADMIN_EMAIL)return;
+  panel.style.display='block';
+  Promise.all([db.ref('chats').once('value'),db.ref('users').once('value')]).then(([cs,us])=>{
+    const users=us.val()||{}, rooms=[];
+    cs.forEach(room=>{
+      const participants=new Set(), messages=[];
+      room.forEach(m=>{
+        const v=m.val()||{};
+        if(v.broadcast)return;
+        if(v.sender)participants.add(String(v.sender));
+        if(v.receiver)participants.add(String(v.receiver));
+        if(v.text)messages.push({key:m.key,...v});
+      });
+      const ids=Array.from(participants).filter(Boolean);
+      if(ids.length>=2 && messages.length){
+        messages.sort((a,b)=>Number(a.timestamp||0)-Number(b.timestamp||0));
+        const last=messages[messages.length-1];
+        rooms.push({room:room.key,ids,last});
+      }
+    });
+    rooms.sort((a,b)=>Number(b.last.timestamp||0)-Number(a.last.timestamp||0));
+    if(!rooms.length){box.innerHTML='<div style="padding:12px;text-align:center;font-size:12px;color:var(--text-muted);">ابھی کوئی نارمل حالیہ چیٹ نہیں۔</div>';return;}
+    box.innerHTML=rooms.map(r=>{
+      const names=r.ids.map(id=>escapeChatHtml((users[id]&& (users[id].name||users[id].displayName))||'صارف')).join(' ↔ ');
+      const preview=escapeChatHtml(String(r.last.text||'').replace(/\s+/g,' ').trim().slice(0,100));
+      return `<div class="admin-recent-room" onclick="openAdminNormalRoom('${escapeChatHtml(r.room)}')"><div class="admin-recent-name">👤 ${names}</div><div class="admin-recent-preview">${preview} · ${chatTime(r.last.timestamp)}</div></div>`;
+    }).join('');
+  }).catch(()=>{box.innerHTML='<div style="padding:12px;color:#ef4444;font-size:12px;">حالیہ چیٹس لوڈ نہیں ہو سکیں۔</div>';});
+}
+
+function openAdminNormalRoom(roomKey){
+  if(!currentUser||currentUser.email!==ADMIN_EMAIL||!roomKey)return;
+  document.getElementById('chatListView').classList.add('hidden');document.getElementById('privateChatView').classList.remove('hidden');
+  if(activeChatListener)activeChatListener();
+  activeChatUser={uid:'',name:'User Chat',isAdmin:false,adminChat:false,adminNormalRoom:true,roomKey:roomKey};
+  document.getElementById('chatWithName').innerText='💬 User Recent Chat';
+  document.getElementById('chatWithStatus').innerText='Normal User Chat';
+  const ref=db.ref('chats/'+roomKey).orderByChild('timestamp');
+  const handler=s=>{
+    const box=document.getElementById('chatMessages');if(!box)return;const arr=[];
+    s.forEach(m=>{const v=m.val()||{};if(!v.broadcast && Number(v.timestamp||0)>=Date.now()-CHAT_EXPIRY_MS)arr.push({key:m.key,...v});});
+    box.innerHTML=arr.length?arr.map(m=>{const name=(m.senderName||'User');return `<div class="chat-bubble-row ${m.sender===currentUser.uid?'me':'them'}"><div class="chat-bubble ${m.sender===currentUser.uid?'chat-me':'chat-them'}" style="max-width:82%;padding:9px 12px;line-height:1.75;white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word;font-size:14px;"><b style="display:block;font-size:11px;margin-bottom:3px;direction:rtl;text-align:right;">${escapeChatHtml(name)}</b><div>${escapeChatHtml(m.text||'')}</div><div class="chat-meta">${chatTime(m.timestamp)}</div></div></div>`;}).join(''):'<div style="text-align:center;padding:30px;font-size:12px;">کوئی پیغام نہیں۔</div>';
+    box.scrollTop=box.scrollHeight;
+  };
+  ref.on('value',handler);activeChatListener=()=>ref.off('value',handler);
+}
+
 function sendAdminBroadcast(){
   if(!currentUser||currentUser.email!==ADMIN_EMAIL)return;const input=document.getElementById('adminBroadcastText'),status=document.getElementById('adminBroadcastStatus'),text=(input&&input.value||'').trim();if(!text){if(status){status.style.color='#ef4444';status.innerText='پہلے پیغام لکھیں۔';}return;}if(status){status.style.color='var(--text-muted)';status.innerText='پیغام بھیجا جا رہا ہے...';}
   db.ref('users').once('value').then(snap=>{const jobs=[];let count=0;snap.forEach(u=>{if(u.key===currentUser.uid)return;const room=chatUserKey(currentUser.uid,u.key);const msg={sender:currentUser.uid,senderName:'Admin',receiver:u.key,text:text,broadcast:true,timestamp:firebase.database.ServerValue.TIMESTAMP};jobs.push(db.ref('chats/'+room).push(msg).then(()=>Promise.all([db.ref('chatUnreadByUser/'+u.key+'/'+currentUser.uid).transaction(v=>Number(v||0)+1),db.ref('chatUnread/'+u.key).transaction(v=>Number(v||0)+1)])));count++;});if(!count)throw new Error('NO_USERS');return Promise.all(jobs).then(()=>count);}).then(count=>{if(input)input.value='';if(status){status.style.color='#16a34a';status.innerText='پیغام '+count+' صارفین کو بھیج دیا گیا۔';}}).catch(err=>{if(status){status.style.color='#ef4444';status.innerText=err&&err.message==='NO_USERS'?'کوئی صارف موجود نہیں۔':'پیغام بھیجنے میں مسئلہ آیا۔';}});
@@ -1477,8 +1530,8 @@ function initChatSystem(){
   requestChatNotificationPermission();
   const adminPanel=document.getElementById('adminChatPanel');
   if(adminPanel)adminPanel.style.display=(currentUser&&currentUser.email===ADMIN_EMAIL)?'block':'none';
-  if(currentUser&&currentUser.email===ADMIN_EMAIL)loadAdminChatRooms();
-  setInterval(()=>{if(currentUser){loadRecentChats();if(activeChatUser){if(activeChatUser.adminChat)cleanupOldAdminMessages(currentUser.email===ADMIN_EMAIL?activeChatUser.uid:currentUser.uid);else cleanupOldMessages(chatUserKey(currentUser.uid,activeChatUser.uid));}}},60000);
+  if(currentUser&&currentUser.email===ADMIN_EMAIL){loadAdminChatRooms();loadAdminRecentChats();}
+  setInterval(()=>{if(currentUser){loadRecentChats();if(currentUser.email===ADMIN_EMAIL)loadAdminRecentChats();if(activeChatUser){if(activeChatUser.adminChat)cleanupOldAdminMessages(currentUser.email===ADMIN_EMAIL?activeChatUser.uid:currentUser.uid);else cleanupOldMessages(chatUserKey(currentUser.uid,activeChatUser.uid));}}},60000);
   const inp=document.getElementById('chatInput'); if(inp)inp.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();sendChatMessage();}});
   const search=document.getElementById('chatUserSearch'); if(search){search.addEventListener('input',searchChatUsers);search.addEventListener('keydown',e=>{if(e.key==='Escape'){search.value='';const r=document.getElementById('chatSearchResults');if(r)r.innerHTML='';}});}
   const contact=document.getElementById('contactAdminBtn'); if(contact){contact.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();openAdminContact();});contact.addEventListener('touchend',e=>{e.preventDefault();e.stopPropagation();openAdminContact();},{passive:false});}
