@@ -896,7 +896,7 @@
           </div>
           <div class="chat-panel" id="adminChatPanel" style="background:#fffbeb;border-color:#fef08a;display:none;">
             <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:9px;">
-              <div style="font-size:13px;font-weight:bold;color:#d97706;">👑 Admin — تمام چیٹس</div>
+              <div style="font-size:13px;font-weight:bold;color:#d97706;">👑 Admin Chat — صارفین کے پیغامات</div>
               <button type="button" class="chat-history-clear" onclick="clearAllAdminChats()">🗑️ تمام ہسٹری صاف</button>
             </div>
             <div id="adminChatRooms" class="admin-chat-scroll"><div style="font-size:12px;color:var(--text-muted);">لوڈ ہو رہا ہے...</div></div>
@@ -1552,11 +1552,22 @@ function loadAdminChatRooms(){
   if(broadcastPanel)broadcastPanel.style.display='block';
   db.ref('chats').on('value',snap=>{
     const rooms=[]; snap.forEach(r=>{
-      let last=null; r.forEach(m=>{last={key:m.key,...(m.val()||{})};});
-      if(last) rooms.push({room:r.key,last});
+      let lastNormal=null;
+      let hasUserMessage=false;
+      r.forEach(m=>{
+        const v=m.val()||{};
+        // Broadcasts stay in Admin Content and must NOT create an Admin Chat room.
+        // Only normal/direct messages are shown here.
+        if(!v.broadcast && v.timestamp){
+          lastNormal={key:m.key,...v};
+          if(currentUser && String(v.sender)!==String(currentUser.uid)) hasUserMessage=true;
+        }
+      });
+      // Admin Chat is specifically for conversations where a user has actually messaged Admin.
+      if(lastNormal && hasUserMessage) rooms.push({room:r.key,last:lastNormal});
     });
     rooms.sort((a,b)=>Number(b.last.timestamp||0)-Number(a.last.timestamp||0));
-    box.innerHTML=rooms.length?rooms.map(r=>`<div class="chat-admin-room" onclick="openAdminRoom('${r.room}')"><b>💬 ${escapeChatHtml(r.last.senderName||'صارف')}</b><div style="font-size:11px;color:var(--text-muted);margin-top:2px;">${escapeChatHtml(r.last.text||'')} · ${chatTime(r.last.timestamp)}</div></div>`).join(''):'<div style="font-size:12px;color:var(--text-muted);">ابھی کوئی چیٹ موجود نہیں۔</div>';
+    box.innerHTML=rooms.length?rooms.map(r=>`<div class="chat-admin-room" onclick="openAdminRoom('${r.room}')"><b>💬 ${escapeChatHtml(r.last.senderName||'صارف')}</b><div style="font-size:11px;color:var(--text-muted);margin-top:2px;">${escapeChatHtml(r.last.text||'')} · ${chatTime(r.last.timestamp)}</div></div>`).join(''):'<div style="font-size:12px;color:var(--text-muted);">ابھی کسی صارف کا پیغام نہیں آیا۔</div>';
     snap.forEach(r=>cleanupOldMessages(r.key));
   });
 }
