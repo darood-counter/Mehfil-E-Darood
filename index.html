@@ -395,29 +395,14 @@
     .chat-panel{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:12px;margin-top:10px;text-align:right;box-shadow:0 4px 15px rgba(0,0,0,.04)}
     .online-user{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px;border:1px solid #e5e7eb;border-radius:11px;margin-bottom:7px;background:#fafafa;cursor:pointer}
     .online-dot{width:9px;height:9px;border-radius:50%;background:#16a34a;display:inline-block;box-shadow:0 0 0 3px #dcfce7}
-    .chat-messages{height:52vh;min-height:280px;max-height:520px;overflow-y:auto;padding:10px 6px;background:#f5f7f6;border-radius:12px;border:1px solid #e5e7eb}
-    .chat-bubble{max-width:min(78%,520px);padding:9px 12px;border-radius:13px;margin:6px 0;font-size:13px;line-height:1.65;word-break:break-word}
-    /* Own messages on the right, received messages on the left. */
-    .chat-me{margin-left:auto;margin-right:0;background:#dcefe4;color:#12351f;border-bottom-right-radius:4px}
-    .chat-them{margin-right:auto;margin-left:0;background:#fff;color:#1f2937;border:1px solid #e5e7eb;border-bottom-left-radius:4px}
+    .chat-messages{height:52vh;min-height:280px;max-height:520px;overflow-y:auto;padding:8px;background:#f5f7f6;border-radius:12px;border:1px solid #e5e7eb}
+    .chat-bubble{max-width:78%;padding:8px 11px;border-radius:13px;margin:6px 0;font-size:13px;line-height:1.6;word-break:break-word}
+    .chat-me{margin-right:auto;background:#dcefe4;color:#12351f;border-bottom-right-radius:4px}
+    .chat-them{margin-left:auto;background:#fff;color:#1f2937;border:1px solid #e5e7eb;border-bottom-left-radius:4px}
     .chat-meta{font-size:9px;opacity:.6;margin-top:2px}
-    .chat-compose{display:flex;flex-direction:row;direction:ltr;gap:8px;margin-top:8px;align-items:flex-end}
-    .chat-compose input,.chat-compose textarea{flex:1;min-width:0;box-sizing:border-box;margin:0!important;padding:10px 14px!important;border-radius:22px!important;direction:ltr!important;text-align:left!important;font-family:Arial,sans-serif!important;font-size:15px!important;line-height:1.45!important;border:2px solid #d1d5db;background:#fff;outline:none;resize:none;min-height:48px;max-height:145px;overflow-y:auto}
-    .chat-compose input::placeholder,.chat-compose textarea::placeholder{direction:ltr;text-align:left}
-    .chat-compose textarea:focus{border-color:#0d3b22}
-    .chat-send{min-width:82px;height:48px;border:0;background:#0d3b22;color:#fff;border-radius:24px;padding:10px 16px;font-family:inherit;font-weight:bold;cursor:pointer;flex:0 0 auto}
-
-    /* When a conversation is opened, use the whole screen instead of the narrow page card. */
-    #privateChatView:not(.hidden){position:fixed;inset:0 0 70px 0;z-index:999;background:#fff;padding:10px 8px;box-sizing:border-box;overflow:hidden}
-    #privateChatView:not(.hidden)>.chat-panel{width:100%;height:100%;min-height:0;box-sizing:border-box;margin:0;padding:10px 6px;border-radius:0;border:0;box-shadow:none;display:flex;flex-direction:column}
-    #privateChatView:not(.hidden) .chat-messages{flex:1;height:auto;min-height:0;max-height:none}
-    #privateChatView:not(.hidden) .chat-compose{flex:0 0 auto;padding-bottom:2px}
-    @media (max-width:480px){
-      #privateChatView:not(.hidden){padding:7px 4px}
-      #privateChatView:not(.hidden)>.chat-panel{padding:7px 2px}
-      .chat-bubble{max-width:86%}
-      .chat-send{min-width:78px;padding-left:13px;padding-right:13px}
-    }
+    .chat-compose{display:flex;gap:7px;margin-top:8px;align-items:center}
+    .chat-compose input{flex:1;margin:0!important;padding:10px 14px!important;border-radius:22px!important;direction:ltr!important;text-align:left!important;font-family:Arial,sans-serif!important;font-size:14px!important;line-height:1.5!important}.chat-compose input::placeholder{direction:ltr;text-align:left}.chat-send{min-width:72px}
+    .chat-send{border:0;background:#0d3b22;color:#fff;border-radius:22px;padding:10px 16px;font-family:inherit;font-weight:bold;cursor:pointer}
     .chat-back{border:0;background:#fef3c7;color:#92400e;border:1px solid #f59e0b;border-radius:9px;padding:6px 10px;font-family:inherit;cursor:pointer}
     .recent-chats-scroll{max-height:330px;overflow-y:auto;padding-right:2px;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
 .chat-history-clear{border:1px solid #fecaca;background:#fef2f2;color:#dc2626;border-radius:8px;padding:5px 8px;font-family:inherit;font-size:10px;font-weight:bold;cursor:pointer}
@@ -426,8 +411,8 @@
 .chat-clear{border:1px solid #fecaca;background:#fef2f2;color:#dc2626;border-radius:9px;padding:6px 9px;font-family:inherit;font-size:10px;font-weight:bold;cursor:pointer}
     .chat-delete{border:1px solid #fecaca;background:#fff1f2;color:#dc2626;border-radius:6px;font-size:10px;padding:3px 6px;margin-right:5px;cursor:pointer;font-family:inherit;font-weight:bold;display:inline-block;opacity:1}.chat-delete:hover{background:#fee2e2}
     .chat-bubble-row{display:flex;align-items:flex-end;gap:4px;max-width:82%;margin:6px 0}
-    .chat-bubble-row.me{margin-left:auto;margin-right:0;justify-content:flex-end}
-    .chat-bubble-row.them{margin-right:auto;margin-left:0;justify-content:flex-start}
+    .chat-bubble-row.me{margin-right:auto;justify-content:flex-start}
+    .chat-bubble-row.them{margin-left:auto;justify-content:flex-end}
     .chat-bubble-row .chat-bubble{margin:0}
     .chat-admin-room{border:1px solid #e5e7eb;border-radius:10px;padding:9px;margin:7px 0;background:#fafafa;cursor:pointer}
     .chat-search-box{display:flex;gap:7px;align-items:center;margin-bottom:10px}
@@ -619,142 +604,322 @@
       text-align: center;
     }
   
-    /* ===== FINAL CHAT UI POLISH ===== */
-    #privateChatView:not(.hidden){
-      position:fixed;
-      left:0;right:0;top:0;
-      bottom:70px;
-      width:100%;
-      height:auto;
-      z-index:999;
-      background:#fff;
-      padding:6px 4px;
-      box-sizing:border-box;
-      overflow:hidden;
-    }
-    #privateChatView:not(.hidden)>.chat-panel{
-      width:100%;height:100%;min-height:0;
-      margin:0;padding:7px 3px;
-      box-sizing:border-box;
-      border-radius:14px;
-      display:flex;flex-direction:column;
-      overflow:hidden;
-    }
-    #privateChatView:not(.hidden) .chat-messages{
-      flex:1 1 auto;
-      width:100%;
-      min-height:0;
-      height:auto;max-height:none;
-      overflow-y:auto;
-      overflow-x:hidden;
-      padding:12px 5px;
-      box-sizing:border-box;
-      border-radius:12px;
-      -webkit-overflow-scrolling:touch;
-      overscroll-behavior:contain;
-      scroll-behavior:smooth;
-    }
-    .chat-bubble-row{
-      display:flex;
-      width:100%;
-      max-width:100%;
-      margin-top:6px;margin-bottom:6px;
-      box-sizing:border-box;
-    }
-    .chat-bubble-row.me{
-      margin-left:auto;margin-right:0;
-      justify-content:flex-end;
-    }
-    .chat-bubble-row.them{
-      margin-right:auto;margin-left:0;
-      justify-content:flex-start;
-    }
-    .chat-bubble-row .chat-bubble{
-      width:auto;
-      max-width:min(82%, 520px);
-      box-sizing:border-box;
-      padding:9px 12px;
-      border-radius:16px;
-      line-height:1.55;
-      white-space:pre-wrap;
-      overflow-wrap:anywhere;
-      word-break:break-word;
-    }
-    .chat-bubble>div:not(.chat-meta){
-      direction:ltr;
-      text-align:left;
-      white-space:pre-wrap;
-      overflow-wrap:anywhere;
-      word-break:break-word;
-    }
-    .chat-compose{
-      display:flex;
-      flex-direction:row;
-      direction:ltr;
-      align-items:flex-end;
-      gap:8px;
-      width:100%;
-      flex:0 0 auto;
-      margin-top:8px;
-      padding:0 2px 2px;
-      box-sizing:border-box;
-    }
-    .chat-compose textarea#chatInput{
-      order:1;
-      flex:1 1 auto;
-      width:auto;
-      min-width:0;
-      min-height:48px;
-      max-height:145px;
-      height:48px;
-      margin:0!important;
-      padding:11px 14px!important;
-      box-sizing:border-box;
-      border:2px solid #d1d5db;
-      border-radius:24px!important;
-      background:#fff;
-      color:#111827;
-      direction:ltr!important;
-      text-align:left!important;
-      font-family:Arial,sans-serif!important;
-      font-size:16px!important;
-      line-height:1.45!important;
-      resize:none;
-      outline:none;
-      overflow-y:hidden;
-    }
-    .chat-compose textarea#chatInput:focus{border-color:#0d3b22;}
-    .chat-compose .chat-send{
-      order:2;
-      flex:0 0 auto;
-      width:88px;
-      min-width:88px;
-      height:48px;
-      margin:0!important;
-      border:0;
-      border-radius:24px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      background:#0d3b22;
-      color:#fff;
-      font-family:Arial,sans-serif;
-      font-size:16px;
-      font-weight:700;
-      cursor:pointer;
-      -webkit-tap-highlight-color:transparent;
-    }
-    .chat-compose .chat-send:active{transform:scale(.98);}
-    @media(max-width:480px){
-      #privateChatView:not(.hidden){bottom:66px;padding:4px 2px;}
-      #privateChatView:not(.hidden)>.chat-panel{padding:6px 2px;}
-      .chat-bubble-row .chat-bubble{max-width:86%;}
-      .chat-compose{gap:6px;padding-left:1px;padding-right:1px;}
-      .chat-compose textarea#chatInput{font-size:16px!important;padding-left:13px!important;padding-right:13px!important;}
-      .chat-compose .chat-send{width:82px;min-width:82px;font-size:15px;}
-    }
+/* ===== Competition V8: mobile-first visual layer only ===== */
+#compTab.competition-v8{
+  text-align:center;
+  width:100%;
+  box-sizing:border-box;
+  padding:0 2px 18px;
+  overflow:visible;
+}
+#compTab.competition-v8 .cv8-title{
+  margin:2px 0 8px;
+  color:var(--primary-color);
+  font-size:20px;
+  font-weight:800;
+  line-height:1.4;
+}
+#compTab.competition-v8 .cv8-top{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:6px;
+  margin-bottom:9px;
+}
+#compTab.competition-v8 .cv8-mini{
+  min-width:0;
+  background:#fffdf8;
+  border:1px solid rgba(197,160,89,.45);
+  border-radius:12px;
+  padding:6px 3px;
+  box-sizing:border-box;
+}
+#compTab.competition-v8 .cv8-mini-label{
+  display:block;
+  color:var(--text-muted);
+  font-size:10px;
+  line-height:1.35;
+  white-space:nowrap;
+}
+#compTab.competition-v8 .cv8-mini-value{
+  display:block;
+  color:var(--primary-color);
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:15px;
+  font-weight:800;
+  line-height:1.3;
+  direction:ltr;
+}
+#compTab.competition-v8 .cv8-leader{
+  position:relative;
+  overflow:hidden;
+  background:linear-gradient(135deg,#073d26,#0d5b38);
+  color:#fff;
+  border:1.5px solid #d8b45a;
+  border-radius:17px;
+  padding:12px 11px 11px;
+  margin-bottom:10px;
+  box-shadow:0 7px 18px rgba(13,59,34,.16);
+}
+#compTab.competition-v8 .cv8-leader:before{
+  content:"";
+  position:absolute;
+  width:120px;height:120px;
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:50%;
+  left:-45px;bottom:-75px;
+}
+#compTab.competition-v8 .cv8-crown{
+  font-size:23px;
+  line-height:1;
+}
+#compTab.competition-v8 .cv8-leader-title{
+  color:#f5d57e;
+  font-size:12px;
+  font-weight:800;
+  margin-top:2px;
+}
+#compTab.competition-v8 #compWinnerHighlight{
+  position:relative;
+  z-index:1;
+  margin-top:2px;
+  color:#fff !important;
+  font-family:'Jameel Noori Nastaleeq','Plus Jakarta Sans',sans-serif;
+  font-size:18px !important;
+  line-height:1.7;
+}
+#compTab.competition-v8 .cv8-leader-note{
+  color:#e8f3ec;
+  font-size:10px;
+  line-height:1.5;
+  margin-top:1px;
+}
+#compTab.competition-v8 .cv8-countdown{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:6px;
+  background:#fffdf8;
+  border:1px solid rgba(197,160,89,.4);
+  border-radius:12px;
+  padding:6px 9px;
+  margin-bottom:9px;
+  color:#6b4f12;
+  font-size:11px;
+  font-weight:700;
+}
+#compTab.competition-v8 #compCountdown{
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-weight:800;
+  direction:ltr;
+}
+#compTab.competition-v8 #compDateDisplay{
+  font-size:9px;
+  opacity:.8;
+}
+#compTab.competition-v8 .cv8-card{
+  background:#fff;
+  border:1px solid rgba(197,160,89,.34);
+  border-radius:16px;
+  margin:0 0 10px;
+  padding:10px;
+  box-sizing:border-box;
+  box-shadow:0 4px 14px rgba(13,59,34,.06);
+}
+#compTab.competition-v8 .cv8-card-title{
+  display:inline-block;
+  background:var(--primary-color);
+  color:#fff;
+  border-radius:10px;
+  padding:4px 13px;
+  margin:-22px auto 7px;
+  position:relative;
+  font-size:14px;
+  font-weight:800;
+  line-height:1.45;
+}
+#compTab.competition-v8 #compDaroodSlot{
+  width:100%;
+  box-sizing:border-box;
+}
+#compTab.competition-v8 #compDaroodSlot .darood-card{
+  width:100%;
+  box-sizing:border-box;
+  margin:0;
+  padding:9px 7px 4px;
+  border:0;
+  box-shadow:none;
+  background:transparent;
+}
+#compTab.competition-v8 #compDaroodSlot .arabic-text{
+  font-size:21px;
+  line-height:1.9;
+  text-align:center;
+}
+#compTab.competition-v8 #compDaroodSlot .translation{
+  font-size:12px;
+  line-height:1.75;
+  margin-top:6px;
+  padding-top:7px;
+}
+#compTab.competition-v8 #compDaroodSlot .speak-btn{
+  float:right;
+  margin:7px 0 0;
+  background:var(--primary-color);
+  color:#fff;
+  border-color:var(--primary-color);
+  padding:5px 13px;
+  font-size:13px;
+}
+#compTab.competition-v8 .cv8-voice{
+  padding:10px 7px 9px;
+}
+#compTab.competition-v8 .cv8-voice-grid{
+  display:grid;
+  grid-template-columns:1fr 154px 1fr;
+  align-items:center;
+  gap:7px;
+  margin-top:2px;
+}
+#compTab.competition-v8 .cv8-side{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+#compTab.competition-v8 .cv8-stat{
+  background:#fffdf8;
+  border:1px solid rgba(197,160,89,.3);
+  border-radius:10px;
+  padding:6px 3px;
+}
+#compTab.competition-v8 .cv8-stat-label{
+  display:block;
+  font-size:9px;
+  color:var(--text-muted);
+  line-height:1.35;
+}
+#compTab.competition-v8 .cv8-stat-value{
+  display:block;
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:16px;
+  font-weight:800;
+  color:#111827;
+  direction:ltr;
+  line-height:1.25;
+}
+#compTab.competition-v8 #compCountBtn{
+  width:145px !important;
+  height:145px !important;
+  margin:0 auto !important;
+  box-sizing:border-box;
+  border:4px solid #f2d37a;
+  background:linear-gradient(145deg,#0d5b38,#073d26) !important;
+  color:#fff !important;
+  box-shadow:0 8px 20px rgba(13,59,34,.22);
+}
+#compTab.competition-v8 #compCountBtn span:first-child{
+  font-size:30px !important;
+}
+#compTab.competition-v8 #compCountBtn span:last-child{
+  font-size:12px;
+  line-height:1.5;
+}
+#compTab.competition-v8 #compCountBtn.listening{
+  background:linear-gradient(135deg,#dc2626,#b91c1c) !important;
+}
+#compTab.competition-v8 #compStatusMsg{
+  min-height:21px;
+  margin:6px 0 1px;
+  font-size:11px;
+  line-height:1.6;
+}
+#compTab.competition-v8 .cv8-my-score{
+  color:var(--primary-color);
+  font-size:13px;
+  font-weight:700;
+  margin-top:2px;
+}
+#compTab.competition-v8 #compUserTotal{
+  font-family:'Plus Jakarta Sans',sans-serif;
+  direction:ltr;
+}
+#compTab.competition-v8 .cv8-dua{
+  background:linear-gradient(145deg,#fffdf7,#f8f5e9);
+  border:1px solid rgba(197,160,89,.4);
+  border-radius:15px;
+  padding:10px 11px;
+  margin-bottom:10px;
+}
+#compTab.competition-v8 .cv8-dua-title{
+  color:var(--primary-color);
+  font-size:14px;
+  font-weight:800;
+  margin-bottom:3px;
+}
+#compTab.competition-v8 .cv8-dua-text{
+  color:#374151;
+  font-size:12px;
+  line-height:1.85;
+}
+#compTab.competition-v8 .cv8-dua-ref{
+  color:var(--text-muted);
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:9px;
+  direction:ltr;
+  margin-top:3px;
+}
+#compTab.competition-v8 .cv8-board{
+  background:#fff;
+  border:1px solid rgba(197,160,89,.34);
+  border-radius:15px;
+  overflow:hidden;
+  box-shadow:0 4px 14px rgba(13,59,34,.06);
+}
+#compTab.competition-v8 .cv8-board-title{
+  background:var(--primary-color);
+  color:#fff;
+  padding:7px 10px;
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:14px;
+  font-weight:800;
+  direction:ltr;
+}
+#compTab.competition-v8 .cv8-board-sub{
+  font-family:'Jameel Noori Nastaleeq',sans-serif;
+  font-size:10px;
+  font-weight:400;
+  margin-left:7px;
+}
+#compTab.competition-v8 .cv8-board table{
+  width:100%;
+  margin:0;
+  border-collapse:collapse;
+}
+#compTab.competition-v8 .cv8-board th{
+  background:#f5f8f6;
+  color:var(--primary-color);
+  font-size:10px;
+  padding:6px 3px;
+}
+#compTab.competition-v8 .cv8-board td{
+  font-size:12px;
+  padding:7px 3px;
+}
+@media(max-width:520px){
+  #compTab.competition-v8 .cv8-voice-grid{grid-template-columns:1fr 132px 1fr;gap:5px;}
+  #compTab.competition-v8 #compCountBtn{width:126px !important;height:126px !important;}
+  #compTab.competition-v8 #compCountBtn span:first-child{font-size:28px !important;}
+  #compTab.competition-v8 #compDaroodSlot .arabic-text{font-size:19px;line-height:1.85;}
+}
+@media(max-width:380px){
+  #compTab.competition-v8 .cv8-voice-grid{grid-template-columns:1fr 114px 1fr;gap:4px;}
+  #compTab.competition-v8 #compCountBtn{width:108px !important;height:108px !important;}
+  #compTab.competition-v8 #compCountBtn span:first-child{font-size:25px !important;}
+  #compTab.competition-v8 #compCountBtn span:last-child{font-size:10px;}
+  #compTab.competition-v8 .cv8-stat-value{font-size:14px;}
+  #compTab.competition-v8 #compDaroodSlot .arabic-text{font-size:18px;}
+}
 
-  </style>
+</style>
 </head>
 <body>
 
@@ -978,39 +1143,98 @@
       </div>
 
       <!-- TAB 2: Competition Tab -->
-      <div id="compTab" class="hidden">
-        <h2 style="font-size: 20px; color: #d97706; margin: 5px 0 10px 0;">🎯 مقابلے کا سیکشن</h2>
+      <div id="compTab" class="hidden competition-v8">
 
-        <div style="background:linear-gradient(135deg,#fffbeb,#fef3c7); border:1.5px solid #f59e0b; border-radius:14px; padding:12px; margin:10px 0; text-align:center; box-shadow:0 4px 15px rgba(245,158,11,.15);">
-          <div style="font-size:13px; font-weight:bold; color:#d97706; margin-bottom:3px;">👑 آج کے مقابلے کا لیڈر</div>
-          <div id="compWinnerHighlight" style="font-size:14px; color:#1f2937; font-weight:bold;">لوڈ ہو رہا ہے...</div>
+        <div class="cv8-title">🎯 مقابلۂ درود شریف</div>
+
+        <div class="cv8-top">
+          <div class="cv8-mini">
+            <span class="cv8-mini-label">📿 آج کے درود</span>
+            <span class="cv8-mini-value" id="compTopCount">0</span>
+          </div>
+          <div class="cv8-mini">
+            <span class="cv8-mini-label">⏳ باقی وقت</span>
+            <span class="cv8-mini-value" id="compTopTime">--:--</span>
+          </div>
+          <div class="cv8-mini">
+            <span class="cv8-mini-label">🟢 آن لائن</span>
+            <span class="cv8-mini-value" id="onlineCountComp">0</span>
+          </div>
         </div>
 
-        <!-- Top Bar: Online Users + Countdown Timer -->
-        <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px; margin-bottom: 12px; flex-wrap: wrap;">
-          <div class="live-badge" style="margin-bottom: 0;">
-            <span class="live-dot"></span> آن لائن: <span id="onlineCountComp">0</span>
-          </div>
-          <div style="background: #fef3c7; color: #92400e; border: 1px solid #f59e0b; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; display: flex; align-items: center; gap: 6px;">
-            <span>⏳ ختم ہونے میں: <b id="compCountdown" dir="ltr">00:00:00</b></span>
-            <span style="font-size: 11px; opacity: 0.8;" id="compDateDisplay"></span>
-          </div>
+        <div class="cv8-leader">
+          <div class="cv8-crown">👑</div>
+          <div class="cv8-leader-title">آج کا لیڈر</div>
+          <div id="compWinnerHighlight">لوڈ ہو رہا ہے...</div>
+          <div class="cv8-leader-note">آج سب سے زیادہ درود شریف پڑھنے والا</div>
         </div>
 
-        <div id="compDaroodSlot"></div>
+        <div class="cv8-countdown">
+          <span>🏁 مقابلہ ختم ہونے میں</span>
+          <span><b id="compCountdown" dir="ltr">00:00:00</b></span>
+          <span id="compDateDisplay"></span>
+        </div>
 
-        <button class="mic-btn" style="background: linear-gradient(135deg, #d97706, #b45309); color:white; width: 130px; height: 130px; margin: 15px auto;" id="compCountBtn">
-          <span style="font-size: 24px;">🎙️</span>
-          <span>مقابلے کے لیے بولیں</span>
-        </button>
-        <div id="compStatusMsg" class="status-msg" style="color: #d97706;"></div>
-        <div style="font-size: 15px; color: #d97706; margin-top: 8px;">مقابلے میں آپ کا اسکور: <b id="compUserTotal">0</b></div>
+        <div class="cv8-card">
+          <div class="cv8-card-title">📖 آج کا درود شریف</div>
+          <div id="compDaroodSlot"></div>
+        </div>
 
-        <h3 style="color:#d97706; margin-top: 20px; font-size: 16px;">🥇 مقابلے کا Leaderboard</h3>
-        <table>
-          <thead><tr><th>رینک</th><th>صارف</th><th>اسکور</th></tr></thead>
-          <tbody id="compBoard"><tr><td colspan="3">لوڈ ہو رہا ہے...</td></tr></tbody>
-        </table>
+        <div class="cv8-card cv8-voice">
+          <div class="cv8-card-title">🎙️ بول کر مقابلے میں حصہ لیں</div>
+
+          <div class="cv8-voice-grid">
+            <div class="cv8-side">
+              <div class="cv8-stat">
+                <span class="cv8-stat-label">📿 آج پڑھے</span>
+                <span class="cv8-stat-value" id="compVoiceCount">0</span>
+              </div>
+              <div class="cv8-stat">
+                <span class="cv8-stat-label">⭐ اسکور</span>
+                <span class="cv8-stat-value" id="compVoiceScore">0</span>
+              </div>
+            </div>
+
+            <button class="mic-btn" id="compCountBtn">
+              <span style="font-size:24px;">🎙️</span>
+              <span>مقابلے کے لیے بولیں</span>
+            </button>
+
+            <div class="cv8-side">
+              <div class="cv8-stat">
+                <span class="cv8-stat-label">⏱️ سننے کا وقت</span>
+                <span class="cv8-stat-value" id="compVoiceTimer">30s</span>
+              </div>
+              <div class="cv8-stat">
+                <span class="cv8-stat-label">📈 پیش رفت</span>
+                <span class="cv8-stat-value" id="compVoiceProgress">—</span>
+              </div>
+            </div>
+          </div>
+
+          <div id="compStatusMsg" class="status-msg" style="color:#0d3b22;"></div>
+          <div class="cv8-my-score">مقابلے میں آپ کا اسکور: <b id="compUserTotal">0</b></div>
+        </div>
+
+        <div class="cv8-dua">
+          <div class="cv8-dua-title">🌙 نبی ﷺ نے فرمایا:</div>
+          <div class="cv8-dua-text">
+            "جس نے مجھ پر ایک مرتبہ درود بھیجا، اللہ اس پر دس مرتبہ درود بھیجتا ہے۔"
+          </div>
+          <div class="cv8-dua-ref">مسلم: 408</div>
+        </div>
+
+        <div class="cv8-board">
+          <div class="cv8-board-title">🏆 Leaderboard <span class="cv8-board-sub">مقابلے کی موجودہ پوزیشن</span></div>
+          <table>
+            <thead>
+              <tr><th>رینک</th><th>صارف</th><th>اسکور</th></tr>
+            </thead>
+            <tbody id="compBoard">
+              <tr><td colspan="3">لوڈ ہو رہا ہے...</td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <!-- TAB CHAT: Messages -->
@@ -1066,8 +1290,8 @@
             </div>
             <div id="chatMessages" class="chat-messages"></div>
             <div class="chat-compose">
-              <textarea id="chatInput" maxlength="500" rows="1" placeholder="Type a message..." autocomplete="off"></textarea>
-              <button type="button" class="chat-send" onclick="sendChatMessage()">Send</button>
+              <input id="chatInput" type="text" maxlength="500" placeholder="Type a message..." autocomplete="off">
+              <button class="chat-send" onclick="sendChatMessage()">Send</button>
             </div>
           </div>
         </div>
@@ -1417,30 +1641,8 @@ function updateChatUnreadBadge(){
   if(!currentUser||!db)return;
   const normalRef=db.ref('chatUnread/'+currentUser.uid),adminRef=db.ref('adminChatUnread/'+currentUser.uid);
   if(chatUnreadListener)normalRef.off('value',chatUnreadListener);
-  chatUnreadListener=s=>{chatUnreadCount=Number(s.val()||0)+Number(window.__adminChatUnread||0);ensureChatBadge();};
-  normalRef.on('value',chatUnreadListener);
-
-  // adminChatUnread is a total counter, so old Broadcast messages that were
-  // created before this fix can remain inside that counter.  Keep a session
-  // baseline: the value that exists when the app opens is treated as old,
-  // while any increase after opening is treated as a genuinely new message.
-  let adminUnreadBaseline=null;
-  adminRef.on('value',s=>{
-    const current=Math.max(0,Number(s.val()||0));
-    if(adminUnreadBaseline===null){
-      adminUnreadBaseline=current;
-      window.__adminChatUnread=0;
-    }else{
-      // If the chat was marked read, reset the baseline so future messages
-      // can immediately produce a badge again.
-      if(current<adminUnreadBaseline)adminUnreadBaseline=current;
-      window.__adminChatUnread=Math.max(0,current-adminUnreadBaseline);
-    }
-    normalRef.once('value').then(n=>{
-      chatUnreadCount=Number(n.val()||0)+Number(window.__adminChatUnread||0);
-      ensureChatBadge();
-    });
-  });
+  chatUnreadListener=s=>{chatUnreadCount=Number(s.val()||0)+Number(window.__adminChatUnread||0);ensureChatBadge();};normalRef.on('value',chatUnreadListener);
+  adminRef.on('value',s=>{window.__adminChatUnread=Number(s.val()||0);normalRef.once('value').then(n=>{chatUnreadCount=Number(n.val()||0)+window.__adminChatUnread;ensureChatBadge();});});
 }
 function markChatRead(uid){
   if(!currentUser||!uid)return;
@@ -1460,27 +1662,15 @@ function startChatNotifications(){
   chatNotificationListener=snap=>{
     if(first){first=false;return;}
     snap.forEach(r=>{
-      let latest=null;r.forEach(m=>{const v=m.val()||{};if(!v.broadcast)latest={key:m.key,...v};});
+      let latest=null;r.forEach(m=>{latest={key:m.key,...(m.val()||{})};});
       if(!latest||latest.sender===currentUser.uid)return;
       const open=activeChatUser&&chatUserKey(currentUser.uid,activeChatUser.uid)===r.key;
       if(!open){const k='chatNotified_'+currentUser.uid+'_'+latest.key;if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,'1');showChatNotification(latest.senderName,latest.text,latest.sender);}
     });
   };
   ref.on('value',chatNotificationListener);
-  const adminRef=db.ref('adminChats/'+currentUser.uid); let adminFirst=true;
-  adminRef.on('value',snap=>{
-    let latest=null;
-    snap.forEach(m=>{latest={key:m.key,...(m.val()||{})};});
-    // Existing Admin/Broadcast messages must not create a notification when the app first opens.
-    if(adminFirst){adminFirst=false;return;}
-    if(!latest||latest.sender===currentUser.uid)return;
-    const open=activeChatUser&&activeChatUser.adminChat;
-    if(open)return;
-    const k='adminChatNotified_'+currentUser.uid+'_'+latest.key;
-    if(sessionStorage.getItem(k))return;
-    sessionStorage.setItem(k,'1');
-    showChatNotification('Admin',latest.text,'admin_'+currentUser.uid);
-  });
+  const adminRef=db.ref('adminChats/'+currentUser.uid);
+  adminRef.on('value',snap=>{let latest=null;snap.forEach(m=>{latest={key:m.key,...(m.val()||{})};});if(!latest||latest.sender===currentUser.uid)return;const open=activeChatUser&&activeChatUser.adminChat; if(open)return;const k='adminChatNotified_'+currentUser.uid+'_'+latest.key;if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,'1');showChatNotification('Admin',latest.text,'admin_'+currentUser.uid);});
 }
 
 function cleanupOldMessages(roomKey){
@@ -1628,7 +1818,7 @@ function sendChatMessage(){
     db.ref('adminChats/'+userUid).push({sender:String(currentUser.uid),senderName:senderName,receiver:receiver,text:text,timestamp:firebase.database.ServerValue.TIMESTAMP}).then(()=>{
       if(isAdminSender) db.ref('adminChatUnread/'+userUid).transaction(v=>Number(v||0)+1).catch(()=>{});
       else db.ref('adminChatUnreadByUser/'+ADMIN_UID+'/'+userUid).transaction(v=>Number(v||0)+1).catch(()=>{});
-      input.value='';input.style.height='48px';input.style.overflowY='hidden';input.focus();
+      input.value='';input.focus();
     }).catch(()=>{});return;
   }
   const room=chatUserKey(currentUser.uid,activeChatUser.uid);db.ref('chats/'+room).push({sender:currentUser.uid,senderName:senderName,receiver:activeChatUser.uid,text:text,timestamp:firebase.database.ServerValue.TIMESTAMP}).then(()=>{const recipient=activeChatUser.uid;db.ref('chatUnreadByUser/'+recipient+'/'+currentUser.uid).transaction(v=>Number(v||0)+1).catch(()=>{});db.ref('chatUnread/'+recipient).transaction(v=>Number(v||0)+1).catch(()=>{});input.value='';input.focus();loadRecentChats();}).catch(()=>{});
@@ -1699,27 +1889,8 @@ function openAdminNormalRoom(roomKey){
 }
 
 function sendAdminBroadcast(){
-  if(!currentUser||currentUser.email!==ADMIN_EMAIL)return;
-  const input=document.getElementById('adminBroadcastText'),status=document.getElementById('adminBroadcastStatus'),text=(input&&input.value||'').trim();
-  if(!text){if(status){status.style.color='#ef4444';status.innerText='پہلے پیغام لکھیں۔';}return;}
-  if(status){status.style.color='var(--text-muted)';status.innerText='پیغام بھیجا جا رہا ہے...';}
-  db.ref('users').once('value').then(snap=>{
-    const jobs=[];let count=0;
-    snap.forEach(u=>{
-      if(u.key===currentUser.uid)return;
-      const userUid=String(u.key);
-      const msg={sender:String(currentUser.uid),senderName:'Admin',receiver:userUid,text:text,broadcast:true,timestamp:firebase.database.ServerValue.TIMESTAMP};
-      jobs.push(db.ref('adminChats/'+userUid).push(msg).then(()=>db.ref('adminChatUnread/'+userUid).transaction(v=>Number(v||0)+1)));
-      count++;
-    });
-    if(!count)throw new Error('NO_USERS');
-    return Promise.all(jobs).then(()=>count);
-  }).then(count=>{
-    if(input)input.value='';
-    if(status){status.style.color='#16a34a';status.innerText='پیغام '+count+' صارفین کو بھیج دیا گیا۔';}
-  }).catch(err=>{
-    if(status){status.style.color='#ef4444';status.innerText=err&&err.message==='NO_USERS'?'کوئی صارف موجود نہیں۔':'پیغام بھیجنے میں مسئلہ آیا۔';}
-  });
+  if(!currentUser||currentUser.email!==ADMIN_EMAIL)return;const input=document.getElementById('adminBroadcastText'),status=document.getElementById('adminBroadcastStatus'),text=(input&&input.value||'').trim();if(!text){if(status){status.style.color='#ef4444';status.innerText='پہلے پیغام لکھیں۔';}return;}if(status){status.style.color='var(--text-muted)';status.innerText='پیغام بھیجا جا رہا ہے...';}
+  db.ref('users').once('value').then(snap=>{const jobs=[];let count=0;snap.forEach(u=>{if(u.key===currentUser.uid)return;const room=chatUserKey(currentUser.uid,u.key);const msg={sender:currentUser.uid,senderName:'Admin',receiver:u.key,text:text,broadcast:true,timestamp:firebase.database.ServerValue.TIMESTAMP};jobs.push(db.ref('chats/'+room).push(msg).then(()=>Promise.all([db.ref('chatUnreadByUser/'+u.key+'/'+currentUser.uid).transaction(v=>Number(v||0)+1),db.ref('chatUnread/'+u.key).transaction(v=>Number(v||0)+1)])));count++;});if(!count)throw new Error('NO_USERS');return Promise.all(jobs).then(()=>count);}).then(count=>{if(input)input.value='';if(status){status.style.color='#16a34a';status.innerText='پیغام '+count+' صارفین کو بھیج دیا گیا۔';}}).catch(err=>{if(status){status.style.color='#ef4444';status.innerText=err&&err.message==='NO_USERS'?'کوئی صارف موجود نہیں۔':'پیغام بھیجنے میں مسئلہ آیا۔';}});
 }
 
 function openAdminRoom(userUid){
@@ -1739,22 +1910,7 @@ function initChatSystem(){
   if(adminPanel)adminPanel.style.display=(currentUser&&currentUser.email===ADMIN_EMAIL)?'block':'none';
   if(currentUser&&currentUser.email===ADMIN_EMAIL){loadAdminChatRooms();loadAdminRecentChats();}
   setInterval(()=>{if(currentUser){loadRecentChats();if(currentUser.email===ADMIN_EMAIL)loadAdminRecentChats();if(activeChatUser){if(activeChatUser.adminChat)cleanupOldAdminMessages(currentUser.email===ADMIN_EMAIL?activeChatUser.uid:currentUser.uid);else cleanupOldMessages(chatUserKey(currentUser.uid,activeChatUser.uid));}}},60000);
-  const inp=document.getElementById('chatInput');
-  if(inp){
-    const grow=()=>{
-      inp.style.height='auto';
-      inp.style.height=Math.min(inp.scrollHeight,145)+'px';
-      inp.style.overflowY=(inp.scrollHeight>145)?'auto':'hidden';
-    };
-    inp.addEventListener('input',grow);
-    inp.addEventListener('keydown',e=>{
-      if(e.key==='Enter'&&!e.shiftKey){
-        e.preventDefault();
-        sendChatMessage();
-      }
-    });
-    grow();
-  }
+  const inp=document.getElementById('chatInput'); if(inp)inp.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();sendChatMessage();}});
   const search=document.getElementById('chatUserSearch'); if(search){search.addEventListener('input',searchChatUsers);search.addEventListener('keydown',e=>{if(e.key==='Escape'){search.value='';const r=document.getElementById('chatSearchResults');if(r)r.innerHTML='';}});}
   const contact=document.getElementById('contactAdminBtn'); if(contact){contact.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();openAdminContact();});}
 }
@@ -2265,11 +2421,17 @@ function switchBottomTab(tabName) {
 
       compList.sort((a, b) => b.count - a.count);
 
+      const topCountEl = document.getElementById("compTopCount");
+      if (topCountEl) topCountEl.innerText = compList.reduce((sum, u) => sum + Number(u.count || 0), 0);
+
       let tbody = "";
       compList.forEach((u, i) => {
         tbody += `<tr><td>${i + 1}</td><td>${u.name}</td><td><b>${u.count}</b></td></tr>`;
       });
       document.getElementById("compBoard").innerHTML = tbody || `<tr><td colspan="3">آج کوئی مقابلہ نہیں ہوا</td></tr>`;
+      const topTimeEl = document.getElementById("compTopTime");
+      const mainCountdownEl = document.getElementById("compCountdown");
+      if (topTimeEl && mainCountdownEl) topTimeEl.innerText = mainCountdownEl.innerText;
 
       const topWinner = compList[0];
       const highlightEl = document.getElementById("compWinnerHighlight");
