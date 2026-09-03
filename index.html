@@ -880,8 +880,8 @@
             <div id="recentChatsList" class="recent-chats-scroll"><div style="font-size:12px;color:var(--text-muted);padding:10px;">لوڈ ہو رہا ہے...</div></div>
             <div style="font-size:13px;font-weight:bold;color:var(--primary-color);margin-bottom:9px;">📞 رابطہ کریں</div>
             <button type="button" id="contactAdminBtn" class="online-user" style="width:100%;font-family:inherit;text-align:right;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:8px;background:#f0fdf4;border-color:#bbf7d0;">
-              <span><span class="online-dot"></span> <b>💬 Admin Chat</b><div style="font-size:10px;color:var(--text-muted);margin-top:3px;">Admin سے براہِ راست چیٹ کریں</div></span>
-              <span style="font-size:11px;color:#0d3b22;">پیغام کریں</span>
+              <span><span class="online-dot"></span> <b>Admin</b><div style="font-size:10px;color:var(--text-muted);margin-top:3px;">کسی مسئلے کی صورت میں براہِ راست پیغام کریں</div></span>
+              <span style="font-size:11px;color:#0d3b22;">💬 پیغام</span>
             </button>
           </div>
           <div class="chat-panel" id="adminOnlineUsersPanel" style="background:#f0fdf4;border-color:#bbf7d0;display:none;">
@@ -896,7 +896,7 @@
           </div>
           <div class="chat-panel" id="adminChatPanel" style="background:#fffbeb;border-color:#fef08a;display:none;">
             <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:9px;">
-              <div style="font-size:13px;font-weight:bold;color:#d97706;">👥 User All Chat — صارفین کی Admin Chat</div>
+              <div style="font-size:13px;font-weight:bold;color:#d97706;">👑 Admin Chat — صارفین کے پیغامات</div>
               <button type="button" class="chat-history-clear" onclick="clearAllAdminChats()">🗑️ تمام ہسٹری صاف</button>
             </div>
             <div id="adminChatRooms" class="admin-chat-scroll"><div style="font-size:12px;color:var(--text-muted);">لوڈ ہو رہا ہے...</div></div>
@@ -1260,26 +1260,14 @@ function closeChatNotification(uid){
 }
 function updateChatUnreadBadge(){
   if(!currentUser||!db)return;
-  const normalRef=db.ref('chatUnread/'+currentUser.uid);
-  const adminRef=db.ref('adminChatUnread/'+currentUser.uid);
-  let normal=0,admin=0;
-  const render=()=>{chatUnreadCount=normal+admin;ensureChatBadge();};
-  normalRef.on('value',s=>{normal=Number(s.val()||0);render();});
-  adminRef.on('value',s=>{admin=Number(s.val()||0);render();});
+  const ref=db.ref('chatUnread/'+currentUser.uid);
+  if(chatUnreadListener)ref.off('value',chatUnreadListener);
+  chatUnreadListener=s=>{chatUnreadCount=Number(s.val()||0);ensureChatBadge();};
+  ref.on('value',chatUnreadListener);
 }
-function markChatRead(uid,isAdminChat=false){
+function markChatRead(uid){
   if(!currentUser||!uid)return;
   closeChatNotification(uid);
-  if(isAdminChat){
-    const senderRef=db.ref('adminChatUnreadByUser/'+currentUser.uid+'/'+uid);
-    senderRef.once('value').then(snap=>{
-      const count=Math.max(0,Number(snap.val()||0));
-      return senderRef.set(0).then(()=>{
-        if(count>0)return db.ref('adminChatUnread/'+currentUser.uid).transaction(v=>Math.max(0,Number(v||0)-count));
-      });
-    }).catch(()=>{});
-    return;
-  }
   const senderRef=db.ref('chatUnreadByUser/'+currentUser.uid+'/'+uid);
   senderRef.once('value').then(snap=>{
     const count=Math.max(0,Number(snap.val()||0));
@@ -1291,44 +1279,25 @@ function markChatRead(uid,isAdminChat=false){
 function startChatNotifications(){
   if(!currentUser||!db||chatNotificationListener)return;
   requestChatNotificationPermission();
-  const normalRef=db.ref('chats');
-  const adminRef=db.ref('adminChats');
-  let firstNormal=true, firstAdmin=true;
-  const normalHandler=snap=>{
-    if(firstNormal){firstNormal=false;return;}
-    snap.forEach(r=>{
-      let latest=null;r.forEach(m=>{latest={key:m.key,...(m.val()||{})};});
-      if(!latest||latest.sender===currentUser.uid||latest.broadcast)return;
-      const open=activeChatUser&&!activeChatUser.adminChat&&chatUserKey(currentUser.uid,activeChatUser.uid)===r.key;
-      if(!open){const k='chatNotified_'+currentUser.uid+'_'+latest.key;if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,'1');showChatNotification(latest.senderName,latest.text,latest.sender);}
-    });
-  };
-  const adminHandler=snap=>{
-    if(firstAdmin){firstAdmin=false;return;}
+  const ref=db.ref('chats'); let first=true;
+  chatNotificationListener=snap=>{
+    if(first){first=false;return;}
     snap.forEach(r=>{
       let latest=null;r.forEach(m=>{latest={key:m.key,...(m.val()||{})};});
       if(!latest||latest.sender===currentUser.uid)return;
-      const open=activeChatUser&&activeChatUser.adminChat&&(currentUser.email===ADMIN_EMAIL?String(activeChatUser.uid)===String(r.key):String(activeChatUser.uid)===String(ADMIN_UID||''));
-      if(!open){const k='adminChatNotified_'+currentUser.uid+'_'+latest.key;if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,'1');showChatNotification('Admin',latest.text,latest.sender);}
+      const open=activeChatUser&&chatUserKey(currentUser.uid,activeChatUser.uid)===r.key;
+      if(!open){const k='chatNotified_'+currentUser.uid+'_'+latest.key;if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,'1');showChatNotification(latest.senderName,latest.text,latest.sender);}
     });
   };
-  chatNotificationListener={normalHandler,adminHandler};
-  normalRef.on('value',normalHandler); adminRef.on('value',adminHandler);
+  ref.on('value',chatNotificationListener);
 }
+
 function cleanupOldMessages(roomKey){
   const cutoff = Date.now() - CHAT_EXPIRY_MS;
   db.ref('chats/'+roomKey).once('value').then(s=>{
     const updates={};
     s.forEach(m=>{ const v=m.val()||{}; if(Number(v.timestamp||0) < cutoff) updates[m.key]=null; });
     if(Object.keys(updates).length) return db.ref('chats/'+roomKey).update(updates);
-  }).catch(()=>{});
-}
-function cleanupOldAdminMessages(uid){
-  const cutoff = Date.now() - CHAT_EXPIRY_MS;
-  db.ref('adminChats/'+uid).once('value').then(s=>{
-    const updates={};
-    s.forEach(m=>{ const v=m.val()||{}; if(Number(v.timestamp||0) < cutoff) updates[m.key]=null; });
-    if(Object.keys(updates).length) return db.ref('adminChats/'+uid).update(updates);
   }).catch(()=>{});
 }
 
@@ -1381,6 +1350,7 @@ function openAdminContact(){
     openPrivateChat(uid,'Admin',true);
   }).catch(()=>alert('Admin کا اکاؤنٹ نہیں مل سکا۔ براہِ کرم بعد میں دوبارہ کوشش کریں۔'));
 }
+
 function loadRecentChats(){
   const box=document.getElementById('recentChatsList'); if(!box)return;
   if(!currentUser){box.innerHTML='<div style="padding:10px;font-size:12px;">لاگ اِن کریں۔</div>';return;}
@@ -1390,33 +1360,47 @@ function loadRecentChats(){
     db.ref('status').once('value'),
     db.ref('chatUnreadByUser/'+currentUser.uid).once('value')
   ]).then(([cs,us,ss,ur])=>{
-    const users=us.val()||{}, online=ss.val()||{}, unread=ur.val()||{}, chats=[];
+    const users=us.val()||{};
+    const online=ss.val()||{};
+    const unread=ur.val()||{};
+    const chats=[];
     cs.forEach(roomSnap=>{
       let last=null, otherUid=null, otherName='صارف';
       roomSnap.forEach(m=>{
         const v=m.val()||{};
-        if(v.broadcast)return;
         if(v.sender===currentUser.uid && v.receiver) otherUid=String(v.receiver);
         else if(v.receiver===currentUser.uid && v.sender) otherUid=String(v.sender);
         if(v.sender!==currentUser.uid && v.senderName) otherName=v.senderName;
-        if(v.timestamp) last={key:m.key,...v};
+        // Admin broadcast messages belong to the Admin contact, but they must
+        // not create/update the user's Recent Chats entry. Keep the latest
+        // normal/direct message as the recent-chat preview instead.
+        if(v.timestamp && !v.broadcast) last={key:m.key,...v};
       });
       if(last && otherUid){
         otherName=(users[otherUid]&&users[otherUid].name)||otherName||'صارف';
-        // Admin has its own completely separate chat system.
-        if(String(otherUid)===String(ADMIN_UID||'') || String(otherName).toLowerCase()==='admin') return;
         chats.push({uid:otherUid,name:otherName,last,unread:Number(unread[otherUid]||0),isOnline:!!online[otherUid]});
       }
     });
     chats.sort((a,b)=>Number(b.last.timestamp||0)-Number(a.last.timestamp||0));
-    if(!chats.length){box.innerHTML='<div style="padding:10px;font-size:12px;color:var(--text-muted);">ابھی کوئی حالیہ چیٹ نہیں۔</div>';return;}
+    if(!chats.length){
+      box.innerHTML='<div style="padding:10px;font-size:12px;color:var(--text-muted);">ابھی کوئی حالیہ چیٹ نہیں۔</div>';
+      return;
+    }
     box.innerHTML=chats.slice(0,5).map(c=>{
-      const preview=String(c.last.text||'').slice(0,55), badge=c.unread>0?`<span style="min-width:20px;height:20px;padding:0 6px;border-radius:10px;background:#ef4444;color:#fff;font-size:10px;font-weight:bold;display:inline-flex;align-items:center;justify-content:center;">${c.unread>99?'99+':c.unread}</span>`:'', dot=c.isOnline?'<span class="online-dot"></span>':'<span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#9ca3af;margin-left:4px;"></span>', status=c.isOnline?'آن لائن':'آف لائن';
-      return `<div class="online-user" style="width:100%;font-family:inherit;text-align:right;display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;box-sizing:border-box;"><span style="min-width:0;text-align:right;flex:1;"><span>${dot}</span> <b>${escapeChatHtml(c.name)}</b><div style="font-size:10px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:3px;">${escapeChatHtml(preview)} · ${status}</div></span><span style="display:flex;align-items:center;gap:5px;flex-shrink:0;">${badge}<button type="button" class="chat-search-msg" data-chat-uid="${escapeChatHtml(c.uid)}" data-chat-name="${escapeChatHtml(c.name)}">💬 چیٹ</button></span></div>`;
+      const preview=String(c.last.text||'').slice(0,55);
+      const badge=c.unread>0?`<span style="min-width:20px;height:20px;padding:0 6px;border-radius:10px;background:#ef4444;color:#fff;font-size:10px;font-weight:bold;display:inline-flex;align-items:center;justify-content:center;">${c.unread>99?'99+':c.unread}</span>`:'';
+      const dot=c.isOnline?'<span class="online-dot"></span>':'<span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#9ca3af;margin-left:4px;"></span>';
+      const status=c.isOnline?'آن لائن':'آف لائن';
+      return `<div class="online-user" style="width:100%;font-family:inherit;text-align:right;display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;box-sizing:border-box;"><span style="min-width:0;text-align:right;flex:1;"><span>${dot}</span> <b>${escapeChatHtml(c.name)}</b><div style="font-size:10px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:3px;">${escapeChatHtml(preview)} · ${status}</div></span><span style="display:flex;align-items:center;gap:5px;flex-shrink:0;">${badge}<button type="button" class="chat-search-msg" data-chat-uid="${escapeChatHtml(c.uid)}" data-chat-name="${escapeChatHtml(c.name)}" style="border:0;cursor:pointer;">💬 چیٹ</button></span></div>`;
     }).join('');
-    box.querySelectorAll('[data-chat-uid]').forEach(el=>{const open=()=>openPrivateChat(el.getAttribute('data-chat-uid'),el.getAttribute('data-chat-name')||'صارف');el.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();open();});el.addEventListener('touchend',e=>{e.preventDefault();e.stopPropagation();open();},{passive:false});});
+    box.querySelectorAll('[data-chat-uid]').forEach(el=>{
+      const open=()=>openPrivateChat(el.getAttribute('data-chat-uid'),el.getAttribute('data-chat-name')||'صارف');
+      el.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();open();});
+      el.addEventListener('touchend',e=>{e.preventDefault();e.stopPropagation();open();},{passive:false});
+    });
   }).catch(()=>{box.innerHTML='<div style="padding:10px;font-size:12px;color:#ef4444;">حالیہ چیٹس لوڈ نہیں ہو سکیں۔</div>';});
 }
+
 function loadOnlineUsers(){
   const box=document.getElementById('onlineUsersList');
   const panel=document.getElementById('adminOnlineUsersPanel');
@@ -1442,31 +1426,32 @@ function loadOnlineUsers(){
 
 function openPrivateChat(uid,name,isAdmin=false){
   if(!currentUser || !uid || uid===currentUser.uid) return;
-  activeChatUser={uid:String(uid),name:isAdmin?'Admin':(name||'صارف'),isAdmin:!!isAdmin,adminChat:!!isAdmin};
-  const listView=document.getElementById('chatListView'), privateView=document.getElementById('privateChatView');
-  if(!listView || !privateView)return;
-  listView.classList.add('hidden'); privateView.classList.remove('hidden');
-  document.getElementById('chatWithName').innerText=activeChatUser.isAdmin?'👑 Admin':activeChatUser.name;
+  activeChatUser={uid:String(uid),name:isAdmin?'Admin':(name||'صارف'),isAdmin:!!isAdmin};
+  const listView=document.getElementById('chatListView');
+  const privateView=document.getElementById('privateChatView');
+  if(!listView || !privateView) return;
+  listView.classList.add('hidden');
+  privateView.classList.remove('hidden');
+  document.getElementById('chatWithName').innerText=activeChatUser.name;
   document.getElementById('chatWithStatus').innerText='لوڈ ہو رہا ہے...';
-  markChatRead(uid,isAdmin);
-  if(isAdmin){
-    cleanupOldAdminMessages(currentUser.uid);
-    if(activeChatListener)activeChatListener();
-    const ref=db.ref('adminChats/'+currentUser.uid).orderByChild('timestamp');
-    const handler=s=>{
-      const box=document.getElementById('chatMessages');if(!box)return;const arr=[];
-      s.forEach(m=>{const v=m.val()||{};if(Number(v.timestamp||0)>=Date.now()-CHAT_EXPIRY_MS)arr.push({key:m.key,...v});});
-      box.innerHTML=arr.length?arr.map(m=>{const mine=m.sender===currentUser.uid;return `<div class="chat-bubble-row ${mine?'me':'them'} chat-longpress" data-message-key="${escapeChatHtml(m.key)}" data-message-owner="${mine?'me':'them'}"><div class="chat-bubble ${mine?'chat-me':'chat-them'}"><b>${mine?'آپ':'Admin'}</b><div>${escapeChatHtml(m.text||'')}</div><div class="chat-meta">${chatTime(m.timestamp)}</div></div></div>`;}).join(''):'<div style="text-align:center;color:var(--text-muted);font-size:12px;padding:30px;">ابھی کوئی پیغام نہیں۔</div>';
-      box.scrollTop=box.scrollHeight;attachChatLongPress();
-    };
-    ref.on('value',handler);activeChatListener=()=>ref.off('value',handler);return;
-  }
-  db.ref('status/'+uid).once('value').then(st=>{const el=document.getElementById('chatWithStatus');if(el)el.innerText=st.exists()&&st.val()!==false?'آن لائن':'آف لائن';}).catch(()=>{});
+  markChatRead(uid);
+  db.ref('status/'+uid).once('value').then(st=>{ const el=document.getElementById('chatWithStatus'); if(el) el.innerText=st.exists()&&st.val()!==false?'آن لائن':'آف لائن'; }).catch(()=>{});
   loadRecentChats();
-  const room=chatUserKey(currentUser.uid,uid);cleanupOldMessages(room);if(activeChatListener)activeChatListener();
+  const room=chatUserKey(currentUser.uid,uid);
+  cleanupOldMessages(room);
+  if(activeChatListener) activeChatListener();
   const ref=db.ref('chats/'+room).orderByChild('timestamp');
-  const handler=s=>{const box=document.getElementById('chatMessages');if(!box)return;const arr=[];s.forEach(m=>{const v=m.val()||{};if(!v.broadcast&&Number(v.timestamp||0)>=Date.now()-CHAT_EXPIRY_MS)arr.push({key:m.key,...v});});box.innerHTML=arr.length?arr.map(m=>{const mine=m.sender===currentUser.uid;return `<div class="chat-bubble-row ${mine?'me':'them'} chat-longpress" data-message-key="${escapeChatHtml(m.key)}" data-message-owner="${mine?'me':'them'}"><div class="chat-bubble ${mine?'chat-me':'chat-them'}"><div>${escapeChatHtml(m.text||'')}</div><div class="chat-meta">${chatTime(m.timestamp)}</div></div></div>`;}).join(''):'<div style="text-align:center;color:var(--text-muted);font-size:12px;padding:30px;">ابھی کوئی پیغام نہیں۔</div>';box.scrollTop=box.scrollHeight;attachChatLongPress();};
-  ref.on('value',handler);activeChatListener=()=>ref.off('value',handler);
+  const handler=s=>{
+    const box=document.getElementById('chatMessages'); if(!box)return;
+    const arr=[]; s.forEach(m=>{const v=m.val()||{}; if(Number(v.timestamp||0)>=Date.now()-CHAT_EXPIRY_MS) arr.push({key:m.key,...v});});
+    box.innerHTML=arr.length?arr.map(m=>{
+      const mine=m.sender===currentUser.uid;
+      return `<div class="chat-bubble-row ${mine?'me':'them'} chat-longpress" data-message-key="${escapeChatHtml(m.key)}" data-message-owner="${mine?'me':'them'}"><div class="chat-bubble ${mine?'chat-me':'chat-them'}">${!mine&&activeChatUser&&activeChatUser.isAdmin?'<b>Admin</b>':''}<div>${escapeChatHtml(m.text)}</div><div class="chat-meta">${chatTime(m.timestamp)}</div></div></div>`;
+    }).join(''):'<div style="text-align:center;color:var(--text-muted);font-size:12px;padding:30px;">ابھی کوئی پیغام نہیں۔</div>';
+    box.scrollTop=box.scrollHeight;
+    attachChatLongPress();
+  };
+  ref.on('value',handler); activeChatListener=()=>ref.off('value',handler);
 }
 function attachChatLongPress(){
   const box=document.getElementById('chatMessages'); if(!box)return;
@@ -1490,12 +1475,12 @@ function deleteChatMessage(messageKey,event){
   if(event){event.preventDefault();event.stopPropagation();}
   if(!currentUser||!activeChatUser||!messageKey)return;
   if(!confirm('کیا آپ یہ پیغام حذف کرنا چاہتے ہیں؟'))return;
-  if(activeChatUser.adminChat){
-    const ref=db.ref('adminChats/'+currentUser.uid+'/'+messageKey);
-    ref.once('value').then(s=>{const v=s.val()||{};if(v.sender!==currentUser.uid){alert('آپ صرف اپنے بھیجے ہوئے پیغام کو حذف کر سکتے ہیں۔');return;}return ref.remove();}).catch(()=>alert('پیغام حذف نہیں ہو سکا۔'));return;
-  }
   const room=chatUserKey(currentUser.uid,activeChatUser.uid);
-  db.ref('chats/'+room+'/'+messageKey).once('value').then(s=>{const v=s.val()||{};if(v.sender!==currentUser.uid){alert('آپ صرف اپنے بھیجے ہوئے پیغام کو حذف کر سکتے ہیں۔');return;}return db.ref('chats/'+room+'/'+messageKey).remove();}).catch(()=>alert('پیغام حذف نہیں ہو سکا۔'));
+  db.ref('chats/'+room+'/'+messageKey).once('value').then(s=>{
+    const v=s.val()||{};
+    if(v.sender!==currentUser.uid){alert('آپ صرف اپنے بھیجے ہوئے پیغام کو حذف کر سکتے ہیں۔');return;}
+    return db.ref('chats/'+room+'/'+messageKey).remove();
+  }).catch(()=>alert('پیغام حذف نہیں ہو سکا۔'));
 }
 
 function clearChatHistory(){
@@ -1509,69 +1494,177 @@ function clearChatHistory(){
 }
 
 function clearAllAdminChats(){
-  if(!currentUser||currentUser.email!==ADMIN_EMAIL)return;
-  if(!confirm('تمام صارفین کی Admin Chat ہسٹری حذف ہو جائے گی۔ کیا آپ واقعی تمام ہسٹری صاف کرنا چاہتے ہیں؟'))return;
-  db.ref('adminChats').remove().then(()=>{db.ref('adminChatUnread').remove();db.ref('adminChatUnreadByUser').remove();loadAdminChatRooms();if(activeChatListener){activeChatListener();activeChatListener=null;}activeChatUser=null;document.getElementById('privateChatView').classList.add('hidden');document.getElementById('chatListView').classList.remove('hidden');alert('تمام Admin Chat ہسٹری صاف کر دی گئی ہے۔');}).catch(()=>alert('Admin Chat ہسٹری صاف نہیں ہو سکی۔'));
+  if(!currentUser || currentUser.email!==ADMIN_EMAIL)return;
+  if(!confirm('تمام صارفین کی Admin کے ساتھ چیٹ ہسٹری حذف ہو جائے گی اور سب کے اکاؤنٹس سے پیغامات ختم ہو جائیں گے۔ کیا آپ واقعی تمام ہسٹری صاف کرنا چاہتے ہیں؟'))return;
+  Promise.all([db.ref('chats').once('value'),db.ref('users').once('value')]).then(([chatSnap,userSnap])=>{
+    const updates={};
+    chatSnap.forEach(room=>{ updates['chats/'+room.key]=null; });
+    userSnap.forEach(u=>{
+      updates['chatUnread/'+u.key]=0;
+      updates['chatUnreadByUser/'+u.key]=null;
+    });
+    if(!Object.keys(updates).length){alert('چیٹ ہسٹری پہلے ہی خالی ہے۔');return;}
+    return db.ref().update(updates).then(()=>{
+      loadRecentChats();
+      loadAdminChatRooms();
+      if(activeChatListener){activeChatListener();activeChatListener=null;}
+      activeChatUser=null;
+      document.getElementById('privateChatView').classList.add('hidden');
+      document.getElementById('chatListView').classList.remove('hidden');
+      alert('تمام صارفین کی چیٹ ہسٹری صاف کر دی گئی ہے۔');
+    });
+  }).catch(()=>alert('تمام چیٹ ہسٹری صاف نہیں ہو سکی۔'));
 }
 
 function clearCurrentChat(){
   if(!currentUser||!activeChatUser)return;
-  if(!confirm('چیٹ صاف کرنے سے اس چیٹ کے تمام پیغامات دونوں طرف سے حذف ہو جائیں گے۔ کیا آپ جاری رکھنا چاہتے ہیں؟'))return;
-  if(activeChatUser.adminChat){
-    db.ref('adminChats/'+currentUser.uid).remove().then(()=>{markChatRead(ADMIN_UID,true);}).catch(()=>alert('چیٹ صاف نہیں ہو سکی۔'));return;
-  }
   const room=chatUserKey(currentUser.uid,activeChatUser.uid);
-  db.ref('chats/'+room).remove().then(()=>{markChatRead(activeChatUser.uid,false);loadRecentChats();}).catch(()=>alert('چیٹ صاف نہیں ہو سکی۔'));
+  if(!confirm('چیٹ صاف کرنے سے اس چیٹ کے تمام پیغامات دونوں طرف سے حذف ہو جائیں گے۔ کیا آپ جاری رکھنا چاہتے ہیں؟'))return;
+  db.ref('chats/'+room).remove().then(()=>{
+    markChatRead(activeChatUser.uid);
+    loadRecentChats();
+  }).catch(()=>alert('چیٹ صاف نہیں ہو سکی۔'));
 }
 
-function closePrivateChat(){if(activeChatListener)activeChatListener();activeChatUser=null;document.getElementById('privateChatView').classList.add('hidden');document.getElementById('chatListView').classList.remove('hidden');loadRecentChats();}
+function closePrivateChat(){ if(activeChatListener){activeChatListener();activeChatListener=null;} activeChatUser=null; document.getElementById('privateChatView').classList.add('hidden'); document.getElementById('chatListView').classList.remove('hidden'); loadRecentChats(); }
 function sendChatMessage(){
-  const input=document.getElementById('chatInput');const text=(input.value||'').trim();if(!currentUser||!activeChatUser||!text)return;
-  const isAdminChat=!!activeChatUser.adminChat;
-  const path=isAdminChat?'adminChats/'+currentUser.uid:'chats/'+chatUserKey(currentUser.uid,activeChatUser.uid);
-  const receiver=isAdminChat?activeChatUser.uid:activeChatUser.uid;
-  db.ref(path).push({sender:currentUser.uid,senderName:(currentUser.email===ADMIN_EMAIL?'Admin':(currentUser.displayName||currentUser.email||'صارف')),receiver,text,timestamp:firebase.database.ServerValue.TIMESTAMP}).then(()=>{
-    if(isAdminChat){
-      db.ref('adminChatUnreadByUser/'+activeChatUser.uid+'/'+currentUser.uid).transaction(v=>Number(v||0)+1).catch(()=>{});
-    }else{
-      db.ref('chatUnreadByUser/'+activeChatUser.uid+'/'+currentUser.uid).transaction(v=>Number(v||0)+1).catch(()=>{});db.ref('chatUnread/'+activeChatUser.uid).transaction(v=>Number(v||0)+1).catch(()=>{});
-    }
-    input.value='';input.focus();loadRecentChats();
+  const input=document.getElementById('chatInput'); const text=(input.value||'').trim();
+  if(!currentUser||!activeChatUser||!text)return;
+  const room=chatUserKey(currentUser.uid,activeChatUser.uid);
+  db.ref('chats/'+room).push({
+    sender:currentUser.uid,
+    senderName:(currentUser.email===ADMIN_EMAIL?'Admin':(currentUser.displayName||currentUser.email||'صارف')),
+    receiver:activeChatUser.uid,text:text,
+    timestamp:firebase.database.ServerValue.TIMESTAMP
+  }).then(()=>{
+    const recipient=activeChatUser.uid;
+    db.ref('chatUnreadByUser/'+recipient+'/'+currentUser.uid).transaction(v=>Number(v||0)+1).catch(()=>{});
+    db.ref('chatUnread/'+recipient).transaction(v=>Number(v||0)+1).catch(()=>{});
+    input.value='';input.focus();
+    loadRecentChats();
   }).catch(()=>{});
 }
 function loadAdminChatRooms(){
   const panel=document.getElementById('adminChatPanel'),box=document.getElementById('adminChatRooms');
   if(!panel||!box||!currentUser||currentUser.email!==ADMIN_EMAIL)return;
-  panel.style.display='block';const broadcastPanel=document.getElementById('adminBroadcastPanel');if(broadcastPanel)broadcastPanel.style.display='block';
-  db.ref('adminChats').on('value',snap=>{
-    const rooms=[];
-    snap.forEach(r=>{let last=null,hasUser=false;r.forEach(m=>{const v=m.val()||{};if(v.timestamp)last={key:m.key,...v};if(v.sender&&String(v.sender)!==String(currentUser.uid))hasUser=true;});if(last&&hasUser)rooms.push({uid:r.key,last});});
+  panel.style.display='block';
+  const broadcastPanel=document.getElementById('adminBroadcastPanel');
+  if(broadcastPanel)broadcastPanel.style.display='block';
+  db.ref('chats').on('value',snap=>{
+    const rooms=[]; snap.forEach(r=>{
+      let lastNormal=null;
+      let hasUserMessage=false;
+      r.forEach(m=>{
+        const v=m.val()||{};
+        // Broadcasts stay in Admin Content and must NOT create an Admin Chat room.
+        // Only normal/direct messages are shown here.
+        if(!v.broadcast && v.timestamp){
+          lastNormal={key:m.key,...v};
+          if(currentUser && String(v.sender)!==String(currentUser.uid)) hasUserMessage=true;
+        }
+      });
+      // Admin Chat is specifically for conversations where a user has actually messaged Admin.
+      if(lastNormal && hasUserMessage) rooms.push({room:r.key,last:lastNormal});
+    });
     rooms.sort((a,b)=>Number(b.last.timestamp||0)-Number(a.last.timestamp||0));
-    box.innerHTML=rooms.length?rooms.map(r=>`<div class="chat-admin-room" onclick="openAdminRoom('${escapeChatHtml(r.uid)}')"><b>💬 ${escapeChatHtml(r.last.senderName||'صارف')}</b><div style="font-size:11px;color:var(--text-muted);margin-top:2px;">${escapeChatHtml(r.last.text||'')} · ${chatTime(r.last.timestamp)}</div></div>`).join(''):'<div style="font-size:12px;color:var(--text-muted);">ابھی کسی صارف کا Admin Chat پیغام نہیں آیا۔</div>';
-    snap.forEach(r=>cleanupOldAdminMessages(r.key));
+    box.innerHTML=rooms.length?rooms.map(r=>`<div class="chat-admin-room" onclick="openAdminRoom('${r.room}')"><b>💬 ${escapeChatHtml(r.last.senderName||'صارف')}</b><div style="font-size:11px;color:var(--text-muted);margin-top:2px;">${escapeChatHtml(r.last.text||'')} · ${chatTime(r.last.timestamp)}</div></div>`).join(''):'<div style="font-size:12px;color:var(--text-muted);">ابھی کسی صارف کا پیغام نہیں آیا۔</div>';
+    snap.forEach(r=>cleanupOldMessages(r.key));
   });
 }
 function sendAdminBroadcast(){
-  if(!currentUser||currentUser.email!==ADMIN_EMAIL)return;const input=document.getElementById('adminBroadcastText'),status=document.getElementById('adminBroadcastStatus'),text=(input&&input.value||'').trim();
-  if(!text){if(status){status.style.color='#ef4444';status.innerText='پہلے پیغام لکھیں۔';}return;}if(status){status.style.color='var(--text-muted)';status.innerText='پیغام بھیجا جا رہا ہے...';}
-  db.ref('users').once('value').then(snap=>{const jobs=[];let count=0;snap.forEach(u=>{if(u.key===currentUser.uid)return;const room=chatUserKey(currentUser.uid,u.key);const msg={sender:currentUser.uid,senderName:'Admin',receiver:u.key,text,broadcast:true,timestamp:firebase.database.ServerValue.TIMESTAMP};jobs.push(db.ref('chats/'+room).push(msg).then(()=>Promise.all([db.ref('chatUnreadByUser/'+u.key+'/'+currentUser.uid).transaction(v=>Number(v||0)+1),db.ref('chatUnread/'+u.key).transaction(v=>Number(v||0)+1)])));count++;});if(!count)throw new Error('NO_USERS');return Promise.all(jobs).then(()=>count);}).then(count=>{if(input)input.value='';if(status){status.style.color='#16a34a';status.innerText='پیغام '+count+' صارفین کو بھیج دیا گیا۔';}}).catch(err=>{if(status){status.style.color='#ef4444';status.innerText=err&&err.message==='NO_USERS'?'کوئی صارف موجود نہیں۔':'پیغام بھیجنے میں مسئلہ آیا۔';}});
+  if(!currentUser || currentUser.email!==ADMIN_EMAIL)return;
+  const input=document.getElementById('adminBroadcastText');
+  const status=document.getElementById('adminBroadcastStatus');
+  const text=(input&&input.value||'').trim();
+  if(!text){ if(status){status.style.color='#ef4444';status.innerText='پہلے پیغام لکھیں۔';} return; }
+  if(status){status.style.color='var(--text-muted)';status.innerText='پیغام بھیجا جا رہا ہے...';}
+  db.ref('users').once('value').then(snap=>{
+    const jobs=[]; let count=0;
+    snap.forEach(u=>{
+      if(u.key===currentUser.uid)return;
+      const room=chatUserKey(currentUser.uid,u.key);
+      const msg={sender:currentUser.uid,senderName:'Admin',receiver:u.key,text:text,broadcast:true,timestamp:firebase.database.ServerValue.TIMESTAMP};
+      jobs.push(db.ref('chats/'+room).push(msg).then(()=>
+        Promise.all([
+          db.ref('chatUnreadByUser/'+u.key+'/'+currentUser.uid).transaction(v=>Number(v||0)+1),
+          db.ref('chatUnread/'+u.key).transaction(v=>Number(v||0)+1)
+        ])
+      ));
+      count++;
+    });
+    if(!count)throw new Error('NO_USERS');
+    return Promise.all(jobs).then(()=>count);
+  }).then(count=>{
+    if(input)input.value='';
+    if(status){status.style.color='#16a34a';status.innerText='پیغام '+count+' صارفین کو بھیج دیا گیا۔';}
+  }).catch(err=>{
+    if(status){status.style.color='#ef4444';status.innerText=err&&err.message==='NO_USERS'?'کوئی صارف موجود نہیں۔':'پیغام بھیجنے میں مسئلہ آیا۔';}
+  });
 }
-function openAdminRoom(uid){
-  if(!currentUser||currentUser.email!==ADMIN_EMAIL||!uid)return;
-  document.getElementById('chatListView').classList.add('hidden');document.getElementById('privateChatView').classList.remove('hidden');
-  if(activeChatListener)activeChatListener();activeChatUser={uid:String(uid),name:'صارف',isAdmin:false,adminChat:true};
-  const box=document.getElementById('chatMessages');document.getElementById('chatWithStatus').innerText='جواب دیں';
-  db.ref('users/'+uid).once('value').then(us=>{const u=us.val()||{};activeChatUser.name=u.name||u.displayName||'صارف';document.getElementById('chatWithName').innerText='💬 '+activeChatUser.name;}).catch(()=>{document.getElementById('chatWithName').innerText='💬 صارف';});
-  markChatRead(uid,true);cleanupOldAdminMessages(uid);
-  const ref=db.ref('adminChats/'+uid).orderByChild('timestamp');
-  const handler=s=>{const arr=[];s.forEach(m=>{const v=m.val()||{};if(Number(v.timestamp||0)>=Date.now()-CHAT_EXPIRY_MS)arr.push({key:m.key,...v});});box.innerHTML=arr.map(m=>{const mine=m.sender===currentUser.uid;const displayName=mine?'Admin':(m.senderName||activeChatUser.name||'صارف');return `<div class="chat-bubble-row ${mine?'me':'them'} chat-longpress" data-message-key="${escapeChatHtml(m.key)}" data-message-owner="${mine?'me':'them'}"><div class="chat-bubble ${mine?'chat-me':'chat-them'}"><b>${escapeChatHtml(displayName)}</b><div>${escapeChatHtml(m.text||'')}</div><div class="chat-meta">${chatTime(m.timestamp)}</div></div></div>`;}).join('')||'<div style="text-align:center;padding:30px;font-size:12px;">کوئی پیغام نہیں۔</div>';box.scrollTop=box.scrollHeight;attachChatLongPress();};
-  ref.on('value',handler);activeChatListener=()=>ref.off('value',handler);
+function openAdminRoom(room){
+  document.getElementById('chatListView').classList.add('hidden');
+  document.getElementById('privateChatView').classList.remove('hidden');
+  document.getElementById('chatWithName').innerText='👑 Admin — User Chat';
+  document.getElementById('chatWithStatus').innerText='جواب دیں';
+  if(activeChatListener)activeChatListener();
+
+  const ref=db.ref('chats/'+room).orderByChild('timestamp');
+
+  const handler=s=>{
+    const box=document.getElementById('chatMessages');
+    const arr=[];
+    let otherUid=null;
+    let otherName='صارف';
+
+    s.forEach(m=>{
+      const v=m.val()||{};
+      if(Number(v.timestamp||0)>=Date.now()-CHAT_EXPIRY_MS){
+        arr.push({key:m.key,...v});
+        if(currentUser){
+          if(v.sender && v.sender!==currentUser.uid){
+            otherUid=String(v.sender);
+            if(v.senderName && v.senderName!=='Admin') otherName=v.senderName;
+          }else if(v.receiver && v.receiver!==currentUser.uid){
+            otherUid=String(v.receiver);
+          }
+        }
+      }
+    });
+
+    // Admin کو ہمیشہ سامنے والے User کا اصل نام دکھائیں۔
+    const finish=(name)=>{
+      activeChatUser={uid:otherUid,name:name||otherName||'صارف',isAdmin:false};
+      markChatRead(otherUid);
+      document.getElementById('chatWithName').innerText='💬 '+activeChatUser.name;
+      document.getElementById('chatWithStatus').innerText='جواب دیں';
+
+      box.innerHTML=arr.map(m=>{
+        const mine=currentUser&&m.sender===currentUser.uid;
+        const displayName=mine?'Admin':(m.senderName&&m.senderName!=='Admin'?m.senderName:activeChatUser.name);
+        return `<div class="chat-bubble-row ${mine?'me':'them'} chat-longpress" data-message-key="${escapeChatHtml(m.key)}" data-admin-room="${escapeChatHtml(room)}"><div class="chat-bubble ${mine?'chat-me':'chat-them'}"><b>${escapeChatHtml(displayName)}</b><div>${escapeChatHtml(m.text||'')}</div><div class="chat-meta">${chatTime(m.timestamp)}</div></div></div>`;
+      }).join('')||'<div style="text-align:center;padding:30px;font-size:12px;">کوئی پیغام نہیں۔</div>';
+      box.scrollTop=box.scrollHeight;
+      attachChatLongPress();
+    };
+
+    if(otherUid){
+      db.ref('users/'+otherUid).once('value').then(us=>{
+        const u=us.val()||{};
+        finish(u.name||u.displayName||otherName||'صارف');
+      }).catch(()=>finish(otherName));
+    }else{
+      box.innerHTML='<div style="text-align:center;padding:30px;font-size:12px;">کوئی پیغام نہیں۔</div>';
+    }
+  };
+
+  ref.on('value',handler);
+  activeChatListener=()=>ref.off('value',handler);
 }
-function deleteAdminChatMessage(messageKey,uid,event){
+function deleteAdminChatMessage(messageKey,room,event){
   if(event){event.preventDefault();event.stopPropagation();}
-  if(!currentUser||currentUser.email!==ADMIN_EMAIL||!messageKey||!uid)return;
+  if(!currentUser||currentUser.email!==ADMIN_EMAIL||!messageKey||!room)return;
   if(!confirm('کیا آپ یہ پیغام حذف کرنا چاہتے ہیں؟'))return;
-  db.ref('adminChats/'+uid+'/'+messageKey).remove().catch(()=>alert('پیغام حذف نہیں ہو سکا۔'));
+  db.ref('chats/'+room+'/'+messageKey).remove().catch(()=>alert('پیغام حذف نہیں ہو سکا۔'));
 }
 
 function initChatSystem(){
@@ -1582,7 +1675,7 @@ function initChatSystem(){
   const adminPanel=document.getElementById('adminChatPanel');
   if(adminPanel)adminPanel.style.display=(currentUser&&currentUser.email===ADMIN_EMAIL)?'block':'none';
   if(currentUser&&currentUser.email===ADMIN_EMAIL)loadAdminChatRooms();
-  setInterval(()=>{ if(currentUser){loadRecentChats(); if(activeChatUser){ if(activeChatUser.adminChat) cleanupOldAdminMessages(currentUser.email===ADMIN_EMAIL?activeChatUser.uid:currentUser.uid); else cleanupOldMessages(chatUserKey(currentUser.uid,activeChatUser.uid)); }} },60000);
+  setInterval(()=>{ if(currentUser){loadRecentChats(); if(activeChatUser)cleanupOldMessages(chatUserKey(currentUser.uid,activeChatUser.uid));} },60000);
   const inp=document.getElementById('chatInput'); if(inp)inp.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();sendChatMessage();}});
   const search=document.getElementById('chatUserSearch'); if(search){search.addEventListener('input',searchChatUsers);search.addEventListener('keydown',e=>{if(e.key==='Escape'){search.value='';const r=document.getElementById('chatSearchResults');if(r)r.innerHTML='';}});}
   const contact=document.getElementById('contactAdminBtn'); if(contact){contact.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();openAdminContact();});contact.addEventListener('touchend',e=>{e.preventDefault();e.stopPropagation();openAdminContact();},{passive:false});}
