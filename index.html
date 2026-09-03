@@ -878,15 +878,15 @@
               <button type="button" class="chat-history-clear" onclick="clearChatHistory()">🗑️ ہسٹری صاف</button>
             </div>
             <div id="recentChatsList" class="recent-chats-scroll"><div style="font-size:12px;color:var(--text-muted);padding:10px;">لوڈ ہو رہا ہے...</div></div>
-            <div style="height:1px;background:#e5e7eb;margin:12px 0;"></div>
-            <div style="font-size:13px;font-weight:bold;color:var(--primary-color);margin-bottom:9px;">🟢 ابھی آن لائن صارفین</div>
-            <div id="onlineUsersList"><div style="font-size:12px;color:var(--text-muted);padding:10px;">لوڈ ہو رہا ہے...</div></div>
-            <div style="height:1px;background:#e5e7eb;margin:12px 0;"></div>
             <div style="font-size:13px;font-weight:bold;color:var(--primary-color);margin-bottom:9px;">📞 رابطہ کریں</div>
             <button type="button" id="contactAdminBtn" class="online-user" style="width:100%;font-family:inherit;text-align:right;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:8px;background:#f0fdf4;border-color:#bbf7d0;">
               <span><span class="online-dot"></span> <b>Admin</b><div style="font-size:10px;color:var(--text-muted);margin-top:3px;">کسی مسئلے کی صورت میں براہِ راست پیغام کریں</div></span>
               <span style="font-size:11px;color:#0d3b22;">💬 پیغام</span>
             </button>
+          </div>
+          <div class="chat-panel" id="adminOnlineUsersPanel" style="background:#f0fdf4;border-color:#bbf7d0;display:none;">
+            <div style="font-size:13px;font-weight:bold;color:#15803d;margin-bottom:9px;">🟢 آن لائن صارفین — صرف Admin</div>
+            <div id="onlineUsersList" class="admin-chat-scroll"><div style="font-size:12px;color:var(--text-muted);">لوڈ ہو رہا ہے...</div></div>
           </div>
           <div class="chat-panel" id="adminBroadcastPanel" style="background:#eff6ff;border-color:#bfdbfe;display:none;">
             <div style="font-size:13px;font-weight:bold;color:#2563eb;margin-bottom:9px;">📢 تمام صارفین کو پیغام</div>
@@ -1396,7 +1396,10 @@ function loadRecentChats(){
 }
 
 function loadOnlineUsers(){
-  const box=document.getElementById('onlineUsersList'); if(!box) return;
+  const box=document.getElementById('onlineUsersList');
+  const panel=document.getElementById('adminOnlineUsersPanel');
+  if(!box||!panel||!currentUser||currentUser.email!==ADMIN_EMAIL){ if(panel)panel.style.display='none'; return; }
+  panel.style.display='block';
   if(!currentUser){box.innerHTML='<div style="padding:10px;font-size:12px;">لاگ اِن کریں۔</div>';return;}
   Promise.all([db.ref('status').once('value'), db.ref('users').once('value')]).then(([ss,us])=>{
     const online=[]; const users=us.val()||{};
@@ -1480,7 +1483,7 @@ function clearChatHistory(){
   db.ref('chats').once('value').then(snap=>{
     const updates={}; snap.forEach(room=>{const parts=String(room.key||'').split('_'); if(parts.includes(String(currentUser.uid))) updates[room.key]=null;});
     if(!Object.keys(updates).length){alert('چیٹ ہسٹری پہلے ہی خالی ہے۔');return;}
-    return db.ref('chats').update(updates).then(()=>Promise.all([db.ref('chatUnread/'+currentUser.uid).set(0),db.ref('chatUnreadByUser/'+currentUser.uid).remove()])).then(()=>{loadRecentChats();loadOnlineUsers();alert('چیٹ ہسٹری صاف کر دی گئی ہے۔');});
+    return db.ref('chats').update(updates).then(()=>Promise.all([db.ref('chatUnread/'+currentUser.uid).set(0),db.ref('chatUnreadByUser/'+currentUser.uid).remove()])).then(()=>{loadRecentChats();alert('چیٹ ہسٹری صاف کر دی گئی ہے۔');});
   }).catch(()=>alert('چیٹ ہسٹری صاف نہیں ہو سکی۔'));
 }
 
@@ -1494,7 +1497,7 @@ function clearCurrentChat(){
   }).catch(()=>alert('چیٹ صاف نہیں ہو سکی۔'));
 }
 
-function closePrivateChat(){ if(activeChatListener){activeChatListener();activeChatListener=null;} activeChatUser=null; document.getElementById('privateChatView').classList.add('hidden'); document.getElementById('chatListView').classList.remove('hidden'); loadRecentChats(); loadOnlineUsers(); }
+function closePrivateChat(){ if(activeChatListener){activeChatListener();activeChatListener=null;} activeChatUser=null; document.getElementById('privateChatView').classList.add('hidden'); document.getElementById('chatListView').classList.remove('hidden'); loadRecentChats(); }
 function sendChatMessage(){
   const input=document.getElementById('chatInput'); const text=(input.value||'').trim();
   if(!currentUser||!activeChatUser||!text)return;
@@ -1615,12 +1618,13 @@ function deleteAdminChatMessage(messageKey,room,event){
 
 function initChatSystem(){
   loadRecentChats();
-  loadOnlineUsers();
   updateChatUnreadBadge();
   startChatNotifications();
   requestChatNotificationPermission();
+  const adminPanel=document.getElementById('adminChatPanel');
+  if(adminPanel)adminPanel.style.display=(currentUser&&currentUser.email===ADMIN_EMAIL)?'block':'none';
   if(currentUser&&currentUser.email===ADMIN_EMAIL)loadAdminChatRooms();
-  setInterval(()=>{ if(currentUser){loadRecentChats(); loadOnlineUsers(); if(activeChatUser)cleanupOldMessages(chatUserKey(currentUser.uid,activeChatUser.uid));} },60000);
+  setInterval(()=>{ if(currentUser){loadRecentChats(); if(activeChatUser)cleanupOldMessages(chatUserKey(currentUser.uid,activeChatUser.uid));} },60000);
   const inp=document.getElementById('chatInput'); if(inp)inp.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();sendChatMessage();}});
   const search=document.getElementById('chatUserSearch'); if(search){search.addEventListener('input',searchChatUsers);search.addEventListener('keydown',e=>{if(e.key==='Escape'){search.value='';const r=document.getElementById('chatSearchResults');if(r)r.innerHTML='';}});}
   const contact=document.getElementById('contactAdminBtn'); if(contact){contact.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();openAdminContact();});contact.addEventListener('touchend',e=>{e.preventDefault();e.stopPropagation();openAdminContact();},{passive:false});}
@@ -1656,8 +1660,10 @@ function switchBottomTab(tabName) {
         document.getElementById("chatTab").classList.remove("hidden");
         document.getElementById("navChat").classList.add("active");
         loadRecentChats();
-        loadOnlineUsers();
-        if(currentUser && currentUser.email === ADMIN_EMAIL) loadAdminChatRooms();
+        if(currentUser && currentUser.email === ADMIN_EMAIL){
+          loadOnlineUsers();
+          loadAdminChatRooms();
+        }
       } else if (tabName === 'reward') {
         const rewardSlot = document.getElementById("rewardDaroodSlot");
         if (rewardSlot) rewardSlot.appendChild(document.getElementById("daroodCard"));
