@@ -1294,8 +1294,20 @@ function startChatNotifications(){
     });
   };
   ref.on('value',chatNotificationListener);
-  const adminRef=db.ref('adminChats/'+currentUser.uid);
-  adminRef.on('value',snap=>{let latest=null;snap.forEach(m=>{latest={key:m.key,...(m.val()||{})};});if(!latest||latest.sender===currentUser.uid)return;const open=activeChatUser&&activeChatUser.adminChat; if(open)return;const k='adminChatNotified_'+currentUser.uid+'_'+latest.key;if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,'1');showChatNotification('Admin',latest.text,'admin_'+currentUser.uid);});
+  const adminRef=db.ref('adminChats/'+currentUser.uid); let adminFirst=true;
+  adminRef.on('value',snap=>{
+    let latest=null;
+    snap.forEach(m=>{latest={key:m.key,...(m.val()||{})};});
+    // Existing Admin/Broadcast messages must not create a notification when the app first opens.
+    if(adminFirst){adminFirst=false;return;}
+    if(!latest||latest.sender===currentUser.uid)return;
+    const open=activeChatUser&&activeChatUser.adminChat;
+    if(open)return;
+    const k='adminChatNotified_'+currentUser.uid+'_'+latest.key;
+    if(sessionStorage.getItem(k))return;
+    sessionStorage.setItem(k,'1');
+    showChatNotification('Admin',latest.text,'admin_'+currentUser.uid);
+  });
 }
 
 function cleanupOldMessages(roomKey){
