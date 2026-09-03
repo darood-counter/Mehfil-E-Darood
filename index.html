@@ -1351,8 +1351,11 @@ function findAdminAccount(){
 
 function openAdminContact(){
   if(!currentUser)return;
+  // Admin خود اپنے Admin Chat button کو استعمال نہیں کرے گا۔
+  if(String(currentUser.email||'').toLowerCase()===String(ADMIN_EMAIL||'').toLowerCase()) return;
   findAdminAccount().then(uid=>{
-    if(uid===String(currentUser.uid)){alert('Admin اکاؤنٹ دستیاب نہیں۔');return;}
+    if(uid===String(currentUser.uid)) return;
+    ADMIN_UID=String(uid);
     openAdminChat();
   }).catch(()=>alert('Admin کا اکاؤنٹ نہیں مل سکا۔ براہِ کرم بعد میں دوبارہ کوشش کریں۔'));
 }
@@ -1534,7 +1537,7 @@ function initChatSystem(){
   setInterval(()=>{if(currentUser){loadRecentChats();if(currentUser.email===ADMIN_EMAIL)loadAdminRecentChats();if(activeChatUser){if(activeChatUser.adminChat)cleanupOldAdminMessages(currentUser.email===ADMIN_EMAIL?activeChatUser.uid:currentUser.uid);else cleanupOldMessages(chatUserKey(currentUser.uid,activeChatUser.uid));}}},60000);
   const inp=document.getElementById('chatInput'); if(inp)inp.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();sendChatMessage();}});
   const search=document.getElementById('chatUserSearch'); if(search){search.addEventListener('input',searchChatUsers);search.addEventListener('keydown',e=>{if(e.key==='Escape'){search.value='';const r=document.getElementById('chatSearchResults');if(r)r.innerHTML='';}});}
-  const contact=document.getElementById('contactAdminBtn'); if(contact){contact.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();openAdminContact();});contact.addEventListener('touchend',e=>{e.preventDefault();e.stopPropagation();openAdminContact();},{passive:false});}
+  const contact=document.getElementById('contactAdminBtn'); if(contact){contact.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();openAdminContact();});}
 }
 /* ================= END CHAT SYSTEM ================= */
 
