@@ -1514,8 +1514,27 @@ function openAdminNormalRoom(roomKey){
 }
 
 function sendAdminBroadcast(){
-  if(!currentUser||currentUser.email!==ADMIN_EMAIL)return;const input=document.getElementById('adminBroadcastText'),status=document.getElementById('adminBroadcastStatus'),text=(input&&input.value||'').trim();if(!text){if(status){status.style.color='#ef4444';status.innerText='پہلے پیغام لکھیں۔';}return;}if(status){status.style.color='var(--text-muted)';status.innerText='پیغام بھیجا جا رہا ہے...';}
-  db.ref('users').once('value').then(snap=>{const jobs=[];let count=0;snap.forEach(u=>{if(u.key===currentUser.uid)return;const room=chatUserKey(currentUser.uid,u.key);const msg={sender:currentUser.uid,senderName:'Admin',receiver:u.key,text:text,broadcast:true,timestamp:firebase.database.ServerValue.TIMESTAMP};jobs.push(db.ref('chats/'+room).push(msg).then(()=>Promise.all([db.ref('chatUnreadByUser/'+u.key+'/'+currentUser.uid).transaction(v=>Number(v||0)+1),db.ref('chatUnread/'+u.key).transaction(v=>Number(v||0)+1)])));count++;});if(!count)throw new Error('NO_USERS');return Promise.all(jobs).then(()=>count);}).then(count=>{if(input)input.value='';if(status){status.style.color='#16a34a';status.innerText='پیغام '+count+' صارفین کو بھیج دیا گیا۔';}}).catch(err=>{if(status){status.style.color='#ef4444';status.innerText=err&&err.message==='NO_USERS'?'کوئی صارف موجود نہیں۔':'پیغام بھیجنے میں مسئلہ آیا۔';}});
+  if(!currentUser||currentUser.email!==ADMIN_EMAIL)return;
+  const input=document.getElementById('adminBroadcastText'),status=document.getElementById('adminBroadcastStatus'),text=(input&&input.value||'').trim();
+  if(!text){if(status){status.style.color='#ef4444';status.innerText='پہلے پیغام لکھیں۔';}return;}
+  if(status){status.style.color='var(--text-muted)';status.innerText='پیغام بھیجا جا رہا ہے...';}
+  db.ref('users').once('value').then(snap=>{
+    const jobs=[];let count=0;
+    snap.forEach(u=>{
+      if(u.key===currentUser.uid)return;
+      const userUid=String(u.key);
+      const msg={sender:String(currentUser.uid),senderName:'Admin',receiver:userUid,text:text,broadcast:true,timestamp:firebase.database.ServerValue.TIMESTAMP};
+      jobs.push(db.ref('adminChats/'+userUid).push(msg).then(()=>db.ref('adminChatUnread/'+userUid).transaction(v=>Number(v||0)+1)));
+      count++;
+    });
+    if(!count)throw new Error('NO_USERS');
+    return Promise.all(jobs).then(()=>count);
+  }).then(count=>{
+    if(input)input.value='';
+    if(status){status.style.color='#16a34a';status.innerText='پیغام '+count+' صارفین کو بھیج دیا گیا۔';}
+  }).catch(err=>{
+    if(status){status.style.color='#ef4444';status.innerText=err&&err.message==='NO_USERS'?'کوئی صارف موجود نہیں۔':'پیغام بھیجنے میں مسئلہ آیا۔';}
+  });
 }
 
 function openAdminRoom(userUid){
