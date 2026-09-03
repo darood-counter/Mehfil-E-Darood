@@ -1761,6 +1761,8 @@ function initChatSystem(){
 /* ================= END CHAT SYSTEM ================= */
 
 function switchBottomTab(tabName) {
+      // Remember the currently open bottom tab so a page refresh returns here.
+      try { localStorage.setItem("mehfil_last_tab", tabName); } catch (e) {}
       document.getElementById("mainTab").classList.add("hidden");
       document.getElementById("compTab").classList.add("hidden");
       document.getElementById("rewardTab").classList.add("hidden");
@@ -1886,6 +1888,14 @@ function switchBottomTab(tabName) {
       const savedCity = localStorage.getItem('user_city');
       if (savedCountry) document.getElementById("countryInput").value = savedCountry;
       if (savedCity) document.getElementById("cityInput").value = savedCity;
+
+      // Restore the same bottom page after refresh.
+      const savedTab = localStorage.getItem("mehfil_last_tab");
+      if (savedTab && ["home","reward","competition","chat","about","profile"].includes(savedTab)) {
+        setTimeout(() => {
+          try { switchBottomTab(savedTab); } catch (e) {}
+        }, 0);
+      }
     });
 
     auth.onAuthStateChanged(user => {
@@ -2565,20 +2575,16 @@ function switchBottomTab(tabName) {
       // These words are checked only AFTER the full 30-second listening window.
       // Verification words are based on the complete Darood supplied by the user.
       // They are checked only AFTER the full 30-second listening window.
-      const requiredWords = [
-        "اللهم", "بارکت", "مجید"
-      ];
-
-      const aliases = {
-        "اللهم": ["اللهم"],
-        "بارکت": ["بارکت", "بارکتا", "بارکتااا", "باركت", "باركتا", "باركتااا"],
-        "مجید": ["مجید", "مجيد"]
-      };
-
-      const isWordMatch = (spoken, required) => {
-        const options = aliases[required] || [required];
-        return options.some(x => spoken === x);
-      };
+      const requiredWords = ["اللهم", "ابراھیم", "بارکت"];
+    const wordAliases = {
+      "اللهم": ["اللهم"],
+      "ابراھیم": [
+        "ابراھیم", "ابراہیم", "ابراهيم",
+        "ابراھیما", "ابراہیما", "ابراهیما", "ابراهیما",
+        "ابراھیماا", "ابراہیمہ", "ابراھیمہ"
+      ],
+      "بارکت": ["بارکت", "بارکتا", "بارکتااا", "باركت", "باركتا", "باركتااا"]
+    };
 
       const isCompleteDarood = (spoken) => {
         const words = normalizeArabic(spoken).split(" ").filter(Boolean);
