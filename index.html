@@ -754,7 +754,246 @@
       .chat-compose .chat-send{width:82px;min-width:82px;font-size:15px;}
     }
 
-  </style>
+  
+/* ================= COMPETITION V7 MOBILE DESIGN ================= */
+#compTab.comp-v7{
+  max-width:100%;
+  margin:0;
+  padding:0;
+  text-align:right;
+}
+.comp-v7 .comp-title{
+  color:var(--primary-color);
+  font-size:20px;
+  font-weight:800;
+  margin:4px 0 10px;
+  text-align:center;
+}
+.comp-v7 .comp-statusbar{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:7px;
+  margin:0 0 9px;
+}
+.comp-v7 .comp-mini{
+  background:#fffdf8;
+  border:1px solid rgba(197,160,89,.45);
+  border-radius:12px;
+  padding:7px 4px;
+  text-align:center;
+  line-height:1.35;
+}
+.comp-v7 .comp-mini .label{font-size:10px;color:var(--text-muted);}
+.comp-v7 .comp-mini .value{font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;font-weight:800;color:var(--primary-color);direction:ltr;}
+.comp-v7 .leader-card{
+  background:linear-gradient(135deg,#063b25 0%,#0d5b38 55%,#08452b 100%);
+  border:1.5px solid #d7b45b;
+  border-radius:18px;
+  color:#fff;
+  padding:13px 12px;
+  margin:0 0 11px;
+  box-shadow:0 8px 22px rgba(13,59,34,.18);
+  position:relative;
+  overflow:hidden;
+}
+.comp-v7 .leader-card:after{
+  content:"";
+  position:absolute;
+  width:130px;height:130px;
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:50%;
+  left:-45px;bottom:-65px;
+}
+.comp-v7 .leader-crown{font-size:25px;line-height:1;margin-bottom:2px;}
+.comp-v7 .leader-label{font-size:12px;color:#f6d98b;font-weight:800;}
+.comp-v7 .leader-name{font-family:'Plus Jakarta Sans',sans-serif;font-size:21px;font-weight:800;margin:1px 0;direction:ltr;}
+.comp-v7 .leader-count{font-size:12px;color:#edf7f0;}
+.comp-v7 .leader-score{
+  margin-top:8px;
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  background:rgba(255,255,255,.10);
+  border:1px solid rgba(245,208,90,.35);
+  border-radius:12px;
+  padding:5px 11px;
+  font-family:'Plus Jakarta Sans',sans-serif;
+}
+.comp-v7 .leader-score b{font-size:18px;color:#ffd86b;}
+.comp-v7 .comp-section{
+  background:#fff;
+  border:1px solid rgba(197,160,89,.32);
+  border-radius:16px;
+  padding:10px;
+  margin:0 0 10px;
+  box-shadow:0 5px 16px rgba(13,59,34,.06);
+}
+.comp-v7 .section-ribbon{
+  display:inline-block;
+  background:var(--primary-color);
+  color:#fff;
+  border-radius:10px;
+  padding:4px 13px;
+  font-size:14px;
+  font-weight:800;
+  margin:-20px auto 7px;
+  position:relative;
+  right:50%;
+  transform:translateX(50%);
+}
+.comp-v7 #compDaroodSlot .darood-card{
+  margin:0;
+  border:none;
+  box-shadow:none;
+  background:transparent;
+  padding:2px 3px 0;
+}
+.comp-v7 #compDaroodSlot .arabic-text{
+  font-size:21px;
+  line-height:2;
+  text-align:center;
+}
+.comp-v7 #compDaroodSlot .translation{
+  font-size:12px;
+  line-height:1.7;
+  text-align:right;
+}
+.comp-v7 #compDaroodSlot .speak-btn{
+  display:flex;
+  margin:8px 0 2px auto;
+  background:var(--primary-color);
+  color:#fff;
+  border-color:var(--primary-color);
+  min-width:125px;
+  justify-content:center;
+}
+.comp-v7 .voice-panel{
+  text-align:center;
+  padding:2px 2px 4px;
+}
+.comp-v7 .voice-layout{
+  display:grid;
+  grid-template-columns:1fr 150px 1fr;
+  align-items:center;
+  gap:8px;
+}
+.comp-v7 .voice-side{
+  display:flex;
+  flex-direction:column;
+  gap:7px;
+}
+.comp-v7 .voice-stat{
+  background:#fffdf8;
+  border:1px solid rgba(197,160,89,.35);
+  border-radius:11px;
+  padding:7px 4px;
+}
+.comp-v7 .voice-stat .slabel{font-size:10px;color:var(--text-muted);}
+.comp-v7 .voice-stat .svalue{font-family:'Plus Jakarta Sans',sans-serif;font-size:17px;font-weight:800;color:#111;direction:ltr;}
+.comp-v7 #compCountBtn{
+  width:145px !important;
+  height:145px !important;
+  margin:0 auto !important;
+  border-radius:50%;
+  border:4px solid #f4d77d;
+  box-shadow:0 8px 20px rgba(13,59,34,.20);
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  gap:4px;
+  font-size:12px;
+}
+.comp-v7 #compCountBtn span:first-child{font-size:34px !important;line-height:1;}
+.comp-v7 #compCountBtn span:last-child{font-weight:800;}
+.comp-v7 #compStatusMsg{
+  min-height:20px;
+  margin:7px 0 1px;
+  font-size:12px;
+}
+.comp-v7 .score-line{
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:13px;
+  font-weight:700;
+  color:var(--primary-color);
+}
+.comp-v7 .performance{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:5px;
+  text-align:center;
+}
+.comp-v7 .performance .pbox{
+  border-left:1px solid #eadfca;
+  padding:4px 2px;
+}
+.comp-v7 .performance .pbox:last-child{border-left:0;}
+.comp-v7 .performance .picon{font-size:16px;}
+.comp-v7 .performance .pvalue{font-family:'Plus Jakarta Sans',sans-serif;font-size:16px;font-weight:800;color:#111;direction:ltr;}
+.comp-v7 .performance .plabel{font-size:9px;color:var(--text-muted);}
+.comp-v7 .dua-card{
+  background:linear-gradient(145deg,#fffdf7,#f8f6e9);
+  border:1px solid rgba(197,160,89,.42);
+  border-radius:14px;
+  padding:11px 12px;
+  text-align:center;
+  margin:0 0 10px;
+}
+.comp-v7 .dua-title{
+  color:var(--primary-color);
+  font-size:14px;
+  font-weight:800;
+  margin-bottom:4px;
+}
+.comp-v7 .dua-text{font-size:12px;line-height:1.8;color:#374151;}
+.comp-v7 .dua-ref{font-family:'Plus Jakarta Sans',sans-serif;font-size:10px;color:var(--text-muted);margin-top:4px;direction:ltr;}
+.comp-v7 .board-card{
+  background:#fff;
+  border:1px solid rgba(197,160,89,.32);
+  border-radius:15px;
+  overflow:hidden;
+  box-shadow:0 5px 16px rgba(13,59,34,.06);
+}
+.comp-v7 .board-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  background:var(--primary-color);
+  color:#fff;
+  padding:7px 10px;
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:14px;
+  font-weight:800;
+  direction:ltr;
+}
+.comp-v7 .board-head small{font-family:'Jameel Noori Nastaleeq',sans-serif;font-size:11px;font-weight:400;}
+.comp-v7 .board-card table{margin:0;width:100%;border-collapse:collapse;}
+.comp-v7 .board-card th{
+  background:#f5f8f6;
+  color:var(--primary-color);
+  font-size:11px;
+  padding:6px 4px;
+}
+.comp-v7 .board-card td{font-size:12px;padding:7px 4px;}
+.comp-v7 .board-card tr:first-child td{font-weight:800;color:var(--primary-color);}
+@media(max-width:520px){
+  .comp-v7 .comp-statusbar{grid-template-columns:repeat(3,1fr);}
+  .comp-v7 .voice-layout{grid-template-columns:1fr 132px 1fr;gap:5px;}
+  .comp-v7 #compCountBtn{width:128px !important;height:128px !important;}
+  .comp-v7 #compCountBtn span:first-child{font-size:30px !important;}
+  .comp-v7 .comp-section{padding:8px;}
+  .comp-v7 #compDaroodSlot .arabic-text{font-size:19px;line-height:1.9;}
+}
+@media(max-width:380px){
+  .comp-v7 .voice-layout{grid-template-columns:1fr 116px 1fr;}
+  .comp-v7 #compCountBtn{width:112px !important;height:112px !important;}
+  .comp-v7 #compCountBtn span:first-child{font-size:26px !important;}
+  .comp-v7 .voice-stat .svalue{font-size:15px;}
+  .comp-v7 #compDaroodSlot .arabic-text{font-size:18px;}
+}
+/* ================= END COMPETITION V7 ================= */
+
+</style>
 </head>
 <body>
 
@@ -978,39 +1217,117 @@
       </div>
 
       <!-- TAB 2: Competition Tab -->
-      <div id="compTab" class="hidden">
-        <h2 style="font-size: 20px; color: #d97706; margin: 5px 0 10px 0;">🎯 مقابلے کا سیکشن</h2>
+      <div id="compTab" class="hidden comp-v7">
 
-        <div style="background:linear-gradient(135deg,#fffbeb,#fef3c7); border:1.5px solid #f59e0b; border-radius:14px; padding:12px; margin:10px 0; text-align:center; box-shadow:0 4px 15px rgba(245,158,11,.15);">
-          <div style="font-size:13px; font-weight:bold; color:#d97706; margin-bottom:3px;">👑 آج کے مقابلے کا لیڈر</div>
-          <div id="compWinnerHighlight" style="font-size:14px; color:#1f2937; font-weight:bold;">لوڈ ہو رہا ہے...</div>
+        <div class="comp-title">🎯 مقابلۂ درود شریف</div>
+
+        <div class="comp-statusbar">
+          <div class="comp-mini">
+            <div class="label">📿 آج کے درود</div>
+            <div class="value" id="compTopTodayCount">0</div>
+          </div>
+          <div class="comp-mini">
+            <div class="label">🏆 آپ کی پوزیشن</div>
+            <div class="value" id="compTopRank">—</div>
+          </div>
+          <div class="comp-mini">
+            <div class="label">🟢 آن لائن</div>
+            <div class="value" id="onlineCountComp">0</div>
+          </div>
         </div>
 
-        <!-- Top Bar: Online Users + Countdown Timer -->
-        <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px; margin-bottom: 12px; flex-wrap: wrap;">
-          <div class="live-badge" style="margin-bottom: 0;">
-            <span class="live-dot"></span> آن لائن: <span id="onlineCountComp">0</span>
+        <div class="leader-card">
+          <div class="leader-crown">👑</div>
+          <div class="leader-label">آج کا لیڈر</div>
+          <div id="compLeaderName" class="leader-name">لوڈ ہو رہا ہے...</div>
+          <div id="compLeaderCount" class="leader-count">آج سب سے زیادہ درود شریف پڑھنے والے</div>
+          <div class="leader-score">⭐ اسکور <b id="compLeaderScore">0</b></div>
+        </div>
+
+        <div class="comp-section">
+          <div class="section-ribbon">📖 آج کا درود شریف</div>
+          <div id="compDaroodSlot"></div>
+        </div>
+
+        <div class="comp-section voice-panel">
+          <div class="section-ribbon">🎙️ درود شریف پڑھیں</div>
+
+          <div class="voice-layout">
+            <div class="voice-side">
+              <div class="voice-stat">
+                <div class="slabel">📿 پڑھے گئے</div>
+                <div class="svalue" id="compVoiceCount">0</div>
+              </div>
+              <div class="voice-stat">
+                <div class="slabel">⭐ اسکور</div>
+                <div class="svalue" id="compVoiceScore">0</div>
+              </div>
+            </div>
+
+            <button class="mic-btn" id="compCountBtn" aria-label="مقابلے کے لیے بولیں">
+              <span>🎙️</span>
+              <span>بولنا شروع کریں</span>
+            </button>
+
+            <div class="voice-side">
+              <div class="voice-stat">
+                <div class="slabel">⏱️ وقت</div>
+                <div class="svalue" id="compVoiceTimer">00:00</div>
+              </div>
+              <div class="voice-stat">
+                <div class="slabel">📈 پیش رفت</div>
+                <div class="svalue" id="compVoiceProgress">0%</div>
+              </div>
+            </div>
           </div>
-          <div style="background: #fef3c7; color: #92400e; border: 1px solid #f59e0b; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; display: flex; align-items: center; gap: 6px;">
-            <span>⏳ ختم ہونے میں: <b id="compCountdown" dir="ltr">00:00:00</b></span>
-            <span style="font-size: 11px; opacity: 0.8;" id="compDateDisplay"></span>
+
+          <div id="compStatusMsg" class="status-msg" style="color:#0d3b22;"></div>
+          <div class="score-line">مقابلے میں آپ کا اسکور: <b id="compUserTotal">0</b></div>
+        </div>
+
+        <div class="comp-section" style="padding:8px;">
+          <div class="performance">
+            <div class="pbox">
+              <div class="picon">🏅</div>
+              <div class="pvalue" id="compPerfRank">—</div>
+              <div class="plabel">پوزیشن</div>
+            </div>
+            <div class="pbox">
+              <div class="picon">📈</div>
+              <div class="pvalue" id="compPerfToday">0</div>
+              <div class="plabel">آج کی تعداد</div>
+            </div>
+            <div class="pbox">
+              <div class="picon">🏆</div>
+              <div class="pvalue" id="compPerfScore">0</div>
+              <div class="plabel">اسکور</div>
+            </div>
+            <div class="pbox">
+              <div class="picon">👥</div>
+              <div class="pvalue" id="compPerfOnline">0</div>
+              <div class="plabel">آن لائن</div>
+            </div>
           </div>
         </div>
 
-        <div id="compDaroodSlot"></div>
+        <div class="dua-card">
+          <div class="dua-title">🌙 نبی ﷺ نے فرمایا:</div>
+          <div class="dua-text">
+            "جس نے مجھ پر ایک مرتبہ درود بھیجا، اللہ اس پر دس مرتبہ درود بھیجتا ہے۔"
+          </div>
+          <div class="dua-ref">مسلم: 408</div>
+        </div>
 
-        <button class="mic-btn" style="background: linear-gradient(135deg, #d97706, #b45309); color:white; width: 130px; height: 130px; margin: 15px auto;" id="compCountBtn">
-          <span style="font-size: 24px;">🎙️</span>
-          <span>مقابلے کے لیے بولیں</span>
-        </button>
-        <div id="compStatusMsg" class="status-msg" style="color: #d97706;"></div>
-        <div style="font-size: 15px; color: #d97706; margin-top: 8px;">مقابلے میں آپ کا اسکور: <b id="compUserTotal">0</b></div>
-
-        <h3 style="color:#d97706; margin-top: 20px; font-size: 16px;">🥇 مقابلے کا Leaderboard</h3>
-        <table>
-          <thead><tr><th>رینک</th><th>صارف</th><th>اسکور</th></tr></thead>
-          <tbody id="compBoard"><tr><td colspan="3">لوڈ ہو رہا ہے...</td></tr></tbody>
-        </table>
+        <div class="board-card">
+          <div class="board-head">
+            <span>🏆 Leaderboard</span>
+            <small>🥇 مقابلے کی موجودہ پوزیشن</small>
+          </div>
+          <table>
+            <thead><tr><th>رینک</th><th>صارف</th><th>اسکور</th></tr></thead>
+            <tbody id="compBoard"><tr><td colspan="3">لوڈ ہو رہا ہے...</td></tr></tbody>
+          </table>
+        </div>
       </div>
 
       <!-- TAB CHAT: Messages -->
@@ -1932,7 +2249,11 @@ function switchBottomTab(tabName) {
 
         db.ref("competitions/" + todayDateKey + "/" + user.uid).on("value", snapshot => {
           const data = snapshot.val();
-          document.getElementById("compUserTotal").innerText = data ? (data.count || 0) : 0;
+          const c = data ? (data.count || 0) : 0;
+          document.getElementById("compUserTotal").innerText = c;
+          ["compVoiceCount","compVoiceScore","compPerfToday","compPerfScore","compTopTodayCount"].forEach(id=>{
+            const el=document.getElementById(id); if(el) el.innerText=c;
+          });
         });
 
         const userStatusRef = db.ref("status/" + user.uid);
@@ -2087,6 +2408,8 @@ function switchBottomTab(tabName) {
       const onlineCompEl = document.getElementById("onlineCountComp");
       if(onlineEl) onlineEl.innerText = count;
       if(onlineCompEl) onlineCompEl.innerText = count;
+      const perfOnline = document.getElementById("compPerfOnline");
+      if(perfOnline) perfOnline.innerText = count;
     });
 
 
@@ -2273,13 +2596,35 @@ function switchBottomTab(tabName) {
 
       const topWinner = compList[0];
       const highlightEl = document.getElementById("compWinnerHighlight");
+      const leaderNameEl = document.getElementById("compLeaderName");
+      const leaderCountEl = document.getElementById("compLeaderCount");
+      const leaderScoreEl = document.getElementById("compLeaderScore");
 
       if (topWinner && topWinner.count > 0) {
-        highlightEl.innerHTML = `🌟 <b>${topWinner.name}</b> (${topWinner.count} درود شریف)`;
-        // Latest qualifying winner certificate is handled by loadLatestWinnerCertificate().
+        if (highlightEl) highlightEl.innerHTML = `🌟 <b>${topWinner.name}</b> (${topWinner.count} درود شریف)`;
+        if (leaderNameEl) leaderNameEl.innerText = topWinner.name;
+        if (leaderCountEl) leaderCountEl.innerText = `آج سب سے زیادہ ${topWinner.count} درود شریف`;
+        if (leaderScoreEl) leaderScoreEl.innerText = topWinner.count;
       } else {
-        highlightEl.innerText = "آج کے مقابلے کا آغاز ابھی ہوا ہے!";
+        if (highlightEl) highlightEl.innerText = "آج کے مقابلے کا آغاز ابھی ہوا ہے!";
+        if (leaderNameEl) leaderNameEl.innerText = "ابھی کوئی لیڈر نہیں";
+        if (leaderCountEl) leaderCountEl.innerText = "آج کے مقابلے کا آغاز ابھی ہوا ہے";
+        if (leaderScoreEl) leaderScoreEl.innerText = "0";
       }
+
+      // Keep the compact performance area synced with the live leaderboard.
+      const rank = currentUser ? compList.findIndex(u => String(u.uid) === String(currentUser.uid)) + 1 : 0;
+      const myRow = currentUser ? compList.find(u => String(u.uid) === String(currentUser.uid)) : null;
+      const myCount = myRow ? Number(myRow.count || 0) : 0;
+      ["compTopTodayCount","compVoiceCount","compPerfToday"].forEach(id => {
+        const el = document.getElementById(id); if (el) el.innerText = myCount;
+      });
+      ["compVoiceScore","compPerfScore"].forEach(id => {
+        const el = document.getElementById(id); if (el) el.innerText = myCount;
+      });
+      ["compTopRank","compPerfRank"].forEach(id => {
+        const el = document.getElementById(id); if (el) el.innerText = rank > 0 ? "#" + rank : "—";
+      });
     });
 
     document.getElementById("saveProfileBtn").onclick = () => {
@@ -2710,6 +3055,7 @@ function switchBottomTab(tabName) {
               recognition.start();
               statusEl.style.color = "#0d3b22";
               statusEl.innerText = "سن رہا ہے... 30 سیکنڈ مکمل ہونے تک مائیک آن رہے گا 🎙️";
+              updateCompetitionVoiceTimer(startedAt);
             } catch (e) {}
           }, 50);
         } else if (elapsed >= LISTEN_DURATION_MS) {
@@ -2722,6 +3068,23 @@ function switchBottomTab(tabName) {
       } catch (e) {
         finishListening();
       }
+    }
+
+
+    let competitionVoiceTimer = null;
+    function updateCompetitionVoiceTimer(startedAt){
+      clearInterval(competitionVoiceTimer);
+      const tick = ()=>{
+        const elapsed = Math.min(30000, Date.now() - startedAt);
+        const sec = Math.floor(elapsed / 1000);
+        const t = document.getElementById("compVoiceTimer");
+        const p = document.getElementById("compVoiceProgress");
+        if(t) t.innerText = "00:" + String(sec).padStart(2,"0");
+        if(p) p.innerText = Math.min(100, Math.round(elapsed / 300)) + "%";
+        if(elapsed >= 30000) clearInterval(competitionVoiceTimer);
+      };
+      tick();
+      competitionVoiceTimer = setInterval(tick, 250);
     }
 
     document.getElementById("countBtn").onclick = function() {
