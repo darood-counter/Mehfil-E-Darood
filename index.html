@@ -1889,7 +1889,7 @@
       btn.disabled = true;
       btn.classList.add("listening");
       statusEl.style.color = "#0d3b22";
-      statusEl.innerText = "سن رہا ہے... 23 سیکنڈ تک درود شریف پڑھیں 🎙️";
+      statusEl.innerText = "سن رہا ہے... درود شریف پڑھیں 🎙️";
 
       // Keep the mobile display awake while the user is reciting.
       requestScreenWakeLock();
@@ -1962,13 +1962,13 @@
 
         try { recognition.stop(); } catch (e) {}
 
-        // Verification starts only after the complete 20-second listening window.
+        // Verification starts only after the complete 23-second listening window.
         const finalText = collectedSpeech.join(" ");
         const valid = isCompleteDarood(finalText);
 
         if (!valid) {
           statusEl.style.color = "#ef4444";
-          statusEl.innerText = "✗ مکمل درود کے ضروری الفاظ نہیں ملے، شمار نہیں ہوگا۔";
+          statusEl.innerText = "✗مکمل درود صحیح نہیں پڑھا، دوبارہ پڑھیں ، شمار نہیں ہوگا۔";
           playErrorSound();
         } else if (currentUser) {
           if (isComp) {
