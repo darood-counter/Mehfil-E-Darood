@@ -405,11 +405,6 @@
     .chat-send{border:0;background:#0d3b22;color:#fff;border-radius:22px;padding:10px 16px;font-family:inherit;font-weight:bold;cursor:pointer}
     .chat-back{border:0;background:#fef3c7;color:#92400e;border:1px solid #f59e0b;border-radius:9px;padding:6px 10px;font-family:inherit;cursor:pointer}
     .chat-admin-room{border:1px solid #e5e7eb;border-radius:10px;padding:9px;margin:7px 0;background:#fafafa;cursor:pointer}
-    .chat-search-box{display:flex;gap:7px;align-items:center;margin-bottom:10px}
-    .chat-search-box input{flex:1;margin:0!important;padding:10px 12px!important;border:1px solid #d1d5db;border-radius:22px!important;box-sizing:border-box;font-family:inherit;font-size:13px}
-    .chat-search-results{margin-bottom:10px}
-    .chat-search-result{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 10px;border:1px solid #e5e7eb;border-radius:11px;background:#fff;margin:6px 0;text-align:right}
-    .chat-search-msg{border:0;background:#0d3b22;color:#fff;border-radius:18px;padding:7px 12px;font-family:inherit;font-size:11px;font-weight:bold;cursor:pointer;white-space:nowrap}
 
     .hidden { display: none !important; }
 
@@ -857,23 +852,11 @@
         <h2 style="font-size:20px;color:var(--primary-color);margin:10px 0;">💬 پیغامات</h2>
         <div id="chatListView">
           <div class="chat-panel">
-            <div style="font-size:13px;font-weight:bold;color:var(--primary-color);margin-bottom:9px;">🔍 دوست / صارف تلاش کریں</div>
-            <div class="chat-search-box">
-              <input id="chatUserSearch" type="search" placeholder="دوست کا نام تلاش کریں..." autocomplete="off">
-            </div>
-            <div id="chatSearchResults" class="chat-search-results"></div>
-            <div style="height:1px;background:#e5e7eb;margin:12px 0;"></div>
             <div style="font-size:13px;font-weight:bold;color:var(--primary-color);margin-bottom:9px;">💬 حالیہ چیٹس</div>
             <div id="recentChatsList"><div style="font-size:12px;color:var(--text-muted);padding:10px;">لوڈ ہو رہا ہے...</div></div>
             <div style="height:1px;background:#e5e7eb;margin:12px 0;"></div>
             <div style="font-size:13px;font-weight:bold;color:var(--primary-color);margin-bottom:9px;">🟢 ابھی آن لائن صارفین</div>
             <div id="onlineUsersList"><div style="font-size:12px;color:var(--text-muted);padding:10px;">لوڈ ہو رہا ہے...</div></div>
-          </div>
-          <div class="chat-panel" id="adminBroadcastPanel" style="background:#eff6ff;border-color:#bfdbfe;display:none;">
-            <div style="font-size:13px;font-weight:bold;color:#2563eb;margin-bottom:9px;">📢 تمام صارفین کو پیغام</div>
-            <textarea id="adminBroadcastText" maxlength="500" placeholder="تمام صارفین کے لیے پیغام لکھیں..." style="width:100%;min-height:75px;box-sizing:border-box;resize:vertical;border:1px solid #cbd5e1;border-radius:10px;padding:9px;font-family:inherit;font-size:12px;"></textarea>
-            <button type="button" onclick="sendAdminBroadcast()" style="width:100%;margin-top:7px;border:0;border-radius:9px;padding:10px;background:#2563eb;color:#fff;font-weight:bold;cursor:pointer;">📢 سب صارفین کو بھیجیں</button>
-            <div id="adminBroadcastStatus" style="font-size:11px;margin-top:7px;color:var(--text-muted);"></div>
           </div>
           <div class="chat-panel" id="adminChatPanel" style="background:#fffbeb;border-color:#fef08a;display:none;">
             <div style="font-size:13px;font-weight:bold;color:#d97706;margin-bottom:9px;">👑 Admin — تمام چیٹس</div>
@@ -1277,33 +1260,6 @@ function cleanupOldMessages(roomKey){
   }).catch(()=>{});
 }
 
-let chatUserSearchTimer=null;
-function searchChatUsers(){
-  const input=document.getElementById('chatUserSearch');
-  const box=document.getElementById('chatSearchResults');
-  if(!input||!box||!currentUser)return;
-  const q=(input.value||'').trim().toLowerCase();
-  if(chatUserSearchTimer)clearTimeout(chatUserSearchTimer);
-  chatUserSearchTimer=setTimeout(()=>{
-    if(!q){box.innerHTML='';return;}
-    box.innerHTML='<div style="font-size:11px;color:var(--text-muted);padding:7px;">تلاش ہو رہی ہے...</div>';
-    db.ref('users').once('value').then(snap=>{
-      const found=[];
-      snap.forEach(u=>{
-        if(u.key===currentUser.uid)return;
-        const v=u.val()||{};
-        const name=String(v.name||'صارف');
-        const email=String(v.email||'');
-        if(name.toLowerCase().includes(q)||email.toLowerCase().includes(q))found.push({uid:u.key,name,email});
-      });
-      found.sort((a,b)=>a.name.localeCompare(b.name));
-      if(!found.length){box.innerHTML='<div style="font-size:11px;color:var(--text-muted);padding:8px;">کوئی صارف نہیں ملا۔</div>';return;}
-      box.innerHTML=found.slice(0,20).map(u=>`<div class="chat-search-result"><span style="min-width:0;flex:1;"><b>${escapeChatHtml(u.name)}</b></span><button type="button" class="chat-search-msg" data-search-uid="${escapeChatHtml(u.uid)}" data-search-name="${escapeChatHtml(u.name)}">💬 پیغام</button></div>`).join('');
-      box.querySelectorAll('[data-search-uid]').forEach(btn=>btn.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();openPrivateChat(btn.getAttribute('data-search-uid'),btn.getAttribute('data-search-name')||'صارف');}));
-    }).catch(()=>{box.innerHTML='<div style="font-size:11px;color:#ef4444;padding:8px;">صارف تلاش نہیں ہو سکے۔</div>';});
-  },180);
-}
-
 function loadRecentChats(){
   const box=document.getElementById('recentChatsList'); if(!box)return;
   if(!currentUser){box.innerHTML='<div style="padding:10px;font-size:12px;">لاگ اِن کریں۔</div>';return;}
@@ -1422,8 +1378,6 @@ function loadAdminChatRooms(){
   const panel=document.getElementById('adminChatPanel'),box=document.getElementById('adminChatRooms');
   if(!panel||!box||!currentUser||currentUser.email!==ADMIN_EMAIL)return;
   panel.style.display='block';
-  const broadcastPanel=document.getElementById('adminBroadcastPanel');
-  if(broadcastPanel)broadcastPanel.style.display='block';
   db.ref('chats').on('value',snap=>{
     const rooms=[]; snap.forEach(r=>{
       let last=null; r.forEach(m=>{last={key:m.key,...(m.val()||{})};});
@@ -1432,36 +1386,6 @@ function loadAdminChatRooms(){
     rooms.sort((a,b)=>Number(b.last.timestamp||0)-Number(a.last.timestamp||0));
     box.innerHTML=rooms.length?rooms.map(r=>`<div class="chat-admin-room" onclick="openAdminRoom('${r.room}')"><b>💬 ${escapeChatHtml(r.last.senderName||'صارف')}</b><div style="font-size:11px;color:var(--text-muted);margin-top:2px;">${escapeChatHtml(r.last.text||'')} · ${chatTime(r.last.timestamp)}</div></div>`).join(''):'<div style="font-size:12px;color:var(--text-muted);">ابھی کوئی چیٹ موجود نہیں۔</div>';
     snap.forEach(r=>cleanupOldMessages(r.key));
-  });
-}
-function sendAdminBroadcast(){
-  if(!currentUser || currentUser.email!==ADMIN_EMAIL)return;
-  const input=document.getElementById('adminBroadcastText');
-  const status=document.getElementById('adminBroadcastStatus');
-  const text=(input&&input.value||'').trim();
-  if(!text){ if(status){status.style.color='#ef4444';status.innerText='پہلے پیغام لکھیں۔';} return; }
-  if(status){status.style.color='var(--text-muted)';status.innerText='پیغام بھیجا جا رہا ہے...';}
-  db.ref('users').once('value').then(snap=>{
-    const jobs=[]; let count=0;
-    snap.forEach(u=>{
-      if(u.key===currentUser.uid)return;
-      const room=chatUserKey(currentUser.uid,u.key);
-      const msg={sender:currentUser.uid,senderName:currentUser.displayName||currentUser.email||'Admin',receiver:u.key,text:text,timestamp:firebase.database.ServerValue.TIMESTAMP};
-      jobs.push(db.ref('chats/'+room).push(msg).then(()=>
-        Promise.all([
-          db.ref('chatUnreadByUser/'+u.key+'/'+currentUser.uid).transaction(v=>Number(v||0)+1),
-          db.ref('chatUnread/'+u.key).transaction(v=>Number(v||0)+1)
-        ])
-      ));
-      count++;
-    });
-    if(!count)throw new Error('NO_USERS');
-    return Promise.all(jobs).then(()=>count);
-  }).then(count=>{
-    if(input)input.value='';
-    if(status){status.style.color='#16a34a';status.innerText='پیغام '+count+' صارفین کو بھیج دیا گیا۔';}
-  }).catch(err=>{
-    if(status){status.style.color='#ef4444';status.innerText=err&&err.message==='NO_USERS'?'کوئی صارف موجود نہیں۔':'پیغام بھیجنے میں مسئلہ آیا۔';}
   });
 }
 function openAdminRoom(room){
@@ -1520,7 +1444,6 @@ function initChatSystem(){
   if(currentUser&&currentUser.email===ADMIN_EMAIL)loadAdminChatRooms();
   setInterval(()=>{ if(currentUser){loadRecentChats(); loadOnlineUsers(); if(activeChatUser)cleanupOldMessages(chatUserKey(currentUser.uid,activeChatUser.uid));} },60000);
   const inp=document.getElementById('chatInput'); if(inp)inp.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();sendChatMessage();}});
-  const search=document.getElementById('chatUserSearch'); if(search){search.addEventListener('input',searchChatUsers);search.addEventListener('keydown',e=>{if(e.key==='Escape'){search.value='';const r=document.getElementById('chatSearchResults');if(r)r.innerHTML='';}});}
 }
 /* ================= END CHAT SYSTEM ================= */
 
