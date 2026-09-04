@@ -619,63 +619,119 @@
       text-align: center;
     }
   
-    /* ===== PROFESSIONAL COMPETITION RESULT / VOICE LAYOUT ===== */
+    /* ===== COMPETITION TAB — MATCHED TO THE PROVIDED DESIGN ===== */
+    #compTab{
+      padding-bottom:12px;
+    }
+    #compTab > h2,
+    #compLeaderBox,
+    #compTopBar{
+      display:none !important;
+    }
+    #compDaroodSlot #daroodCard{
+      display:block !important;
+      width:100%;
+      box-sizing:border-box;
+      margin:0 0 10px;
+      padding:13px 12px 14px;
+      border:2px solid #d6a94a;
+      border-radius:20px;
+      background:#fff;
+      box-shadow:0 4px 14px rgba(180,120,20,.10);
+      text-align:center;
+    }
+    #compDaroodSlot #daroodArabicText{
+      font-size:21px;
+      line-height:1.85;
+    }
+    #compDaroodSlot .translation{
+      margin-top:8px;
+      padding-top:8px;
+      font-size:13px;
+      line-height:1.75;
+    }
+    #compDaroodSlot .speak-btn{
+      margin-top:8px;
+      padding:6px 18px;
+      font-size:15px;
+      border:1.5px solid #d6a94a;
+      background:#fffaf0;
+      border-radius:22px;
+    }
     .comp-result-card{
       width:100%;
-      max-width:360px;
-      margin:14px auto 10px;
+      max-width:none;
+      margin:0 auto 8px;
       padding:10px 10px 12px;
       box-sizing:border-box;
       border:1.5px solid #d6a94a;
       border-radius:20px;
-      background:linear-gradient(145deg,#fffdf7,#fff7df);
-      box-shadow:0 7px 22px rgba(180,120,20,.14);
+      background:#fffdf7;
+      box-shadow:0 4px 14px rgba(180,120,20,.10);
       position:relative;
       overflow:visible;
     }
     .comp-result-title{
-      text-align:center;
-      color:#a16207;
-      font-size:13px;
+      display:table;
+      margin:-25px auto 6px;
+      padding:5px 18px 4px;
+      border:1.5px solid #d6a94a;
+      border-radius:22px;
+      background:#fffdf7;
+      color:#166534;
+      font-size:15px;
       font-weight:800;
       line-height:1.4;
-      margin:0 0 2px;
     }
     .comp-result-message{
       display:none;
       text-align:center;
-      padding:1px 8px 5px;
-      font-size:12px;
+      margin:0 0 8px;
+      padding:5px 10px;
+      border:1.5px solid #d6a94a;
+      border-radius:18px;
+      background:#fff;
+      color:#dc2626;
+      font-size:13px;
       line-height:1.55;
       font-weight:800;
       min-height:0;
     }
     .comp-stats-row{
       display:grid;
-      grid-template-columns:minmax(0,1fr) 116px minmax(0,1fr);
+      grid-template-columns:minmax(0,1fr) 126px minmax(0,1fr);
       align-items:center;
       width:100%;
-      min-height:104px;
+      min-height:132px;
       box-sizing:border-box;
+      border:1.5px solid #d6a94a;
+      border-radius:18px;
+      background:#fffdf7;
+      overflow:visible;
     }
     .comp-stat{
       min-width:0;
+      height:100%;
       text-align:center;
-      padding:8px 4px;
+      padding:22px 4px 10px;
       box-sizing:border-box;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
     }
-    .comp-stat-rank{border-right:1px dashed rgba(180,120,20,.35);}
-    .comp-stat-count{border-left:1px dashed rgba(180,120,20,.35);}
+    .comp-stat-rank{border-right:2px solid rgba(214,169,74,.55);}
+    .comp-stat-count{border-left:2px solid rgba(214,169,74,.55);}
     .comp-stat-label{
-      font-size:12px;
+      font-size:14px;
       font-weight:800;
-      margin-bottom:4px;
+      margin-bottom:6px;
       white-space:nowrap;
     }
     .comp-stat-rank .comp-stat-label{color:#166534;}
     .comp-stat-count .comp-stat-label{color:#b45309;}
     .comp-stat-value{
-      font-size:27px;
+      font-size:30px;
       line-height:1;
       font-weight:900;
     }
@@ -686,7 +742,17 @@
       align-items:center;
       justify-content:center;
       position:relative;
-      height:104px;
+      height:132px;
+    }
+    .comp-mic-space::before{
+      content:"";
+      position:absolute;
+      width:116px;
+      height:116px;
+      border-radius:50%;
+      border:4px solid #f7d77a;
+      box-shadow:0 4px 12px rgba(180,120,20,.16);
+      pointer-events:none;
     }
     .comp-center-mic{
       position:relative !important;
@@ -698,18 +764,85 @@
       height:104px !important;
       margin:0 !important;
       flex-shrink:0;
-      background:linear-gradient(145deg,#e8890b,#b45309) !important;
-      border:4px solid #f7d77a !important;
+      background:linear-gradient(145deg,#f59e0b,#d97706) !important;
+      color:#fff !important;
+      border:3px solid #f7d77a !important;
       box-shadow:0 7px 18px rgba(180,120,20,.28), inset 0 1px 2px rgba(255,255,255,.35) !important;
     }
-    .comp-mic-icon{font-size:25px; line-height:1;}
+    .comp-center-mic.listening{
+      background:linear-gradient(145deg,#f59e0b,#d97706) !important;
+      color:#fff !important;
+      animation:none !important;
+    }
+    .comp-mic-icon{font-size:27px; line-height:1;}
     .comp-mic-text{font-size:13px; font-weight:800; line-height:1.35;}
+    #compStatusMsg{
+      margin:10px 0 5px;
+      padding:8px 10px;
+      min-height:0;
+      border:1.5px solid #9ac7b0;
+      border-radius:14px;
+      background:#effaf4;
+      color:#14532d !important;
+      font-size:14px;
+      text-align:center;
+      font-weight:800;
+    }
+    .comp-progress{
+      height:10px;
+      margin:0 8px 8px;
+      border-radius:999px;
+      background:#dfeee6;
+      border:1px solid #c7dfd0;
+      overflow:hidden;
+    }
+    .comp-progress-fill{
+      width:0%;
+      height:100%;
+      border-radius:999px;
+      background:#2aa879;
+      transition:width .2s linear;
+    }
+    #compTab > div[style*="مقابلے میں آپ کا اسکور"]{
+      margin:6px 0 10px !important;
+      color:#b7791f !important;
+      font-size:16px !important;
+      text-align:center;
+    }
+    #compTab > h3{
+      color:#b7791f !important;
+      margin:8px 0 8px !important;
+      font-size:18px !important;
+      text-align:center;
+      line-height:1.5;
+    }
+    #compTab table{
+      width:100%;
+      border-collapse:separate;
+      border-spacing:0;
+      overflow:hidden;
+      border-radius:16px;
+    }
+    #compTab table thead th{
+      background:#064e3b;
+      color:#fff;
+      padding:8px 6px;
+      font-size:13px;
+    }
+    #compTab table tbody td{
+      padding:8px 6px;
+      font-size:13px;
+      background:#fffdf7;
+      border-bottom:1px solid #ead9ae;
+    }
     @media (max-width:380px){
-      .comp-result-card{max-width:340px;}
-      .comp-stats-row{grid-template-columns:minmax(0,1fr) 106px minmax(0,1fr);}
-      .comp-center-mic{width:96px !important;height:96px !important;}
-      .comp-mic-space{height:96px;}
-      .comp-stat-value{font-size:25px;}
+      #compDaroodSlot #daroodArabicText{font-size:19px;}
+      .comp-stats-row{grid-template-columns:minmax(0,1fr) 112px minmax(0,1fr);}
+      .comp-center-mic{width:94px !important;height:94px !important;}
+      .comp-mic-space{height:124px;}
+      .comp-mic-space::before{width:106px;height:106px;}
+      .comp-stat-value{font-size:27px;}
+      .comp-stat-label{font-size:13px;}
     }
 
     /* ===== FINAL CHAT UI POLISH ===== */
@@ -979,6 +1112,9 @@
         </button>
       </div>
 
+      <!-- TAB 1: Home Tab -->
+      <div id="mainTab">
+
       <!-- ANDROID APP DOWNLOAD NOTICE -->
       <div id="appDownloadNotice" style="margin:6px 0 10px; background:linear-gradient(135deg,#064e3b,#0f766e); color:#fff; border:1px solid rgba(245,208,90,.7); border-radius:10px; padding:7px 9px; box-shadow:0 4px 12px rgba(0,0,0,.12); display:flex; align-items:center; gap:8px; direction:rtl;">
         <div style="font-size:20px; line-height:1;">📱</div>
@@ -990,8 +1126,6 @@
         <button onclick="document.getElementById('appDownloadNotice').style.display='none'" aria-label="بند کریں" style="background:transparent; color:#fff; border:0; font-size:16px; line-height:1; padding:2px 3px; cursor:pointer;">×</button>
       </div>
 
-      <!-- TAB 1: Home Tab -->
-      <div id="mainTab">
 
         
 
@@ -1146,13 +1280,13 @@
       <div id="compTab" class="hidden">
         <h2 style="font-size: 20px; color: #d97706; margin: 5px 0 10px 0;">🎯 مقابلے کا سیکشن</h2>
 
-        <div style="background:linear-gradient(135deg,#fffbeb,#fef3c7); border:1.5px solid #f59e0b; border-radius:14px; padding:12px; margin:10px 0; text-align:center; box-shadow:0 4px 15px rgba(245,158,11,.15);">
+        <div id="compLeaderBox" style="background:linear-gradient(135deg,#fffbeb,#fef3c7); border:1.5px solid #f59e0b; border-radius:14px; padding:12px; margin:10px 0; text-align:center; box-shadow:0 4px 15px rgba(245,158,11,.15);">
           <div style="font-size:13px; font-weight:bold; color:#d97706; margin-bottom:3px;">👑 آج کے مقابلے کا لیڈر</div>
           <div id="compWinnerHighlight" style="font-size:14px; color:#1f2937; font-weight:bold;">لوڈ ہو رہا ہے...</div>
         </div>
 
         <!-- Top Bar: Online Users + Countdown Timer -->
-        <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px; margin-bottom: 12px; flex-wrap: wrap;">
+        <div id="compTopBar" style="display: flex; justify-content: space-between; align-items: center; gap: 6px; margin-bottom: 12px; flex-wrap: wrap;">
           <div class="live-badge" style="margin-bottom: 0;">
             <span class="live-dot"></span> آن لائن: <span id="onlineCountComp">0</span>
           </div>
@@ -1189,6 +1323,7 @@
           </div>
         </div>
         <div id="compStatusMsg" class="status-msg" style="color: #d97706;">بولیں، میں سن رہا ہوں</div>
+        <div class="comp-progress" aria-hidden="true"><div id="compProgressFill" class="comp-progress-fill"></div></div>
         <div style="font-size: 15px; color: #d97706; margin-top: 8px;">مقابلے میں آپ کا اسکور: <b id="compUserTotal">0</b></div>
 
         <h3 style="color:#d97706; margin-top: 20px; font-size: 16px;">🥇 مقابلے کا Leaderboard</h3>
@@ -3118,7 +3253,11 @@ function switchBottomTab(tabName) {
         if (buttonCountdownTimer) clearInterval(buttonCountdownTimer);
 
         // Restore the gold competition button after the 30-second window.
-        if (isComp) btn.innerHTML = originalBtnHTML;
+        if (isComp) {
+          btn.innerHTML = originalBtnHTML;
+          const progressEl = document.getElementById("compProgressFill");
+          if (progressEl) progressEl.style.width = "100%";
+        }
 
         try { recognition.stop(); } catch (e) {}
 
@@ -3218,6 +3357,10 @@ function switchBottomTab(tabName) {
         if (finished) { clearInterval(countdownTimer); return; }
         const elapsedSeconds = Math.floor((Date.now() - startedAt) / 1000);
         const remainingSeconds = Math.max(0, 30 - elapsedSeconds);
+        if (isComp) {
+          const progressEl = document.getElementById("compProgressFill");
+          if (progressEl) progressEl.style.width = Math.min(100, (elapsedSeconds / 30) * 100) + "%";
+        }
         statusEl.style.color = "#0d3b22";
         statusEl.innerText = `سن رہا ہے... ${remainingSeconds} سیکنڈ باقی 🎙️`;
         if (remainingSeconds <= 0) clearInterval(countdownTimer);
