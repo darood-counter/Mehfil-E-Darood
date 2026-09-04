@@ -754,7 +754,17 @@
       .chat-compose .chat-send{width:82px;min-width:82px;font-size:15px;}
     }
 
-  </style>
+  
+    /* HADITH CARD */
+    .hadith-card{margin-top:12px;background:linear-gradient(135deg,#f0fdf4,#ffffff);border:1px solid #bbf7d0;border-radius:14px;padding:13px;box-shadow:0 4px 14px rgba(0,0,0,.04);text-align:right}
+    .hadith-title{font-weight:800;color:var(--primary-color);font-size:15px;margin-bottom:7px}
+    .hadith-text{font-size:14px;line-height:1.9;color:#263238;white-space:pre-wrap}
+    .hadith-ref{font-size:11px;color:var(--text-muted);margin-top:7px}
+    .admin-hadith-box{margin-top:14px;padding:12px;border-radius:12px;background:#fffbeb;border:1px solid #fde68a}
+    .admin-hadith-box textarea{width:100%;min-height:105px;resize:vertical;border:1px solid #d1d5db;border-radius:9px;padding:9px;font-family:inherit;font-size:13px;line-height:1.7;box-sizing:border-box;background:#fff}
+    .admin-hadith-box input{width:100%;box-sizing:border-box;border:1px solid #d1d5db;border-radius:9px;padding:8px;font-family:inherit;font-size:13px;margin-top:7px;background:#fff}
+
+</style>
 </head>
 <body>
 
@@ -933,7 +943,18 @@
           <div class="next-prayer-footer" id="nextPrayerFooter">
             اگلی نماز: --
           </div>
+        <div id="dailyHadithCard" style="background:linear-gradient(135deg,#f0fdf4,#ecfdf5);border:1px solid #bbf7d0;border-radius:14px;padding:14px;margin:10px 0 14px;text-align:right;box-shadow:0 3px 12px rgba(0,0,0,.04);">
+          <div style="font-size:15px;font-weight:800;color:var(--primary-color);margin-bottom:8px;">📖 آج کی حدیث</div>
+          <div id="dailyHadithText" style="font-size:14px;line-height:2;color:#14532d;font-weight:600;">حدیث لوڈ ہو رہی ہے...</div>
+          <div id="dailyHadithRef" style="font-size:11px;color:#64748b;margin-top:7px;">حوالہ: —</div>
         </div>
+
+        </div>
+          <div class="hadith-card" id="dailyHadithCard">
+            <div class="hadith-title">📖 آج کی حدیث</div>
+            <div class="hadith-text" id="dailyHadithText">تم میں بہترین وہ ہے جو قرآن سیکھے اور سکھائے۔</div>
+            <div class="hadith-ref" id="dailyHadithRef">صحیح البخاری، کتاب فضائل القرآن</div>
+          </div>
         <!-- END PRAYER TIMES CARD -->
 
 
@@ -963,9 +984,33 @@
           </div>
 
           <div id="adminWinnersList">لوڈ ہو رہا ہے...</div>
+
+          <div class="admin-hadith-box">
+            <div style="font-size:14px;font-weight:800;color:#92400e;margin-bottom:6px;">📖 آج کی حدیث تبدیل کریں</div>
+            <div style="font-size:11px;color:#78716c;margin-bottom:5px;">یہ حدیث تمام صارفین کے Home Page پر دکھائی جائے گی۔</div>
+            <textarea id="adminHadithText" placeholder="حدیث کا متن لکھیں..." dir="rtl"></textarea>
+            <input id="adminHadithRef" type="text" placeholder="حوالہ، مثلاً: صحیح بخاری، حدیث نمبر ..." dir="rtl">
+            <button class="save-profile-btn" style="width:100%;margin-top:8px;background:#15803d;" onclick="saveAdminHadith()">💾 حدیث محفوظ کریں</button>
+            <div id="adminHadithStatus" style="font-size:11px;margin-top:6px;text-align:center;"></div>
+          </div>
         </div>
 
-        <h3 style="color:var(--primary-color); margin-top: 20px; font-size: 16px; text-align: right;">🏆 ٹاپ 5 ونرز (Daily Competition Winners — Minimum 100)</h3>
+        
+        <div id="adminHadithPanel" class="admin-panel" style="display:none;text-align:right;margin-top:12px;background:#fffbeb;border:1px solid #fde68a;border-radius:14px;padding:12px;">
+          <div class="admin-title" style="margin-bottom:8px;">📖 حدیث کنٹرول</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-bottom:8px;">
+            عام طور پر حدیث ہر دن خود بخود تبدیل ہوگی۔ اگر Admin آج کی حدیث خود منتخب کرنا چاہے تو یہاں لکھ کر محفوظ کر سکتا ہے۔
+          </div>
+          <textarea id="adminHadithText" rows="3" placeholder="آج کی حدیث لکھیں..." style="width:100%;box-sizing:border-box;padding:9px;border:1px solid #d1d5db;border-radius:9px;font-family:inherit;resize:vertical;"></textarea>
+          <input id="adminHadithRef" type="text" placeholder="حوالہ، مثلاً: صحیح البخاری: 1" style="width:100%;box-sizing:border-box;padding:9px;margin-top:7px;border:1px solid #d1d5db;border-radius:9px;font-family:inherit;">
+          <div style="display:flex;gap:7px;margin-top:8px;">
+            <button type="button" onclick="saveHadithOverride()" style="flex:1;background:var(--primary-color);color:#fff;border:0;border-radius:9px;padding:9px;font-family:inherit;cursor:pointer;">💾 آج کے لیے محفوظ کریں</button>
+            <button type="button" onclick="clearHadithOverride()" style="flex:1;background:#64748b;color:#fff;border:0;border-radius:9px;padding:9px;font-family:inherit;cursor:pointer;">🔄 خودکار کریں</button>
+          </div>
+          <div id="adminHadithStatus" style="font-size:11px;margin-top:7px;color:#15803d;"></div>
+        </div>
+
+<h3 style="color:var(--primary-color); margin-top: 20px; font-size: 16px; text-align: right;">🏆 ٹاپ 5 ونرز (Daily Competition Winners — Minimum 100)</h3>
         <div id="homeTop5Winners">
           <div style="text-align:center; padding:14px;">لوڈ ہو رہا ہے...</div>
         </div>
@@ -1906,9 +1951,12 @@ function switchBottomTab(tabName) {
         if (user.email === ADMIN_EMAIL) {
           document.getElementById("adminPanelSection").classList.remove("hidden");
           loadAdminData();
+          loadAdminHadithEditor();
         } else {
           document.getElementById("adminPanelSection").classList.add("hidden");
         }
+
+        loadHadithContent();
 
         db.ref("users/" + user.uid).on("value", snapshot => {
           const data = snapshot.val();
@@ -2014,6 +2062,186 @@ function switchBottomTab(tabName) {
         alert('آپ کا براؤزر جیو لوکیشن کو سپورٹ نہیں کرتا۔');
       }
     }
+
+
+    /* ================= DAILY HADITH SYSTEM ================= */
+    const DAILY_HADITHS = [
+      {
+        text: "تم میں سب سے بہتر وہ ہے جو قرآن سیکھے اور سکھائے۔",
+        ref: "صحیح البخاری: 5027"
+      },
+      {
+        text: "اعمال کا دار و مدار نیتوں پر ہے، اور ہر شخص کو وہی ملے گا جس کی اس نے نیت کی۔",
+        ref: "صحیح البخاری: 1، صحیح مسلم: 1907"
+      },
+      {
+        text: "جو شخص اللہ اور آخرت کے دن پر ایمان رکھتا ہے، اسے چاہیے کہ اچھی بات کہے یا خاموش رہے۔",
+        ref: "صحیح البخاری: 6018، صحیح مسلم: 47"
+      },
+      {
+        text: "تم میں سے کوئی شخص اس وقت تک مومن نہیں ہو سکتا جب تک وہ اپنے بھائی کے لیے وہی پسند نہ کرے جو اپنے لیے پسند کرتا ہے۔",
+        ref: "صحیح البخاری: 13، صحیح مسلم: 45"
+      },
+      {
+        text: "پاکیزگی نصف ایمان ہے۔",
+        ref: "صحیح مسلم: 223"
+      },
+      {
+        text: "مسلمان وہ ہے جس کی زبان اور ہاتھ سے دوسرے مسلمان محفوظ رہیں۔",
+        ref: "صحیح البخاری: 10، صحیح مسلم: 40"
+      },
+      {
+        text: "جو شخص کسی مسلمان کی دنیاوی تکلیف دور کرے، اللہ قیامت کے دن اس کی تکلیف دور فرمائے گا۔",
+        ref: "صحیح مسلم: 2699"
+      },
+      {
+        text: "اللہ تمہارے جسموں اور صورتوں کو نہیں دیکھتا، بلکہ تمہارے دلوں اور اعمال کو دیکھتا ہے۔",
+        ref: "صحیح مسلم: 2564"
+      },
+      {
+        text: "مضبوط مومن اللہ کے نزدیک کمزور مومن سے بہتر اور زیادہ محبوب ہے، اگرچہ دونوں میں خیر ہے۔",
+        ref: "صحیح مسلم: 2664"
+      },
+      {
+        text: "اللہ تعالیٰ رحم کرنے والوں پر رحم فرماتا ہے۔",
+        ref: "جامع الترمذی: 1924"
+      }
+    ];
+
+    function getDailyHadith() {
+      const dayNumber = Math.floor(Date.now() / 86400000);
+      return DAILY_HADITHS[((dayNumber % DAILY_HADITHS.length) + DAILY_HADITHS.length) % DAILY_HADITHS.length];
+    }
+
+    function escapeHadithHtml(value) {
+      return String(value || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function renderDailyHadith() {
+      const textEl = document.getElementById("dailyHadithText");
+      const refEl = document.getElementById("dailyHadithRef");
+      if (!textEl || !refEl) return;
+
+      const hadith = getDailyHadith();
+      textEl.innerText = hadith.text;
+      refEl.innerText = "حوالہ: " + hadith.ref;
+    }
+
+    // Admin can still override the automatic daily hadith.
+    function loadDailyHadith() {
+      renderDailyHadith();
+
+      if (typeof db === "undefined") return;
+      db.ref("siteContent/hadith").once("value").then(snapshot => {
+        const saved = snapshot.val();
+        if (!saved || !saved.text) return;
+
+        const today = getLocalDateKey();
+        if (saved.date === today) {
+          const textEl = document.getElementById("dailyHadithText");
+          const refEl = document.getElementById("dailyHadithRef");
+          if (textEl) textEl.innerText = saved.text;
+          if (refEl) refEl.innerText = "حوالہ: " + (saved.ref || "—");
+        }
+      }).catch(() => {});
+    }
+
+    function saveHadithOverride() {
+      if (!currentUser || currentUser.email !== ADMIN_EMAIL) return;
+
+      const textEl = document.getElementById("adminHadithText");
+      const refEl = document.getElementById("adminHadithRef");
+      const statusEl = document.getElementById("adminHadithStatus");
+
+      const text = (textEl && textEl.value || "").trim();
+      const ref = (refEl && refEl.value || "").trim();
+
+      if (!text) {
+        if (statusEl) statusEl.innerText = "پہلے حدیث لکھیں۔";
+        return;
+      }
+
+      db.ref("siteContent/hadith").set({
+        text: text,
+        ref: ref,
+        date: getLocalDateKey(),
+        updatedAt: firebase.database.ServerValue.TIMESTAMP,
+        updatedBy: currentUser.uid
+      }).then(() => {
+        const displayText = document.getElementById("dailyHadithText");
+        const displayRef = document.getElementById("dailyHadithRef");
+        if (displayText) displayText.innerText = text;
+        if (displayRef) displayRef.innerText = "حوالہ: " + (ref || "—");
+        if (statusEl) statusEl.innerText = "آج کی حدیث محفوظ ہو گئی۔";
+      }).catch(() => {
+        if (statusEl) statusEl.innerText = "حدیث محفوظ نہیں ہو سکی۔";
+      });
+    }
+
+    function clearHadithOverride() {
+      if (!currentUser || currentUser.email !== ADMIN_EMAIL) return;
+
+      db.ref("siteContent/hadith").remove().then(() => {
+        const t = document.getElementById("adminHadithText");
+        const r = document.getElementById("adminHadithRef");
+        if (t) t.value = "";
+        if (r) r.value = "";
+        renderDailyHadith();
+
+        const statusEl = document.getElementById("adminHadithStatus");
+        if (statusEl) statusEl.innerText = "خودکار روزانہ حدیث دوبارہ فعال ہو گئی۔";
+      }).catch(() => {
+        const statusEl = document.getElementById("adminHadithStatus");
+        if (statusEl) statusEl.innerText = "تبدیلی واپس نہیں ہو سکی۔";
+      });
+    }
+
+    function loadAdminHadithEditor() {
+      if (!currentUser || currentUser.email !== ADMIN_EMAIL) return;
+
+      const panel = document.getElementById("adminHadithPanel");
+      if (panel) panel.style.display = "block";
+
+      db.ref("siteContent/hadith").once("value").then(snapshot => {
+        const saved = snapshot.val() || {};
+        const today = getLocalDateKey();
+
+        const t = document.getElementById("adminHadithText");
+        const r = document.getElementById("adminHadithRef");
+
+        if (saved.date === today && saved.text) {
+          if (t) t.value = saved.text;
+          if (r) r.value = saved.ref || "";
+        } else {
+          if (t) t.value = "";
+          if (r) r.value = "";
+        }
+      }).catch(() => {});
+    }
+
+    function initDailyHadithSystem() {
+      loadDailyHadith();
+
+      // Refresh shortly after midnight so the next day's hadith appears
+      // without requiring the user to reload the page.
+      let lastHadithDate = getLocalDateKey();
+      setInterval(() => {
+        const nowDate = getLocalDateKey();
+        if (nowDate !== lastHadithDate) {
+          lastHadithDate = nowDate;
+          loadDailyHadith();
+        }
+      }, 30000);
+    }
+
+    /* ================= END DAILY HADITH SYSTEM ================= */
+
+    initDailyHadithSystem();
 
     function fetchPrayerTimes() {
       let city = document.getElementById("cityInput").value.trim() || localStorage.getItem('user_city') || "Lahore";
@@ -2354,6 +2582,53 @@ function switchBottomTab(tabName) {
     function applyDateRangeFilter() {
       currentAdminFilter = 'custom';
       loadAdminData();
+    }
+
+    const DEFAULT_HADITH = {
+      text: "تم میں بہترین وہ ہے جو قرآن سیکھے اور سکھائے۔",
+      ref: "صحیح البخاری، کتاب فضائل القرآن"
+    };
+
+    function renderHadith(hadith) {
+      const h = hadith || DEFAULT_HADITH;
+      const textEl = document.getElementById("dailyHadithText");
+      const refEl = document.getElementById("dailyHadithRef");
+      if (textEl) textEl.textContent = h.text || DEFAULT_HADITH.text;
+      if (refEl) refEl.textContent = h.ref || DEFAULT_HADITH.ref;
+    }
+
+    function loadHadithContent() {
+      db.ref("siteContent/hadith").once("value").then(snapshot => {
+        const h = snapshot.val();
+        const finalHadith = (h && h.text) ? h : DEFAULT_HADITH;
+        renderHadith(finalHadith);
+        if (currentUser && currentUser.email === ADMIN_EMAIL) {
+          const t = document.getElementById("adminHadithText");
+          const r = document.getElementById("adminHadithRef");
+          if (t) t.value = finalHadith.text;
+          if (r) r.value = finalHadith.ref || "";
+        }
+      }).catch(() => renderHadith(DEFAULT_HADITH));
+    }
+
+    function saveAdminHadith() {
+      if (!currentUser || currentUser.email !== ADMIN_EMAIL) return;
+      const textEl = document.getElementById("adminHadithText");
+      const refEl = document.getElementById("adminHadithRef");
+      const statusEl = document.getElementById("adminHadithStatus");
+      const text = (textEl && textEl.value || "").trim();
+      const ref = (refEl && refEl.value || "").trim();
+      if (!text) {
+        if (statusEl) { statusEl.style.color = "#dc2626"; statusEl.textContent = "پہلے حدیث کا متن لکھیں۔"; }
+        return;
+      }
+      if (statusEl) { statusEl.style.color = "#92400e"; statusEl.textContent = "محفوظ ہو رہی ہے..."; }
+      db.ref("siteContent/hadith").set({text:text, ref:ref || "حوالہ درج نہیں کیا گیا"}).then(() => {
+        renderHadith({text:text, ref:ref || "حوالہ درج نہیں کیا گیا"});
+        if (statusEl) { statusEl.style.color = "#15803d"; statusEl.textContent = "✓ حدیث کامیابی سے محفوظ ہو گئی۔"; }
+      }).catch(() => {
+        if (statusEl) { statusEl.style.color = "#dc2626"; statusEl.textContent = "حدیث محفوظ نہیں ہو سکی۔ Firebase Rules چیک کریں۔"; }
+      });
     }
 
     function loadAdminData() {
