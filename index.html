@@ -2090,9 +2090,6 @@ function switchBottomTab(tabName) {
 
       document.querySelectorAll(".bottom-nav .nav-item").forEach(el => el.classList.remove("active"));
 
-      const appNotice = document.getElementById("appDownloadNotice");
-      if (appNotice) appNotice.style.display = tabName === 'competition' ? 'none' : 'flex';
-
       if (tabName === 'home') {
         document.getElementById("mainTab").classList.remove("hidden");
         document.getElementById("navHome").classList.add("active");
