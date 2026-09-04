@@ -1071,11 +1071,18 @@
 
         <div id="compDaroodSlot"></div>
 
-        <button class="mic-btn" style="background: linear-gradient(135deg, #d97706, #b45309); color:white; width: 130px; height: 130px; margin: 15px auto;" id="compCountBtn">
+        <div id="compResultBar" style="display:none; width:100%; max-width:320px; margin:10px auto 4px; padding:8px 12px; box-sizing:border-box; border:1px solid #f59e0b; border-radius:12px; background:#fffbeb; color:#92400e; font-weight:bold; font-size:13px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
+            <span style="text-align:left; direction:ltr;">درود: <b id="compResultCount">0</b></span>
+            <span style="text-align:right;">رینک: <b id="compResultRank">-</b></span>
+          </div>
+        </div>
+
+        <button class="mic-btn" style="background: linear-gradient(135deg, #d97706, #b45309); color:white; width: 130px; height: 130px; margin: 8px auto 6px;" id="compCountBtn">
           <span style="font-size: 24px;">🎙️</span>
-          <span>مقابلے کے لیے بولیں</span>
+          <span>درود شریف پڑھیں</span>
         </button>
-        <div id="compStatusMsg" class="status-msg" style="color: #d97706;"></div>
+        <div id="compStatusMsg" class="status-msg" style="color: #d97706;">بولیں، میں سن رہا ہوں</div>
         <div style="font-size: 15px; color: #d97706; margin-top: 8px;">مقابلے میں آپ کا اسکور: <b id="compUserTotal">0</b></div>
 
         <h3 style="color:#d97706; margin-top: 20px; font-size: 16px;">🥇 مقابلے کا Leaderboard</h3>
@@ -2599,6 +2606,17 @@ function switchBottomTab(tabName) {
       });
       document.getElementById("compBoard").innerHTML = tbody || `<tr><td colspan="3">آج کوئی مقابلہ نہیں ہوا</td></tr>`;
 
+      if (currentUser) {
+        const myIndex = compList.findIndex(u => u.uid === currentUser.uid);
+        const myData = myIndex >= 0 ? compList[myIndex] : null;
+        const bar = document.getElementById("compResultBar");
+        if (bar && myData && Number(myData.count || 0) > 0) {
+          bar.style.display = "block";
+          document.getElementById("compResultCount").innerText = myData.count;
+          document.getElementById("compResultRank").innerText = myIndex + 1;
+        }
+      }
+
       const topWinner = compList[0];
       const highlightEl = document.getElementById("compWinnerHighlight");
 
@@ -2921,7 +2939,7 @@ function switchBottomTab(tabName) {
       }
 
       statusEl.style.color = "#0d3b22";
-      statusEl.innerText = "سن رہا ہے... درود شریف پڑھیں 🎙️";
+      statusEl.innerText = isComp ? "بولیں، میں سن رہا ہوں" : "سن رہا ہے... درود شریف پڑھیں 🎙️";
 
       // Keep the mobile display awake while the user is reciting.
       requestScreenWakeLock();
@@ -3014,6 +3032,24 @@ function switchBottomTab(tabName) {
                 count: (current.count || 0) + 1,
                 name: currentUser.displayName || currentUser.email
               };
+            }).then(() => {
+              db.ref("competitions/" + todayDateKey).once("value").then(snapshot => {
+                const list = [];
+                snapshot.forEach(child => {
+                  const v = child.val() || {};
+                  list.push({ uid: child.key, count: Number(v.count || 0) });
+                });
+                list.sort((a,b) => b.count - a.count);
+                const me = list.findIndex(x => x.uid === currentUser.uid);
+                const rank = me >= 0 ? me + 1 : "-";
+                const mine = me >= 0 ? list[me].count : 0;
+                const bar = document.getElementById("compResultBar");
+                if (bar) bar.style.display = "block";
+                const countEl = document.getElementById("compResultCount");
+                const rankEl = document.getElementById("compResultRank");
+                if (countEl) countEl.innerText = mine;
+                if (rankEl) rankEl.innerText = rank;
+              });
             });
           } else {
             db.ref("users/" + currentUser.uid).transaction(current => {
@@ -3035,8 +3071,8 @@ function switchBottomTab(tabName) {
             });
           }
 
-          statusEl.style.color = "#0d3b22";
-          statusEl.innerText = "✓ درود شریف شمار ہو گیا!";
+          statusEl.style.color = "#d97706";
+          statusEl.innerText = isComp ? "بولیں، میں سن رہا ہوں" : "✓ درود شریف شمار ہو گیا!";
           playSuccessSound();
           triggerVibration();
         }
