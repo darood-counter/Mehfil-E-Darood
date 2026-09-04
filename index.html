@@ -764,9 +764,36 @@
     .admin-hadith-box textarea{width:100%;min-height:105px;resize:vertical;border:1px solid #d1d5db;border-radius:9px;padding:9px;font-family:inherit;font-size:13px;line-height:1.7;box-sizing:border-box;background:#fff}
     .admin-hadith-box input{width:100%;box-sizing:border-box;border:1px solid #d1d5db;border-radius:9px;padding:8px;font-family:inherit;font-size:13px;margin-top:7px;background:#fff}
 
+    /* PRAYER NOTIFICATION POPUP */
+    #prayerPopupOverlay{position:fixed;inset:0;background:rgba(0,0,0,.48);display:none;align-items:center;justify-content:center;z-index:99999;padding:18px;box-sizing:border-box}
+    #prayerPopupOverlay.show{display:flex}
+    .prayer-popup{width:min(420px,100%);background:#fff;border-radius:20px;padding:22px;text-align:center;box-shadow:0 18px 60px rgba(0,0,0,.25);position:relative;animation:prayerPopupIn .25s ease}
+    .prayer-popup-close{position:absolute;top:8px;left:10px;border:0;background:transparent;font-size:26px;cursor:pointer;color:#666}
+    .prayer-popup-icon{font-size:42px;margin-bottom:6px}
+    .prayer-popup-title{font-size:21px;font-weight:800;color:var(--primary-color);margin-bottom:8px}
+    .prayer-popup-time{font-size:14px;color:var(--text-muted);margin-bottom:14px}
+    .prayer-popup-hadith{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:13px;padding:12px;line-height:1.9;font-size:14px;text-align:right}
+    .prayer-popup-ref{font-size:11px;color:var(--text-muted);margin-top:6px}
+    .prayer-popup-countdown{font-size:11px;color:#888;margin-top:12px}
+    @keyframes prayerPopupIn{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:scale(1)}}
+
 </style>
 </head>
 <body>
+
+  <div id="prayerPopupOverlay" aria-hidden="true">
+    <div class="prayer-popup" role="dialog" aria-modal="true">
+      <button class="prayer-popup-close" id="prayerPopupClose" aria-label="Close">×</button>
+      <div class="prayer-popup-icon" id="prayerPopupIcon">🕌</div>
+      <div class="prayer-popup-title" id="prayerPopupTitle">نماز کا وقت</div>
+      <div class="prayer-popup-time" id="prayerPopupTime"></div>
+      <div class="prayer-popup-hadith">
+        <div id="prayerPopupHadith"></div>
+        <div class="prayer-popup-ref" id="prayerPopupHadithRef"></div>
+      </div>
+      <div class="prayer-popup-countdown" id="prayerPopupCountdown">15 سیکنڈ میں خود بند ہو جائے گا</div>
+    </div>
+  </div>
 
   <div style="display:none;">
     <iframe id="youtubeAudioFrame" width="200" height="200" src="https://www.youtube.com/embed/B1kvwM-2AUc?enablejsapi=1&autoplay=0" allow="autoplay"></iframe>
@@ -2243,6 +2270,70 @@ function switchBottomTab(tabName) {
 
     initDailyHadithSystem();
 
+    let prayerPopupTimer = null;
+    let prayerPopupCountdownTimer = null;
+    let latestPrayerTimings = null;
+    let latestPrayerCity = "";
+    let latestPrayerCountry = "";
+
+    function closePrayerPopup() {
+      const overlay = document.getElementById("prayerPopupOverlay");
+      if (overlay) { overlay.classList.remove("show"); overlay.setAttribute("aria-hidden", "true"); }
+      if (prayerPopupTimer) clearTimeout(prayerPopupTimer);
+      if (prayerPopupCountdownTimer) clearInterval(prayerPopupCountdownTimer);
+      prayerPopupTimer = null;
+      prayerPopupCountdownTimer = null;
+    }
+
+    function showPrayerPopup(prayer, timeText) {
+      const overlay = document.getElementById("prayerPopupOverlay");
+      if (!overlay) return;
+      const hadithText = document.getElementById("dailyHadithText");
+      const hadithRef = document.getElementById("dailyHadithRef");
+      document.getElementById("prayerPopupIcon").innerText = prayer.icon || "🕌";
+      document.getElementById("prayerPopupTitle").innerText = `نمازِ ${prayer.name} کا وقت`;
+      document.getElementById("prayerPopupTime").innerText = `وقت: ${timeText}`;
+      document.getElementById("prayerPopupHadith").innerText = hadithText ? hadithText.innerText : "اللہ کا ذکر دلوں کو سکون دیتا ہے۔";
+      document.getElementById("prayerPopupHadithRef").innerText = hadithRef ? hadithRef.innerText : "";
+      overlay.classList.add("show");
+      overlay.setAttribute("aria-hidden", "false");
+
+      let remaining = 15;
+      document.getElementById("prayerPopupCountdown").innerText = `${remaining} سیکنڈ میں خود بند ہو جائے گا`;
+      prayerPopupCountdownTimer = setInterval(() => {
+        remaining--;
+        const el = document.getElementById("prayerPopupCountdown");
+        if (el) el.innerText = remaining > 0 ? `${remaining} سیکنڈ میں خود بند ہو جائے گا` : "";
+        if (remaining <= 0) clearInterval(prayerPopupCountdownTimer);
+      }, 1000);
+      prayerPopupTimer = setTimeout(closePrayerPopup, 15000);
+    }
+
+    function checkPrayerPopup() {
+      if (!latestPrayerTimings) return;
+      const prayers = [
+        { key: 'Fajr', name: 'فجر', icon: '🌙' },
+        { key: 'Dhuhr', name: 'ظہر', icon: '☀️' },
+        { key: 'Asr', name: 'عصر', icon: '⛅' },
+        { key: 'Maghrib', name: 'مغرب', icon: '🌇' },
+        { key: 'Isha', name: 'عشاء', icon: '🌌' }
+      ];
+      const now = new Date();
+      const dateKey = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+      const minuteKey = `${dateKey}_${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+      prayers.forEach(prayer => {
+        const t = latestPrayerTimings[prayer.key];
+        if (!t) return;
+        const target = timeToMinutes(format12Hour(t));
+        const current = now.getHours() * 60 + now.getMinutes();
+        const exactKey = `${minuteKey}_${prayer.key}`;
+        if (current === target && localStorage.getItem('prayer_popup_seen') !== exactKey) {
+          localStorage.setItem('prayer_popup_seen', exactKey);
+          showPrayerPopup(prayer, format12Hour(t));
+        }
+      });
+    }
+
     function fetchPrayerTimes() {
       let city = document.getElementById("cityInput").value.trim() || localStorage.getItem('user_city') || "Lahore";
       let country = document.getElementById("countryInput").value.trim() || localStorage.getItem('user_country') || "Pakistan";
@@ -2254,6 +2345,9 @@ function switchBottomTab(tabName) {
         .then(data => {
           if (data && data.code === 200) {
             const timings = data.data.timings;
+            latestPrayerTimings = timings;
+            latestPrayerCity = city;
+            latestPrayerCountry = country;
             const dateObj = data.data.date;
             document.getElementById("prayerDateDisplay").innerText = `${dateObj.hijri.weekday.en}، ${dateObj.readable} (${city}, ${country})`;
 
@@ -2308,6 +2402,12 @@ function switchBottomTab(tabName) {
           document.getElementById("prayerTableBody").innerHTML = `<tr><td colspan="3">اوقات لوڈ کرنے میں ناکامی</td></tr>`;
         });
     }
+
+    document.getElementById("prayerPopupClose").onclick = closePrayerPopup;
+    document.getElementById("prayerPopupOverlay").addEventListener("click", (e) => {
+      if (e.target.id === "prayerPopupOverlay") closePrayerPopup();
+    });
+    setInterval(checkPrayerPopup, 1000);
 
     db.ref("status").on("value", snapshot => {
       const count = snapshot.numChildren();
