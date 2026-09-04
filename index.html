@@ -2903,6 +2903,23 @@ function switchBottomTab(tabName) {
 
       btn.disabled = true;
       btn.classList.add("listening");
+
+      // Competition button: show the 30-second countdown INSIDE the gold button.
+      // When the 30 seconds finish, restore the original button exactly as it was.
+      const originalBtnHTML = btn.innerHTML;
+      let buttonCountdownTimer = null;
+      let buttonCountdownStartedAt = Date.now();
+      if (isComp) {
+        btn.innerHTML = '<span style="font-size:42px;font-weight:800;line-height:1;">30</span><span style="font-size:13px;font-weight:bold;">سیکنڈ باقی</span>';
+        buttonCountdownTimer = setInterval(() => {
+          if (finished) return;
+          const elapsed = Math.floor((Date.now() - buttonCountdownStartedAt) / 1000);
+          const remaining = Math.max(0, 30 - elapsed);
+          btn.innerHTML = '<span style="font-size:42px;font-weight:800;line-height:1;">' + remaining + '</span><span style="font-size:13px;font-weight:bold;">سیکنڈ باقی</span>';
+          if (remaining <= 0) clearInterval(buttonCountdownTimer);
+        }, 250);
+      }
+
       statusEl.style.color = "#0d3b22";
       statusEl.innerText = "سن رہا ہے... درود شریف پڑھیں 🎙️";
 
@@ -2974,6 +2991,10 @@ function switchBottomTab(tabName) {
         finished = true;
         if (finishTimer) clearTimeout(finishTimer);
         if (countdownTimer) clearInterval(countdownTimer);
+        if (buttonCountdownTimer) clearInterval(buttonCountdownTimer);
+
+        // Restore the gold competition button after the 30-second window.
+        if (isComp) btn.innerHTML = originalBtnHTML;
 
         try { recognition.stop(); } catch (e) {}
 
