@@ -619,6 +619,99 @@
       text-align: center;
     }
   
+    /* ===== PROFESSIONAL COMPETITION RESULT / VOICE LAYOUT ===== */
+    .comp-result-card{
+      width:100%;
+      max-width:360px;
+      margin:14px auto 10px;
+      padding:10px 10px 12px;
+      box-sizing:border-box;
+      border:1.5px solid #d6a94a;
+      border-radius:20px;
+      background:linear-gradient(145deg,#fffdf7,#fff7df);
+      box-shadow:0 7px 22px rgba(180,120,20,.14);
+      position:relative;
+      overflow:visible;
+    }
+    .comp-result-title{
+      text-align:center;
+      color:#a16207;
+      font-size:13px;
+      font-weight:800;
+      line-height:1.4;
+      margin:0 0 2px;
+    }
+    .comp-result-message{
+      display:none;
+      text-align:center;
+      padding:1px 8px 5px;
+      font-size:12px;
+      line-height:1.55;
+      font-weight:800;
+      min-height:0;
+    }
+    .comp-stats-row{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) 116px minmax(0,1fr);
+      align-items:center;
+      width:100%;
+      min-height:104px;
+      box-sizing:border-box;
+    }
+    .comp-stat{
+      min-width:0;
+      text-align:center;
+      padding:8px 4px;
+      box-sizing:border-box;
+    }
+    .comp-stat-rank{border-right:1px dashed rgba(180,120,20,.35);}
+    .comp-stat-count{border-left:1px dashed rgba(180,120,20,.35);}
+    .comp-stat-label{
+      font-size:12px;
+      font-weight:800;
+      margin-bottom:4px;
+      white-space:nowrap;
+    }
+    .comp-stat-rank .comp-stat-label{color:#166534;}
+    .comp-stat-count .comp-stat-label{color:#b45309;}
+    .comp-stat-value{
+      font-size:27px;
+      line-height:1;
+      font-weight:900;
+    }
+    .comp-stat-rank .comp-stat-value{color:#14532d;}
+    .comp-stat-count .comp-stat-value{color:#92400e;}
+    .comp-mic-space{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      position:relative;
+      height:104px;
+    }
+    .comp-center-mic{
+      position:relative !important;
+      left:auto !important;
+      top:auto !important;
+      transform:none !important;
+      z-index:2;
+      width:104px !important;
+      height:104px !important;
+      margin:0 !important;
+      flex-shrink:0;
+      background:linear-gradient(145deg,#e8890b,#b45309) !important;
+      border:4px solid #f7d77a !important;
+      box-shadow:0 7px 18px rgba(180,120,20,.28), inset 0 1px 2px rgba(255,255,255,.35) !important;
+    }
+    .comp-mic-icon{font-size:25px; line-height:1;}
+    .comp-mic-text{font-size:13px; font-weight:800; line-height:1.35;}
+    @media (max-width:380px){
+      .comp-result-card{max-width:340px;}
+      .comp-stats-row{grid-template-columns:minmax(0,1fr) 106px minmax(0,1fr);}
+      .comp-center-mic{width:96px !important;height:96px !important;}
+      .comp-mic-space{height:96px;}
+      .comp-stat-value{font-size:25px;}
+    }
+
     /* ===== FINAL CHAT UI POLISH ===== */
     #privateChatView:not(.hidden){
       position:fixed;
@@ -1071,23 +1164,28 @@
 
         <div id="compDaroodSlot"></div>
 
-        <!-- Personal result + ranking/count + centered voice button -->
-        <div id="compResultBar" style="display:block; width:100%; max-width:310px; margin:12px auto 8px; padding:0; box-sizing:border-box; border:1.5px solid #d6a94a; border-radius:18px; background:linear-gradient(135deg,#fffdf5,#fff7df); color:#713f12; font-weight:bold; font-size:13px; overflow:visible; box-shadow:0 5px 18px rgba(180,120,20,.14); position:relative;">
-          <div style="text-align:center; padding:7px 10px 2px; font-size:12px; color:#a16207;">✨ آپ کا نتیجہ ✨</div>
-          <div id="compResultMessage" style="display:none; text-align:center; padding:2px 10px 7px; font-size:12px; line-height:1.6; font-weight:bold;"></div>
-          <div style="display:flex; justify-content:space-between; align-items:center; width:100%; min-height:76px; position:relative; box-sizing:border-box;">
-            <div style="width:50%; text-align:center; padding:6px 6px 10px; box-sizing:border-box;">
-              <div style="font-size:12px; color:#166534; margin-bottom:2px;">🏆 رینکنگ</div>
-              <div style="font-size:22px; line-height:1.1; color:#14532d;"><b id="compResultRank">-</b></div>
+        <!-- Personal result + balanced ranking/count with centered voice button -->
+        <div id="compResultBar" class="comp-result-card">
+          <div class="comp-result-title">✨ آپ کا نتیجہ ✨</div>
+          <div id="compResultMessage" class="comp-result-message"></div>
+
+          <div class="comp-stats-row">
+            <div class="comp-stat comp-stat-rank">
+              <div class="comp-stat-label">🏆 رینکنگ</div>
+              <div class="comp-stat-value" id="compResultRank">-</div>
             </div>
-            <div style="width:50%; text-align:center; padding:6px 6px 10px; box-sizing:border-box;">
-              <div style="font-size:12px; color:#b45309; margin-bottom:2px;">📿 درود</div>
-              <div style="font-size:22px; line-height:1.1; color:#92400e;"><b id="compResultCount">0</b></div>
+
+            <div class="comp-mic-space">
+              <button class="mic-btn comp-center-mic" id="compCountBtn">
+                <span class="comp-mic-icon">🎙️</span>
+                <span class="comp-mic-text">درود شریف پڑھیں</span>
+              </button>
             </div>
-            <button class="mic-btn" style="position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); z-index:5; background:linear-gradient(135deg,#d97706,#b45309); color:white; width:112px; height:112px; margin:0; border:4px solid #f7d77a; box-shadow:0 6px 18px rgba(180,120,20,.28);" id="compCountBtn">
-              <span style="font-size:24px;">🎙️</span>
-              <span>درود شریف پڑھیں</span>
-            </button>
+
+            <div class="comp-stat comp-stat-count">
+              <div class="comp-stat-label">📿 درود</div>
+              <div class="comp-stat-value" id="compResultCount">0</div>
+            </div>
           </div>
         </div>
         <div id="compStatusMsg" class="status-msg" style="color: #d97706;">بولیں، میں سن رہا ہوں</div>
