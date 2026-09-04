@@ -1071,10 +1071,18 @@
 
         <div id="compDaroodSlot"></div>
 
-        <div id="compResultBar" style="display:none; width:100%; max-width:320px; margin:10px auto 4px; padding:8px 12px; box-sizing:border-box; border:1px solid #f59e0b; border-radius:12px; background:#fffbeb; color:#92400e; font-weight:bold; font-size:13px;">
-          <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
-            <span style="text-align:left; direction:ltr;">درود: <b id="compResultCount">0</b></span>
-            <span style="text-align:right;">رینک: <b id="compResultRank">-</b></span>
+        <!-- Personal result: appears ABOVE the voice button -->
+        <div id="compResultBar" style="display:none; width:100%; max-width:310px; margin:12px auto 8px; padding:0; box-sizing:border-box; border:1.5px solid #d6a94a; border-radius:18px; background:linear-gradient(135deg,#fffdf5,#fff7df); color:#713f12; font-weight:bold; font-size:13px; overflow:hidden; box-shadow:0 5px 18px rgba(180,120,20,.14);">
+          <div style="text-align:center; padding:5px 10px 2px; font-size:11px; color:#a16207;">✨ آپ کا نتیجہ ✨</div>
+          <div style="display:flex; justify-content:center; align-items:stretch; width:100%;">
+            <div style="width:50%; text-align:center; padding:8px 6px 10px; border-right:1px solid #e8d7a8; box-sizing:border-box;">
+              <div style="font-size:12px; color:#166534; margin-bottom:2px;">🏆 رینکنگ</div>
+              <div style="font-size:22px; line-height:1.1; color:#14532d;"><b id="compResultRank">-</b></div>
+            </div>
+            <div style="width:50%; text-align:center; padding:8px 6px 10px; box-sizing:border-box;">
+              <div style="font-size:12px; color:#b45309; margin-bottom:2px;">📿 درود</div>
+              <div style="font-size:22px; line-height:1.1; color:#92400e;"><b id="compResultCount">0</b></div>
+            </div>
           </div>
         </div>
 
