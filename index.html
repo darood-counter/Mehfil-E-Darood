@@ -893,7 +893,9 @@
     </div>
 
     <div id="userInfo" class="hidden">
-      <div class="user-header" style="padding:6px 10px; margin-bottom:10px; font-size:12px; gap:8px;">
+      <div class="user-header" style="padding:6px 10px; margin-bottom:10px; font-size:12px; gap:8px; position:relative;">
+        <button id="daroodReminderBtn" type="button" aria-label="روزانہ درود کی یاد دہانی" title="روزانہ درود کی یاد دہانی" style="width:40px;height:40px;min-width:40px;border:1px solid #bbf7d0;border-radius:50%;background:#f0fdf4;color:#15803d;font-size:22px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(21,128,61,.15);padding:0;">🔔</button>
+        <span id="daroodReminderStatus" style="display:none;">یاد دہانی ابھی بند ہے۔</span>
         <span style="font-size:12px;">خوش آمدید، <b id="userName"></b>!</span>
         <div class="live-badge" style="margin:0; padding:2px 8px; font-size:10px; white-space:nowrap;">
           <span class="live-dot" style="height:6px; width:6px;"></span> آن لائن: <span id="onlineCount">0</span>
@@ -1257,15 +1259,6 @@
           <div id="passwordStatus" style="font-size: 12px; margin-top: 6px; text-align: center; font-weight: bold;"></div>
         </div>
 
-        <div class="profile-box" style="border-color: #86efac; background: #f0fdf4; text-align: center;">
-          <h4 style="margin: 0 0 6px 0; color: var(--primary-color); font-size: 15px;">🔔 روزانہ درود کی یاد دہانی</h4>
-          <p style="font-size: 12px; color: var(--text-muted); margin: 0 0 10px 0; line-height: 1.7;">
-            روزانہ صبح 11 بجے اور شام 6 بجے درود شریف پڑھنے کی یاد دہانی حاصل کریں۔
-          </p>
-          <button class="save-profile-btn" id="daroodReminderBtn" type="button" style="background-color: #15803d;">🔔 یاد دہانی آن کریں</button>
-          <div id="daroodReminderStatus" style="font-size: 12px; margin-top: 7px; text-align: center; font-weight: bold; color: #6b7280;">یاد دہانی ابھی بند ہے۔</div>
-        </div>
-
         <h3 style="color: var(--primary-color); text-align: center; font-size: 16px; margin-top: 20px;">🎁 انعام اور پیمنٹ کی تفصیلات</h3>
         <p style="color: var(--text-muted); font-size: 12px; text-align: center; margin-bottom: 12px;">فاتح بننے کے لیے کم از کم 100 درود شریف پڑھنا لازمی ہے۔ انعام حاصل کرنے کے لیے نیچے اکاؤنٹ نمبر درج کریں:</p>
         
@@ -1397,6 +1390,7 @@
         btn.disabled = true;
         status.style.color = "#15803d";
         status.innerText = "یاد دہانی آن کی جا رہی ہے...";
+        btn.innerText = "⏳";
         const permission = await Notification.requestPermission();
         if (permission !== "granted") throw new Error("permission-denied");
         const registration = await navigator.serviceWorker.register("firebase-messaging-sw.js");
@@ -1410,12 +1404,19 @@
           timezone: timezone,
           updatedAt: firebase.database.ServerValue.TIMESTAMP
         });
-        btn.innerText = "✅ روزانہ یاد دہانی آن ہے";
+        btn.innerText = "🔔";
+        btn.style.background = "#dcfce7";
+        btn.style.color = "#15803d";
+        btn.title = "روزانہ یاد دہانی بند کریں";
         status.style.color = "#15803d";
         status.innerText = "11 بجے اور شام 6 بجے یاد دہانی ملے گی۔";
       } catch (e) {
         console.error(e);
         btn.disabled = false;
+        btn.innerText = "🔕";
+        btn.style.background = "#fef2f2";
+        btn.style.color = "#dc2626";
+        btn.title = "روزانہ یاد دہانی آن کریں";
         status.style.color = "#dc2626";
         status.innerText = e.message === "permission-denied" ? "نوٹیفکیشن کی اجازت ضروری ہے۔" : "یاد دہانی فعال نہیں ہو سکی۔";
       }
@@ -1426,7 +1427,7 @@
       await db.ref("users/" + currentUser.uid + "/notificationReminder").update({ enabled: false, updatedAt: firebase.database.ServerValue.TIMESTAMP });
       const btn = document.getElementById("daroodReminderBtn");
       const status = document.getElementById("daroodReminderStatus");
-      if (btn) { btn.disabled = false; btn.innerText = "🔔 یاد دہانی دوبارہ آن کریں"; }
+      if (btn) { btn.disabled = false; btn.innerText = "🔕"; btn.style.background = "#f3f4f6"; btn.style.color = "#6b7280"; btn.title = "روزانہ یاد دہانی آن کریں"; }
       if (status) { status.style.color = "#6b7280"; status.innerText = "روزانہ یاد دہانی بند ہے۔"; }
     }
 
@@ -1438,11 +1439,11 @@
         const snap = await db.ref("users/" + currentUser.uid + "/notificationReminder").once("value");
         const data = snap.val() || {};
         if (data.enabled && data.fcmToken) {
-          if (btn) { btn.disabled = false; btn.innerText = "🔔 یاد دہانی بند کریں"; btn.onclick = disableDaroodReminders; }
+          if (btn) { btn.disabled = false; btn.innerText = "🔔"; btn.style.background = "#dcfce7"; btn.style.color = "#15803d"; btn.title = "روزانہ یاد دہانی بند کریں"; btn.onclick = disableDaroodReminders; }
           if (status) { status.style.color = "#15803d"; status.innerText = "روزانہ یاد دہانی فعال ہے: 11 بجے اور شام 6 بجے۔"; }
         } else if (data.enabled === false) {
           // User has explicitly turned reminders off; do not auto-enable again.
-          if (btn) { btn.disabled = false; btn.innerText = "🔔 یاد دہانی دوبارہ آن کریں"; btn.onclick = enableDaroodReminders; }
+          if (btn) { btn.disabled = false; btn.innerText = "🔕"; btn.style.background = "#f3f4f6"; btn.style.color = "#6b7280"; btn.title = "روزانہ یاد دہانی آن کریں"; btn.onclick = enableDaroodReminders; }
           if (status) { status.style.color = "#6b7280"; status.innerText = "روزانہ یاد دہانی بند ہے۔"; }
         } else {
           // New users: reminders are ON by default. The browser may still ask
