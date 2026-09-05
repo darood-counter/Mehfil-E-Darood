@@ -8,6 +8,7 @@ on:
 jobs:
   send-reminders:
     runs-on: ubuntu-latest
+
     steps:
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -53,6 +54,7 @@ jobs:
             }).formatToParts(date);
 
             const o = {};
+
             for (const p of parts) {
               if (p.type !== 'literal') o[p.type] = p.value;
             }
@@ -73,6 +75,7 @@ jobs:
             if (!value) return null;
 
             const m = String(value).match(/^(\d{1,2}):(\d{2})/);
+
             if (!m) return null;
 
             return Number(m[1]) * 60 + Number(m[2]);
@@ -80,9 +83,10 @@ jobs:
 
           async function getPrayerTimings(city, country, dateKey) {
             const url =
-              `https://api.aladhan.com/v1/timingsByCity/` +
-              `${prayerDatePath(dateKey)}?city=${encodeURIComponent(city)}` +
-              `&country=${encodeURIComponent(country)}&method=2`;
+              `https://api.aladhan.com/v1/timingsByCity/${prayerDatePath(dateKey)}` +
+              `?city=${encodeURIComponent(city)}` +
+              `&country=${encodeURIComponent(country)}` +
+              `&method=2`;
 
             const response = await fetch(url, {
               headers: {
@@ -155,8 +159,7 @@ jobs:
                     enabled: false,
                     fcmToken: null,
                     tokenError: code,
-                    updatedAt:
-                      admin.database.ServerValue.TIMESTAMP
+                    updatedAt: admin.database.ServerValue.TIMESTAMP
                   });
               }
 
@@ -182,9 +185,7 @@ jobs:
           }
 
           (async () => {
-            const usersSnap =
-              await db.ref('users').once('value');
-
+            const usersSnap = await db.ref('users').once('value');
             const users = usersSnap.val() || {};
 
             const now = new Date();
@@ -193,9 +194,7 @@ jobs:
 
             for (const [uid, user] of Object.entries(users)) {
 
-              const r =
-                user &&
-                user.notificationReminder;
+              const r = user && user.notificationReminder;
 
               if (
                 !r ||
@@ -206,16 +205,12 @@ jobs:
               }
 
               const timeZone =
-                r.timezone ||
-                'Asia/Karachi';
+                r.timezone || 'Asia/Karachi';
 
               let lp;
 
               try {
-                lp = localParts(
-                  now,
-                  timeZone
-                );
+                lp = localParts(now, timeZone);
               } catch (e) {
                 console.error(
                   'Timezone failed',
@@ -228,32 +223,21 @@ jobs:
               const minuteNow =
                 lp.hour * 60 + lp.minute;
 
-              const dateKey =
-                lp.dateKey;
+              const dateKey = lp.dateKey;
 
               const countSnap =
                 await db
-                  .ref(
-                    `competitions/${dateKey}/${uid}/count`
-                  )
+                  .ref(`competitions/${dateKey}/${uid}/count`)
                   .once('value');
 
               const count =
                 Number(countSnap.val() || 0);
 
-              // Darood reminders:
-              // 11:00 AM and 6:00 PM local time.
-
+              // Darood reminders: 11:00 and 18:00 local time.
               const daroodSlot =
-                (
-                  minuteNow >= 660 &&
-                  minuteNow <= 664
-                )
+                (minuteNow >= 660 && minuteNow <= 664)
                   ? '11'
-                  : (
-                      minuteNow >= 1080 &&
-                      minuteNow <= 1084
-                    )
+                  : (minuteNow >= 1080 && minuteNow <= 1084)
                     ? '18'
                     : null;
 
@@ -287,15 +271,12 @@ jobs:
                 }
               }
 
-              // Prayer location saved by the user.
-
+              // Prayer location.
               const city =
-                r.savedCity ||
-                user.savedCity;
+                r.savedCity || user.savedCity;
 
               const country =
-                r.savedCountry ||
-                user.savedCountry;
+                r.savedCountry || user.savedCountry;
 
               if (!city || !country) {
                 continue;
@@ -321,10 +302,8 @@ jobs:
                     continue;
                   }
 
-                  // GitHub checks every 5 minutes.
-                  // Send once when prayer time falls
-                  // inside the current 5-minute window.
-
+                  // Five-minute polling window.
+                  // GitHub Actions cron is not hard real-time.
                   if (
                     minuteNow >= target &&
                     minuteNow <= target + 4
@@ -333,9 +312,7 @@ jobs:
                     const sentPath =
                       `prayerReminderSent/${uid}/${dateKey}_${prayer.key}`;
 
-                    if (
-                      !(await alreadySent(sentPath))
-                    ) {
+                    if (!(await alreadySent(sentPath))) {
 
                       const timeText =
                         String(
@@ -343,50 +320,4 @@ jobs:
                         ).slice(0, 5);
 
                       const body =
-                        `🕌 نمازِ ${prayer.name} کا وقت ہو گیا ہے۔\n` +
-                        `🕐 وقت: ${timeText}\n` +
-                        `📍 ${city}, ${country}\n` +
-                        `🤲 نماز کی پابندی فرمائیں۔`;
-
-                      if (
-                        await sendToUser(
-                          uid,
-                          r.fcmToken,
-                          `🕌 نمازِ ${prayer.name}`,
-                          body,
-                          `prayer-${dateKey}-${prayer.key}`
-                        )
-                      ) {
-                        await markSent(sentPath);
-                        sent++;
-                      }
-                    }
-                  }
-                }
-
-              } catch (e) {
-
-                console.error(
-                  'Prayer lookup failed',
-                  uid,
-                  city,
-                  country,
-                  e.message
-                );
-              }
-            }
-
-            console.log(
-              `Done. Notifications sent: ${sent}`
-            );
-
-            process.exit(0);
-
-          })().catch(err => {
-            console.error(err);
-            process.exit(1);
-          });
-
-          NODE
-
-          node /tmp/send-reminders.js
+                       
