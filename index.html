@@ -1440,11 +1440,21 @@
         if (data.enabled && data.fcmToken) {
           if (btn) { btn.disabled = false; btn.innerText = "🔔 یاد دہانی بند کریں"; btn.onclick = disableDaroodReminders; }
           if (status) { status.style.color = "#15803d"; status.innerText = "روزانہ یاد دہانی فعال ہے: 11 بجے اور شام 6 بجے۔"; }
+        } else if (data.enabled === false) {
+          // User has explicitly turned reminders off; do not auto-enable again.
+          if (btn) { btn.disabled = false; btn.innerText = "🔔 یاد دہانی دوبارہ آن کریں"; btn.onclick = enableDaroodReminders; }
+          if (status) { status.style.color = "#6b7280"; status.innerText = "روزانہ یاد دہانی بند ہے۔"; }
         } else {
-          if (btn) { btn.disabled = false; btn.innerText = "🔔 یاد دہانی آن کریں"; btn.onclick = enableDaroodReminders; }
-          if (status) { status.style.color = "#6b7280"; status.innerText = "یاد دہانی ابھی بند ہے۔"; }
+          // New users: reminders are ON by default. The browser may still ask
+          // for notification permission; that cannot be silently granted by a website.
+          if (btn) { btn.disabled = true; btn.innerText = "🔔 یاد دہانی آن کی جا رہی ہے..."; btn.onclick = enableDaroodReminders; }
+          if (status) { status.style.color = "#15803d"; status.innerText = "روزانہ یاد دہانی خودکار طور پر آن کی جا رہی ہے..."; }
+          await enableDaroodReminders();
         }
-      } catch (e) {}
+      } catch (e) {
+        if (btn) { btn.disabled = false; btn.innerText = "🔔 یاد دہانی آن کریں"; btn.onclick = enableDaroodReminders; }
+        if (status) { status.style.color = "#dc2626"; status.innerText = "یاد دہانی فعال نہیں ہو سکی۔"; }
+      }
     }
 
 
