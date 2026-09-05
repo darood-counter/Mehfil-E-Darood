@@ -1,0 +1,169 @@
+name: Darood Daily Reminder
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+jobs:
+  send-reminders:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Firebase Admin
+        run: npm install firebase-admin
+
+      - name: Send Darood Reminders
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          cat > reminder.js <<'EOF'
+          const admin = require("firebase-admin");
+
+          const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+
+          admin.initializeApp({
+            credential: admin.credential.cert(serviceAccount),
+            databaseURL: "https://mehfil-e-darood-default-rtdb.firebaseio.com"
+          });
+
+          const db = admin.database();
+          const messaging = admin.messaging();
+
+          function localInfo(timeZone) {
+            const now = new Date();
+
+            const parts = new Intl.DateTimeFormat("en-US", {
+              timeZone,
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit",
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: false
+            }).formatToParts(now);
+
+            const get = (type) => parts.find(p => p.type === type)?.value;
+
+            return {
+              year: get("year"),
+              month: get("month"),
+              day: get("day"),
+              hour: Number(get("hour")),
+              minute: Number(get("minute"))
+            };
+          }
+
+          async function main() {
+            const usersSnap = await db.ref("users").once("value");
+            const users = usersSnap.val() || {};
+
+            for (const uid of Object.keys(users)) {
+              const user = users[uid] || {};
+              const reminder = user.notificationReminder || {};
+
+              if (!reminder.enabled || !reminder.fcmToken) continue;
+
+              const timezone =
+                reminder.timezone ||
+                "Asia/Karachi";
+
+              const info = localInfo(timezone);
+
+              const isReminderTime =
+                (info.hour === 11 || info.hour === 18) &&
+                info.minute < 15;
+
+              if (!isReminderTime) continue;
+
+              const dateKey =
+                `${info.year}-${info.month}-${info.day}`;
+
+              const slot =
+                info.hour === 11 ? "11AM" : "6PM";
+
+              const sentKey =
+                `${dateKey}_${slot}`;
+
+              const sentRef =
+                db.ref(`notificationReminderSent/${uid}/${sentKey}`);
+
+              const alreadySent = await sentRef.once("value");
+
+              if (alreadySent.exists()) continue;
+
+              const countSnap =
+                await db.ref(`competitions/${dateKey}/${uid}/count`).once("value");
+
+              const count =
+                Number(countSnap.val() || 0);
+
+              const name =
+                user.name ||
+                user.displayName ||
+                "محترم صارف";
+
+              const body =
+                `السلام علیکم ${name}!\n\n` +
+                `📿 آج آپ نے ${count} درود شریف پڑھے ہیں۔\n\n` +
+                `📖 رسول اللہ ﷺ نے فرمایا: ` +
+                `"جس نے مجھ پر ایک مرتبہ درود بھیجا، اللہ تعالیٰ اس پر دس مرتبہ رحمت نازل فرمائے گا۔"\n\n` +
+                `📚 صحیح مسلم: 408\n\n` +
+                `🤲 آئیے آج مزید درود شریف پڑھتے ہیں۔`;
+
+              try {
+                await messaging.send({
+                  token: reminder.fcmToken,
+                  notification: {
+                    title: "🌿 محفلِ درود — یاد دہانی",
+                    body: body
+                  },
+                  data: {
+                    url: "https://darood-counter.github.io/Mehfil-E-Darood/"
+                  }
+                });
+
+                await sentRef.set({
+                  sentAt: admin.database.ServerValue.TIMESTAMP
+                });
+
+                console.log(
+                  `Reminder sent to ${uid} - ${slot} - ${dateKey}`
+                );
+
+              } catch (error) {
+                console.log(
+                  `Notification failed for ${uid}:`,
+                  error.code || error.message
+                );
+
+                if (
+                  error.code === "messaging/registration-token-not-registered" ||
+                  error.code === "messaging/invalid-registration-token"
+                ) {
+                  await db.ref(
+                    `users/${uid}/notificationReminder`
+                  ).update({
+                    enabled: false
+                  });
+                }
+              }
+            }
+
+            console.log("Reminder check completed.");
+          }
+
+          main()
+            .then(() => process.exit(0))
+            .catch(error => {
+              console.error(error);
+              process.exit(1);
+            });
+          EOF
+
+          node reminder.js
