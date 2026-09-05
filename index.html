@@ -894,8 +894,8 @@
 
     <div id="userInfo" class="hidden">
       <div class="user-header" style="padding:6px 10px; margin-bottom:10px; font-size:12px; gap:8px; position:relative;">
-        <button id="daroodReminderBtn" type="button" aria-label="روزانہ درود کی یاد دہانی" title="روزانہ درود کی یاد دہانی" style="width:40px;height:40px;min-width:40px;border:1px solid #bbf7d0;border-radius:50%;background:#f0fdf4;color:#15803d;font-size:22px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(21,128,61,.15);padding:0;">🔔</button>
-        <span id="daroodReminderStatus" style="display:none;">یاد دہانی ابھی بند ہے۔</span>
+        <button id="daroodReminderBtn" type="button" aria-label="درود اور نماز کی روزانہ یاد دہانی" title="درود اور نماز کی روزانہ یاد دہانی" style="width:40px;height:40px;min-width:40px;border:1px solid #bbf7d0;border-radius:50%;background:#f0fdf4;color:#15803d;font-size:22px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(21,128,61,.15);padding:0;">🔔</button>
+        <span id="daroodReminderStatus" style="display:none;">درود اور نماز کی یاد دہانیاں بند ہیں۔</span>
         <span style="font-size:12px;">خوش آمدید، <b id="userName"></b>!</span>
         <div class="live-badge" style="margin:0; padding:2px 8px; font-size:10px; white-space:nowrap;">
           <span class="live-dot" style="height:6px; width:6px;"></span> آن لائن: <span id="onlineCount">0</span>
@@ -975,6 +975,7 @@
             <div style="display: flex; gap: 8px; margin-top: 4px;">
               <button class="save-profile-btn" style="flex: 2; background-color: var(--primary-color);" onclick="saveLocationAndFetch()">💾 محفوظ کریں</button>
               <button class="save-profile-btn" style="flex: 1; background-color: #2b6cb0;" onclick="detectCurrentLocation()">📍 کرنٹ لوکیشن</button>
+            <div style="width:100%;font-size:10px;color:var(--text-muted);text-align:center;margin-top:3px;">ملک اور شہر محفوظ کرنے کے بعد 🔔 سے درود اور نماز دونوں کی یاد دہانیاں فعال کریں۔</div>
             </div>
           </div>
 
@@ -1367,10 +1368,18 @@
     const auth = firebase.auth();
     const db = firebase.database();
 
-    // Daily background reminder (11:00 AM and 6:00 PM local time).
-    // Paste your Firebase Console > Cloud Messaging > Web Push certificate key here.
+    // Combined background reminders: Darood + five daily prayers.
+    // One bell controls both systems. Prayer location is saved under the user's account.
     const FCM_VAPID_KEY = "BPC783aIdW6eZm0sCyPevqbmlnArGPP4jnpSN0yUYu7q9GIhAjciKQb6vKYp7533CUpFFTxis0kYghWq4wS0sZA";
     let reminderMessaging = null;
+
+    function getSavedPrayerLocation() {
+      const cityEl = document.getElementById("cityInput");
+      const countryEl = document.getElementById("countryInput");
+      const city = (cityEl?.value || localStorage.getItem('user_city') || '').trim();
+      const country = (countryEl?.value || localStorage.getItem('user_country') || '').trim();
+      return { city, country };
+    }
 
     async function enableDaroodReminders() {
       const btn = document.getElementById("daroodReminderBtn");
@@ -1386,10 +1395,24 @@
         status.innerText = "پہلے Firebase Web Push VAPID Key شامل کرنا ضروری ہے۔";
         return;
       }
+      const location = getSavedPrayerLocation();
+      let accountLocation = {};
+      try {
+        const userSnap = await db.ref("users/" + currentUser.uid).once("value");
+        const userData = userSnap.val() || {};
+        accountLocation = { city: String(userData.savedCity || '').trim(), country: String(userData.savedCountry || '').trim() };
+      } catch (e) {}
+      if (!accountLocation.city || !accountLocation.country) {
+        status.style.color = "#b45309";
+        status.innerText = "پہلے نماز کے اوقات میں اپنا ملک اور شہر محفوظ کریں۔";
+        return;
+      }
+      location.city = accountLocation.city;
+      location.country = accountLocation.country;
       try {
         btn.disabled = true;
         status.style.color = "#15803d";
-        status.innerText = "یاد دہانی آن کی جا رہی ہے...";
+        status.innerText = "یاد دہانیاں آن کی جا رہی ہیں...";
         btn.innerText = "⏳";
         const permission = await Notification.requestPermission();
         if (permission !== "granted") throw new Error("permission-denied");
@@ -1402,23 +1425,25 @@
           enabled: true,
           fcmToken: token,
           timezone: timezone,
+          savedCity: location.city,
+          savedCountry: location.country,
           updatedAt: firebase.database.ServerValue.TIMESTAMP
         });
         btn.innerText = "🔔";
         btn.style.background = "#dcfce7";
         btn.style.color = "#15803d";
-        btn.title = "روزانہ یاد دہانی بند کریں";
+        btn.title = "روزانہ یاد دہانیاں بند کریں";
         status.style.color = "#15803d";
-        status.innerText = "11 بجے اور شام 6 بجے یاد دہانی ملے گی۔";
+        status.innerText = "درود: 11 بجے اور 6 بجے • نماز: ہر نماز کے وقت";
       } catch (e) {
         console.error(e);
         btn.disabled = false;
         btn.innerText = "🔕";
         btn.style.background = "#fef2f2";
         btn.style.color = "#dc2626";
-        btn.title = "روزانہ یاد دہانی آن کریں";
+        btn.title = "روزانہ یاد دہانیاں آن کریں";
         status.style.color = "#dc2626";
-        status.innerText = e.message === "permission-denied" ? "نوٹیفکیشن کی اجازت ضروری ہے۔" : "یاد دہانی فعال نہیں ہو سکی۔";
+        status.innerText = e.message === "permission-denied" ? "نوٹیفکیشن کی اجازت ضروری ہے۔" : "یاد دہانیاں فعال نہیں ہو سکیں۔";
       }
     }
 
@@ -1427,34 +1452,55 @@
       await db.ref("users/" + currentUser.uid + "/notificationReminder").update({ enabled: false, updatedAt: firebase.database.ServerValue.TIMESTAMP });
       const btn = document.getElementById("daroodReminderBtn");
       const status = document.getElementById("daroodReminderStatus");
-      if (btn) { btn.disabled = false; btn.innerText = "🔕"; btn.style.background = "#f3f4f6"; btn.style.color = "#6b7280"; btn.title = "روزانہ یاد دہانی آن کریں"; }
-      if (status) { status.style.color = "#6b7280"; status.innerText = "روزانہ یاد دہانی بند ہے۔"; }
+      if (btn) { btn.disabled = false; btn.innerText = "🔕"; btn.style.background = "#f3f4f6"; btn.style.color = "#6b7280"; btn.title = "روزانہ یاد دہانیاں آن کریں"; btn.onclick = enableDaroodReminders; }
+      if (status) { status.style.color = "#6b7280"; status.innerText = "درود اور نماز کی یاد دہانیاں بند ہیں۔"; }
     }
 
     async function loadDaroodReminderSetting() {
       if (!currentUser) return;
       const btn = document.getElementById("daroodReminderBtn");
       const status = document.getElementById("daroodReminderStatus");
+
+      // Keep the bell OFF and disabled when this browser cannot show
+      // web notifications. Do not try to auto-enable notifications.
+      if (!("Notification" in window) || !("serviceWorker" in navigator)) {
+        if (btn) {
+          btn.disabled = true;
+          btn.innerText = "🔕";
+          btn.style.background = "#f3f4f6";
+          btn.style.color = "#6b7280";
+          btn.title = "اس براؤزر میں نوٹیفکیشن دستیاب نہیں";
+          btn.onclick = null;
+        }
+        if (status) {
+          status.style.color = "#6b7280";
+          status.innerText = "اس براؤزر میں نوٹیفکیشن دستیاب نہیں۔";
+        }
+        return;
+      }
+
       try {
         const snap = await db.ref("users/" + currentUser.uid + "/notificationReminder").once("value");
         const data = snap.val() || {};
         if (data.enabled && data.fcmToken) {
-          if (btn) { btn.disabled = false; btn.innerText = "🔔"; btn.style.background = "#dcfce7"; btn.style.color = "#15803d"; btn.title = "روزانہ یاد دہانی بند کریں"; btn.onclick = disableDaroodReminders; }
-          if (status) { status.style.color = "#15803d"; status.innerText = "روزانہ یاد دہانی فعال ہے: 11 بجے اور شام 6 بجے۔"; }
-        } else if (data.enabled === false) {
-          // User has explicitly turned reminders off; do not auto-enable again.
-          if (btn) { btn.disabled = false; btn.innerText = "🔕"; btn.style.background = "#f3f4f6"; btn.style.color = "#6b7280"; btn.title = "روزانہ یاد دہانی آن کریں"; btn.onclick = enableDaroodReminders; }
-          if (status) { status.style.color = "#6b7280"; status.innerText = "روزانہ یاد دہانی بند ہے۔"; }
+          if (btn) { btn.disabled = false; btn.innerText = "🔔"; btn.style.background = "#dcfce7"; btn.style.color = "#15803d"; btn.title = "روزانہ یاد دہانیاں بند کریں"; btn.onclick = disableDaroodReminders; }
+          if (status) { status.style.color = "#15803d"; status.innerText = "درود: 11 بجے اور 6 بجے • نماز: ہر نماز کے وقت"; }
         } else {
-          // New users: reminders are ON by default. The browser may still ask
-          // for notification permission; that cannot be silently granted by a website.
-          if (btn) { btn.disabled = true; btn.innerText = "🔔 یاد دہانی آن کی جا رہی ہے..."; btn.onclick = enableDaroodReminders; }
-          if (status) { status.style.color = "#15803d"; status.innerText = "روزانہ یاد دہانی خودکار طور پر آن کی جا رہی ہے..."; }
-          await enableDaroodReminders();
+          if (data.enabled === false) {
+            if (btn) { btn.disabled = false; btn.innerText = "🔕"; btn.style.background = "#f3f4f6"; btn.style.color = "#6b7280"; btn.title = "روزانہ یاد دہانیاں آن کریں"; btn.onclick = enableDaroodReminders; }
+            if (status) { status.style.color = "#6b7280"; status.innerText = "درود اور نماز کی یاد دہانیاں بند ہیں۔"; }
+          } else {
+            // New login: automatically turn reminders on when browser notification
+            // permission is already granted. If permission is still undecided,
+            // request it; browser security may require a user tap.
+            if (btn) { btn.disabled = true; btn.innerText = "⏳"; btn.style.background = "#f0fdf4"; btn.style.color = "#15803d"; btn.title = "روزانہ یاد دہانیاں"; }
+            if (status) { status.style.color = "#15803d"; status.innerText = "یاد دہانیاں خودکار طور پر آن کی جا رہی ہیں..."; }
+            await enableDaroodReminders();
+          }
         }
       } catch (e) {
-        if (btn) { btn.disabled = false; btn.innerText = "🔔 یاد دہانی آن کریں"; btn.onclick = enableDaroodReminders; }
-        if (status) { status.style.color = "#dc2626"; status.innerText = "یاد دہانی فعال نہیں ہو سکی۔"; }
+        if (btn) { btn.disabled = false; btn.innerText = "🔕"; btn.style.background = "#f3f4f6"; btn.style.color = "#6b7280"; btn.onclick = enableDaroodReminders; }
+        if (status) { status.style.color = "#dc2626"; status.innerText = "یاد دہانی کی سیٹنگ لوڈ نہیں ہو سکی۔"; }
       }
     }
 
@@ -2200,6 +2246,11 @@ function switchBottomTab(tabName) {
           savedCity: city,
           savedCountry: country
         });
+        db.ref("users/" + currentUser.uid + "/notificationReminder").update({
+          savedCity: city,
+          savedCountry: country,
+          updatedAt: firebase.database.ServerValue.TIMESTAMP
+        });
       }
       fetchPrayerTimes();
     }
@@ -2491,6 +2542,15 @@ function switchBottomTab(tabName) {
             latestPrayerTimings = timings;
             latestPrayerCity = city;
             latestPrayerCountry = country;
+            if (currentUser) {
+              db.ref("users/" + currentUser.uid + "/prayerReminder").update({
+                city: city,
+                country: country,
+                timings: timings,
+                date: data.data.date.gregorian.date,
+                updatedAt: firebase.database.ServerValue.TIMESTAMP
+              }).catch(()=>{});
+            }
             const dateObj = data.data.date;
             document.getElementById("prayerDateDisplay").innerText = `${dateObj.hijri.weekday.en}، ${dateObj.readable} (${city}, ${country})`;
 
@@ -3058,21 +3118,21 @@ function switchBottomTab(tabName) {
       btn.disabled = true;
       btn.classList.add("listening");
 
-      // Competition UI: reset the 30-second progress bar.
+      // Competition UI: reset the 25-second progress bar.
       const compProgressFill = isComp ? document.getElementById("compProgressFill") : null;
       if (isComp && compProgressFill) compProgressFill.style.width = "0%";
 
-      // Competition button: show the 30-second countdown INSIDE the gold button.
-      // When the 30 seconds finish, restore the original button exactly as it was.
+      // Competition button: show the 25-second countdown INSIDE the gold button.
+      // When the 25 seconds finish, restore the original button exactly as it was.
       const originalBtnHTML = btn.innerHTML;
       let buttonCountdownTimer = null;
       let buttonCountdownStartedAt = Date.now();
       if (isComp) {
-        btn.innerHTML = '<span style="font-size:42px;font-weight:800;line-height:1;">30</span><span style="font-size:13px;font-weight:bold;">سیکنڈ باقی</span>';
+        btn.innerHTML = '<span style="font-size:42px;font-weight:800;line-height:1;">25</span><span style="font-size:13px;font-weight:bold;">سیکنڈ باقی</span>';
         buttonCountdownTimer = setInterval(() => {
           if (finished) return;
           const elapsed = Math.floor((Date.now() - buttonCountdownStartedAt) / 1000);
-          const remaining = Math.max(0, 30 - elapsed);
+          const remaining = Math.max(0, 25 - elapsed);
           btn.innerHTML = '<span style="font-size:42px;font-weight:800;line-height:1;">' + remaining + '</span><span style="font-size:13px;font-weight:bold;">سیکنڈ باقی</span>';
           if (remaining <= 0) clearInterval(buttonCountdownTimer);
         }, 250);
@@ -3090,7 +3150,7 @@ function switchBottomTab(tabName) {
       recognition.continuous = true;
       recognition.maxAlternatives = 5;
 
-      const LISTEN_DURATION_MS = 30000;
+      const LISTEN_DURATION_MS = 25000;
       const startedAt = Date.now();
       let finishTimer = null;
       let finished = false;
@@ -3112,9 +3172,9 @@ function switchBottomTab(tabName) {
           .trim();
       };
 
-      // These words are checked only AFTER the full 30-second listening window.
+      // These words are checked only AFTER the full 25-second listening window.
       // Verification words are based on the complete Darood supplied by the user.
-      // They are checked only AFTER the full 30-second listening window.
+      // They are checked only AFTER the full 25-second listening window.
       const requiredWords = [
         "اللهم", "بارکت", "ابراہیم"
       ];
@@ -3151,12 +3211,12 @@ function switchBottomTab(tabName) {
         if (countdownTimer) clearInterval(countdownTimer);
         if (buttonCountdownTimer) clearInterval(buttonCountdownTimer);
 
-        // Restore the gold competition button after the 30-second window.
+        // Restore the gold competition button after the 25-second window.
         if (isComp) btn.innerHTML = originalBtnHTML;
 
         try { recognition.stop(); } catch (e) {}
 
-        // Verification starts only after the complete 30-second listening window.
+        // Verification starts only after the complete 25-second listening window.
         const finalText = collectedSpeech.join(" ");
         const valid = isCompleteDarood(finalText);
 
@@ -3248,16 +3308,16 @@ function switchBottomTab(tabName) {
         btn.classList.remove("listening");
       };
 
-      // Live 30-second countdown while the microphone remains active.
+      // Live 25-second countdown while the microphone remains active.
       const countdownTimer = setInterval(() => {
         if (finished) { clearInterval(countdownTimer); return; }
         const elapsedSeconds = Math.floor((Date.now() - startedAt) / 1000);
-        const remainingSeconds = Math.max(0, 30 - elapsedSeconds);
+        const remainingSeconds = Math.max(0, 25 - elapsedSeconds);
         statusEl.style.color = "#0d3b22";
         statusEl.innerText = `میں سن رہا ہوں... ${remainingSeconds} سیکنڈ باقی`;
         if (isComp && compProgressFill) {
-          const elapsed = Math.min(30, (Date.now() - startedAt) / 1000);
-          compProgressFill.style.width = ((elapsed / 30) * 100) + "%";
+          const elapsed = Math.min(25, (Date.now() - startedAt) / 1000);
+          compProgressFill.style.width = ((elapsed / 25) * 100) + "%";
         }
         if (remainingSeconds <= 0) {
           if (isComp && compProgressFill) compProgressFill.style.width = "100%";
@@ -3265,11 +3325,11 @@ function switchBottomTab(tabName) {
         }
       }, 250);
 
-      // Always stop at exactly 30 seconds, even if there is silence.
+      // Always stop at exactly 25 seconds, even if there is silence.
       finishTimer = setTimeout(finishListening, LISTEN_DURATION_MS);
 
       recognition.onresult = (event) => {
-        // At/after 30 seconds, never show a listening/progress message even if
+        // At/after 25 seconds, never show a listening/progress message even if
         // the browser delivers a delayed microphone result; finish first.
         if (Date.now() - startedAt >= LISTEN_DURATION_MS) {
           finishListening();
@@ -3294,27 +3354,27 @@ function switchBottomTab(tabName) {
           }
 
           if (bestTranscript) {
-            const elapsed = Math.min(30, Math.floor((Date.now() - startedAt) / 1000));
-            const remaining = Math.max(0, 30 - elapsed);
+            const elapsed = Math.min(25, Math.floor((Date.now() - startedAt) / 1000));
+            const remaining = Math.max(0, 25 - elapsed);
             statusEl.style.color = "#0d3b22";
             statusEl.innerText = isComp
               ? `میں سن رہا ہوں... ${remaining} سیکنڈ باقی`
-              : `سن رہا ہے... ${elapsed}/30 سیکنڈ 🎙️`;
+              : `سن رہا ہے... ${elapsed}/25 سیکنڈ 🎙️`;
             if (isComp && compProgressFill) {
-              compProgressFill.style.width = ((elapsed / 30) * 100) + "%";
+              compProgressFill.style.width = ((elapsed / 25) * 100) + "%";
             }
           }
         }
       };
 
       recognition.onerror = (event) => {
-        // A browser recognition error must NOT end the 30-second listening window.
+        // A browser recognition error must NOT end the 25-second listening window.
         // If the engine stopped unexpectedly, onend below will restart it while time remains.
         if (!finished && Date.now() - startedAt < LISTEN_DURATION_MS) {
           statusEl.style.color = "#0d3b22";
           statusEl.innerText = isComp
-            ? "میں سن رہا ہوں... 30 سیکنڈ مکمل ہونے تک مائیک آن رہے گا"
-            : "سن رہا ہے... 30 سیکنڈ مکمل ہونے تک مائیک آن رہے گا 🎙️";
+            ? "میں سن رہا ہوں... 25 سیکنڈ مکمل ہونے تک مائیک آن رہے گا"
+            : "سن رہا ہے... 25 سیکنڈ مکمل ہونے تک مائیک آن رہے گا 🎙️";
         }
       };
 
@@ -3330,7 +3390,7 @@ function switchBottomTab(tabName) {
             try {
               recognition.start();
               statusEl.style.color = "#0d3b22";
-              statusEl.innerText = "سن رہا ہے... 30 سیکنڈ مکمل ہونے تک مائیک آن رہے گا 🎙️";
+              statusEl.innerText = "سن رہا ہے... 25 سیکنڈ مکمل ہونے تک مائیک آن رہے گا 🎙️";
             } catch (e) {}
           }, 50);
         } else if (elapsed >= LISTEN_DURATION_MS) {
