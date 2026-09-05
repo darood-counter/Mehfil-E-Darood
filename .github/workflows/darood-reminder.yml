@@ -80,3 +80,313 @@ jobs:
 
           async function getPrayerTimings(city, country, dateKey) {
             const url =
+              `https://api.aladhan.com/v1/timingsByCity/` +
+              `${prayerDatePath(dateKey)}?city=${encodeURIComponent(city)}` +
+              `&country=${encodeURIComponent(country)}&method=2`;
+
+            const response = await fetch(url, {
+              headers: {
+                'User-Agent': 'Mehfil-E-Darood-Reminder/1.0'
+              }
+            });
+
+            if (!response.ok) {
+              throw new Error(`AlAdhan HTTP ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            if (
+              !data ||
+              data.code !== 200 ||
+              !data.data ||
+              !data.data.timings
+            ) {
+              throw new Error('Invalid prayer API response');
+            }
+
+            return data.data.timings;
+          }
+
+          async function sendToUser(uid, token, title, body, tag) {
+            try {
+              await admin.messaging().send({
+                token,
+
+                notification: {
+                  title,
+                  body
+                },
+
+                data: {
+                  tag,
+                  url: '/',
+                  type: 'reminder'
+                },
+
+                webpush: {
+                  notification: {
+                    title,
+                    body,
+                    tag
+                  },
+
+                  fcmOptions: {
+                    link: '/'
+                  }
+                }
+              });
+
+              return true;
+
+            } catch (err) {
+              const code =
+                err &&
+                err.errorInfo &&
+                err.errorInfo.code;
+
+              if (
+                code === 'messaging/registration-token-not-registered' ||
+                code === 'messaging/invalid-registration-token'
+              ) {
+                await db
+                  .ref(`users/${uid}/notificationReminder`)
+                  .update({
+                    enabled: false,
+                    fcmToken: null,
+                    tokenError: code,
+                    updatedAt:
+                      admin.database.ServerValue.TIMESTAMP
+                  });
+              }
+
+              console.error(
+                'FCM failed',
+                uid,
+                code || err.message
+              );
+
+              return false;
+            }
+          }
+
+          async function alreadySent(path) {
+            const snap = await db.ref(path).once('value');
+            return !!snap.val();
+          }
+
+          async function markSent(path) {
+            await db.ref(path).set({
+              sentAt: Date.now()
+            });
+          }
+
+          (async () => {
+            const usersSnap =
+              await db.ref('users').once('value');
+
+            const users = usersSnap.val() || {};
+
+            const now = new Date();
+
+            let sent = 0;
+
+            for (const [uid, user] of Object.entries(users)) {
+
+              const r =
+                user &&
+                user.notificationReminder;
+
+              if (
+                !r ||
+                r.enabled !== true ||
+                !r.fcmToken
+              ) {
+                continue;
+              }
+
+              const timeZone =
+                r.timezone ||
+                'Asia/Karachi';
+
+              let lp;
+
+              try {
+                lp = localParts(
+                  now,
+                  timeZone
+                );
+              } catch (e) {
+                console.error(
+                  'Timezone failed',
+                  uid,
+                  timeZone
+                );
+                continue;
+              }
+
+              const minuteNow =
+                lp.hour * 60 + lp.minute;
+
+              const dateKey =
+                lp.dateKey;
+
+              const countSnap =
+                await db
+                  .ref(
+                    `competitions/${dateKey}/${uid}/count`
+                  )
+                  .once('value');
+
+              const count =
+                Number(countSnap.val() || 0);
+
+              // Darood reminders:
+              // 11:00 AM and 6:00 PM local time.
+
+              const daroodSlot =
+                (
+                  minuteNow >= 660 &&
+                  minuteNow <= 664
+                )
+                  ? '11'
+                  : (
+                      minuteNow >= 1080 &&
+                      minuteNow <= 1084
+                    )
+                    ? '18'
+                    : null;
+
+              if (daroodSlot) {
+
+                const sentPath =
+                  `notificationReminderSent/${uid}/${dateKey}_${daroodSlot}`;
+
+                if (!(await alreadySent(sentPath))) {
+
+                  const body =
+                    `📿 آج آپ نے ${count} درود شریف پڑھے ہیں۔\n` +
+                    `📖 حدیثِ مبارک: رسول اللہ ﷺ نے فرمایا: ` +
+                    `"جس نے مجھ پر ایک مرتبہ درود بھیجا، ` +
+                    `اللہ تعالیٰ اس پر دس مرتبہ رحمت نازل فرمائے گا۔"\n` +
+                    `📚 صحیح مسلم: 408\n` +
+                    `🤲 آئیے آج مزید درود شریف پڑھیں۔`;
+
+                  if (
+                    await sendToUser(
+                      uid,
+                      r.fcmToken,
+                      '🌿 محفلِ درود — یاد دہانی',
+                      body,
+                      `darood-${dateKey}-${daroodSlot}`
+                    )
+                  ) {
+                    await markSent(sentPath);
+                    sent++;
+                  }
+                }
+              }
+
+              // Prayer location saved by the user.
+
+              const city =
+                r.savedCity ||
+                user.savedCity;
+
+              const country =
+                r.savedCountry ||
+                user.savedCountry;
+
+              if (!city || !country) {
+                continue;
+              }
+
+              try {
+
+                const timings =
+                  await getPrayerTimings(
+                    city,
+                    country,
+                    dateKey
+                  );
+
+                for (const prayer of PRAYERS) {
+
+                  const target =
+                    parsePrayerMinute(
+                      timings[prayer.key]
+                    );
+
+                  if (target === null) {
+                    continue;
+                  }
+
+                  // GitHub checks every 5 minutes.
+                  // Send once when prayer time falls
+                  // inside the current 5-minute window.
+
+                  if (
+                    minuteNow >= target &&
+                    minuteNow <= target + 4
+                  ) {
+
+                    const sentPath =
+                      `prayerReminderSent/${uid}/${dateKey}_${prayer.key}`;
+
+                    if (
+                      !(await alreadySent(sentPath))
+                    ) {
+
+                      const timeText =
+                        String(
+                          timings[prayer.key]
+                        ).slice(0, 5);
+
+                      const body =
+                        `🕌 نمازِ ${prayer.name} کا وقت ہو گیا ہے۔\n` +
+                        `🕐 وقت: ${timeText}\n` +
+                        `📍 ${city}, ${country}\n` +
+                        `🤲 نماز کی پابندی فرمائیں۔`;
+
+                      if (
+                        await sendToUser(
+                          uid,
+                          r.fcmToken,
+                          `🕌 نمازِ ${prayer.name}`,
+                          body,
+                          `prayer-${dateKey}-${prayer.key}`
+                        )
+                      ) {
+                        await markSent(sentPath);
+                        sent++;
+                      }
+                    }
+                  }
+                }
+
+              } catch (e) {
+
+                console.error(
+                  'Prayer lookup failed',
+                  uid,
+                  city,
+                  country,
+                  e.message
+                );
+              }
+            }
+
+            console.log(
+              `Done. Notifications sent: ${sent}`
+            );
+
+            process.exit(0);
+
+          })().catch(err => {
+            console.error(err);
+            process.exit(1);
+          });
+
+          NODE
+
+          node /tmp/send-reminders.js
