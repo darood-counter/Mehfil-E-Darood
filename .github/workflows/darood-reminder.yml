@@ -320,4 +320,51 @@ jobs:
                         ).slice(0, 5);
 
                       const body =
-                       
+                        `🕌 نمازِ ${prayer.name} کا وقت ہو گیا ہے۔\n` +
+                        `🕐 وقت: ${timeText}\n` +
+                        `📍 ${city}, ${country}\n` +
+                        `🤲 نماز کی پابندی فرمائیں۔`;
+
+                      if (
+                        await sendToUser(
+                          uid,
+                          r.fcmToken,
+                          `🕌 نمازِ ${prayer.name}`,
+                          body,
+                          `prayer-${dateKey}-${prayer.key}`
+                        )
+                      ) {
+                        await markSent(sentPath);
+                        sent++;
+                      }
+                    }
+                  }
+                }
+
+              } catch (e) {
+                console.error(
+                  'Prayer lookup failed',
+                  uid,
+                  city,
+                  country,
+                  e.message
+                );
+              }
+            }
+
+            console.log(
+              `Done. Notifications sent: ${sent}`
+            );
+
+            process.exit(0);
+
+          })().catch(err => {
+            console.error(err);
+            process.exit(1);
+          });
+
+          NODE
+
+          # Firebase Admin is installed in the GitHub workspace.
+          # /tmp/send-reminders.js otherwise cannot find node_modules.
+          NODE_PATH="$(npm root)" node /tmp/send-reminders.js
