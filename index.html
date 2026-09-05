@@ -894,8 +894,8 @@
 
     <div id="userInfo" class="hidden">
       <div class="user-header" style="padding:6px 10px; margin-bottom:10px; font-size:12px; gap:8px; position:relative;">
-        <button id="daroodReminderBtn" type="button" aria-label="درود اور نماز کی روزانہ یاد دہانی" title="درود اور نماز کی روزانہ یاد دہانی" style="width:40px;height:40px;min-width:40px;border:1px solid #bbf7d0;border-radius:50%;background:#f0fdf4;color:#15803d;font-size:22px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(21,128,61,.15);padding:0;">🔔</button>
-        <span id="daroodReminderStatus" style="display:none;">درود اور نماز کی یاد دہانیاں بند ہیں۔</span>
+        <button id="daroodReminderBtn" type="button" aria-label="روزانہ درود کی یاد دہانی" title="روزانہ درود کی یاد دہانی" style="width:40px;height:40px;min-width:40px;border:1px solid #bbf7d0;border-radius:50%;background:#f0fdf4;color:#15803d;font-size:22px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(21,128,61,.15);padding:0;">🔔</button>
+        <span id="daroodReminderStatus" style="display:none;">یاد دہانی ابھی بند ہے۔</span>
         <span style="font-size:12px;">خوش آمدید، <b id="userName"></b>!</span>
         <div class="live-badge" style="margin:0; padding:2px 8px; font-size:10px; white-space:nowrap;">
           <span class="live-dot" style="height:6px; width:6px;"></span> آن لائن: <span id="onlineCount">0</span>
@@ -975,7 +975,6 @@
             <div style="display: flex; gap: 8px; margin-top: 4px;">
               <button class="save-profile-btn" style="flex: 2; background-color: var(--primary-color);" onclick="saveLocationAndFetch()">💾 محفوظ کریں</button>
               <button class="save-profile-btn" style="flex: 1; background-color: #2b6cb0;" onclick="detectCurrentLocation()">📍 کرنٹ لوکیشن</button>
-            <div style="width:100%;font-size:10px;color:var(--text-muted);text-align:center;margin-top:3px;">ملک اور شہر محفوظ کرنے کے بعد 🔔 سے درود اور نماز دونوں کی یاد دہانیاں فعال کریں۔</div>
             </div>
           </div>
 
@@ -1368,18 +1367,10 @@
     const auth = firebase.auth();
     const db = firebase.database();
 
-    // Combined background reminders: Darood + five daily prayers.
-    // One bell controls both systems. Prayer location is saved under the user's account.
+    // Daily background reminder (11:00 AM and 6:00 PM local time).
+    // Paste your Firebase Console > Cloud Messaging > Web Push certificate key here.
     const FCM_VAPID_KEY = "BPC783aIdW6eZm0sCyPevqbmlnArGPP4jnpSN0yUYu7q9GIhAjciKQb6vKYp7533CUpFFTxis0kYghWq4wS0sZA";
     let reminderMessaging = null;
-
-    function getSavedPrayerLocation() {
-      const cityEl = document.getElementById("cityInput");
-      const countryEl = document.getElementById("countryInput");
-      const city = (cityEl?.value || localStorage.getItem('user_city') || '').trim();
-      const country = (countryEl?.value || localStorage.getItem('user_country') || '').trim();
-      return { city, country };
-    }
 
     async function enableDaroodReminders() {
       const btn = document.getElementById("daroodReminderBtn");
@@ -1395,24 +1386,10 @@
         status.innerText = "پہلے Firebase Web Push VAPID Key شامل کرنا ضروری ہے۔";
         return;
       }
-      const location = getSavedPrayerLocation();
-      let accountLocation = {};
-      try {
-        const userSnap = await db.ref("users/" + currentUser.uid).once("value");
-        const userData = userSnap.val() || {};
-        accountLocation = { city: String(userData.savedCity || '').trim(), country: String(userData.savedCountry || '').trim() };
-      } catch (e) {}
-      if (!accountLocation.city || !accountLocation.country) {
-        status.style.color = "#b45309";
-        status.innerText = "پہلے نماز کے اوقات میں اپنا ملک اور شہر محفوظ کریں۔";
-        return;
-      }
-      location.city = accountLocation.city;
-      location.country = accountLocation.country;
       try {
         btn.disabled = true;
         status.style.color = "#15803d";
-        status.innerText = "یاد دہانیاں آن کی جا رہی ہیں...";
+        status.innerText = "یاد دہانی آن کی جا رہی ہے...";
         btn.innerText = "⏳";
         const permission = await Notification.requestPermission();
         if (permission !== "granted") throw new Error("permission-denied");
@@ -1425,25 +1402,23 @@
           enabled: true,
           fcmToken: token,
           timezone: timezone,
-          savedCity: location.city,
-          savedCountry: location.country,
           updatedAt: firebase.database.ServerValue.TIMESTAMP
         });
         btn.innerText = "🔔";
         btn.style.background = "#dcfce7";
         btn.style.color = "#15803d";
-        btn.title = "روزانہ یاد دہانیاں بند کریں";
+        btn.title = "روزانہ یاد دہانی بند کریں";
         status.style.color = "#15803d";
-        status.innerText = "درود: 11 بجے اور 6 بجے • نماز: ہر نماز کے وقت";
+        status.innerText = "11 بجے اور شام 6 بجے یاد دہانی ملے گی۔";
       } catch (e) {
         console.error(e);
         btn.disabled = false;
         btn.innerText = "🔕";
         btn.style.background = "#fef2f2";
         btn.style.color = "#dc2626";
-        btn.title = "روزانہ یاد دہانیاں آن کریں";
+        btn.title = "روزانہ یاد دہانی آن کریں";
         status.style.color = "#dc2626";
-        status.innerText = e.message === "permission-denied" ? "نوٹیفکیشن کی اجازت ضروری ہے۔" : "یاد دہانیاں فعال نہیں ہو سکیں۔";
+        status.innerText = e.message === "permission-denied" ? "نوٹیفکیشن کی اجازت ضروری ہے۔" : "یاد دہانی فعال نہیں ہو سکی۔";
       }
     }
 
@@ -1452,8 +1427,8 @@
       await db.ref("users/" + currentUser.uid + "/notificationReminder").update({ enabled: false, updatedAt: firebase.database.ServerValue.TIMESTAMP });
       const btn = document.getElementById("daroodReminderBtn");
       const status = document.getElementById("daroodReminderStatus");
-      if (btn) { btn.disabled = false; btn.innerText = "🔕"; btn.style.background = "#f3f4f6"; btn.style.color = "#6b7280"; btn.title = "روزانہ یاد دہانیاں آن کریں"; btn.onclick = enableDaroodReminders; }
-      if (status) { status.style.color = "#6b7280"; status.innerText = "درود اور نماز کی یاد دہانیاں بند ہیں۔"; }
+      if (btn) { btn.disabled = false; btn.innerText = "🔕"; btn.style.background = "#f3f4f6"; btn.style.color = "#6b7280"; btn.title = "روزانہ یاد دہانی آن کریں"; }
+      if (status) { status.style.color = "#6b7280"; status.innerText = "روزانہ یاد دہانی بند ہے۔"; }
     }
 
     async function loadDaroodReminderSetting() {
@@ -1464,15 +1439,22 @@
         const snap = await db.ref("users/" + currentUser.uid + "/notificationReminder").once("value");
         const data = snap.val() || {};
         if (data.enabled && data.fcmToken) {
-          if (btn) { btn.disabled = false; btn.innerText = "🔔"; btn.style.background = "#dcfce7"; btn.style.color = "#15803d"; btn.title = "روزانہ یاد دہانیاں بند کریں"; btn.onclick = disableDaroodReminders; }
-          if (status) { status.style.color = "#15803d"; status.innerText = "درود: 11 بجے اور 6 بجے • نماز: ہر نماز کے وقت"; }
+          if (btn) { btn.disabled = false; btn.innerText = "🔔"; btn.style.background = "#dcfce7"; btn.style.color = "#15803d"; btn.title = "روزانہ یاد دہانی بند کریں"; btn.onclick = disableDaroodReminders; }
+          if (status) { status.style.color = "#15803d"; status.innerText = "روزانہ یاد دہانی فعال ہے: 11 بجے اور شام 6 بجے۔"; }
+        } else if (data.enabled === false) {
+          // User has explicitly turned reminders off; do not auto-enable again.
+          if (btn) { btn.disabled = false; btn.innerText = "🔕"; btn.style.background = "#f3f4f6"; btn.style.color = "#6b7280"; btn.title = "روزانہ یاد دہانی آن کریں"; btn.onclick = enableDaroodReminders; }
+          if (status) { status.style.color = "#6b7280"; status.innerText = "روزانہ یاد دہانی بند ہے۔"; }
         } else {
-          if (btn) { btn.disabled = false; btn.innerText = "🔕"; btn.style.background = "#f3f4f6"; btn.style.color = "#6b7280"; btn.title = "روزانہ یاد دہانیاں آن کریں"; btn.onclick = enableDaroodReminders; }
-          if (status) { status.style.color = "#6b7280"; status.innerText = data.enabled === false ? "درود اور نماز کی یاد دہانیاں بند ہیں۔" : "🔔 گھنٹی دبائیں: درود اور نماز دونوں کی یاد دہانیاں آن ہوں گی۔"; }
+          // New users: reminders are ON by default. The browser may still ask
+          // for notification permission; that cannot be silently granted by a website.
+          if (btn) { btn.disabled = true; btn.innerText = "🔔 یاد دہانی آن کی جا رہی ہے..."; btn.onclick = enableDaroodReminders; }
+          if (status) { status.style.color = "#15803d"; status.innerText = "روزانہ یاد دہانی خودکار طور پر آن کی جا رہی ہے..."; }
+          await enableDaroodReminders();
         }
       } catch (e) {
-        if (btn) { btn.disabled = false; btn.innerText = "🔕"; btn.style.background = "#f3f4f6"; btn.style.color = "#6b7280"; btn.onclick = enableDaroodReminders; }
-        if (status) { status.style.color = "#dc2626"; status.innerText = "یاد دہانی کی سیٹنگ لوڈ نہیں ہو سکی۔"; }
+        if (btn) { btn.disabled = false; btn.innerText = "🔔 یاد دہانی آن کریں"; btn.onclick = enableDaroodReminders; }
+        if (status) { status.style.color = "#dc2626"; status.innerText = "یاد دہانی فعال نہیں ہو سکی۔"; }
       }
     }
 
@@ -2218,11 +2200,6 @@ function switchBottomTab(tabName) {
           savedCity: city,
           savedCountry: country
         });
-        db.ref("users/" + currentUser.uid + "/notificationReminder").update({
-          savedCity: city,
-          savedCountry: country,
-          updatedAt: firebase.database.ServerValue.TIMESTAMP
-        });
       }
       fetchPrayerTimes();
     }
@@ -2514,15 +2491,6 @@ function switchBottomTab(tabName) {
             latestPrayerTimings = timings;
             latestPrayerCity = city;
             latestPrayerCountry = country;
-            if (currentUser) {
-              db.ref("users/" + currentUser.uid + "/prayerReminder").update({
-                city: city,
-                country: country,
-                timings: timings,
-                date: data.data.date.gregorian.date,
-                updatedAt: firebase.database.ServerValue.TIMESTAMP
-              }).catch(()=>{});
-            }
             const dateObj = data.data.date;
             document.getElementById("prayerDateDisplay").innerText = `${dateObj.hijri.weekday.en}، ${dateObj.readable} (${city}, ${country})`;
 
