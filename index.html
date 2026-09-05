@@ -1313,6 +1313,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging-compat.js"></script>
 
   <script>
 
@@ -1363,6 +1364,80 @@
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.database();
+
+    // Daily background reminder (11:00 AM and 6:00 PM local time).
+    // Paste your Firebase Console > Cloud Messaging > Web Push certificate key here.
+    const FCM_VAPID_KEY = "BPC783aIdW6eZm0sCyPevqbmlnArGPP4jnpSN0yUYu7q9GIhAjciKQb6vKYp7533CUpFFTxis0kYghWq4wS0sZA";
+    let reminderMessaging = null;
+
+    async function enableDaroodReminders() {
+      const btn = document.getElementById("daroodReminderBtn");
+      const status = document.getElementById("daroodReminderStatus");
+      if (!currentUser || !btn || !status) return;
+      if (!("Notification" in window) || !("serviceWorker" in navigator)) {
+        status.style.color = "#dc2626";
+        status.innerText = "اس موبائل/براؤزر میں نوٹیفکیشن سپورٹ دستیاب نہیں۔";
+        return;
+      }
+      if (FCM_VAPID_KEY.indexOf("PASTE_YOUR") === 0) {
+        status.style.color = "#b45309";
+        status.innerText = "پہلے Firebase Web Push VAPID Key شامل کرنا ضروری ہے۔";
+        return;
+      }
+      try {
+        btn.disabled = true;
+        status.style.color = "#15803d";
+        status.innerText = "یاد دہانی آن کی جا رہی ہے...";
+        const permission = await Notification.requestPermission();
+        if (permission !== "granted") throw new Error("permission-denied");
+        const registration = await navigator.serviceWorker.register("firebase-messaging-sw.js");
+        reminderMessaging = firebase.messaging();
+        const token = await reminderMessaging.getToken({ vapidKey: FCM_VAPID_KEY, serviceWorkerRegistration: registration });
+        if (!token) throw new Error("token-failed");
+        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || "Asia/Karachi";
+        await db.ref("users/" + currentUser.uid + "/notificationReminder").set({
+          enabled: true,
+          fcmToken: token,
+          timezone: timezone,
+          updatedAt: firebase.database.ServerValue.TIMESTAMP
+        });
+        btn.innerText = "✅ روزانہ یاد دہانی آن ہے";
+        status.style.color = "#15803d";
+        status.innerText = "11 بجے اور شام 6 بجے یاد دہانی ملے گی۔";
+      } catch (e) {
+        console.error(e);
+        btn.disabled = false;
+        status.style.color = "#dc2626";
+        status.innerText = e.message === "permission-denied" ? "نوٹیفکیشن کی اجازت ضروری ہے۔" : "یاد دہانی فعال نہیں ہو سکی۔";
+      }
+    }
+
+    async function disableDaroodReminders() {
+      if (!currentUser) return;
+      await db.ref("users/" + currentUser.uid + "/notificationReminder").update({ enabled: false, updatedAt: firebase.database.ServerValue.TIMESTAMP });
+      const btn = document.getElementById("daroodReminderBtn");
+      const status = document.getElementById("daroodReminderStatus");
+      if (btn) { btn.disabled = false; btn.innerText = "🔔 یاد دہانی دوبارہ آن کریں"; }
+      if (status) { status.style.color = "#6b7280"; status.innerText = "روزانہ یاد دہانی بند ہے۔"; }
+    }
+
+    async function loadDaroodReminderSetting() {
+      if (!currentUser) return;
+      const btn = document.getElementById("daroodReminderBtn");
+      const status = document.getElementById("daroodReminderStatus");
+      try {
+        const snap = await db.ref("users/" + currentUser.uid + "/notificationReminder").once("value");
+        const data = snap.val() || {};
+        if (data.enabled && data.fcmToken) {
+          if (btn) { btn.disabled = false; btn.innerText = "🔔 یاد دہانی بند کریں"; btn.onclick = disableDaroodReminders; }
+          if (status) { status.style.color = "#15803d"; status.innerText = "روزانہ یاد دہانی فعال ہے: 11 بجے اور شام 6 بجے۔"; }
+        } else {
+          if (btn) { btn.disabled = false; btn.innerText = "🔔 یاد دہانی آن کریں"; btn.onclick = enableDaroodReminders; }
+          if (status) { status.style.color = "#6b7280"; status.innerText = "یاد دہانی ابھی بند ہے۔"; }
+        }
+      } catch (e) {}
+    }
+
 
     let currentUser = null;
     const ADMIN_EMAIL = "kamran7078127@gmail.com";
@@ -2031,6 +2106,7 @@ function switchBottomTab(tabName) {
         }
 
         loadHadithContent();
+        loadDaroodReminderSetting();
 
         db.ref("users/" + user.uid).on("value", snapshot => {
           const data = snapshot.val();
