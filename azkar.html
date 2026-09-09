@@ -79,7 +79,7 @@ body{font-family:Tahoma,"Noto Naskh Arabic","Amiri",serif;color:#174b39}
 button{font-family:Tahoma;border:2px solid #b38a24;border-radius:17px;padding:11px 18px;
  font-size:17px;font-weight:900;cursor:pointer;box-shadow:0 2px 0 #8f6c1e}
 .start{background:#075b43;color:white}.listen{background:#f0dfa0;color:#174b39}
-.next{background:#fffdf5;color:#111}.reset{background:#fffdf5;color:#111}
+.next{background:#fffdf5;color:#111}.reset{background:#fffdf5;color:#111}.back{background:#fffdf5;color:#111}
 button:disabled{opacity:.45}
 .bottomRibbon{
  margin:8px 12px 0;padding:8px;background:#075b43;color:#fff;text-align:center;
@@ -125,6 +125,7 @@ button:disabled{opacity:.45}
     <button class="listen" id="listen">🔊 سنیں</button>
     <button class="next" id="next">اگلا ➜</button>
     <button id="reset">↻ ری سیٹ</button>
+    <button class="back" id="back">← واپس</button>
   </div>
 </div></div>
 
@@ -160,11 +161,38 @@ let myLifetimeTotal=0;
 let leaderListener=null;
 
 function norm(s){
- return s.replace(/[ًٌٍَُِّْـ]/g,"").replace(/[إأآٱ]/g,"ا").replace(/ى/g,"ی").replace(/ة/g,"ه").replace(/ؤ/g,"و").replace(/ئ/g,"ی").replace(/[^\u0600-\u06FF\s]/g," ").replace(/\s+/g," ").trim();
+ return String(s||"")
+  .replace(/[ًٌٍَُِّْـ]/g,"")
+  .replace(/[إأآٱ]/g,"ا").replace(/ى/g,"ی").replace(/ة/g,"ه")
+  .replace(/[ؤئ]/g,"ی")
+  .replace(/ٰ/g,"")
+  .replace(/[^\u0600-\u06FF\s]/g," ")
+  .replace(/\s+/g," ").trim();
+}
+function tokenKey(s){
+ return norm(s).replace(/[ا]/g,"ا");
+}
+function editDistance(a,b){
+ a=tokenKey(a);b=tokenKey(b);
+ if(a===b)return 0;
+ if(!a||!b)return Math.max(a.length,b.length);
+ const prev=Array.from({length:b.length+1},(_,i)=>i);
+ for(let i=1;i<=a.length;i++){
+   const cur=[i];
+   for(let j=1;j<=b.length;j++){
+     cur[j]=Math.min(cur[j-1]+1,prev[j]+1,prev[j-1]+(a[i-1]===b[j-1]?0:1));
+   }
+   for(let j=0;j<cur.length;j++)prev[j]=cur[j];
+ }
+ return prev[b.length];
 }
 function same(a,b){
- a=norm(a);b=norm(b);
- return a===b || (a.length>2&&b.length>2&&(a.includes(b)||b.includes(a)));
+ a=tokenKey(a);b=tokenKey(b);
+ if(a===b)return true;
+ if(a.length<3||b.length<3)return false;
+ if(a.includes(b)||b.includes(a))return true;
+ const d=editDistance(a,b);
+ return d<=1 || (Math.max(a.length,b.length)>=6 && d<=2);
 }
 function escapeHtml(s){
  return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
@@ -294,18 +322,29 @@ function complete(){
 }
 
 function processText(t){
+ if(!keep || locked)return;
  const got=norm(t).split(/\s+/).filter(Boolean);
- for(const s of got){
+ for(const spoken of got){
    if(pos>=words.length)break;
-   if(same(s,words[pos]))pos++;
-   else{
-     for(let j=pos+1;j<Math.min(pos+5,words.length);j++){
-       if(same(s,words[j])){pos=j+1;break;}
+   // پہلے موجودہ لفظ کو match کریں؛ غلطی کی صورت میں صرف بہت قریب والا اگلا لفظ قبول کریں۔
+   if(same(spoken,words[pos])){
+     pos++;
+   }else{
+     let best=-1,bestScore=99;
+     for(let j=pos+1;j<Math.min(pos+3,words.length);j++){
+       if(same(spoken,words[j])){
+         const score=j-pos;
+         if(score<bestScore){best=j;bestScore=score;}
+       }
      }
+     if(best>=0)pos=best+1;
    }
    paint();
  }
- if(pos>=words.length){pos=0;complete();}
+ if(pos>=words.length){
+   pos=0;
+   complete();
+ }
 }
 
 function startVoice(){
@@ -326,13 +365,19 @@ function startVoice(){
    if(t)processText(t);
  };
  rec.onerror=e=>{
-   if(e.error==="not-allowed"){
+   if(e.error==="not-allowed" || e.error==="service-not-allowed"){
      keep=false;$("start").textContent="🎙️ بول کر پڑھیں";
      $("status").textContent="❌ مائیک کی اجازت دیں۔";
      paint();
+   }else if(keep){
+     $("status").textContent="🎙️ دوبارہ سن رہا ہوں…";
    }
  };
- rec.onend=()=>{if(keep)try{rec.start()}catch(e){}};
+ rec.onend=()=>{
+   if(keep){
+     setTimeout(()=>{if(keep)try{rec.start()}catch(e){}},120);
+   }
+ };
  try{rec.start()}catch(e){}
 }
 
@@ -356,13 +401,22 @@ function speakCurrent(){
 $("start").onclick=()=>keep?stopVoice():startVoice();
 $("listen").onclick=speakCurrent;
 $("next").onclick=()=>{
+ stopVoice();
+ speechSynthesis.cancel();
  if(current<ITEMS.length-1){
    current++;render();$("status").textContent="➡️ اگلا ذکر";
  }
 };
 $("reset").onclick=()=>{
+ stopVoice();
+ speechSynthesis.cancel();
  counts=ITEMS.map(()=>0);current=0;locked=false;pos=0;
  render();$("status").textContent="↻ موجودہ session ری سیٹ ہوگیا۔ محفوظ شدہ کل data حذف نہیں ہوا۔";
+};
+$("back").onclick=()=>{
+ stopVoice();
+ speechSynthesis.cancel();
+ window.location.href="index.html";
 };
 
 auth.onAuthStateChanged(user=>{
