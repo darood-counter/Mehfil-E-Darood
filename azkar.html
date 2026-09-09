@@ -41,10 +41,12 @@ body{font-family:Tahoma,"Noto Naskh Arabic","Amiri",serif;color:#174b39}
  font-size:17px;font-weight:900;color:#244a38
 }
 .countBox{
- width:max-content;margin:0 7% 7px auto;background:#075a43;color:white;
+ width:max-content;margin:0 auto 18px;background:#075a43;color:white;
  border:4px solid #c59e36;border-radius:27px;padding:7px 24px;
- font-size:25px;font-weight:900;box-shadow:0 4px 0 #8e6c1e
+ font-size:25px;font-weight:900;box-shadow:0 4px 0 #8e6c1e;text-align:center;direction:rtl
 }
+.backBar{padding:10px 12px 0;text-align:center}
+.backBtn{background:#fffdf5;color:#174b39;border:2px solid #b38a24;border-radius:17px;padding:8px 22px;font-size:16px;font-weight:900;box-shadow:0 2px 0 #8f6c1e}
 .card{
  margin:0 12px;border:3px solid #b48a26;border-radius:28px;
  background:linear-gradient(145deg,#fffdf4,#fbefc8);padding:24px 14px 18px;
@@ -52,9 +54,13 @@ body{font-family:Tahoma,"Noto Naskh Arabic","Amiri",serif;color:#174b39}
 }
 .card:before,.card:after{position:absolute;top:10px;color:#c59b30;font-size:28px}
 .card:before{content:"✦";right:16px}.card:after{content:"✦";left:16px}
+.zikrHeader{
+ display:flex;flex-direction:column;align-items:center;justify-content:center;
+ gap:8px;margin:0 auto 16px;text-align:center
+}
 .kind{
- width:max-content;margin:0 auto 18px;padding:6px 27px;background:#075b43;color:#fff;
- border:3px solid #c49c34;border-radius:20px;font-size:18px;font-weight:900;
+ width:max-content;margin:0 auto;padding:6px 30px;background:#075b43;color:#fff;
+ border:3px solid #c49c34;border-radius:20px;font-size:20px;font-weight:900;
  box-shadow:0 3px 0 #8e6c1e
 }
 .arabic{
@@ -79,7 +85,7 @@ body{font-family:Tahoma,"Noto Naskh Arabic","Amiri",serif;color:#174b39}
 button{font-family:Tahoma;border:2px solid #b38a24;border-radius:17px;padding:11px 18px;
  font-size:17px;font-weight:900;cursor:pointer;box-shadow:0 2px 0 #8f6c1e}
 .start{background:#075b43;color:white}.listen{background:#f0dfa0;color:#174b39}
-.next{background:#fffdf5;color:#111}.reset{background:#fffdf5;color:#111}.back{background:#fffdf5;color:#111}
+.next{background:#fffdf5;color:#111}.reset{background:#fffdf5;color:#111}
 button:disabled{opacity:.45}
 .bottomRibbon{
  margin:8px 12px 0;padding:8px;background:#075b43;color:#fff;text-align:center;
@@ -87,8 +93,11 @@ button:disabled{opacity:.45}
 }
 @media(max-width:600px){
  .top{height:120px}.mainTitle{font-size:24px;margin-left:9%;margin-right:9%}
- .subTitle{font-size:14px}.countBox{font-size:22px;margin-right:5%}
+ .subTitle{font-size:14px}.countBox{font-size:22px;margin-left:auto;margin-right:auto}
  .card{margin:0 6px;padding:21px 10px 14px;min-height:61vh}
+ .zikrHeader{gap:6px;margin-bottom:12px}
+ .kind{font-size:18px;padding:5px 28px}
+ .countBox{font-size:21px;padding:6px 20px;margin-bottom:0}
  .arabic{font-size:38px;line-height:2.12}.translation{font-size:18px}
  button{font-size:15px;padding:10px 13px}
 }
@@ -109,12 +118,16 @@ button:disabled{opacity:.45}
 <body>
 <div class="page"><div class="sheet">
   <div class="top"><div class="mosques">♜♜♜♜♜♜♜</div></div>
+  <div class="backBar"><button class="backBtn" id="backBtn">← واپس</button></div>
   <div class="mainTitle">روزانہ کے اذکار اور دعائیں</div>
   <div class="subTitle">اللہ کی یاد، سکونِ قلب</div>
-  <div class="countBox" id="targetTop">100 مرتبہ</div>
 
   <main class="card">
-    <div class="kind" id="kind">ذکر</div>
+    <div class="zikrHeader">
+      <div class="kind" id="kind">ذکر</div>
+      <div class="countBox" id="targetTop">100 مرتبہ باقی</div>
+      <div id="doneCount" style="font-size:15px;font-weight:800;color:#075a43">مکمل: 0</div>
+    </div>
     <div class="arabic" id="arabic"></div>
     <div class="translation" id="translation"></div>
   </main>
@@ -125,7 +138,6 @@ button:disabled{opacity:.45}
     <button class="listen" id="listen">🔊 سنیں</button>
     <button class="next" id="next">اگلا ➜</button>
     <button id="reset">↻ ری سیٹ</button>
-    <button class="back" id="back">← واپس</button>
   </div>
 </div></div>
 
@@ -139,6 +151,11 @@ const ITEMS=[{"type": "ذکر", "no": 1, "arabic": "سُبْحَانَ اللَ�
 let current=0;
 let counts=ITEMS.map(()=>0);
 let keep=false,rec=null,locked=false,pos=0,words=[];
+let lastSpeechAt=0;
+let speechBuffer="";
+let countTimer=null;
+let recognitionRestartTimer=null;
+const COUNT_AFTER_SILENCE_MS=1400;
 
 
 const $=id=>document.getElementById(id);
@@ -161,38 +178,11 @@ let myLifetimeTotal=0;
 let leaderListener=null;
 
 function norm(s){
- return String(s||"")
-  .replace(/[ًٌٍَُِّْـ]/g,"")
-  .replace(/[إأآٱ]/g,"ا").replace(/ى/g,"ی").replace(/ة/g,"ه")
-  .replace(/[ؤئ]/g,"ی")
-  .replace(/ٰ/g,"")
-  .replace(/[^\u0600-\u06FF\s]/g," ")
-  .replace(/\s+/g," ").trim();
-}
-function tokenKey(s){
- return norm(s).replace(/[ا]/g,"ا");
-}
-function editDistance(a,b){
- a=tokenKey(a);b=tokenKey(b);
- if(a===b)return 0;
- if(!a||!b)return Math.max(a.length,b.length);
- const prev=Array.from({length:b.length+1},(_,i)=>i);
- for(let i=1;i<=a.length;i++){
-   const cur=[i];
-   for(let j=1;j<=b.length;j++){
-     cur[j]=Math.min(cur[j-1]+1,prev[j]+1,prev[j-1]+(a[i-1]===b[j-1]?0:1));
-   }
-   for(let j=0;j<cur.length;j++)prev[j]=cur[j];
- }
- return prev[b.length];
+ return s.replace(/[ًٌٍَُِّْـ]/g,"").replace(/[إأآٱ]/g,"ا").replace(/ى/g,"ی").replace(/ة/g,"ه").replace(/ؤ/g,"و").replace(/ئ/g,"ی").replace(/[^\u0600-\u06FF\s]/g," ").replace(/\s+/g," ").trim();
 }
 function same(a,b){
- a=tokenKey(a);b=tokenKey(b);
- if(a===b)return true;
- if(a.length<3||b.length<3)return false;
- if(a.includes(b)||b.includes(a))return true;
- const d=editDistance(a,b);
- return d<=1 || (Math.max(a.length,b.length)>=6 && d<=2);
+ a=norm(a);b=norm(b);
+ return a===b || (a.length>2&&b.length>2&&(a.includes(b)||b.includes(a)));
 }
 function escapeHtml(s){
  return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
@@ -202,7 +192,7 @@ function render(){
  const x=ITEMS[current];
  $("kind").textContent=x.type;
  $("translation").textContent=x.translation || "";
- $("targetTop").textContent=x.target+" مرتبہ";
+ $("targetTop").textContent=Math.max(0,x.target-counts[current])+" مرتبہ باقی";
  const clean=x.arabic.trim().split(/\s+/);
  $("arabic").innerHTML=clean.map((w,i)=>`<span class="word" id="w${i}">${w}</span>`).join(" ");
  words=clean.map(norm);pos=0;
@@ -215,6 +205,13 @@ function paint(){
    el.classList.toggle("current",i===pos && keep);
  });
 }
+function clearHighlight(){
+ pos=0;
+ document.querySelectorAll(".word").forEach(el=>{
+   el.classList.remove("done","current");
+ });
+}
+
 
 /* Save ONE completed reading to Firebase.
    Path:
@@ -300,93 +297,156 @@ function complete(){
  if(locked)return;
  locked=true;
  const item=ITEMS[current];
+
  counts[current]=Math.min(counts[current]+1,item.target);
- paint();
+ $("targetTop").textContent=Math.max(0,item.target-counts[current])+" مرتبہ باقی";
+ $("doneCount").textContent="مکمل: "+counts[current];
+
+ // Completed attempt is fully green.
+ document.querySelectorAll(".word").forEach(el=>{
+   el.classList.remove("current");
+   el.classList.add("done");
+ });
 
  saveReadingToFirebase(item).finally(()=>{
    if(counts[current]>=item.target){
-     $("status").textContent="🎉 مکمل — اگلا خود کھل رہا ہے…";
+     $("status").textContent="🎉 ہدف مکمل — اگلا ذکر خود کھل رہا ہے…";
      setTimeout(()=>{
        if(current<ITEMS.length-1){
-         current++;render();$("status").textContent="➡️ اگلا ذکر شروع کریں";
+         current++;
+         render();
+         $("status").textContent="➡️ اگلا ذکر شروع کریں";
        }else{
-         $("status").textContent="🌟 تمام اذکار اور 99 اسماءُ الحسنیٰ مکمل ہوگئے۔";
+         $("status").textContent="🌟 تمام اذکار مکمل ہوگئے۔";
        }
        locked=false;
-     },850);
+       speechBuffer="";
+     },700);
    }else{
-     $("status").textContent="✅ ایک reading مکمل";
-     pos=0;paint();locked=false;
+     $("status").textContent="✅ reading مکمل — دوبارہ پڑھیں";
+     locked=false;
+     speechBuffer="";
+     clearHighlight();
+     paint();
    }
  });
 }
 
 function processText(t){
- if(!keep || locked)return;
- const got=norm(t).split(/\s+/).filter(Boolean);
- for(const spoken of got){
+ const text=String(t||"").trim();
+ if(!text || locked)return;
+
+ // Green progress is only visual; counting does not require exact words.
+ const got=norm(text).split(/\s+/).filter(Boolean);
+ for(const token of got){
    if(pos>=words.length)break;
-   // پہلے موجودہ لفظ کو match کریں؛ غلطی کی صورت میں صرف بہت قریب والا اگلا لفظ قبول کریں۔
-   if(same(spoken,words[pos])){
+   if(same(token,words[pos])){
      pos++;
    }else{
-     let best=-1,bestScore=99;
-     for(let j=pos+1;j<Math.min(pos+3,words.length);j++){
-       if(same(spoken,words[j])){
-         const score=j-pos;
-         if(score<bestScore){best=j;bestScore=score;}
+     for(let j=pos+1;j<Math.min(pos+7,words.length);j++){
+       if(same(token,words[j])){
+         pos=j+1;
+         break;
        }
      }
-     if(best>=0)pos=best+1;
    }
-   paint();
  }
- if(pos>=words.length){
-   pos=0;
-   complete();
- }
+ paint();
+
+ // Any non-empty final voice result counts as one reading, even if pronunciation
+ // or recognition is imperfect. A short debounce joins split recognition results.
+ speechBuffer += " " + text;
+ if(countTimer)clearTimeout(countTimer);
+ countTimer=setTimeout(()=>{
+   if(!locked && speechBuffer.trim()){
+     speechBuffer="";
+     complete();
+   }
+ },700);
 }
 
 function startVoice(){
  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
- if(!SR){$("status").textContent="❌ Chrome میں Voice Recognition استعمال کریں۔";return;}
- if(!currentUser){
-   $("status").textContent="🔐 پہلے اپنی ویب سائٹ میں لاگ اِن کریں۔";
+ if(!SR){
+   $("status").textContent="❌ اس براؤزر میں Voice Recognition دستیاب نہیں۔ Chrome استعمال کریں۔";
    return;
  }
+ // Login is NOT required to count a reading.
  if(keep)return;
- keep=true;$("start").textContent="⏹️ Listening بند کریں";
- $("status").textContent="🎙️ سن رہا ہوں… موجودہ متن پڑھیں";
+
+ keep=true;
+ speechBuffer="";
+ if(countTimer)clearTimeout(countTimer);
+ $("start").textContent="⏹️ Listening بند کریں";
+ $("status").textContent="🎙️ سن رہا ہوں… اب ذکر پڑھیں";
+ clearHighlight();
  paint();
- rec=new SR();rec.lang="ar-SA";rec.continuous=true;rec.interimResults=false;rec.maxAlternatives=5;
- rec.onresult=e=>{
-   let t="";
-   for(let i=e.resultIndex;i<e.results.length;i++)if(e.results[i].isFinal)t+=" "+e.results[i][0].transcript;
-   if(t)processText(t);
- };
- rec.onerror=e=>{
-   if(e.error==="not-allowed" || e.error==="service-not-allowed"){
-     keep=false;$("start").textContent="🎙️ بول کر پڑھیں";
-     $("status").textContent="❌ مائیک کی اجازت دیں۔";
-     paint();
-   }else if(keep){
-     $("status").textContent="🎙️ دوبارہ سن رہا ہوں…";
+
+ const makeRecognition=()=>{
+   if(!keep)return;
+
+   rec=new SR();
+   rec.lang="ar-SA";
+   rec.continuous=true;
+   rec.interimResults=false;
+   rec.maxAlternatives=5;
+
+   rec.onresult=e=>{
+     let text="";
+     for(let i=e.resultIndex;i<e.results.length;i++){
+       if(e.results[i].isFinal){
+         text+=" "+(e.results[i][0]?.transcript||"");
+       }
+     }
+     if(text.trim())processText(text);
+   };
+
+   rec.onerror=e=>{
+     if(e.error==="not-allowed" || e.error==="service-not-allowed"){
+       keep=false;
+       if(countTimer)clearTimeout(countTimer);
+       $("start").textContent="🎙️ بول کر پڑھیں";
+       $("status").textContent="❌ مائیک کی اجازت دیں۔";
+       paint();
+     }
+   };
+
+   rec.onend=()=>{
+     rec=null;
+     if(keep){
+       clearTimeout(recognitionRestartTimer);
+       recognitionRestartTimer=setTimeout(makeRecognition,250);
+     }
+   };
+
+   try{
+     rec.start();
+   }catch(e){
+     if(keep){
+       clearTimeout(recognitionRestartTimer);
+       recognitionRestartTimer=setTimeout(makeRecognition,500);
+     }
    }
  };
- rec.onend=()=>{
-   if(keep){
-     setTimeout(()=>{if(keep)try{rec.start()}catch(e){}},120);
-   }
- };
- try{rec.start()}catch(e){}
+
+ makeRecognition();
 }
 
 function stopVoice(){
- keep=false;if(rec)try{rec.stop()}catch(e){}rec=null;
+ keep=false;
+ if(countTimer)clearTimeout(countTimer);
+ if(recognitionRestartTimer)clearTimeout(recognitionRestartTimer);
+ speechBuffer="";
+ if(rec){
+   try{rec.onend=null;rec.stop();}catch(e){}
+ }
+ rec=null;
  $("start").textContent="🎙️ بول کر پڑھیں";
  $("status").textContent="Listening بند ہے۔";
+ clearHighlight();
  paint();
 }
+
 
 function speakCurrent(){
  if(!("speechSynthesis"in window)){$("status").textContent="❌ Speaker دستیاب نہیں۔";return;}
@@ -398,25 +458,24 @@ function speakCurrent(){
  speechSynthesis.speak(u);
 }
 
+$("backBtn").onclick=()=>{ stopVoice(); window.location.href="index.html"; };
 $("start").onclick=()=>keep?stopVoice():startVoice();
 $("listen").onclick=speakCurrent;
 $("next").onclick=()=>{
- stopVoice();
- speechSynthesis.cancel();
  if(current<ITEMS.length-1){
    current++;render();$("status").textContent="➡️ اگلا ذکر";
  }
 };
 $("reset").onclick=()=>{
  stopVoice();
- speechSynthesis.cancel();
- counts=ITEMS.map(()=>0);current=0;locked=false;pos=0;
- render();$("status").textContent="↻ موجودہ session ری سیٹ ہوگیا۔ محفوظ شدہ کل data حذف نہیں ہوا۔";
-};
-$("back").onclick=()=>{
- stopVoice();
- speechSynthesis.cancel();
- window.location.href="index.html";
+ if(countTimer)clearTimeout(countTimer);
+ speechBuffer="";
+ counts=ITEMS.map(()=>0);
+ current=0;
+ locked=false;
+ pos=0;
+ render();
+ $("status").textContent="↻ موجودہ session ری سیٹ ہوگیا۔ محفوظ شدہ کل data حذف نہیں ہوا۔";
 };
 
 auth.onAuthStateChanged(user=>{
