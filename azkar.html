@@ -180,6 +180,7 @@ let wakeLock=null;
 let noSleep=null;
 try{ noSleep=new NoSleep(); }catch(e){ noSleep=null; }
 let resetMode=false;
+let wakeGuardTimer=null;
 
 function saveLocalProgress(){
   try{
@@ -203,29 +204,49 @@ function loadLocalProgress(){
 }
 
 async function requestWakeLock(){
-  // Primary method: Screen Wake Lock API (Chrome/Android and supported browsers).
-  if(!("wakeLock" in navigator))return false;
+  // Keep the screen awake while the user is actively reading.
+  if(!keep || document.visibilityState!=="visible") return false;
+  if(!("wakeLock" in navigator)) return false;
   try{
-    if(wakeLock && !wakeLock.released)return true;
+    if(wakeLock && !wakeLock.released) return true;
     wakeLock=await navigator.wakeLock.request("screen");
     wakeLock.addEventListener("release",()=>{
       wakeLock=null;
-      // If the browser releases it while the user is still reading, try again.
-      if(keep && document.visibilityState==="visible") setTimeout(()=>requestWakeLock(),300);
-    });
+      if(keep && document.visibilityState==="visible"){
+        setTimeout(()=>requestWakeLock(),250);
+      }
+    },{once:true});
     return true;
-  }catch(e){ return false; }
+  }catch(e){
+    wakeLock=null;
+    return false;
+  }
+}
+
+function startWakeGuard(){
+  if(wakeGuardTimer) clearInterval(wakeGuardTimer);
+  // NoSleep is the fallback; it must be enabled from the Start button gesture.
+  try{ if(noSleep) noSleep.enable(); }catch(e){}
+  requestWakeLock();
+  wakeGuardTimer=setInterval(()=>{
+    if(!keep){clearInterval(wakeGuardTimer);wakeGuardTimer=null;return;}
+    try{ if(noSleep) noSleep.enable(); }catch(e){}
+    requestWakeLock();
+  },4000);
 }
 
 async function releaseWakeLock(){
-  try{
-    if(wakeLock)await wakeLock.release();
-  }catch(e){}
+  if(wakeGuardTimer){clearInterval(wakeGuardTimer);wakeGuardTimer=null;}
+  try{ if(noSleep) noSleep.disable(); }catch(e){}
+  try{ if(wakeLock) await wakeLock.release(); }catch(e){}
   wakeLock=null;
 }
 
 document.addEventListener("visibilitychange",()=>{
-  if(document.visibilityState==="visible" && keep) requestWakeLock();
+  if(document.visibilityState==="visible" && keep){
+    try{ if(noSleep) noSleep.enable(); }catch(e){}
+    requestWakeLock();
+  }
 });
 
 const $=id=>document.getElementById(id);
@@ -447,10 +468,8 @@ function startVoice(){
  if(keep)return;
 
  keep=true;
- // Keep the screen awake using both methods. NoSleep is a fallback for browsers
- // where Screen Wake Lock is unavailable or gets released by the browser.
- try{ if(noSleep) noSleep.enable(); }catch(e){}
- requestWakeLock();
+ // Start both screen-awake mechanisms immediately from the user tap.
+ startWakeGuard();
  speechBuffer="";
  if(countTimer)clearTimeout(countTimer);
  $("start").textContent="⏹️ Listening بند کریں";
