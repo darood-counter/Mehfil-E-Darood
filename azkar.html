@@ -144,7 +144,7 @@ button:disabled{opacity:.45}
   <main class="card">
     <div class="zikrHeader">
       <div class="kind" id="kind">ذکر</div>
-      <div class="countBox" id="targetTop">100 مرتبہ باقی</div>
+      <div class="countBox" id="targetTop">1 مرتبہ باقی</div>
       <div id="doneCount" style="font-size:15px;font-weight:800;color:#075a43">مکمل: 0</div>
     </div>
     <div class="arabic" id="arabic"></div>
@@ -167,72 +167,24 @@ button:disabled{opacity:.45}
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js"></script>
 
 <script>
-// Local screen-awake media fallback: no external library required.
-const awakeVideo=document.createElement("video");
-awakeVideo.id="awakeVideo"; awakeVideo.muted=true; awakeVideo.loop=true; awakeVideo.playsInline=true; awakeVideo.setAttribute("playsinline","");
-awakeVideo.style.cssText="position:fixed;width:1px;height:1px;opacity:0;pointer-events:none;left:-10px;top:-10px;z-index:-1";
-document.documentElement.appendChild(awakeVideo);
-let awakeStream=null,awakeCanvas=null,awakeCtx=null;
-function startMediaKeepAwake(){
-  try{
-    if(!awakeStream && awakeVideo.captureStream){
-      awakeCanvas=document.createElement("canvas"); awakeCanvas.width=2; awakeCanvas.height=2;
-      awakeCtx=awakeCanvas.getContext("2d"); awakeCtx.fillStyle="#000"; awakeCtx.fillRect(0,0,2,2);
-      awakeStream=awakeCanvas.captureStream(1); awakeVideo.srcObject=awakeStream;
-    }
-    const p=awakeVideo.play();
-    if(p&&p.catch)p.catch(()=>{});
-  }catch(e){}
-}
-function stopMediaKeepAwake(){
-  try{awakeVideo.pause();}catch(e){}
-}
-
-const ITEMS=[{"type": "ذکر", "no": 1, "arabic": "سُبْحَانَ اللَّهِ وَبِحَمْدِهِ سُبْحَانَ اللَّهِ الْعَظِيمِ", "translation": "اللہ پاک ہے اور اسی کی حمد ہے، اللہ بہت پاک ہے۔", "target": 100}, {"type": "ذکر", "no": 2, "arabic": "سُبْحَانَ اللَّهِ، وَالْحَمْدُ لِلَّهِ، وَاللَّهُ أَكْبَرُ", "translation": "اللہ پاک ہے، تمام تعریفیں اللہ کے لیے ہیں، اور اللہ سب سے بڑا ہے۔", "target": 100}, {"type": "ذکر", "no": 3, "arabic": "لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ الْعَلِيِّ الْعَظِيمِ", "translation": "کوئی طاقت اور قوت نہیں اللہ کے سوا، جو بلند اور بہت بڑا ہے۔", "target": 100}, {"type": "ذکر", "no": 4, "arabic": "لَا إِلٰهَ إِلَّا أَنْتَ سُبْحَانَكَ إِنِّي كُنْتُ مِنَ الظَّالِمِينَ", "translation": "اے اللہ کے سوا کوئی معبود نہیں، تو پاک ہے، میں واقعی ظالموں میں سے ہوں۔", "target": 100}, {"type": "ذکر", "no": 5, "arabic": "حَسْبُنَا اللَّهُ وَنِعْمَ الْوَكِيلُ", "translation": "اللہ ہمارے لیے کافی ہے، اور وہ بہترین کارساز ہے۔", "target": 100}, {"type": "ذکر", "no": 6, "arabic": "يَا حَيُّ يَا قَيُّومُ بِرَحْمَتِكَ أَسْتَغِيثُ", "translation": "اے ہمیشہ زندہ اور قائم رہنے والے! میں تیری رحمت کا طلبگار ہوں۔", "target": 100}, {"type": "ذکر", "no": 7, "arabic": "أَسْتَغْفِرُ اللَّهَ رَبِّي مِنْ كُلِّ ذَنْبٍ وَأَتُوبُ إِلَيْهِ", "translation": "میں اپنے رب اللہ سے ہر گناہ کی بخشش مانگتا ہوں اور اس کی طرف رجوع کرتا ہوں۔", "target": 100}, {"type": "ذکر", "no": 8, "arabic": "سُبْحَانَ اللَّهِ وَبِحَمْدِهِ، عَدَدَ خَلْقِهِ، وَرِضَا نَفْسِهِ، وَزِنَةَ عَرْشِهِ، وَمِدَادَ كَلِمَاتِهِ", "translation": "اللہ پاک ہے اور اسی کی حمد ہے، اس کی مخلوق کی گنتی کے برابر، اس کی رضا کے برابر، اس کے عرش کے وزن کے برابر، اور اس کے کلمات کی سیاہی کے برابر۔", "target": 5}, {"type": "ذکر", "no": 9, "arabic": "لَا إِلٰهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، وَهُوَ عَلَىٰ كُلِّ شَيْءٍ قَدِيرٌ", "translation": "اللہ کے سوا کوئی معبود نہیں، وہ اکیلا ہے، اس کا کوئی شریک نہیں، اس کا بادشاہت ہے، اس کی حمد ہے، اور وہ ہر چیز پر قادر ہے۔", "target": 5}, {"type": "ذکر", "no": 10, "arabic": "اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ كَمَا صَلَّيْتَ عَلَى إِبْرَاهِيمَ وَعَلَى آلِ إِبْرَاهِيمَ إِنَّكَ حَمِيدٌ مَجِيدٌ اللَّهُمَّ بَارِكْ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ كَمَا بَارَكْتَ عَلَى إِبْرَاهِيمَ وَعَلَى آلِ إِبْرَاهِيمَ إِنَّكَ حَمِيدٌ مَجِيدٌ", "translation": "اے اللہ! محمد ﷺ اور ان کی آل پر رحمت نازل فرما، جیسے تو نے ابراہیمؑ اور ان کی آل پر رحمت نازل فرمائی، بے شک تو حمد و مجد والا ہے۔ اے اللہ! محمد ﷺ اور ان کی آل پر برکت نازل فرما، جیسے تو نے ابراہیمؑ اور ان کی آل پر برکت نازل فرمائی، بے شک تو حمد و مجد والا ہے۔", "target": 5}, {"type": "اسماء الحسنیٰ", "no": 1, "arabic": "الرَّحْمَنُ", "translation": "نہایت مہربان", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 2, "arabic": "الرَّحِيمُ", "translation": "بہت رحم فرمانے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 3, "arabic": "الْمَلِكُ", "translation": "بادشاہ", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 4, "arabic": "الْقُدُّوسُ", "translation": "نہایت پاک", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 5, "arabic": "السَّلَامُ", "translation": "سلامتی دینے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 6, "arabic": "الْمُؤْمِنُ", "translation": "امن دینے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 7, "arabic": "الْمُهَيْمِنُ", "translation": "نگہبان", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 8, "arabic": "الْعَزِيزُ", "translation": "غالب", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 9, "arabic": "الْجَبَّارُ", "translation": "زبردست", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 10, "arabic": "الْمُتَكَبِّرُ", "translation": "بڑائی والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 11, "arabic": "الْخَالِقُ", "translation": "پیدا کرنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 12, "arabic": "الْبَارِئُ", "translation": "وجود میں لانے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 13, "arabic": "الْمُصَوِّرُ", "translation": "صورت بنانے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 14, "arabic": "الْغَفَّارُ", "translation": "بہت بخشنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 15, "arabic": "الْقَهَّارُ", "translation": "سب پر غالب", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 16, "arabic": "الْوَهَّابُ", "translation": "بہت عطا کرنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 17, "arabic": "الرَّزَّاقُ", "translation": "رزق دینے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 18, "arabic": "الْفَتَّاحُ", "translation": "کشادگی دینے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 19, "arabic": "الْعَلِيمُ", "translation": "سب کچھ جاننے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 20, "arabic": "الْقَابِضُ", "translation": "روکنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 21, "arabic": "الْبَاسِطُ", "translation": "کشادگی دینے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 22, "arabic": "الْخَافِضُ", "translation": "پست کرنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 23, "arabic": "الرَّافِعُ", "translation": "بلند کرنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 24, "arabic": "الْمُعِزُّ", "translation": "عزت دینے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 25, "arabic": "الْمُذِلُّ", "translation": "ذلت دینے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 26, "arabic": "السَّمِيعُ", "translation": "سب کچھ سننے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 27, "arabic": "الْبَصِيرُ", "translation": "سب کچھ دیکھنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 28, "arabic": "الْحَكَمُ", "translation": "فیصلہ کرنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 29, "arabic": "الْعَدْلُ", "translation": "نہایت عادل", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 30, "arabic": "اللَّطِيفُ", "translation": "نرمی فرمانے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 31, "arabic": "الْخَبِيرُ", "translation": "باخبر", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 32, "arabic": "الْحَلِيمُ", "translation": "بردبار", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 33, "arabic": "الْعَظِيمُ", "translation": "عظمت والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 34, "arabic": "الْغَفُورُ", "translation": "بہت بخشنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 35, "arabic": "الشَّكُورُ", "translation": "قدر دان", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 36, "arabic": "الْعَلِيُّ", "translation": "سب سے بلند", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 37, "arabic": "الْكَبِيرُ", "translation": "سب سے بڑا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 38, "arabic": "الْحَفِيظُ", "translation": "حفاظت کرنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 39, "arabic": "الْمُقِيتُ", "translation": "قوت دینے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 40, "arabic": "الْحَسِيبُ", "translation": "حساب لینے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 41, "arabic": "الْجَلِيلُ", "translation": "جلال والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 42, "arabic": "الْكَرِيمُ", "translation": "بہت کریم", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 43, "arabic": "الرَّقِيبُ", "translation": "نگہبان", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 44, "arabic": "الْمُجِيبُ", "translation": "دعا قبول کرنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 45, "arabic": "الْوَاسِعُ", "translation": "وسعت والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 46, "arabic": "الْحَكِيمُ", "translation": "حکمت والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 47, "arabic": "الْوَدُودُ", "translation": "محبت فرمانے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 48, "arabic": "الْمَجِيدُ", "translation": "بزرگی والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 49, "arabic": "الْبَاعِثُ", "translation": "اٹھانے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 50, "arabic": "الشَّهِيدُ", "translation": "گواہ", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 51, "arabic": "الْحَقُّ", "translation": "حق", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 52, "arabic": "الْوَكِيلُ", "translation": "کارساز", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 53, "arabic": "الْقَوِيُّ", "translation": "طاقتور", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 54, "arabic": "الْمَتِينُ", "translation": "مضبوط", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 55, "arabic": "الْوَلِيُّ", "translation": "مددگار", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 56, "arabic": "الْحَمِيدُ", "translation": "قابلِ حمد", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 57, "arabic": "الْمُحْصِي", "translation": "شمار کرنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 58, "arabic": "الْمُبْدِئُ", "translation": "پہلی بار پیدا کرنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 59, "arabic": "الْمُعِيدُ", "translation": "دوبارہ پیدا کرنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 60, "arabic": "الْمُحْيِي", "translation": "زندگی دینے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 61, "arabic": "الْمُمِيتُ", "translation": "موت دینے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 62, "arabic": "الْحَيُّ", "translation": "ہمیشہ زندہ", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 63, "arabic": "الْقَيُّومُ", "translation": "سب کو قائم رکھنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 64, "arabic": "الْوَاجِدُ", "translation": "پانے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 65, "arabic": "الْمَاجِدُ", "translation": "بزرگی والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 66, "arabic": "الْوَاحِدُ", "translation": "ایک", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 67, "arabic": "الْأَحَدُ", "translation": "یکتا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 68, "arabic": "الصَّمَدُ", "translation": "بے نیاز", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 69, "arabic": "الْقَادِرُ", "translation": "قدرت والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 70, "arabic": "الْمُقْتَدِرُ", "translation": "کامل قدرت والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 71, "arabic": "الْمُقَدِّمُ", "translation": "آگے کرنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 72, "arabic": "الْمُؤَخِّرُ", "translation": "پیچھے کرنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 73, "arabic": "الْأَوَّلُ", "translation": "اول", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 74, "arabic": "الْآخِرُ", "translation": "آخر", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 75, "arabic": "الظَّاهِرُ", "translation": "ظاہر", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 76, "arabic": "الْبَاطِنُ", "translation": "پوشیدہ", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 77, "arabic": "الْوَالِي", "translation": "حاکم", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 78, "arabic": "الْمُتَعَالِي", "translation": "بہت بلند", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 79, "arabic": "الْبَرُّ", "translation": "نیکی کرنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 80, "arabic": "التَّوَابُ", "translation": "توبہ قبول کرنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 81, "arabic": "الْمُنْتَقِمُ", "translation": "بدلہ لینے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 82, "arabic": "الْعَفُوُّ", "translation": "معاف کرنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 83, "arabic": "الرَّؤُوفُ", "translation": "بہت شفقت فرمانے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 84, "arabic": "مَالِكُ الْمُلْكِ", "translation": "بادشاہی کا مالک", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 85, "arabic": "ذُو الْجَلَالِ وَالْإِكْرَامِ", "translation": "جلال و اکرام والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 86, "arabic": "الْمُقْسِطُ", "translation": "انصاف قائم کرنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 87, "arabic": "الْجَامِعُ", "translation": "جمع کرنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 88, "arabic": "الْغَنِيُّ", "translation": "بے نیاز", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 89, "arabic": "الْمُغْنِي", "translation": "غنی کرنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 90, "arabic": "الْمَانِعُ", "translation": "روکنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 91, "arabic": "الضَّارُ", "translation": "نقصان پہنچانے پر قادر", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 92, "arabic": "النَّافِعُ", "translation": "نفع پہنچانے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 93, "arabic": "النُّورُ", "translation": "نور", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 94, "arabic": "الْهَادِي", "translation": "ہدایت دینے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 95, "arabic": "الْبَدِيعُ", "translation": "بے مثال پیدا کرنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 96, "arabic": "الْبَاقِي", "translation": "ہمیشہ باقی رہنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 97, "arabic": "الْوَارِثُ", "translation": "وارث", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 98, "arabic": "الرَّشِيدُ", "translation": "درست راہ دکھانے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 99, "arabic": "الصَّبُورُ", "translation": "بہت صبر والا", "target": 1}];
-const STORAGE_KEY="mehfil_azkar_progress_v3";
-let current=0;
-let counts=ITEMS.map(()=>0);
-let keep=false,rec=null,locked=false,pos=0,words=[];
+// Keep the Azkar page awake for the whole time it is visible.
+// Native Screen Wake Lock is the primary method. We request it on page load
+// and again after any user interaction because some Android browsers require
+// a user gesture before allowing a screen wake lock.
 let pageKeepAwake=true;
-let speechBuffer="";
-let countTimer=null;
-let recognitionRestartTimer=null;
 let wakeLock=null;
-let noSleep=null;
-let resetMode=false;
-let wakeGuardTimer=null;
-
-function saveLocalProgress(){
-  try{
-    localStorage.setItem(STORAGE_KEY,JSON.stringify({
-      current,
-      counts,
-      savedAt:Date.now()
-    }));
-  }catch(e){}
-}
-
-function loadLocalProgress(){
-  try{
-    const raw=localStorage.getItem(STORAGE_KEY);
-    if(!raw)return;
-    const data=JSON.parse(raw);
-    if(!Array.isArray(data.counts) || data.counts.length!==ITEMS.length)return;
-    counts=ITEMS.map((item,i)=>Math.min(Number(data.counts[i]||0),item.target));
-    current=Math.min(Math.max(Number(data.current||0),0),ITEMS.length-1);
-  }catch(e){}
-}
+let wakeRetryTimer=null;
 
 async function requestWakeLock(){
   if(!pageKeepAwake || document.visibilityState!=="visible") return false;
   if(!navigator.wakeLock || !navigator.wakeLock.request) return false;
+  if(wakeLock && !wakeLock.released) return true;
   try{
-    if(wakeLock && !wakeLock.released) return true;
     wakeLock=await navigator.wakeLock.request("screen");
     wakeLock.addEventListener("release",()=>{
       wakeLock=null;
-      if(pageKeepAwake && document.visibilityState==="visible") setTimeout(()=>requestWakeLock(),300);
-    });
+      if(pageKeepAwake && document.visibilityState==="visible") scheduleWakeRetry();
+    },{once:true});
     return true;
   }catch(e){
     wakeLock=null;
@@ -240,41 +192,42 @@ async function requestWakeLock(){
   }
 }
 
-function startWakeGuard(){
-  if(wakeGuardTimer) clearInterval(wakeGuardTimer);
-  // Keep the whole Azkar page awake, not only while voice recognition is running.
-  startMediaKeepAwake();
-  requestWakeLock();
-  wakeGuardTimer=setInterval(()=>{
-    if(!pageKeepAwake){ clearInterval(wakeGuardTimer); wakeGuardTimer=null; return; }
-    if(document.visibilityState === "visible"){
-      startMediaKeepAwake();
-      requestWakeLock();
-    }
-  },2000);
+function scheduleWakeRetry(){
+  if(wakeRetryTimer) clearTimeout(wakeRetryTimer);
+  wakeRetryTimer=setTimeout(()=>{
+    wakeRetryTimer=null;
+    requestWakeLock();
+  },1000);
 }
 
-async function releaseWakeLock(){
-  if(wakeGuardTimer){clearInterval(wakeGuardTimer);wakeGuardTimer=null;}
-  stopMediaKeepAwake();
-  try{if(wakeLock) await wakeLock.release();}catch(e){}
-  wakeLock=null;
+function keepScreenAwake(){
+  if(!pageKeepAwake || document.visibilityState!=="visible") return;
+  requestWakeLock().then(ok=>{
+    if(!ok) scheduleWakeRetry();
+  });
 }
 
 document.addEventListener("visibilitychange",()=>{
-  if(document.visibilityState==="visible" && pageKeepAwake){
-    startMediaKeepAwake();
-    requestWakeLock();
-  }
+  if(document.visibilityState==="visible") keepScreenAwake();
+});
+window.addEventListener("focus",keepScreenAwake);
+window.addEventListener("load",keepScreenAwake);
+
+// Important: retry immediately after a real user gesture. This is what makes
+// it work on Android browsers that reject an automatic request on page load.
+["pointerdown","touchstart","click"].forEach(ev=>{
+  document.addEventListener(ev,()=>keepScreenAwake(),{passive:true});
 });
 
-// Start screen-awake protection as soon as the page opens. A user tap anywhere
-// also retries it because some mobile browsers require user activation for media.
-window.addEventListener("load",()=>{ startWakeGuard(); });
-["pointerdown","touchstart","click"].forEach(ev=>{
-  document.addEventListener(ev,()=>{ if(pageKeepAwake){ startMediaKeepAwake(); requestWakeLock(); } },{passive:true});
-});
-window.addEventListener("pagehide",()=>{ pageKeepAwake=false; releaseWakeLock(); });
+// If Android/browser releases the lock while the page is still visible,
+// periodically request it again.
+setInterval(()=>{
+  if(pageKeepAwake && document.visibilityState==="visible" && (!wakeLock || wakeLock.released)) keepScreenAwake();
+},5000);
+
+// Do not set pageKeepAwake=false on pagehide: Android may temporarily hide the
+// document while changing visibility. The visibilitychange handler will acquire
+// a new lock when the page becomes visible again.
 
 const $=id=>document.getElementById(id);
 
@@ -291,6 +244,13 @@ if(!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const auth=firebase.auth();
 const db=firebase.database();
 
+const ITEMS=[{"type": "ذکر", "no": 1, "arabic": "سُبْحَانَ اللَّهِ وَبِحَمْدِهِ سُبْحَانَ اللَّهِ الْعَظِيمِ", "translation": "اللہ پاک ہے اور اسی کی حمد ہے، اللہ بہت پاک ہے۔", "target": 5}, {"type": "ذکر", "no": 2, "arabic": "سُبْحَانَ اللَّهِ، وَالْحَمْدُ لِلَّهِ، وَاللَّهُ أَكْبَرُ", "translation": "اللہ پاک ہے، تمام تعریفیں اللہ کے لیے ہیں، اور اللہ سب سے بڑا ہے۔", "target": 5}, {"type": "ذکر", "no": 3, "arabic": "لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ الْعَلِيِّ الْعَظِيمِ", "translation": "کوئی طاقت اور قوت نہیں اللہ کے سوا، جو بلند اور بہت بڑا ہے۔", "target": 5}, {"type": "ذکر", "no": 4, "arabic": "لَا إِلٰهَ إِلَّا أَنْتَ سُبْحَانَكَ إِنِّي كُنْتُ مِنَ الظَّالِمِينَ", "translation": "اے اللہ کے سوا کوئی معبود نہیں، تو پاک ہے، میں واقعی ظالموں میں سے ہوں۔", "target": 5}, {"type": "ذکر", "no": 5, "arabic": "حَسْبُنَا اللَّهُ وَنِعْمَ الْوَكِيلُ", "translation": "اللہ ہمارے لیے کافی ہے، اور وہ بہترین کارساز ہے۔", "target": 5}, {"type": "ذکر", "no": 6, "arabic": "يَا حَيُّ يَا قَيُّومُ بِرَحْمَتِكَ أَسْتَغِيثُ", "translation": "اے ہمیشہ زندہ اور قائم رہنے والے! میں تیری رحمت کا طلبگار ہوں۔", "target": 5}, {"type": "ذکر", "no": 7, "arabic": "أَسْتَغْفِرُ اللَّهَ رَبِّي مِنْ كُلِّ ذَنْبٍ وَأَتُوبُ إِلَيْهِ", "translation": "میں اپنے رب اللہ سے ہر گناہ کی بخشش مانگتا ہوں اور اس کی طرف رجوع کرتا ہوں۔", "target": 5}, {"type": "ذکر", "no": 8, "arabic": "سُبْحَانَ اللَّهِ وَبِحَمْدِهِ، عَدَدَ خَلْقِهِ، وَرِضَا نَفْسِهِ، وَزِنَةَ عَرْشِهِ، وَمِدَادَ كَلِمَاتِهِ", "translation": "اللہ پاک ہے اور اسی کی حمد ہے، اس کی مخلوق کی گنتی کے برابر، اس کی رضا کے برابر، اس کے عرش کے وزن کے برابر، اور اس کے کلمات کی سیاہی کے برابر۔", "target": 5}, {"type": "ذکر", "no": 9, "arabic": "لَا إِلٰهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، وَهُوَ عَلَىٰ كُلِّ شَيْءٍ قَدِيرٌ", "translation": "اللہ کے سوا کوئی معبود نہیں، وہ اکیلا ہے، اس کا کوئی شریک نہیں، اس کا بادشاہت ہے، اس کی حمد ہے، اور وہ ہر چیز پر قادر ہے۔", "target": 5}, {"type": "ذکر", "no": 10, "arabic": "اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ كَمَا صَلَّيْتَ عَلَى إِبْرَاهِيمَ وَعَلَى آلِ إِبْرَاهِيمَ إِنَّكَ حَمِيدٌ مَجِيدٌ اللَّهُمَّ بَارِكْ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ كَمَا بَارَكْتَ عَلَى إِبْرَاهِيمَ وَعَلَى آلِ إِبْرَاهِيمَ إِنَّكَ حَمِيدٌ مَجِيدٌ", "translation": "اے اللہ! محمد ﷺ اور ان کی آل پر رحمت نازل فرما، جیسے تو نے ابراہیمؑ اور ان کی آل پر رحمت نازل فرمائی، بے شک تو حمد و مجد والا ہے۔ اے اللہ! محمد ﷺ اور ان کی آل پر برکت نازل فرما، جیسے تو نے ابراہیمؑ اور ان کی آل پر برکت نازل فرمائی، بے شک تو حمد و مجد والا ہے۔", "target": 5}, {"type": "اسماء الحسنیٰ", "no": 1, "arabic": "الرَّحْمَنُ", "translation": "نہایت مہربان", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 2, "arabic": "الرَّحِيمُ", "translation": "بہت رحم فرمانے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 3, "arabic": "الْمَلِكُ", "translation": "بادشاہ", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 4, "arabic": "الْقُدُّوسُ", "translation": "نہایت پاک", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 5, "arabic": "السَّلَامُ", "translation": "سلامتی دینے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 6, "arabic": "الْمُؤْمِنُ", "translation": "امن دینے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 7, "arabic": "الْمُهَيْمِنُ", "translation": "نگہبان", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 8, "arabic": "الْعَزِيزُ", "translation": "غالب", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 9, "arabic": "الْجَبَّارُ", "translation": "زبردست", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 10, "arabic": "الْمُتَكَبِّرُ", "translation": "بڑائی والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 11, "arabic": "الْخَالِقُ", "translation": "پیدا کرنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 12, "arabic": "الْبَارِئُ", "translation": "وجود میں لانے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 13, "arabic": "الْمُصَوِّرُ", "translation": "صورت بنانے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 14, "arabic": "الْغَفَّارُ", "translation": "بہت بخشنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 15, "arabic": "الْقَهَّارُ", "translation": "سب پر غالب", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 16, "arabic": "الْوَهَّابُ", "translation": "بہت عطا کرنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 17, "arabic": "الرَّزَّاقُ", "translation": "رزق دینے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 18, "arabic": "الْفَتَّاحُ", "translation": "کشادگی دینے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 19, "arabic": "الْعَلِيمُ", "translation": "سب کچھ جاننے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 20, "arabic": "الْقَابِضُ", "translation": "روکنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 21, "arabic": "الْبَاسِطُ", "translation": "کشادگی دینے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 22, "arabic": "الْخَافِضُ", "translation": "پست کرنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 23, "arabic": "الرَّافِعُ", "translation": "بلند کرنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 24, "arabic": "الْمُعِزُّ", "translation": "عزت دینے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 25, "arabic": "الْمُذِلُّ", "translation": "ذلت دینے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 26, "arabic": "السَّمِيعُ", "translation": "سب کچھ سننے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 27, "arabic": "الْبَصِيرُ", "translation": "سب کچھ دیکھنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 28, "arabic": "الْحَكَمُ", "translation": "فیصلہ کرنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 29, "arabic": "الْعَدْلُ", "translation": "نہایت عادل", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 30, "arabic": "اللَّطِيفُ", "translation": "نرمی فرمانے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 31, "arabic": "الْخَبِيرُ", "translation": "باخبر", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 32, "arabic": "الْحَلِيمُ", "translation": "بردبار", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 33, "arabic": "الْعَظِيمُ", "translation": "عظمت والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 34, "arabic": "الْغَفُورُ", "translation": "بہت بخشنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 35, "arabic": "الشَّكُورُ", "translation": "قدر دان", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 36, "arabic": "الْعَلِيُّ", "translation": "سب سے بلند", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 37, "arabic": "الْكَبِيرُ", "translation": "سب سے بڑا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 38, "arabic": "الْحَفِيظُ", "translation": "حفاظت کرنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 39, "arabic": "الْمُقِيتُ", "translation": "قوت دینے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 40, "arabic": "الْحَسِيبُ", "translation": "حساب لینے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 41, "arabic": "الْجَلِيلُ", "translation": "جلال والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 42, "arabic": "الْكَرِيمُ", "translation": "بہت کریم", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 43, "arabic": "الرَّقِيبُ", "translation": "نگہبان", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 44, "arabic": "الْمُجِيبُ", "translation": "دعا قبول کرنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 45, "arabic": "الْوَاسِعُ", "translation": "وسعت والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 46, "arabic": "الْحَكِيمُ", "translation": "حکمت والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 47, "arabic": "الْوَدُودُ", "translation": "محبت فرمانے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 48, "arabic": "الْمَجِيدُ", "translation": "بزرگی والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 49, "arabic": "الْبَاعِثُ", "translation": "اٹھانے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 50, "arabic": "الشَّهِيدُ", "translation": "گواہ", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 51, "arabic": "الْحَقُّ", "translation": "حق", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 52, "arabic": "الْوَكِيلُ", "translation": "کارساز", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 53, "arabic": "الْقَوِيُّ", "translation": "طاقتور", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 54, "arabic": "الْمَتِينُ", "translation": "مضبوط", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 55, "arabic": "الْوَلِيُّ", "translation": "مددگار", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 56, "arabic": "الْحَمِيدُ", "translation": "قابلِ حمد", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 57, "arabic": "الْمُحْصِي", "translation": "شمار کرنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 58, "arabic": "الْمُبْدِئُ", "translation": "پہلی بار پیدا کرنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 59, "arabic": "الْمُعِيدُ", "translation": "دوبارہ پیدا کرنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 60, "arabic": "الْمُحْيِي", "translation": "زندگی دینے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 61, "arabic": "الْمُمِيتُ", "translation": "موت دینے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 62, "arabic": "الْحَيُّ", "translation": "ہمیشہ زندہ", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 63, "arabic": "الْقَيُّومُ", "translation": "سب کو قائم رکھنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 64, "arabic": "الْوَاجِدُ", "translation": "پانے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 65, "arabic": "الْمَاجِدُ", "translation": "بزرگی والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 66, "arabic": "الْوَاحِدُ", "translation": "ایک", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 67, "arabic": "الْأَحَدُ", "translation": "یکتا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 68, "arabic": "الصَّمَدُ", "translation": "بے نیاز", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 69, "arabic": "الْقَادِرُ", "translation": "قدرت والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 70, "arabic": "الْمُقْتَدِرُ", "translation": "کامل قدرت والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 71, "arabic": "الْمُقَدِّمُ", "translation": "آگے کرنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 72, "arabic": "الْمُؤَخِّرُ", "translation": "پیچھے کرنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 73, "arabic": "الْأَوَّلُ", "translation": "اول", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 74, "arabic": "الْآخِرُ", "translation": "آخر", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 75, "arabic": "الظَّاهِرُ", "translation": "ظاہر", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 76, "arabic": "الْبَاطِنُ", "translation": "پوشیدہ", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 77, "arabic": "الْوَالِي", "translation": "حاکم", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 78, "arabic": "الْمُتَعَالِي", "translation": "بہت بلند", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 79, "arabic": "الْبَرُّ", "translation": "نیکی کرنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 80, "arabic": "التَّوَابُ", "translation": "توبہ قبول کرنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 81, "arabic": "الْمُنْتَقِمُ", "translation": "بدلہ لینے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 82, "arabic": "الْعَفُوُّ", "translation": "معاف کرنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 83, "arabic": "الرَّؤُوفُ", "translation": "بہت شفقت فرمانے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 84, "arabic": "مَالِكُ الْمُلْكِ", "translation": "بادشاہی کا مالک", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 85, "arabic": "ذُو الْجَلَالِ وَالْإِكْرَامِ", "translation": "جلال و اکرام والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 86, "arabic": "الْمُقْسِطُ", "translation": "انصاف قائم کرنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 87, "arabic": "الْجَامِعُ", "translation": "جمع کرنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 88, "arabic": "الْغَنِيُّ", "translation": "بے نیاز", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 89, "arabic": "الْمُغْنِي", "translation": "غنی کرنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 90, "arabic": "الْمَانِعُ", "translation": "روکنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 91, "arabic": "الضَّارُ", "translation": "نقصان پہنچانے پر قادر", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 92, "arabic": "النَّافِعُ", "translation": "نفع پہنچانے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 93, "arabic": "النُّورُ", "translation": "نور", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 94, "arabic": "الْهَادِي", "translation": "ہدایت دینے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 95, "arabic": "الْبَدِيعُ", "translation": "بے مثال پیدا کرنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 96, "arabic": "الْبَاقِي", "translation": "ہمیشہ باقی رہنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 97, "arabic": "الْوَارِثُ", "translation": "وارث", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 98, "arabic": "الرَّشِيدُ", "translation": "درست راہ دکھانے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 99, "arabic": "الصَّبُورُ", "translation": "بہت صبر والا", "target": 1}];
+let current=0;
+let counts=ITEMS.map(()=>0);
+let keep=false,rec=null,locked=false,pos=0,words=[];
+let speechBuffer="";
+let countTimer=null;
+let recognitionRestartTimer=null;
 let currentUser=null;
 let myLifetimeTotal=0;
 let leaderListener=null;
@@ -411,9 +371,56 @@ function loadLeaderboard(){
  leaderListener=()=>ref.off("value",handler);
 }
 
+function playCompletionFeedback(){
+ try{
+   if(navigator.vibrate) navigator.vibrate([45,35,45]);
+ }catch(e){}
+ try{
+   const AC=window.AudioContext||window.webkitAudioContext;
+   if(!AC)return;
+   const ctx=window.__azkarAudioCtx||(window.__azkarAudioCtx=new AC());
+   if(ctx.state==='suspended')ctx.resume().catch(()=>{});
+   const now=ctx.currentTime;
+   const osc=ctx.createOscillator();
+   const gain=ctx.createGain();
+   osc.type='sine';
+   osc.frequency.setValueAtTime(720,now);
+   osc.frequency.setValueAtTime(880,now+0.07);
+   gain.gain.setValueAtTime(0.0001,now);
+   gain.gain.exponentialRampToValueAtTime(0.055,now+0.012);
+   gain.gain.exponentialRampToValueAtTime(0.0001,now+0.16);
+   osc.connect(gain); gain.connect(ctx.destination);
+   osc.start(now); osc.stop(now+0.17);
+ }catch(e){}
+}
+
+function playCompletionFeedback(){
+ try{
+   if(navigator.vibrate) navigator.vibrate([45,35,45]);
+ }catch(e){}
+ try{
+   const AC=window.AudioContext||window.webkitAudioContext;
+   if(!AC)return;
+   const ctx=window.__azkarAudioCtx||(window.__azkarAudioCtx=new AC());
+   if(ctx.state==='suspended')ctx.resume().catch(()=>{});
+   const now=ctx.currentTime;
+   const osc=ctx.createOscillator();
+   const gain=ctx.createGain();
+   osc.type='sine';
+   osc.frequency.setValueAtTime(720,now);
+   osc.frequency.setValueAtTime(880,now+0.07);
+   gain.gain.setValueAtTime(0.0001,now);
+   gain.gain.exponentialRampToValueAtTime(0.055,now+0.012);
+   gain.gain.exponentialRampToValueAtTime(0.0001,now+0.16);
+   osc.connect(gain); gain.connect(ctx.destination);
+   osc.start(now); osc.stop(now+0.17);
+ }catch(e){}
+}
+
 function complete(){
  if(locked)return;
  locked=true;
+ playCompletionFeedback();
  const item=ITEMS[current];
 
  counts[current]=Math.min(counts[current]+1,item.target);
@@ -456,33 +463,24 @@ function processText(t){
  const text=String(t||"").trim();
  if(!text || locked)return;
 
- // Green progress is only visual; counting does not require exact words.
- const got=norm(text).split(/\s+/).filter(Boolean);
- for(const token of got){
-   if(pos>=words.length)break;
-   if(same(token,words[pos])){
-     pos++;
-   }else{
-     for(let j=pos+1;j<Math.min(pos+7,words.length);j++){
-       if(same(token,words[j])){
-         pos=j+1;
-         break;
-       }
-     }
-   }
- }
+ // Recognition is intentionally flexible: the spoken Arabic does NOT have
+ // to exactly match the displayed Arabic words. However, Arabic speech is
+ // required. We count only tokens containing Arabic letters and ignore
+ // Urdu/English/numbers/noise. Every N Arabic words = 1 reading, where N is
+ // the number of Arabic words in the current zikr.
+ const tokens=norm(text).split(/\s+/).filter(Boolean);
+ const arabicTokens=tokens.filter(token=>/[\u0621-\u063A\u0641-\u064A]/.test(token));
+ if(!arabicTokens.length)return;
+
+ pos=Math.min(words.length, pos+arabicTokens.length);
  paint();
 
- // Any non-empty final voice result counts as one reading, even if pronunciation
- // or recognition is imperfect. A short debounce joins split recognition results.
- speechBuffer += " " + text;
- if(countTimer)clearTimeout(countTimer);
- countTimer=setTimeout(()=>{
-   if(!locked && speechBuffer.trim()){
-     speechBuffer="";
-     complete();
-   }
- },700);
+ if(pos>=words.length){
+   // One complete group of the current zikr's Arabic-word count = one count.
+   speechBuffer="";
+   if(countTimer)clearTimeout(countTimer);
+   complete();
+ }
 }
 
 function startVoice(){
@@ -496,7 +494,7 @@ function startVoice(){
 
  keep=true;
  // Start both screen-awake mechanisms immediately from the user tap.
- startWakeGuard();
+ keepScreenAwake();
  speechBuffer="";
  if(countTimer)clearTimeout(countTimer);
  $("start").textContent="⏹️ Listening بند کریں";
