@@ -144,7 +144,7 @@ button:disabled{opacity:.45}
   <main class="card">
     <div class="zikrHeader">
       <div class="kind" id="kind">ذکر</div>
-      <div class="countBox" id="targetTop">1 مرتبہ باقی</div>
+      <div class="countBox" id="targetTop">5 مرتبہ باقی</div>
       <div id="doneCount" style="font-size:15px;font-weight:800;color:#075a43">مکمل: 0</div>
     </div>
     <div class="arabic" id="arabic"></div>
@@ -415,6 +415,26 @@ function playCompletionFeedback(){
    osc.connect(gain); gain.connect(ctx.destination);
    osc.start(now); osc.stop(now+0.17);
  }catch(e){}
+}
+
+function saveLocalProgress(){
+  try{
+    localStorage.setItem("azkarProgress_v2",JSON.stringify({current,counts}));
+  }catch(e){}
+}
+
+function loadLocalProgress(){
+  try{
+    const raw=localStorage.getItem("azkarProgress_v2");
+    if(!raw)return;
+    const data=JSON.parse(raw)||{};
+    if(Array.isArray(data.counts)){
+      counts=ITEMS.map((item,i)=>Math.max(0,Math.min(Number(data.counts[i])||0,item.target)));
+    }
+    if(Number.isInteger(data.current)){
+      current=Math.max(0,Math.min(data.current,ITEMS.length-1));
+    }
+  }catch(e){}
 }
 
 function complete(){
