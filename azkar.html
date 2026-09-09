@@ -193,6 +193,7 @@ const STORAGE_KEY="mehfil_azkar_progress_v3";
 let current=0;
 let counts=ITEMS.map(()=>0);
 let keep=false,rec=null,locked=false,pos=0,words=[];
+let pageKeepAwake=true;
 let speechBuffer="";
 let countTimer=null;
 let recognitionRestartTimer=null;
@@ -223,14 +224,14 @@ function loadLocalProgress(){
 }
 
 async function requestWakeLock(){
-  if(!keep || document.visibilityState!=="visible") return false;
+  if(!pageKeepAwake || document.visibilityState!=="visible") return false;
   if(!navigator.wakeLock || !navigator.wakeLock.request) return false;
   try{
     if(wakeLock && !wakeLock.released) return true;
     wakeLock=await navigator.wakeLock.request("screen");
     wakeLock.addEventListener("release",()=>{
       wakeLock=null;
-      if(keep && document.visibilityState==="visible") setTimeout(()=>requestWakeLock(),300);
+      if(pageKeepAwake && document.visibilityState==="visible") setTimeout(()=>requestWakeLock(),300);
     });
     return true;
   }catch(e){
@@ -241,13 +242,15 @@ async function requestWakeLock(){
 
 function startWakeGuard(){
   if(wakeGuardTimer) clearInterval(wakeGuardTimer);
-  // Both mechanisms are started from the same user gesture.
+  // Keep the whole Azkar page awake, not only while voice recognition is running.
   startMediaKeepAwake();
   requestWakeLock();
   wakeGuardTimer=setInterval(()=>{
-    if(!keep){ clearInterval(wakeGuardTimer); wakeGuardTimer=null; return; }
-    startMediaKeepAwake();
-    requestWakeLock();
+    if(!pageKeepAwake){ clearInterval(wakeGuardTimer); wakeGuardTimer=null; return; }
+    if(document.visibilityState === "visible"){
+      startMediaKeepAwake();
+      requestWakeLock();
+    }
   },2000);
 }
 
@@ -259,11 +262,19 @@ async function releaseWakeLock(){
 }
 
 document.addEventListener("visibilitychange",()=>{
-  if(document.visibilityState==="visible" && keep){
+  if(document.visibilityState==="visible" && pageKeepAwake){
     startMediaKeepAwake();
     requestWakeLock();
   }
 });
+
+// Start screen-awake protection as soon as the page opens. A user tap anywhere
+// also retries it because some mobile browsers require user activation for media.
+window.addEventListener("load",()=>{ startWakeGuard(); });
+["pointerdown","touchstart","click"].forEach(ev=>{
+  document.addEventListener(ev,()=>{ if(pageKeepAwake){ startMediaKeepAwake(); requestWakeLock(); } },{passive:true});
+});
+window.addEventListener("pagehide",()=>{ pageKeepAwake=false; releaseWakeLock(); });
 
 const $=id=>document.getElementById(id);
 
@@ -545,7 +556,7 @@ function startVoice(){
 
 function stopVoice(){
  keep=false;
-  releaseWakeLock();
+  // Do NOT release screen-awake protection: the page must stay awake even when not speaking.
  if(countTimer)clearTimeout(countTimer);
  if(recognitionRestartTimer)clearTimeout(recognitionRestartTimer);
  speechBuffer="";
