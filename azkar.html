@@ -176,6 +176,7 @@ let speechBuffer="";
 let countTimer=null;
 let recognitionRestartTimer=null;
 let wakeLock=null;
+let resetMode=false;
 
 function saveLocalProgress(){
   try{
@@ -359,6 +360,8 @@ function complete(){
  const item=ITEMS[current];
 
  counts[current]=Math.min(counts[current]+1,item.target);
+ saveLocalProgress();
+ resetMode=false;
  $("targetTop").textContent=Math.max(0,item.target-counts[current])+" مرتبہ باقی";
  $("doneCount").textContent="مکمل: "+counts[current];
 
@@ -518,24 +521,31 @@ function speakCurrent(){
  speechSynthesis.speak(u);
 }
 
-$("backBtn").onclick=()=>{ stopVoice(); window.location.href="index.html"; };
+$("backBtn").onclick=()=>{
+  stopVoice();
+  if(!resetMode) saveLocalProgress();
+  window.location.href="index.html";
+};
 $("start").onclick=()=>keep?stopVoice():startVoice();
 $("listen").onclick=speakCurrent;
 $("next").onclick=()=>{
  if(current<ITEMS.length-1){
-   current++;saveLocalProgress();render();$("status").textContent="➡️ اگلا ذکر";
+   current++;saveLocalProgress();resetMode=false;render();$("status").textContent="➡️ اگلا ذکر";
  }
 };
 $("reset").onclick=()=>{
  stopVoice();
  if(countTimer)clearTimeout(countTimer);
  speechBuffer="";
+ // Reset only the current screen/session. Do NOT overwrite the last
+ // saved progress, so the user's already-read amount can be resumed later.
  counts=ITEMS.map(()=>0);
  current=0;
  locked=false;
  pos=0;
+ resetMode=true;
  render();
- $("status").textContent="↻ موجودہ session ری سیٹ ہوگیا۔ محفوظ شدہ کل data حذف نہیں ہوا۔";
+ $("status").textContent="↻ شروع سے — پچھلی محفوظ progress برقرار ہے۔";
 };
 
 auth.onAuthStateChanged(user=>{
