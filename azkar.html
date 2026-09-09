@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="ur" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>درود و اذکار — ایک ایک کر کے</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:#000}
+body{font-family:Tahoma,"Noto Naskh Arabic","Amiri",serif;color:#174b39}
+.page{max-width:760px;margin:auto}
+.sheet{
+ min-height:100vh;background:#fff9e9;overflow:hidden;position:relative;
+ border-left:7px solid #b88d25;border-right:7px solid #b88d25
+}
+.top{
+ height:158px;position:relative;overflow:hidden;
+ background:
+ radial-gradient(circle at 10% 30%,#fff9cf 0 3px,transparent 4px),
+ radial-gradient(circle at 88% 22%,#fff9cf 0 3px,transparent 4px),
+ linear-gradient(#a9dce1,#f2dfad 66%,#d1b15e)
+}
+.top:before{
+ content:"";position:absolute;left:-8%;right:-8%;bottom:-55px;height:120px;
+ background:#275e4c;border-radius:50% 50% 0 0/45% 45% 0 0
+}
+.top:after{
+ content:"☪";position:absolute;right:27px;top:12px;font-size:55px;color:#fff8d1
+}
+.mosques{position:absolute;z-index:2;left:0;right:0;bottom:0;text-align:center;
+ color:#174b39;font-size:72px;letter-spacing:-16px;text-shadow:0 2px 1px #fff5c8}
+.mainTitle{
+ position:relative;z-index:4;margin:-12px 14% 0;
+ padding:12px 20px;background:linear-gradient(#0a654b,#07513e);
+ color:white;text-align:center;border:5px solid #c39a31;border-radius:34px;
+ font-size:29px;font-weight:900;box-shadow:0 4px 0 #8d6b1d
+}
+.subTitle{
+ position:relative;z-index:5;width:max-content;max-width:88%;margin:9px auto 12px;
+ padding:6px 23px;background:#f1dfa3;border:3px solid #c5a03a;border-radius:22px;
+ font-size:17px;font-weight:900;color:#244a38
+}
+.countBox{
+ width:max-content;margin:0 7% 7px auto;background:#075a43;color:white;
+ border:4px solid #c59e36;border-radius:27px;padding:7px 24px;
+ font-size:25px;font-weight:900;box-shadow:0 4px 0 #8e6c1e
+}
+.card{
+ margin:0 12px;border:3px solid #b48a26;border-radius:28px;
+ background:linear-gradient(145deg,#fffdf4,#fbefc8);padding:24px 14px 18px;
+ box-shadow:inset 0 0 35px #b7954020;position:relative;min-height:60vh
+}
+.card:before,.card:after{position:absolute;top:10px;color:#c59b30;font-size:28px}
+.card:before{content:"✦";right:16px}.card:after{content:"✦";left:16px}
+.kind{
+ width:max-content;margin:0 auto 18px;padding:6px 27px;background:#075b43;color:#fff;
+ border:3px solid #c49c34;border-radius:20px;font-size:18px;font-weight:900;
+ box-shadow:0 3px 0 #8e6c1e
+}
+.arabic{
+ font-family:"Amiri","Noto Naskh Arabic",serif;text-align:center;direction:rtl;
+ color:#07543d;font-size:52px;line-height:2.0;font-weight:900;
+ padding:0 8px 20px;border-bottom:2px solid #c8ae67
+}
+.word{display:inline-block;border-radius:7px;padding:0 2px;transition:.15s}
+.word.done{color:#118747;background:#d7f0dc}
+.word.current{background:#b9e8c7}
+.translation{
+ text-align:center;color:#222;font-size:22px;line-height:1.9;font-weight:700;
+ padding:13px 8px 4px;min-height:92px
+}
+.translation:before{
+ content:"اردو ترجمہ";display:block;width:max-content;margin:0 auto 7px;
+ padding:3px 19px;background:#075b43;color:#fff;border:2px solid #c49c34;
+ border-radius:18px;font-size:15px;font-weight:900
+}
+.status{text-align:center;min-height:40px;padding:11px 8px;font-size:16px;font-weight:700}
+.buttons{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;padding:0 8px 15px}
+button{font-family:Tahoma;border:2px solid #b38a24;border-radius:17px;padding:11px 18px;
+ font-size:17px;font-weight:900;cursor:pointer;box-shadow:0 2px 0 #8f6c1e}
+.start{background:#075b43;color:white}.listen{background:#f0dfa0;color:#174b39}
+.next{background:#fffdf5;color:#111}.reset{background:#fffdf5;color:#111}
+button:disabled{opacity:.45}
+.bottomRibbon{
+ margin:8px 12px 0;padding:8px;background:#075b43;color:#fff;text-align:center;
+ border:3px solid #c49c34;border-radius:18px;font-size:14px;font-weight:bold
+}
+@media(max-width:600px){
+ .top{height:120px}.mainTitle{font-size:24px;margin-left:9%;margin-right:9%}
+ .subTitle{font-size:14px}.countBox{font-size:22px;margin-right:5%}
+ .card{margin:0 6px;padding:21px 10px 14px;min-height:61vh}
+ .arabic{font-size:38px;line-height:2.12}.translation{font-size:18px}
+ button{font-size:15px;padding:10px 13px}
+}
+</style>
+<style>
+.firebasePanel{margin:12px 13px;padding:12px;border:2px solid #c49b34;border-radius:18px;background:#fffdf1;text-align:center}
+.loginState{font-weight:800;font-size:15px;color:#174b39;line-height:1.8}
+.myTotal{display:inline-block;margin-top:6px;background:#075a43;color:#fff;border:2px solid #c49b34;border-radius:16px;padding:5px 14px;font-weight:900}
+.leaderTitle{display:inline-block;background:#075a43;color:#fff;border:2px solid #c49b34;border-radius:16px;padding:4px 18px;font-weight:900;margin:5px 0 8px}
+.leaderboard{display:flex;flex-direction:column;gap:5px}
+.leaderRow{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 9px;border-radius:12px;background:#f5e9c5;border:1px solid #d4bd76;font-size:13px}
+.leaderName{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:right;flex:1}
+.leaderCount{font-weight:900;color:#075a43;white-space:nowrap}
+.cloudHint{font-size:11px;color:#68756e;margin-top:6px}
+</style>
+
+</head>
+<body>
+<div class="page"><div class="sheet">
+  <div class="top"><div class="mosques">♜♜♜♜♜♜♜</div></div>
+  <div class="mainTitle">روزانہ کے اذکار اور دعائیں</div>
+  <div class="subTitle">اللہ کی یاد، سکونِ قلب</div>
+  <div class="countBox" id="targetTop">100 مرتبہ</div>
+
+  <main class="card">
+    <div class="kind" id="kind">ذکر</div>
+    <div class="arabic" id="arabic"></div>
+    <div class="translation" id="translation"></div>
+  </main>
+
+  <div class="status" id="status">🎙️ بول کر پڑھیں یا 🔊 سنیں</div>
+  <div class="buttons">
+    <button class="start" id="start">🎙️ بول کر پڑھیں</button>
+    <button class="listen" id="listen">🔊 سنیں</button>
+    <button class="next" id="next">اگلا ➜</button>
+    <button id="reset">↻ ری سیٹ</button>
+  </div>
+</div></div>
+
+
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js"></script>
+
+<script>
+const ITEMS=[{"type": "ذکر", "no": 1, "arabic": "سُبْحَانَ اللَّهِ وَبِحَمْدِهِ سُبْحَانَ اللَّهِ الْعَظِيمِ", "translation": "اللہ پاک ہے اور اسی کی حمد ہے، اللہ بہت پاک ہے۔", "target": 100}, {"type": "ذکر", "no": 2, "arabic": "سُبْحَانَ اللَّهِ، وَالْحَمْدُ لِلَّهِ، وَاللَّهُ أَكْبَرُ", "translation": "اللہ پاک ہے، تمام تعریفیں اللہ کے لیے ہیں، اور اللہ سب سے بڑا ہے۔", "target": 100}, {"type": "ذکر", "no": 3, "arabic": "لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ الْعَلِيِّ الْعَظِيمِ", "translation": "کوئی طاقت اور قوت نہیں اللہ کے سوا، جو بلند اور بہت بڑا ہے۔", "target": 100}, {"type": "ذکر", "no": 4, "arabic": "لَا إِلٰهَ إِلَّا أَنْتَ سُبْحَانَكَ إِنِّي كُنْتُ مِنَ الظَّالِمِينَ", "translation": "اے اللہ کے سوا کوئی معبود نہیں، تو پاک ہے، میں واقعی ظالموں میں سے ہوں۔", "target": 100}, {"type": "ذکر", "no": 5, "arabic": "حَسْبُنَا اللَّهُ وَنِعْمَ الْوَكِيلُ", "translation": "اللہ ہمارے لیے کافی ہے، اور وہ بہترین کارساز ہے۔", "target": 100}, {"type": "ذکر", "no": 6, "arabic": "يَا حَيُّ يَا قَيُّومُ بِرَحْمَتِكَ أَسْتَغِيثُ", "translation": "اے ہمیشہ زندہ اور قائم رہنے والے! میں تیری رحمت کا طلبگار ہوں۔", "target": 100}, {"type": "ذکر", "no": 7, "arabic": "أَسْتَغْفِرُ اللَّهَ رَبِّي مِنْ كُلِّ ذَنْبٍ وَأَتُوبُ إِلَيْهِ", "translation": "میں اپنے رب اللہ سے ہر گناہ کی بخشش مانگتا ہوں اور اس کی طرف رجوع کرتا ہوں۔", "target": 100}, {"type": "ذکر", "no": 8, "arabic": "سُبْحَانَ اللَّهِ وَبِحَمْدِهِ، عَدَدَ خَلْقِهِ، وَرِضَا نَفْسِهِ، وَزِنَةَ عَرْشِهِ، وَمِدَادَ كَلِمَاتِهِ", "translation": "اللہ پاک ہے اور اسی کی حمد ہے، اس کی مخلوق کی گنتی کے برابر، اس کی رضا کے برابر، اس کے عرش کے وزن کے برابر، اور اس کے کلمات کی سیاہی کے برابر۔", "target": 5}, {"type": "ذکر", "no": 9, "arabic": "لَا إِلٰهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، وَهُوَ عَلَىٰ كُلِّ شَيْءٍ قَدِيرٌ", "translation": "اللہ کے سوا کوئی معبود نہیں، وہ اکیلا ہے، اس کا کوئی شریک نہیں، اس کا بادشاہت ہے، اس کی حمد ہے، اور وہ ہر چیز پر قادر ہے۔", "target": 5}, {"type": "ذکر", "no": 10, "arabic": "اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ كَمَا صَلَّيْتَ عَلَى إِبْرَاهِيمَ وَعَلَى آلِ إِبْرَاهِيمَ إِنَّكَ حَمِيدٌ مَجِيدٌ اللَّهُمَّ بَارِكْ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ كَمَا بَارَكْتَ عَلَى إِبْرَاهِيمَ وَعَلَى آلِ إِبْرَاهِيمَ إِنَّكَ حَمِيدٌ مَجِيدٌ", "translation": "اے اللہ! محمد ﷺ اور ان کی آل پر رحمت نازل فرما، جیسے تو نے ابراہیمؑ اور ان کی آل پر رحمت نازل فرمائی، بے شک تو حمد و مجد والا ہے۔ اے اللہ! محمد ﷺ اور ان کی آل پر برکت نازل فرما، جیسے تو نے ابراہیمؑ اور ان کی آل پر برکت نازل فرمائی، بے شک تو حمد و مجد والا ہے۔", "target": 5}, {"type": "اسماء الحسنیٰ", "no": 1, "arabic": "الرَّحْمَنُ", "translation": "نہایت مہربان", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 2, "arabic": "الرَّحِيمُ", "translation": "بہت رحم فرمانے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 3, "arabic": "الْمَلِكُ", "translation": "بادشاہ", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 4, "arabic": "الْقُدُّوسُ", "translation": "نہایت پاک", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 5, "arabic": "السَّلَامُ", "translation": "سلامتی دینے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 6, "arabic": "الْمُؤْمِنُ", "translation": "امن دینے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 7, "arabic": "الْمُهَيْمِنُ", "translation": "نگہبان", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 8, "arabic": "الْعَزِيزُ", "translation": "غالب", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 9, "arabic": "الْجَبَّارُ", "translation": "زبردست", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 10, "arabic": "الْمُتَكَبِّرُ", "translation": "بڑائی والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 11, "arabic": "الْخَالِقُ", "translation": "پیدا کرنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 12, "arabic": "الْبَارِئُ", "translation": "وجود میں لانے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 13, "arabic": "الْمُصَوِّرُ", "translation": "صورت بنانے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 14, "arabic": "الْغَفَّارُ", "translation": "بہت بخشنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 15, "arabic": "الْقَهَّارُ", "translation": "سب پر غالب", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 16, "arabic": "الْوَهَّابُ", "translation": "بہت عطا کرنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 17, "arabic": "الرَّزَّاقُ", "translation": "رزق دینے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 18, "arabic": "الْفَتَّاحُ", "translation": "کشادگی دینے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 19, "arabic": "الْعَلِيمُ", "translation": "سب کچھ جاننے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 20, "arabic": "الْقَابِضُ", "translation": "روکنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 21, "arabic": "الْبَاسِطُ", "translation": "کشادگی دینے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 22, "arabic": "الْخَافِضُ", "translation": "پست کرنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 23, "arabic": "الرَّافِعُ", "translation": "بلند کرنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 24, "arabic": "الْمُعِزُّ", "translation": "عزت دینے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 25, "arabic": "الْمُذِلُّ", "translation": "ذلت دینے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 26, "arabic": "السَّمِيعُ", "translation": "سب کچھ سننے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 27, "arabic": "الْبَصِيرُ", "translation": "سب کچھ دیکھنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 28, "arabic": "الْحَكَمُ", "translation": "فیصلہ کرنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 29, "arabic": "الْعَدْلُ", "translation": "نہایت عادل", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 30, "arabic": "اللَّطِيفُ", "translation": "نرمی فرمانے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 31, "arabic": "الْخَبِيرُ", "translation": "باخبر", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 32, "arabic": "الْحَلِيمُ", "translation": "بردبار", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 33, "arabic": "الْعَظِيمُ", "translation": "عظمت والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 34, "arabic": "الْغَفُورُ", "translation": "بہت بخشنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 35, "arabic": "الشَّكُورُ", "translation": "قدر دان", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 36, "arabic": "الْعَلِيُّ", "translation": "سب سے بلند", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 37, "arabic": "الْكَبِيرُ", "translation": "سب سے بڑا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 38, "arabic": "الْحَفِيظُ", "translation": "حفاظت کرنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 39, "arabic": "الْمُقِيتُ", "translation": "قوت دینے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 40, "arabic": "الْحَسِيبُ", "translation": "حساب لینے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 41, "arabic": "الْجَلِيلُ", "translation": "جلال والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 42, "arabic": "الْكَرِيمُ", "translation": "بہت کریم", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 43, "arabic": "الرَّقِيبُ", "translation": "نگہبان", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 44, "arabic": "الْمُجِيبُ", "translation": "دعا قبول کرنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 45, "arabic": "الْوَاسِعُ", "translation": "وسعت والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 46, "arabic": "الْحَكِيمُ", "translation": "حکمت والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 47, "arabic": "الْوَدُودُ", "translation": "محبت فرمانے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 48, "arabic": "الْمَجِيدُ", "translation": "بزرگی والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 49, "arabic": "الْبَاعِثُ", "translation": "اٹھانے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 50, "arabic": "الشَّهِيدُ", "translation": "گواہ", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 51, "arabic": "الْحَقُّ", "translation": "حق", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 52, "arabic": "الْوَكِيلُ", "translation": "کارساز", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 53, "arabic": "الْقَوِيُّ", "translation": "طاقتور", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 54, "arabic": "الْمَتِينُ", "translation": "مضبوط", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 55, "arabic": "الْوَلِيُّ", "translation": "مددگار", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 56, "arabic": "الْحَمِيدُ", "translation": "قابلِ حمد", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 57, "arabic": "الْمُحْصِي", "translation": "شمار کرنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 58, "arabic": "الْمُبْدِئُ", "translation": "پہلی بار پیدا کرنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 59, "arabic": "الْمُعِيدُ", "translation": "دوبارہ پیدا کرنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 60, "arabic": "الْمُحْيِي", "translation": "زندگی دینے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 61, "arabic": "الْمُمِيتُ", "translation": "موت دینے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 62, "arabic": "الْحَيُّ", "translation": "ہمیشہ زندہ", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 63, "arabic": "الْقَيُّومُ", "translation": "سب کو قائم رکھنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 64, "arabic": "الْوَاجِدُ", "translation": "پانے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 65, "arabic": "الْمَاجِدُ", "translation": "بزرگی والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 66, "arabic": "الْوَاحِدُ", "translation": "ایک", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 67, "arabic": "الْأَحَدُ", "translation": "یکتا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 68, "arabic": "الصَّمَدُ", "translation": "بے نیاز", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 69, "arabic": "الْقَادِرُ", "translation": "قدرت والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 70, "arabic": "الْمُقْتَدِرُ", "translation": "کامل قدرت والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 71, "arabic": "الْمُقَدِّمُ", "translation": "آگے کرنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 72, "arabic": "الْمُؤَخِّرُ", "translation": "پیچھے کرنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 73, "arabic": "الْأَوَّلُ", "translation": "اول", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 74, "arabic": "الْآخِرُ", "translation": "آخر", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 75, "arabic": "الظَّاهِرُ", "translation": "ظاہر", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 76, "arabic": "الْبَاطِنُ", "translation": "پوشیدہ", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 77, "arabic": "الْوَالِي", "translation": "حاکم", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 78, "arabic": "الْمُتَعَالِي", "translation": "بہت بلند", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 79, "arabic": "الْبَرُّ", "translation": "نیکی کرنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 80, "arabic": "التَّوَابُ", "translation": "توبہ قبول کرنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 81, "arabic": "الْمُنْتَقِمُ", "translation": "بدلہ لینے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 82, "arabic": "الْعَفُوُّ", "translation": "معاف کرنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 83, "arabic": "الرَّؤُوفُ", "translation": "بہت شفقت فرمانے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 84, "arabic": "مَالِكُ الْمُلْكِ", "translation": "بادشاہی کا مالک", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 85, "arabic": "ذُو الْجَلَالِ وَالْإِكْرَامِ", "translation": "جلال و اکرام والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 86, "arabic": "الْمُقْسِطُ", "translation": "انصاف قائم کرنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 87, "arabic": "الْجَامِعُ", "translation": "جمع کرنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 88, "arabic": "الْغَنِيُّ", "translation": "بے نیاز", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 89, "arabic": "الْمُغْنِي", "translation": "غنی کرنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 90, "arabic": "الْمَانِعُ", "translation": "روکنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 91, "arabic": "الضَّارُ", "translation": "نقصان پہنچانے پر قادر", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 92, "arabic": "النَّافِعُ", "translation": "نفع پہنچانے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 93, "arabic": "النُّورُ", "translation": "نور", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 94, "arabic": "الْهَادِي", "translation": "ہدایت دینے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 95, "arabic": "الْبَدِيعُ", "translation": "بے مثال پیدا کرنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 96, "arabic": "الْبَاقِي", "translation": "ہمیشہ باقی رہنے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 97, "arabic": "الْوَارِثُ", "translation": "وارث", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 98, "arabic": "الرَّشِيدُ", "translation": "درست راہ دکھانے والا", "target": 1}, {"type": "اسماء الحسنیٰ", "no": 99, "arabic": "الصَّبُورُ", "translation": "بہت صبر والا", "target": 1}];
+let current=0;
+let counts=ITEMS.map(()=>0);
+let keep=false,rec=null,locked=false,pos=0,words=[];
+
+
+const $=id=>document.getElementById(id);
+
+const firebaseConfig={
+  apiKey:"AIzaSyB3PjjiQM2IqKmIQJ4d4YOwcc10RiG47FI",
+  authDomain:"mehfil-e-darood.firebaseapp.com",
+  databaseURL:"https://mehfil-e-darood-default-rtdb.firebaseio.com",
+  projectId:"mehfil-e-darood",
+  storageBucket:"mehfil-e-darood.firebasestorage.app",
+  messagingSenderId:"876052619750",
+  appId:"1:876052619750:web:889b37737240756ba5f627"
+};
+if(!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+const auth=firebase.auth();
+const db=firebase.database();
+
+let currentUser=null;
+let myLifetimeTotal=0;
+let leaderListener=null;
+
+function norm(s){
+ return s.replace(/[ًٌٍَُِّْـ]/g,"").replace(/[إأآٱ]/g,"ا").replace(/ى/g,"ی").replace(/ة/g,"ه").replace(/ؤ/g,"و").replace(/ئ/g,"ی").replace(/[^\u0600-\u06FF\s]/g," ").replace(/\s+/g," ").trim();
+}
+function same(a,b){
+ a=norm(a);b=norm(b);
+ return a===b || (a.length>2&&b.length>2&&(a.includes(b)||b.includes(a)));
+}
+function escapeHtml(s){
+ return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+}
+
+function render(){
+ const x=ITEMS[current];
+ $("kind").textContent=x.type;
+ $("translation").textContent=x.translation || "";
+ $("targetTop").textContent=x.target+" مرتبہ";
+ const clean=x.arabic.trim().split(/\s+/);
+ $("arabic").innerHTML=clean.map((w,i)=>`<span class="word" id="w${i}">${w}</span>`).join(" ");
+ words=clean.map(norm);pos=0;
+ $("next").disabled=current===ITEMS.length-1;
+ $("status").textContent="➡️ موجودہ ذکر پڑھیں";
+}
+function paint(){
+ document.querySelectorAll(".word").forEach((el,i)=>{
+   el.classList.toggle("done",i<pos);
+   el.classList.toggle("current",i===pos && keep);
+ });
+}
+
+/* Save ONE completed reading to Firebase.
+   Path:
+   azkarStats/{uid}/profile
+   azkarStats/{uid}/items/{itemKey}
+   azkarStats/{uid}/totalReadings
+*/
+function saveReadingToFirebase(item){
+ if(!currentUser)return Promise.resolve();
+ const uid=String(currentUser.uid);
+ const key=String(item.type==="ذکر" ? "zikr_"+item.no : "asma_"+item.no);
+ const now=Date.now();
+ const root=db.ref("azkarStats/"+uid);
+ const updates={};
+ updates["profile/name"]=currentUser.displayName||currentUser.email||"صارف";
+ updates["profile/email"]=currentUser.email||"";
+ updates["profile/lastSeen"]=firebase.database.ServerValue.TIMESTAMP;
+ updates["profile/updatedAt"]=firebase.database.ServerValue.TIMESTAMP;
+ updates["totalReadings"]=firebase.database.ServerValue.increment(1);
+ updates["items/"+key+"/name"]=item.type==="ذکر" ? ("ذکر "+item.no) : ("اسماء الحسنیٰ "+item.no);
+ updates["items/"+key+"/arabic"]=item.arabic;
+ updates["items/"+key+"/count"]=firebase.database.ServerValue.increment(1);
+ updates["items/"+key+"/lastReadAt"]=firebase.database.ServerValue.TIMESTAMP;
+ updates["lastReadAt"]=firebase.database.ServerValue.TIMESTAMP;
+ updates["daily/"+new Date().toISOString().slice(0,10)]=firebase.database.ServerValue.increment(1);
+ return root.update(updates).then(()=>{
+   myLifetimeTotal++;
+   updateMyTotal();
+ }).catch(err=>{
+   console.warn("Firebase reading save failed",err);
+ });
+}
+
+function updateMyTotal(){
+ const el=$("myTotal");
+ if(el){
+   el.style.display=currentUser?"inline-block":"none";
+   el.textContent="میری کل تلاوت: "+myLifetimeTotal;
+ }
+}
+
+function loadMyStats(){
+ if(!currentUser){
+   myLifetimeTotal=0;updateMyTotal();return;
+ }
+ db.ref("azkarStats/"+currentUser.uid+"/totalReadings").once("value")
+   .then(s=>{myLifetimeTotal=Number(s.val()||0);updateMyTotal()})
+   .catch(()=>updateMyTotal());
+}
+
+function loadLeaderboard(){
+ const box=$("leaderboard");
+ if(!box)return;
+ if(leaderListener){leaderListener();leaderListener=null;}
+ const ref=db.ref("azkarStats");
+ const handler=snap=>{
+   const rows=[];
+   snap.forEach(u=>{
+     const v=u.val()||{};
+     const total=Number(v.totalReadings||0);
+     if(total>0){
+       rows.push({
+         name:(v.profile&&v.profile.name)||"صارف",
+         total
+       });
+     }
+   });
+   rows.sort((a,b)=>b.total-a.total);
+   const top=rows.slice(0,10);
+   if(!top.length){
+     box.innerHTML='<div style="font-size:12px;color:#68756e">ابھی کوئی reading محفوظ نہیں ہوئی۔</div>';
+     return;
+   }
+   box.innerHTML=top.map((r,i)=>
+     `<div class="leaderRow"><span class="leaderName">${i+1}. ${escapeHtml(r.name)}</span><span class="leaderCount">${r.total} مرتبہ</span></div>`
+   ).join("");
+ };
+ ref.on("value",handler,()=>{box.innerHTML='<div style="font-size:12px;color:#a33">Leaderboard لوڈ نہیں ہو سکا۔</div>';});
+ leaderListener=()=>ref.off("value",handler);
+}
+
+function complete(){
+ if(locked)return;
+ locked=true;
+ const item=ITEMS[current];
+ counts[current]=Math.min(counts[current]+1,item.target);
+ paint();
+
+ saveReadingToFirebase(item).finally(()=>{
+   if(counts[current]>=item.target){
+     $("status").textContent="🎉 مکمل — اگلا خود کھل رہا ہے…";
+     setTimeout(()=>{
+       if(current<ITEMS.length-1){
+         current++;render();$("status").textContent="➡️ اگلا ذکر شروع کریں";
+       }else{
+         $("status").textContent="🌟 تمام اذکار اور 99 اسماءُ الحسنیٰ مکمل ہوگئے۔";
+       }
+       locked=false;
+     },850);
+   }else{
+     $("status").textContent="✅ ایک reading مکمل";
+     pos=0;paint();locked=false;
+   }
+ });
+}
+
+function processText(t){
+ const got=norm(t).split(/\s+/).filter(Boolean);
+ for(const s of got){
+   if(pos>=words.length)break;
+   if(same(s,words[pos]))pos++;
+   else{
+     for(let j=pos+1;j<Math.min(pos+5,words.length);j++){
+       if(same(s,words[j])){pos=j+1;break;}
+     }
+   }
+   paint();
+ }
+ if(pos>=words.length){pos=0;complete();}
+}
+
+function startVoice(){
+ const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+ if(!SR){$("status").textContent="❌ Chrome میں Voice Recognition استعمال کریں۔";return;}
+ if(!currentUser){
+   $("status").textContent="🔐 پہلے اپنی ویب سائٹ میں لاگ اِن کریں۔";
+   return;
+ }
+ if(keep)return;
+ keep=true;$("start").textContent="⏹️ Listening بند کریں";
+ $("status").textContent="🎙️ سن رہا ہوں… موجودہ متن پڑھیں";
+ paint();
+ rec=new SR();rec.lang="ar-SA";rec.continuous=true;rec.interimResults=false;rec.maxAlternatives=5;
+ rec.onresult=e=>{
+   let t="";
+   for(let i=e.resultIndex;i<e.results.length;i++)if(e.results[i].isFinal)t+=" "+e.results[i][0].transcript;
+   if(t)processText(t);
+ };
+ rec.onerror=e=>{
+   if(e.error==="not-allowed"){
+     keep=false;$("start").textContent="🎙️ بول کر پڑھیں";
+     $("status").textContent="❌ مائیک کی اجازت دیں۔";
+     paint();
+   }
+ };
+ rec.onend=()=>{if(keep)try{rec.start()}catch(e){}};
+ try{rec.start()}catch(e){}
+}
+
+function stopVoice(){
+ keep=false;if(rec)try{rec.stop()}catch(e){}rec=null;
+ $("start").textContent="🎙️ بول کر پڑھیں";
+ $("status").textContent="Listening بند ہے۔";
+ paint();
+}
+
+function speakCurrent(){
+ if(!("speechSynthesis"in window)){$("status").textContent="❌ Speaker دستیاب نہیں۔";return;}
+ speechSynthesis.cancel();
+ const u=new SpeechSynthesisUtterance(ITEMS[current].arabic);
+ u.lang="ar-SA";u.rate=.72;
+ u.onstart=()=>$("status").textContent="🔊 سنایا جا رہا ہے…";
+ u.onend=()=>$("status").textContent="🔊 مکمل۔ اب خود پڑھیں۔";
+ speechSynthesis.speak(u);
+}
+
+$("start").onclick=()=>keep?stopVoice():startVoice();
+$("listen").onclick=speakCurrent;
+$("next").onclick=()=>{
+ if(current<ITEMS.length-1){
+   current++;render();$("status").textContent="➡️ اگلا ذکر";
+ }
+};
+$("reset").onclick=()=>{
+ counts=ITEMS.map(()=>0);current=0;locked=false;pos=0;
+ render();$("status").textContent="↻ موجودہ session ری سیٹ ہوگیا۔ محفوظ شدہ کل data حذف نہیں ہوا۔";
+};
+
+auth.onAuthStateChanged(user=>{
+ currentUser=user||null;
+ const state=$("loginState");
+ if(user){
+   const name=user.displayName||user.email||"صارف";
+   state.innerHTML="👤 "+escapeHtml(name)+"<br><span style='font-size:12px'>آپ کی readings محفوظ ہو رہی ہیں۔</span>";
+   db.ref("users/"+user.uid).update({
+     name:user.displayName||user.email||"صارف",
+     email:user.email||"",
+     lastSeen:firebase.database.ServerValue.TIMESTAMP
+   }).catch(()=>{});
+   loadMyStats();
+   loadLeaderboard();
+ }else{
+   state.innerHTML="🔐 لاگ اِن نہیں ہے — reading شمار تو ہوگی مگر محفوظ نہیں ہوگی۔";
+   myLifetimeTotal=0;updateMyTotal();
+   loadLeaderboard();
+ }
+});
+
+render();
+loadLeaderboard();
+
+</script>
+</body>
+</html>
