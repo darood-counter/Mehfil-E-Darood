@@ -468,7 +468,8 @@ function complete(){
         if(current<ITEMS.length-1){
           current++;
           render();
-          $("status").textContent="➡️ اگلا ذکر شروع کریں";
+          $("status").textContent="🎙️ اگلا ذکر سن رہا ہوں… اب پڑھیں";
+          setTimeout(()=>startVoice(),120);
         }else{
           $("status").textContent="🌟 تمام اذکار مکمل ہوگئے۔";
         }
@@ -614,7 +615,9 @@ $("start").onclick=()=>keep?stopVoice():startVoice();
 $("listen").onclick=speakCurrent;
 $("next").onclick=()=>{
  if(current<ITEMS.length-1){
-   current++;saveLocalProgress();resetMode=false;render();$("status").textContent="➡️ اگلا ذکر";
+   current++;saveLocalProgress();resetMode=false;render();
+   $("status").textContent="🎙️ اگلا ذکر سن رہا ہوں… اب پڑھیں";
+   setTimeout(()=>startVoice(),120);
  }
 };
 $("reset").onclick=()=>{
@@ -655,6 +658,7 @@ auth.onAuthStateChanged(user=>{
 loadLocalProgress();
 render();
 loadLeaderboard();
+setTimeout(()=>{ if(!keep && document.visibilityState==="visible") startVoice(); },350);
 
 </script>
 </body>
