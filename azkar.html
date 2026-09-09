@@ -418,45 +418,51 @@ function playCompletionFeedback(){
 }
 
 function complete(){
- if(locked)return;
- locked=true;
- playCompletionFeedback();
- const item=ITEMS[current];
+  if(locked)return;
+  locked=true;
+  playCompletionFeedback();
+  const item=ITEMS[current];
+  const itemIndex=current;
 
- counts[current]=Math.min(counts[current]+1,item.target);
- saveLocalProgress();
- resetMode=false;
- $("targetTop").textContent=Math.max(0,item.target-counts[current])+" مرتبہ باقی";
- $("doneCount").textContent="مکمل: "+counts[current];
+  counts[itemIndex]=Math.min(counts[itemIndex]+1,item.target);
+  saveLocalProgress();
+  resetMode=false;
+  $("targetTop").textContent=Math.max(0,item.target-counts[itemIndex])+" مرتبہ باقی";
+  $("doneCount").textContent="مکمل: "+counts[itemIndex];
 
- // Completed attempt is fully green.
- document.querySelectorAll(".word").forEach(el=>{
-   el.classList.remove("current");
-   el.classList.add("done");
- });
+  document.querySelectorAll(".word").forEach(el=>{
+    el.classList.remove("current");
+    el.classList.add("done");
+  });
 
- saveReadingToFirebase(item).finally(()=>{
-   if(counts[current]>=item.target){
-     $("status").textContent="🎉 ہدف مکمل — اگلا ذکر خود کھل رہا ہے…";
-     setTimeout(()=>{
-       if(current<ITEMS.length-1){
-         current++;
-         render();
-         $("status").textContent="➡️ اگلا ذکر شروع کریں";
-       }else{
-         $("status").textContent="🌟 تمام اذکار مکمل ہوگئے۔";
-       }
-       locked=false;
-       speechBuffer="";
-     },700);
-   }else{
-     $("status").textContent="✅ reading مکمل — دوبارہ پڑھیں";
-     locked=false;
-     speechBuffer="";
-     clearHighlight();
-     paint();
-   }
- });
+  // Firebase saving must never block the voice/counting system.
+  saveReadingToFirebase(item).catch(()=>{});
+
+  if(counts[itemIndex]>=item.target){
+    $("status").textContent="🎉 ہدف مکمل — اگلا ذکر خود کھل رہا ہے…";
+    keep=false;
+    if(rec){try{rec.onend=null;rec.stop();}catch(e){}}
+    rec=null;
+    setTimeout(()=>{
+      if(current===itemIndex){
+        if(current<ITEMS.length-1){
+          current++;
+          render();
+          $("status").textContent="➡️ اگلا ذکر شروع کریں";
+        }else{
+          $("status").textContent="🌟 تمام اذکار مکمل ہوگئے۔";
+        }
+      }
+      locked=false;
+      speechBuffer="";
+    },700);
+  }else{
+    $("status").textContent="✅ reading مکمل — دوبارہ پڑھیں";
+    locked=false;
+    speechBuffer="";
+    clearHighlight();
+    paint();
+  }
 }
 
 function processText(t){
@@ -469,7 +475,7 @@ function processText(t){
  // Urdu/English/numbers/noise. Every N Arabic words = 1 reading, where N is
  // the number of Arabic words in the current zikr.
  const tokens=norm(text).split(/\s+/).filter(Boolean);
- const arabicTokens=tokens.filter(token=>/[\u0621-\u063A\u0641-\u064A]/.test(token));
+ const arabicTokens=tokens.filter(token=>/[\u0600-\u06FF]/.test(token));
  if(!arabicTokens.length)return;
 
  pos=Math.min(words.length, pos+arabicTokens.length);
