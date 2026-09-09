@@ -112,8 +112,9 @@ button:disabled{opacity:.45}
  .kind{font-size:15px;padding:3px 22px;border-width:2px;border-radius:15px;box-shadow:0 2px 0 #8e6c1e}
  .countBox{font-size:17px;padding:4px 15px;margin:0;line-height:1.15;border-width:2px;border-radius:18px;box-shadow:0 2px 0 #8e6c1e}
  #doneCount{font-size:12px!important;line-height:1.1}
- .arabic{font-size:clamp(25px,6.3vw,31px);line-height:1.45;padding:2px 5px 7px;flex:0 1 auto;max-height:43%;overflow:hidden}
+ .arabic{font-size:clamp(25px,6.3vw,31px);line-height:1.45;padding:2px 5px 7px;flex:0 1 auto;max-height:43%;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
   .arabic.duroodOnly{font-size:clamp(19px,4.8vw,24px);line-height:1.55;}
+  .arabic.ayatOnly{font-size:clamp(21px,5.4vw,27px);line-height:1.42;}
  .translation{font-size:14px;line-height:1.5;padding:6px 5px 0;min-height:0;overflow:hidden;flex:0 1 auto}
  .translation:before{font-size:12px;padding:2px 12px;margin-bottom:4px;border-width:1px;border-radius:13px}
  .status{min-height:27px;height:27px;padding:4px 5px;font-size:13px;line-height:1.35;flex:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -275,6 +276,7 @@ function render(){
  $("targetTop").textContent=Math.max(0,x.target-counts[current])+" مرتبہ باقی";
  const clean=x.arabic.trim().split(/\s+/);
  $("arabic").classList.toggle("duroodOnly", current===9);
+  $("arabic").classList.toggle("ayatOnly", current===ITEMS.length-1);
   $("arabic").innerHTML=clean.map((w,i)=>`<span class="word" id="w${i}">${w}</span>`).join(" ");
  words=clean.map(norm);pos=0;
  $("next").disabled=current===ITEMS.length-1;
