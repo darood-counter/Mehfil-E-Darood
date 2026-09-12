@@ -3597,25 +3597,22 @@ function switchBottomTab(tabName) {
               });
             });
           } else {
-            db.ref("users/" + currentUser.uid).transaction(current => {
-              const base = current || {};
-              return {
-                ...base,
-                count: Number(base.count || 0) + 1,
-                name: currentUser.displayName || currentUser.email,
-                email: currentUser.email || base.email || ''
-              };
-            }).then(result => {
-              // Update the screen immediately; the normal Firebase listener will
-              // keep it synchronized afterwards.
-              const totalEl = document.getElementById("userTotal");
-              const newCount = result && result.snapshot ? Number((result.snapshot.val() || {}).count || 0) : null;
-              if (totalEl && newCount !== null) totalEl.innerText = newCount;
-            }).catch(err => {
-              console.error("Tasbeeh count save failed:", err);
-              statusEl.style.color = "#ef4444";
-              statusEl.innerText = "✗ کاؤنٹ محفوظ نہیں ہو سکا، دوبارہ کوشش کریں۔";
-            });
+            // Tasbeeh Total Count: update ONLY the count field.
+            // This prevents other user data from being replaced and makes the
+            // total persist safely across logout/login.
+            const countRef = db.ref("users/" + currentUser.uid + "/count");
+            countRef.transaction(currentCount => Number(currentCount || 0) + 1)
+              .then(result => {
+                const totalEl = document.getElementById("userTotal");
+                const newCount = result && result.snapshot ? Number(result.snapshot.val() || 0) : null;
+                if (totalEl && newCount !== null) totalEl.innerText = newCount;
+                console.log("Tasbeeh total saved:", newCount);
+              })
+              .catch(err => {
+                console.error("Tasbeeh count save failed:", err);
+                statusEl.style.color = "#ef4444";
+                statusEl.innerText = "✗ کاؤنٹ محفوظ نہیں ہو سکا، دوبارہ کوشش کریں۔";
+              });
           }
 
           if (isComp) {
