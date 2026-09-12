@@ -3301,9 +3301,16 @@ function switchBottomTab(tabName) {
     }
 
     function stopTasbeehListening() {
+      // Set the flag FIRST so onend/error handlers cannot restart recognition.
       tasbeehListeningActive = false;
       if (tasbeehAutoRestartTimer) { clearTimeout(tasbeehAutoRestartTimer); tasbeehAutoRestartTimer = null; }
-      try { if (activeTasbeehRecognition) activeTasbeehRecognition.stop(); } catch(e) {}
+      try {
+        if (activeTasbeehRecognition) {
+          activeTasbeehRecognition.onend = null;
+          activeTasbeehRecognition.onerror = null;
+          activeTasbeehRecognition.abort();
+        }
+      } catch(e) {}
       activeTasbeehRecognition = null;
       const btn = document.getElementById('tasbeehStartStopBtn');
       const status = document.getElementById('statusMsg');
@@ -3634,6 +3641,14 @@ function switchBottomTab(tabName) {
       recognition.onend = () => {
         if (finished) return;
 
+        // If the user pressed Stop or navigated away from Tasbeeh,
+        // NEVER restart the microphone.
+        if (!isComp && !tasbeehListeningActive) {
+          restartPending = false;
+          if (activeTasbeehRecognition === recognition) activeTasbeehRecognition = null;
+          return;
+        }
+
         const elapsed = Date.now() - startedAt;
         if (isComp && elapsed >= LISTEN_DURATION_MS) {
           finishListening();
@@ -3646,6 +3661,14 @@ function switchBottomTab(tabName) {
           setTimeout(() => {
             restartPending = false;
             if (finished) return;
+            if (!isComp && !tasbeehListeningActive) return;
+            if (!isComp) {
+              const rewardTab = document.getElementById('rewardTab');
+              if (!rewardTab || rewardTab.classList.contains('hidden')) {
+                stopTasbeehListening();
+                return;
+              }
+            }
             try {
               recognition.start();
               statusEl.style.color = "#0d3b22";
@@ -3672,7 +3695,25 @@ function switchBottomTab(tabName) {
     document.addEventListener('visibilitychange', () => {
       if (document.hidden && tasbeehListeningActive) stopTasbeehListening();
     });
+
+    // Extra safety for SPA navigation: if another page hides the Tasbeeh
+    // section, stop the microphone immediately. This also covers navigation
+    // paths that do not go through switchBottomTab().
+    const rewardTabForObserver = document.getElementById('rewardTab');
+    if (rewardTabForObserver && window.MutationObserver) {
+      const tasbeehPageObserver = new MutationObserver(() => {
+        if (tasbeehListeningActive && rewardTabForObserver.classList.contains('hidden')) {
+          stopTasbeehListening();
+        }
+      });
+      tasbeehPageObserver.observe(rewardTabForObserver, {
+        attributes: true,
+        attributeFilter: ['class']
+      });
+    }
+
     window.addEventListener('pagehide', () => { if (tasbeehListeningActive) stopTasbeehListening(); });
+    window.addEventListener('beforeunload', () => { if (tasbeehListeningActive) stopTasbeehListening(); });
 
     document.getElementById("compCountBtn").onclick = function(){
       startVoiceRecognition('compCountBtn', 'compStatusMsg', true);
