@@ -3198,23 +3198,97 @@ function switchBottomTab(tabName) {
       document.querySelectorAll('#daroodArabicText .darood-word').forEach(el => el.classList.remove('read'));
     }
 
+    // Highlight Darood words as the user recites.
+    // This is UI-only; the existing verification/counting system is unchanged.
+    function daroodHighlightWordMatch(spoken, target) {
+      spoken = normalizeArabicGlobal(spoken);
+      target = normalizeArabicGlobal(target);
+      if (!spoken || !target) return false;
+      if (spoken === target) return true;
+
+      const aliases = {
+        "اللهم": ["اللهم", "اللهمم", "الهم"],
+        "صلی": ["صلی", "صلي", "صل"],
+        "علی": ["علی", "علي", "على"],
+        "محمد": ["محمد", "محمدا"],
+        "وعلی": ["وعلی", "وعلي", "و علی", "وعلى"],
+        "اٰل": ["اٰل", "آل", "ال"],
+        "کما": ["کما", "كما"],
+        "صلیت": ["صلیت", "صليت", "صلیتَ", "صليتَ"],
+        "ابراہیم": ["ابراہیم", "ابراهيم", "ابراھیم", "إبراهيم"],
+        "بارک": ["بارک", "بارك"],
+        "بارکت": ["بارکت", "بارکتَ", "باركت", "باركتَ"],
+        "انک": ["انک", "إنك", "انك"],
+        "حمید": ["حمید", "حميد"],
+        "مجید": ["مجید", "مجيد"]
+      };
+
+      const options = aliases[target] || [target];
+      if (options.some(x => normalizeArabicGlobal(x) === spoken)) return true;
+
+      // Allow only a very small recognition error so an almost-correct
+      // recognized word can still turn green.
+      if (spoken.length >= 4 && target.length >= 4) {
+        let prev = Array.from({length: target.length + 1}, (_, i) => i);
+        const a = Array.from(spoken);
+        const b = Array.from(target);
+        for (let i = 1; i <= a.length; i++) {
+          const cur = [i];
+          for (let j = 1; j <= b.length; j++) {
+            cur[j] = Math.min(
+              cur[j - 1] + 1,
+              prev[j] + 1,
+              prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)
+            );
+          }
+          prev = cur;
+        }
+        if (prev[b.length] <= 1) return true;
+      }
+      return false;
+    }
+
     function updateDaroodWordHighlight(spokenText) {
       const container = document.getElementById('daroodArabicText');
       if (!container) return;
+
       const wordEls = Array.from(container.querySelectorAll('.darood-word'));
       const spokenWords = normalizeArabicGlobal(spokenText).split(' ').filter(Boolean);
       if (!spokenWords.length) return;
+
       let si = 0;
       for (const el of wordEls) {
         if (si >= spokenWords.length) break;
+
         const target = normalizeArabicGlobal(el.textContent);
         if (!target) continue;
-        if (spokenWords[si] === target) {
+
+        if (daroodHighlightWordMatch(spokenWords[si], target)) {
           el.classList.add('read');
           si++;
-        } else if (spokenWords.slice(si, si + 3).some(w => w === target)) {
-          while (si < spokenWords.length && spokenWords[si] !== target) si++;
-          if (si < spokenWords.length) { el.classList.add('read'); si++; }
+          continue;
+        }
+
+        // Recognition can occasionally skip a word or split/combine words.
+        let matched = false;
+        for (let look = 1; look <= 4 && si + look < spokenWords.length; look++) {
+          if (daroodHighlightWordMatch(spokenWords[si + look], target)) {
+            el.classList.add('read');
+            si += look + 1;
+            matched = true;
+            break;
+          }
+        }
+        if (matched) continue;
+
+        for (let look = si; look < Math.min(spokenWords.length, si + 3); look++) {
+          const spoken = spokenWords[look];
+          if (spoken.length > target.length + 1 &&
+              (spoken.includes(target) || target.includes(spoken))) {
+            el.classList.add('read');
+            si = look + 1;
+            break;
+          }
         }
       }
     }
