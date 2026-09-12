@@ -645,29 +645,15 @@ function speakCurrent(){
 }
 
 $("backBtn").onclick=()=>{
-  // Close: voice/audio فوراً بند، progress محفوظ، پھر window/tab بند کرنے کی ہر ممکن کوشش۔
+  // بند کریں: voice/audio فوراً بند، progress محفوظ، پھر Home page (index.html) کھولیں۔
   stopVoice();
   try{ if("speechSynthesis" in window) speechSynthesis.cancel(); }catch(e){}
   if(!resetMode) saveLocalProgress();
 
-  // پہلے اسی window کو بند کرنے کی کوشش کریں۔
-  try{ window.open("", "_self"); }catch(e){}
-  try{ window.close(); }catch(e){}
-
-  // کچھ WebView/PWA ماحول میں یہ close command کام کرتی ہے۔
-  setTimeout(()=>{
-    try{ window.open("about:blank", "_self"); }catch(e){}
-    try{ window.close(); }catch(e){}
-  },120);
-
-  // اگر browser security کی وجہ سے normal tab بند نہ ہو سکے تو index پر واپس جائیں۔
-  setTimeout(()=>{
-    if(document.visibilityState !== "hidden" && location.href.indexOf("about:blank")===-1){
-      if(history.length>1) history.back();
-      else window.location.href="index.html";
-    }
-  },350);
+  // Browser tab بند کرنے کے بجائے ہمیشہ Home page کھولیں۔
+  window.location.href="index.html";
 };
+
 $("start").onclick=()=>keep?stopVoice():startVoice();
 $("miniListen").onclick=speakCurrent;
 
