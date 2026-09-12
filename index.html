@@ -3417,8 +3417,11 @@ function switchBottomTab(tabName) {
       };
 
       const isWordMatch = (spoken, required) => {
+        // Speech recognition can return Arabic/Urdu variants (ابراهيم / ابراہیم,
+        // باركت / بارکت, etc.). Normalize BOTH sides before comparing.
+        const normalizedSpoken = normalizeArabic(spoken);
         const options = aliases[required] || [required];
-        return options.some(x => spoken === x);
+        return options.some(x => normalizeArabic(x) === normalizedSpoken);
       };
 
       const isCompleteDarood = (spoken) => {
@@ -3505,22 +3508,29 @@ function switchBottomTab(tabName) {
               });
             });
           } else {
+            // Tasbeeh count: wait for Firebase transaction to succeed, then
+            // immediately refresh the visible +1 count as a fallback to the listener.
             db.ref("users/" + currentUser.uid).transaction(current => {
-              if (!current) return {
-                count: 1,
-                name: currentUser.displayName || currentUser.email,
-                email: currentUser.email
-              };
+              const oldCount = Number(current?.count || 0);
               return {
-                count: (current.count || 0) + 1,
+                ...(current || {}),
+                count: oldCount + 1,
                 name: currentUser.displayName || currentUser.email,
                 email: currentUser.email,
-                accName: current.accName || '',
-                accNumber: current.accNumber || '',
-                accType: current.accType || 'JazzCash',
-                savedCity: current.savedCity || '',
-                savedCountry: current.savedCountry || ''
+                accName: current?.accName || '',
+                accNumber: current?.accNumber || '',
+                accType: current?.accType || 'JazzCash',
+                savedCity: current?.savedCity || '',
+                savedCountry: current?.savedCountry || ''
               };
+            }).then(result => {
+              const newCount = Number(result?.snapshot?.val()?.count || 0);
+              const totalEl = document.getElementById("userTotal");
+              if (totalEl) totalEl.innerText = newCount;
+            }).catch(error => {
+              console.error("Tasbeeh count save failed:", error);
+              statusEl.style.color = "#ef4444";
+              statusEl.innerText = "✗ شمار محفوظ نہیں ہوا، انٹرنیٹ یا Firebase کنکشن چیک کریں۔";
             });
           }
 
