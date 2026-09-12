@@ -102,6 +102,8 @@
       100% { transform: scale(0.95); opacity: 0.7; }
     }
 
+    .darood-word { transition: color .2s ease, background .2s ease; border-radius: 4px; padding: 0 1px; }
+    .darood-word.read { color: #15803d !important; background: rgba(34,197,94,.12); }
     .darood-card {
       background: linear-gradient(145deg, #ffffff, #f8faf9);
       border: 1.5px solid var(--accent-gold);
@@ -919,7 +921,7 @@
 
       <div id="daroodCard" class="darood-card hidden">
         <div class="arabic-text" id="daroodArabicText">
-          اَللّٰھُمَّ صَلِّ عَلٰی مُحَمَّدٍ وَّعَلٰی اٰلِ مُحَمَّدٍ کَمَا صَلَّیْتَ عَلٰی اِبْرَاھِیْمَ وَعَلٰی اٰلِ اِبْرَاھِیْمَ اِنَّکَ حَمِیْدٌ مَّجِیْدٌ۔ اَللّٰھُمَّ بَارِکْ عَلٰی مُحَمَّدٍ وَّعَلٰی اٰلِ مُحَمَّدٍ کَمَا بَارَکْتَ عَلٰی اِبْرَاھِیْمَ وَعَلٰی اٰلِ اِبْرَاھِیْمَ اِنَّکَ حَمِیْدٌ مَّجِیْدٌ
+          <span class="darood-word">اَللّٰھُمَّ</span> <span class="darood-word">صَلِّ</span> <span class="darood-word">عَلٰی</span> <span class="darood-word">مُحَمَّدٍ</span> <span class="darood-word">وَّعَلٰی</span> <span class="darood-word">اٰلِ</span> <span class="darood-word">مُحَمَّدٍ</span> <span class="darood-word">کَمَا</span> <span class="darood-word">صَلَّیْتَ</span> <span class="darood-word">عَلٰی</span> <span class="darood-word">اِبْرَاھِیْمَ</span> <span class="darood-word">وَعَلٰی</span> <span class="darood-word">اٰلِ</span> <span class="darood-word">اِبْرَاھِیْمَ</span> <span class="darood-word">اِنَّکَ</span> <span class="darood-word">حَمِیْدٌ</span> <span class="darood-word">مَّجِیْدٌ۔</span> <span class="darood-word">اَللّٰھُمَّ</span> <span class="darood-word">بَارِکْ</span> <span class="darood-word">عَلٰی</span> <span class="darood-word">مُحَمَّدٍ</span> <span class="darood-word">وَّعَلٰی</span> <span class="darood-word">اٰلِ</span> <span class="darood-word">مُحَمَّدٍ</span> <span class="darood-word">کَمَا</span> <span class="darood-word">بَارَکْتَ</span> <span class="darood-word">عَلٰی</span> <span class="darood-word">اِبْرَاھِیْمَ</span> <span class="darood-word">وَعَلٰی</span> <span class="darood-word">اٰلِ</span> <span class="darood-word">اِبْرَاھِیْمَ</span> <span class="darood-word">اِنَّکَ</span> <span class="darood-word">حَمِیْدٌ</span> <span class="darood-word">مَّجِیْدٌ</span>
         </div>
         <div class="translation">
           اے اللہ! رحمت نازل فرما حضرت محمد ﷺ پر اور ان کی آل پر جیسے تو نے رحمت نازل فرمائی حضرت ابراہیم علیہ السلام پر اور ان کی آل پر، بے شک تو تعریف کے لائق اور بزرگی والا ہے۔
@@ -1244,8 +1246,8 @@
         </div>
         <div id="statusMsg" class="status-msg" style="color: var(--primary-color);"></div>
 
-        <div style="display: flex; gap: 8px; justify-content: center; margin-top: 15px;">
-          <button style="background: #0d3b22; color: white; border: none; padding: 10px 24px; border-radius: 12px; font-family: inherit; font-size: 14px; font-weight: bold; cursor: pointer;" onclick="startVoiceRecognition('countBtn', 'statusMsg', false)">🎙️ 1+ درود شریف پڑھیں</button>
+        <div style="display:flex; gap:8px; justify-content:center; align-items:center; margin-top:15px; flex-wrap:wrap;">
+          <button id="tasbeehStartStopBtn" type="button" style="background:#0d3b22; color:white; border:none; padding:10px 24px; border-radius:12px; font-family:inherit; font-size:14px; font-weight:bold; cursor:pointer;">▶️ شروع کریں</button>
         </div>
 
         <h3 style="color:var(--primary-color); margin-top: 25px; font-size: 16px; text-align: right;">🏆 لائیو Leaderboard</h3>
@@ -1387,6 +1389,11 @@
 
     /* KEEP MOBILE SCREEN AWAKE WHILE THIS WEB APP IS OPEN */
     let screenWakeLock = null;
+
+    function releaseScreenWakeLock() {
+      try { if (screenWakeLock) screenWakeLock.release(); } catch (e) {}
+      screenWakeLock = null;
+    }
 
     async function requestScreenWakeLock() {
       try {
@@ -2086,6 +2093,7 @@ function initChatSystem(){
 /* ================= END CHAT SYSTEM ================= */
 
 function switchBottomTab(tabName) {
+      if (typeof stopTasbeehListening === 'function' && tabName !== 'reward') stopTasbeehListening();
       document.getElementById("mainTab").classList.add("hidden");
       document.getElementById("compTab").classList.add("hidden");
       document.getElementById("rewardTab").classList.add("hidden");
@@ -2124,6 +2132,9 @@ function switchBottomTab(tabName) {
         document.getElementById("rewardTab").classList.remove("hidden");
         document.getElementById("navTasbeeh").classList.add("active");
         document.getElementById("daroodCard").classList.remove("hidden");
+        if (!tasbeehListeningActive) {
+          setTimeout(() => { if (document.getElementById('rewardTab') && !document.getElementById('rewardTab').classList.contains('hidden')) startVoiceRecognition('countBtn', 'statusMsg', false); }, 120);
+        }
       } else if (tabName === 'profile') {
         document.getElementById("profileTab").classList.remove("hidden");
         document.getElementById("navProfile").classList.add("active");
@@ -3168,6 +3179,56 @@ function switchBottomTab(tabName) {
     }
     loadPublicProofs();
 
+    let tasbeehListeningActive = false;
+    let activeTasbeehRecognition = null;
+    let tasbeehAutoRestartTimer = null;
+
+    function resetDaroodWordHighlight() {
+      document.querySelectorAll('#daroodArabicText .darood-word').forEach(el => el.classList.remove('read'));
+    }
+
+    function updateDaroodWordHighlight(spokenText) {
+      const container = document.getElementById('daroodArabicText');
+      if (!container) return;
+      const wordEls = Array.from(container.querySelectorAll('.darood-word'));
+      const spokenWords = normalizeArabicGlobal(spokenText).split(' ').filter(Boolean);
+      if (!spokenWords.length) return;
+      let si = 0;
+      for (const el of wordEls) {
+        if (si >= spokenWords.length) break;
+        const target = normalizeArabicGlobal(el.textContent);
+        if (!target) continue;
+        if (spokenWords[si] === target) {
+          el.classList.add('read');
+          si++;
+        } else if (spokenWords.slice(si, si + 3).some(w => w === target)) {
+          while (si < spokenWords.length && spokenWords[si] !== target) si++;
+          if (si < spokenWords.length) { el.classList.add('read'); si++; }
+        }
+      }
+    }
+
+    function normalizeArabicGlobal(value) {
+      return (value || '').normalize('NFKC')
+        .replace(/[\u064B-\u065F\u0670\u06D6-\u06ED]/g, '')
+        .replace(/[إأآٱ]/g, 'ا').replace(/[ىي]/g, 'ی').replace(/ئ/g, 'ی').replace(/ؤ/g, 'و').replace(/ة/g, 'ه')
+        .replace(/ـ/g, '').replace(/[^\u0600-\u06FF\s]/g, ' ').replace(/\s+/g, ' ').trim();
+    }
+
+    function stopTasbeehListening() {
+      tasbeehListeningActive = false;
+      if (tasbeehAutoRestartTimer) { clearTimeout(tasbeehAutoRestartTimer); tasbeehAutoRestartTimer = null; }
+      try { if (activeTasbeehRecognition) activeTasbeehRecognition.stop(); } catch(e) {}
+      activeTasbeehRecognition = null;
+      const btn = document.getElementById('tasbeehStartStopBtn');
+      const status = document.getElementById('statusMsg');
+      const countBtn = document.getElementById('countBtn');
+      if (btn) { btn.disabled = false; btn.innerText = '▶️ شروع کریں'; }
+      if (countBtn) countBtn.classList.remove('listening');
+      if (status) { status.style.color = 'var(--primary-color)'; status.innerText = 'سننا بند ہے۔ دوبارہ شروع کرنے کے لیے بٹن دبائیں۔'; }
+      releaseScreenWakeLock();
+    }
+
     function startVoiceRecognition(btnId, statusId, isComp = false) {
       const btn = document.getElementById(btnId);
       const statusEl = document.getElementById(statusId);
@@ -3180,7 +3241,15 @@ function switchBottomTab(tabName) {
         return;
       }
 
-      btn.disabled = true;
+      if (!isComp) {
+        tasbeehListeningActive = true;
+        activeTasbeehRecognition = null;
+        const control = document.getElementById('tasbeehStartStopBtn');
+        if (control) { control.disabled = false; control.innerText = '⏹️ بند کریں'; }
+        resetDaroodWordHighlight();
+      } else {
+        btn.disabled = true;
+      }
       btn.classList.add("listening");
 
       // Competition UI: reset the 25-second progress bar.
@@ -3210,12 +3279,14 @@ function switchBottomTab(tabName) {
       requestScreenWakeLock();
 
       const recognition = new SpeechRecognition();
+      if (!isComp) activeTasbeehRecognition = recognition;
       recognition.lang = 'ar-SA';
       recognition.interimResults = false;
       recognition.continuous = true;
       recognition.maxAlternatives = 5;
 
-      const LISTEN_DURATION_MS = 25000;
+      // Tasbeeh voice: no fixed timeout. Competition keeps its existing 25-second window.
+      const LISTEN_DURATION_MS = isComp ? 25000 : Infinity;
       const startedAt = Date.now();
       let finishTimer = null;
       let finished = false;
@@ -3237,9 +3308,8 @@ function switchBottomTab(tabName) {
           .trim();
       };
 
-      // These words are checked only AFTER the full 25-second listening window.
-      // Verification words are based on the complete Darood supplied by the user.
-      // They are checked only AFTER the full 25-second listening window.
+      // Verification words are checked as soon as the complete Darood is detected.
+      // Tasbeeh does not wait for a fixed 25-second window.
       const requiredWords = [
         "اللهم", "بارکت", "ابراہیم"
       ];
@@ -3269,6 +3339,14 @@ function switchBottomTab(tabName) {
         return true;
       };
 
+      const maybeFinishOnCompleteDarood = () => {
+        if (!isComp && !finished && isCompleteDarood(collectedSpeech.join(" "))) {
+          finishListening();
+          return true;
+        }
+        return false;
+      };
+
       const finishListening = () => {
         if (finished) return;
         finished = true;
@@ -3276,12 +3354,12 @@ function switchBottomTab(tabName) {
         if (countdownTimer) clearInterval(countdownTimer);
         if (buttonCountdownTimer) clearInterval(buttonCountdownTimer);
 
-        // Restore the gold competition button after the 25-second window.
+        // Restore the gold competition button after its existing competition window.
         if (isComp) btn.innerHTML = originalBtnHTML;
 
         try { recognition.stop(); } catch (e) {}
 
-        // Verification starts only after the complete 25-second listening window.
+        // Verification starts as soon as the complete Darood has been detected.
         const finalText = collectedSpeech.join(" ");
         const valid = isCompleteDarood(finalText);
 
@@ -3369,77 +3447,98 @@ function switchBottomTab(tabName) {
           triggerVibration();
         }
 
-        btn.disabled = false;
-        btn.classList.remove("listening");
+        if (isComp) {
+          btn.disabled = false;
+          btn.classList.remove("listening");
+        } else if (tasbeehListeningActive) {
+          btn.classList.remove("listening");
+          activeTasbeehRecognition = null;
+          // Successful count: automatically begin the next Darood round.
+          tasbeehAutoRestartTimer = setTimeout(() => {
+            tasbeehAutoRestartTimer = null;
+            if (tasbeehListeningActive) {
+              startVoiceRecognition('countBtn', 'statusMsg', false);
+            }
+          }, 350);
+        } else {
+          btn.classList.remove("listening");
+        }
       };
 
-      // Live 25-second countdown while the microphone remains active.
-      const countdownTimer = setInterval(() => {
-        if (finished) { clearInterval(countdownTimer); return; }
-        const elapsedSeconds = Math.floor((Date.now() - startedAt) / 1000);
-        const remainingSeconds = Math.max(0, 25 - elapsedSeconds);
-        statusEl.style.color = "#0d3b22";
-        statusEl.innerText = `میں سن رہا ہوں... ${remainingSeconds} سیکنڈ باقی`;
-        if (isComp && compProgressFill) {
-          const elapsed = Math.min(25, (Date.now() - startedAt) / 1000);
-          compProgressFill.style.width = ((elapsed / 25) * 100) + "%";
-        }
-        if (remainingSeconds <= 0) {
-          if (isComp && compProgressFill) compProgressFill.style.width = "100%";
-          clearInterval(countdownTimer);
-        }
-      }, 250);
+      // Competition keeps its existing 25-second countdown.
+      // Tasbeeh has no fixed timer: it listens until the complete Darood is detected.
+      let countdownTimer = null;
+      if (isComp) {
+        countdownTimer = setInterval(() => {
+          if (finished) { clearInterval(countdownTimer); return; }
+          const elapsedSeconds = Math.floor((Date.now() - startedAt) / 1000);
+          const remainingSeconds = Math.max(0, 25 - elapsedSeconds);
+          statusEl.style.color = "#0d3b22";
+          statusEl.innerText = `میں سن رہا ہوں... ${remainingSeconds} سیکنڈ باقی`;
+          if (compProgressFill) {
+            const elapsed = Math.min(25, (Date.now() - startedAt) / 1000);
+            compProgressFill.style.width = ((elapsed / 25) * 100) + "%";
+          }
+          if (remainingSeconds <= 0) clearInterval(countdownTimer);
+        }, 250);
 
-      // Always stop at exactly 25 seconds, even if there is silence.
-      finishTimer = setTimeout(finishListening, LISTEN_DURATION_MS);
+        finishTimer = setTimeout(finishListening, LISTEN_DURATION_MS);
+      }
 
       recognition.onresult = (event) => {
-        // At/after 25 seconds, never show a listening/progress message even if
-        // the browser delivers a delayed microphone result; finish first.
-        if (Date.now() - startedAt >= LISTEN_DURATION_MS) {
-          finishListening();
-          return;
-        }
+        if (finished) return;
 
-        // Collect every recognized segment for the whole listening window.
+        // Keep every final recognition segment. For Tasbeeh, finish immediately
+        // when the complete Darood is detected; there is no 25-second wait.
         for (let i = event.resultIndex; i < event.results.length; i++) {
           const result = event.results[i];
           let bestTranscript = result[0]?.transcript || "";
-          let bestValid = false;
+          let segmentComplete = false;
 
-          // Keep all alternatives available from the browser, not just the first one.
+          // Prefer an alternative that completes the Darood, otherwise collect
+          // the best available transcript from this recognition result.
           for (let j = 0; j < result.length; j++) {
             const candidate = result[j]?.transcript || "";
-            if (candidate) collectedSpeech.push(candidate);
-            if (isCompleteDarood(candidate)) {
+            if (candidate) {
               bestTranscript = candidate;
-              bestValid = true;
-              break;
+              const candidateWithPrevious = collectedSpeech.concat(candidate).join(" ");
+              if (isCompleteDarood(candidateWithPrevious)) {
+                segmentComplete = true;
+                break;
+              }
             }
           }
 
           if (bestTranscript) {
+            collectedSpeech.push(bestTranscript);
+            if (!isComp) updateDaroodWordHighlight(collectedSpeech.join(' '));
+          }
+
+          if (!isComp && (segmentComplete || maybeFinishOnCompleteDarood())) {
+            return;
+          }
+
+          if (isComp && bestTranscript) {
             const elapsed = Math.min(25, Math.floor((Date.now() - startedAt) / 1000));
             const remaining = Math.max(0, 25 - elapsed);
             statusEl.style.color = "#0d3b22";
-            statusEl.innerText = isComp
-              ? `میں سن رہا ہوں... ${remaining} سیکنڈ باقی`
-              : `سن رہا ہے... ${elapsed}/25 سیکنڈ 🎙️`;
-            if (isComp && compProgressFill) {
-              compProgressFill.style.width = ((elapsed / 25) * 100) + "%";
-            }
+            statusEl.innerText = `میں سن رہا ہوں... ${remaining} سیکنڈ باقی`;
+            if (compProgressFill) compProgressFill.style.width = ((elapsed / 25) * 100) + "%";
+          } else if (!isComp && bestTranscript) {
+            statusEl.style.color = "#0d3b22";
+            statusEl.innerText = "سن رہا ہے... درود شریف مکمل پڑھیں 🎙️";
           }
         }
       };
 
       recognition.onerror = (event) => {
-        // A browser recognition error must NOT end the 25-second listening window.
-        // If the engine stopped unexpectedly, onend below will restart it while time remains.
-        if (!finished && Date.now() - startedAt < LISTEN_DURATION_MS) {
+        // Recognition errors should not end the Tasbeeh listening session.
+        // If the browser engine stops, onend below restarts it.
+        if (!finished) {
           statusEl.style.color = "#0d3b22";
           statusEl.innerText = isComp
             ? "میں سن رہا ہوں... 25 سیکنڈ مکمل ہونے تک مائیک آن رہے گا"
-            : "سن رہا ہے... 25 سیکنڈ مکمل ہونے تک مائیک آن رہے گا 🎙️";
+            : "سن رہا ہے... درود شریف مکمل پڑھیں 🎙️";
         }
       };
 
@@ -3447,7 +3546,13 @@ function switchBottomTab(tabName) {
         if (finished) return;
 
         const elapsed = Date.now() - startedAt;
-        if (elapsed < LISTEN_DURATION_MS && !restartPending) {
+        if (isComp && elapsed >= LISTEN_DURATION_MS) {
+          finishListening();
+          return;
+        }
+
+        // Keep listening until the full Darood is detected.
+        if (!restartPending) {
           restartPending = true;
           setTimeout(() => {
             restartPending = false;
@@ -3455,11 +3560,11 @@ function switchBottomTab(tabName) {
             try {
               recognition.start();
               statusEl.style.color = "#0d3b22";
-              statusEl.innerText = "سن رہا ہے... 25 سیکنڈ مکمل ہونے تک مائیک آن رہے گا 🎙️";
+              statusEl.innerText = isComp
+                ? "سن رہا ہے... 25 سیکنڈ مکمل ہونے تک مائیک آن رہے گا 🎙️"
+                : "سن رہا ہے... درود شریف مکمل پڑھیں 🎙️";
             } catch (e) {}
           }, 50);
-        } else if (elapsed >= LISTEN_DURATION_MS) {
-          finishListening();
         }
       };
 
@@ -3471,10 +3576,24 @@ function switchBottomTab(tabName) {
     }
 
     document.getElementById("countBtn").onclick = function() {
-      startVoiceRecognition('countBtn', 'statusMsg', false);
+      if (tasbeehListeningActive) stopTasbeehListening();
+      else startVoiceRecognition('countBtn', 'statusMsg', false);
     };
 
-    document.getElementById("compCountBtn").onclick = function() {
+    const tasbeehStartStopBtn = document.getElementById('tasbeehStartStopBtn');
+    if (tasbeehStartStopBtn) {
+      tasbeehStartStopBtn.onclick = function() {
+        if (tasbeehListeningActive) stopTasbeehListening();
+        else startVoiceRecognition('countBtn', 'statusMsg', false);
+      };
+    }
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden && tasbeehListeningActive) stopTasbeehListening();
+    });
+    window.addEventListener('pagehide', () => { if (tasbeehListeningActive) stopTasbeehListening(); });
+
+    document.getElementById("compCountBtn").onclick = function(){
       startVoiceRecognition('compCountBtn', 'compStatusMsg', true);
     };
   </script>
