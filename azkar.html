@@ -49,8 +49,9 @@ body{font-family:Tahoma,"Noto Naskh Arabic","Amiri",serif;color:#174b39}
  border:4px solid #c59e36;border-radius:27px;padding:7px 24px;
  font-size:25px;font-weight:900;box-shadow:0 4px 0 #8e6c1e;text-align:center;direction:rtl
 }
-.backBar{padding:2px 8px 16px;text-align:center}
-.backBtn{background:#fffdf5;color:#174b39;border:2px solid #b38a24;border-radius:17px;padding:8px 22px;font-size:16px;font-weight:900;box-shadow:0 2px 0 #8f6c1e;width:calc(50% - 5px);max-width:220px;box-sizing:border-box}
+.backBar{direction:ltr;position:fixed;left:0;right:0;bottom:52px;z-index:10001;display:flex;justify-content:center;gap:7px;padding:6px 8px;background:rgba(255,253,241,.98);border-top:2px solid #c49b34;box-shadow:0 -3px 10px rgba(0,0,0,.10);box-sizing:border-box}
+.backBar .backBtn,.backBar .navBtn{pointer-events:auto;flex:1;max-width:190px;min-width:0}
+.backBtn,.navBtn{background:#fffdf5;color:#174b39;border:2px solid #b38a24;border-radius:15px;padding:7px 10px;font-size:15px;font-weight:900;box-shadow:0 2px 0 #8f6c1e;box-sizing:border-box;white-space:nowrap}
 .card{
  margin:0 12px;border:3px solid #b48a26;border-radius:28px;
  background:linear-gradient(145deg,#fffdf4,#fbefc8);padding:24px 14px 18px;
@@ -59,9 +60,11 @@ body{font-family:Tahoma,"Noto Naskh Arabic","Amiri",serif;color:#174b39}
 .card:before,.card:after{position:absolute;top:10px;color:#c59b30;font-size:28px}
 .card:before{content:"✦";right:16px}.card:after{content:"✦";left:16px}
 .zikrHeader{
+ position:relative;
  display:flex;flex-direction:column;align-items:center;justify-content:center;
  gap:8px;margin:0 auto 16px;text-align:center
 }
+.miniListen{position:absolute;left:8px;top:50%;transform:translateY(-50%);width:34px;height:34px;padding:0;border-radius:50%;background:#075b43;color:#fff;border:2px solid #c49c34;font-size:16px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 0 #8e6c1e;z-index:2}
 .kind{
  width:max-content;margin:0 auto;padding:6px 30px;background:#075b43;color:#fff;
  border:3px solid #c49c34;border-radius:20px;font-size:20px;font-weight:900;
@@ -87,7 +90,7 @@ body{font-family:Tahoma,"Noto Naskh Arabic","Amiri",serif;color:#174b39}
  padding:3px 19px;background:#075b43;color:#fff;border:2px solid #c49c34;
  border-radius:18px;font-size:15px;font-weight:900
 }
-.status{text-align:center;min-height:40px;padding:11px 8px;font-size:16px;font-weight:700}
+.status{display:none!important}
 .buttons{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 8px 8px}
 .buttons button{width:100%;box-sizing:border-box}
 button{font-family:Tahoma;border:2px solid #b38a24;border-radius:17px;padding:11px 18px;
@@ -112,6 +115,7 @@ button:disabled{opacity:.45}
  .card{flex:1;min-height:0;height:auto;margin:0 5px;padding:9px 7px 7px;border-width:2px;border-radius:22px;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-start}
  .card:before,.card:after{top:5px;font-size:18px}
  .zikrHeader{gap:3px;margin:0 auto 5px;flex:none}
+ .miniListen{left:3px;width:30px;height:30px;font-size:14px}
  .kind{font-size:15px;padding:3px 22px;border-width:2px;border-radius:15px;box-shadow:0 2px 0 #8e6c1e}
  .countBox{font-size:17px;padding:4px 15px;margin:0;line-height:1.15;border-width:2px;border-radius:18px;box-shadow:0 2px 0 #8e6c1e}
  #doneCount{font-size:12px!important;line-height:1.1}
@@ -120,11 +124,11 @@ button:disabled{opacity:.45}
   .arabic.ayatOnly{font-size:clamp(16px,4.15vw,21px);line-height:1.32;padding:1px 4px 5px;max-height:none;overflow:visible;}
  .translation{font-size:14px;line-height:1.5;padding:6px 5px 0;min-height:0;max-height:150px;overflow-y:auto;overflow-x:hidden;flex:0 1 auto;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
  .translation:before{font-size:12px;padding:2px 12px;margin-bottom:4px;border-width:1px;border-radius:13px}
- .status{min-height:27px;height:27px;padding:4px 5px;font-size:13px;line-height:1.35;flex:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ .status{display:none!important}
  .buttons{grid-template-columns:1fr 1fr;gap:6px;padding:0 5px 4px;flex:none}
  button{font-size:14px;padding:7px 8px;border-radius:14px;border-width:2px;line-height:1.2;box-shadow:0 2px 0 #8f6c1e}
  .backBar{padding:1px 5px 6px;flex:none}
- .backBtn{font-size:14px;padding:6px 16px;border-radius:14px;width:calc(50% - 3px);max-width:190px}
+ .backBar{direction:ltr;bottom:52px;padding:5px 6px;gap:6px}.backBtn,.navBtn{font-size:13px;padding:6px 7px;border-radius:13px}
 }
 </style>
 <style>
@@ -160,8 +164,8 @@ button:disabled{opacity:.45}
 
   <main class="card">
     <div class="zikrHeader">
-      <div class="kind" id="kind">ذکر</div>
-      <div class="countBox" id="targetTop">5 مرتبہ باقی</div>
+      <button class="miniListen" id="miniListen" aria-label="سنیں" title="سنیں">🔊</button>
+      <div class="kind" id="kind">ذکر 1</div>
       <div id="doneCount" style="font-size:15px;font-weight:800;color:#075a43">مکمل: 0</div>
     </div>
     <div class="arabic" id="arabic"></div>
@@ -171,11 +175,12 @@ button:disabled{opacity:.45}
   <div class="status" id="status">🎙️ بول کر پڑھیں یا 🔊 سنیں</div>
   <div class="buttons">
     <button class="start" id="start">🎙️ بول کر پڑھیں</button>
-    <button class="listen" id="listen">🔊 سنیں</button>
-    <button class="next" id="next">اگلا ➜</button>
-    <button class="next" id="prev">⬅ پچھلا ذکر</button>
+    <button class="backBtn" id="backBtn">✕ بند کریں</button>
   </div>
-  <div class="backBar"><button class="backBtn" id="backBtn">✕ بند کریں</button></div>
+  <div class="backBar">
+    <button class="navBtn" id="prev">⬅ پچھلا ذکر</button>
+    <button class="navBtn" id="next">اگلا ➜</button>
+  </div>
 </div></div>
 
 <div class="leaderboardTab" id="leaderboardTab">
@@ -296,9 +301,8 @@ function escapeHtml(s){
 
 function render(){
  const x=ITEMS[current];
- $("kind").textContent=x.type;
+ $("kind").textContent=`${x.type} ${x.no}`;
  $("translation").textContent=x.translation || "";
- $("targetTop").textContent=Math.max(0,x.target-counts[current])+" مرتبہ باقی";
  const clean=x.arabic.trim().split(/\s+/);
  $("arabic").classList.toggle("duroodOnly", current===9);
   $("arabic").classList.toggle("ayatOnly", current===ITEMS.length-1);
@@ -476,7 +480,6 @@ function complete(){
   counts[itemIndex]=Math.min(counts[itemIndex]+1,item.target);
   saveLocalProgress();
   resetMode=false;
-  $("targetTop").textContent=Math.max(0,item.target-counts[itemIndex])+" مرتبہ باقی";
   $("doneCount").textContent="مکمل: "+counts[itemIndex];
 
   document.querySelectorAll(".word").forEach(el=>{
@@ -668,7 +671,7 @@ $("backBtn").onclick=()=>{
   },350);
 };
 $("start").onclick=()=>keep?stopVoice():startVoice();
-$("listen").onclick=speakCurrent;
+$("miniListen").onclick=speakCurrent;
 
 $("prev").onclick=()=>{
   stopVoice();
