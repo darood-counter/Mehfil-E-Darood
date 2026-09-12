@@ -122,7 +122,7 @@ button:disabled{opacity:.45}
  .arabic{font-size:clamp(25px,6.3vw,31px);line-height:1.45;padding:2px 5px 7px;flex:0 1 auto;max-height:43%;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
   .arabic.duroodOnly{font-size:clamp(19px,4.8vw,24px);line-height:1.55;}
   .arabic.ayatOnly{font-size:clamp(16px,4.15vw,21px);line-height:1.32;padding:1px 4px 5px;max-height:none;overflow:visible;}
- .translation{font-size:14px;line-height:1.5;padding:6px 5px 0;min-height:0;overflow:hidden;flex:0 1 auto}
+ .translation{font-size:14px;line-height:1.5;padding:6px 5px 0;min-height:0;max-height:150px;overflow-y:auto;overflow-x:hidden;flex:0 1 auto;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
  .translation:before{font-size:12px;padding:2px 12px;margin-bottom:4px;border-width:1px;border-radius:13px}
  .status{min-height:27px;height:27px;padding:4px 5px;font-size:13px;line-height:1.35;flex:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
  .buttons{grid-template-columns:1fr 1fr;gap:6px;padding:0 5px 4px;flex:none}
@@ -145,14 +145,14 @@ button:disabled{opacity:.45}
 
 
 <style>
-/* Bottom leaderboard tab */
-.leaderboardTab{margin:10px 13px 16px;border:2px solid #c49b34;border-radius:18px;background:#fffdf1;overflow:hidden;box-shadow:0 3px 10px rgba(0,0,0,.08)}
-.leaderTabBtn{width:100%;border:0;border-radius:0;background:#075a43;color:#fff;font-weight:900;font-size:16px;padding:11px 12px;box-shadow:none;cursor:pointer}
+/* Bottom leaderboard tab — ہمیشہ screen کے سب سے نیچے */
+.leaderboardTab{position:fixed;left:0;right:0;bottom:0;z-index:9999;margin:0 auto;width:min(100%,600px);border:2px solid #c49b34;border-bottom:0;border-radius:18px 18px 0 0;background:#fffdf1;overflow:hidden;box-shadow:0 -3px 14px rgba(0,0,0,.15)}
+.leaderTabBtn{width:100%;border:0;border-radius:0;background:#075a43;color:#fff;font-weight:900;font-size:16px;padding:10px 12px;box-shadow:none;cursor:pointer}
 .leaderTabBtn:active{transform:none}
-.leaderTabBody{display:none;padding:10px 12px 12px}
+.leaderTabBody{display:none;padding:9px 12px 12px;max-height:45vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .leaderboardTab.open .leaderTabBody{display:block}
 .leaderMine{display:flex;justify-content:space-between;align-items:center;gap:8px;background:#f5e9c5;border:1px solid #d4bd76;border-radius:12px;padding:8px 10px;margin-bottom:9px;font-weight:900;color:#174b39}
-.leaderMineCount{font-size:18px;color:#075a43}
+.leaderMineCount{font-size:20px;color:#075a43;min-width:36px;text-align:center}
 </style>
 
 </head>
