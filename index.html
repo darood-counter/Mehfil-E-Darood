@@ -3281,11 +3281,19 @@ function switchBottomTab(tabName) {
       const spokenWords = tokenizeDaroodSpeech(spokenText);
       if (!spokenWords.length) return isEntireDaroodGreen();
 
+      // IMPORTANT: Tasbeeh speech may arrive in separate recognition segments
+      // when the user takes a breath. Keep all previous speech and resume from
+      // the FIRST word that is not green; never restart the sequence at word 1.
       const compact = spokenWords.join('');
+      const firstPendingIndex = wordEls.findIndex(el => !el.classList.contains('read'));
+      if (firstPendingIndex === -1) return true;
+
       let cursor = 0;
 
-      // Match each of the 34 displayed words strictly in sequence.
-      for (let index = 0; index < wordEls.length; index++) {
+      // Match only the remaining words, strictly in sequence. Already-green
+      // words are intentionally skipped so a repeated word in a later breath
+      // cannot pull the matcher backwards.
+      for (let index = firstPendingIndex; index < wordEls.length; index++) {
         const el = wordEls[index];
         const alreadyGreen = el.classList.contains('read');
 
@@ -3475,6 +3483,11 @@ function switchBottomTab(tabName) {
       let finished = false;
       let collectedSpeech = [];
       let restartPending = false;
+
+      // Cumulative Tasbeeh transcript: browser speech recognition can split one
+      // Darood across multiple breaths/recognition segments. This buffer keeps
+      // the earlier segment available when the next segment arrives.
+      let tasbeehCumulativeSpeech = '';
 
       const normalizeArabic = (value) => {
         return (value || "")
@@ -3703,7 +3716,10 @@ function switchBottomTab(tabName) {
 
           if (bestTranscript) {
             collectedSpeech.push(bestTranscript);
-            if (!isComp) updateDaroodWordHighlight(collectedSpeech.join(' '));
+            if (!isComp) {
+              tasbeehCumulativeSpeech = (tasbeehCumulativeSpeech + ' ' + bestTranscript).trim();
+              updateDaroodWordHighlight(tasbeehCumulativeSpeech);
+            }
           }
 
           // IMPORTANT: Tasbeeh +1 is triggered only after ALL displayed words
