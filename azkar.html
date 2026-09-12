@@ -77,7 +77,14 @@ body{font-family:Tahoma,"Noto Naskh Arabic","Amiri",serif;color:#174b39}
 .word.current{background:#b9e8c7}
 .translation{
  text-align:center;color:#222;font-size:22px;line-height:1.9;font-weight:700;
- padding:13px 8px 4px;min-height:92px
+ padding:13px 8px 4px;min-height:92px;max-height:180px;overflow-y:auto;
+ -webkit-overflow-scrolling:touch;scroll-behavior:smooth;box-sizing:border-box;
+ scrollbar-width:auto;
+}
+.translation:after{
+ content:"↕ اس حصے کو اوپر نیچے اسکرول کریں";display:block;margin:8px auto 0;
+ font-size:12px;font-weight:800;color:#075b43;opacity:.75;position:sticky;bottom:0;
+ background:rgba(255,253,244,.92);padding:3px 8px;border-radius:10px;
 }
 .translation:before{
  content:"اردو ترجمہ";display:block;width:max-content;margin:0 auto 7px;
