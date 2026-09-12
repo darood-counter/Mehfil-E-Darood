@@ -277,6 +277,7 @@ const ITEMS=[{"type": "ذکر", "no": 1, "arabic": "سُبْحَانَ اللَ�
 let current=0;
 let counts=ITEMS.map(()=>0);
 let keep=false,rec=null,locked=false,pos=0,words=[];
+let resetMode=false;
 let speechBuffer="";
 let countTimer=null;
 let recognitionRestartTimer=null;
