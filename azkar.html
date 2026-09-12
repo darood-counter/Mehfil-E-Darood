@@ -81,11 +81,7 @@ body{font-family:Tahoma,"Noto Naskh Arabic","Amiri",serif;color:#174b39}
  -webkit-overflow-scrolling:touch;scroll-behavior:smooth;box-sizing:border-box;
  scrollbar-width:auto;
 }
-.translation:after{
- content:"↕ اس حصے کو اوپر نیچے اسکرول کریں";display:block;margin:8px auto 0;
- font-size:12px;font-weight:800;color:#075b43;opacity:.75;position:sticky;bottom:0;
- background:rgba(255,253,244,.92);padding:3px 8px;border-radius:10px;
-}
+
 .translation:before{
  content:"اردو ترجمہ";display:block;width:max-content;margin:0 auto 7px;
  padding:3px 19px;background:#075b43;color:#fff;border:2px solid #c49c34;
@@ -308,7 +304,8 @@ function render(){
   $("arabic").classList.toggle("ayatOnly", current===ITEMS.length-1);
   $("arabic").innerHTML=clean.map((w,i)=>`<span class="word" id="w${i}">${w}</span>`).join(" ");
  words=clean.map(norm);pos=0;
- $("next").disabled=current===ITEMS.length-1;
+ $("next").disabled=false;
+  $("prev").disabled=current===0;
  $("status").textContent="➡️ موجودہ ذکر پڑھیں";
 }
 function paint(){
@@ -647,18 +644,28 @@ function speakCurrent(){
 }
 
 $("backBtn").onclick=()=>{
-  // Close button: فوراً voice recognition اور spoken audio بند کریں۔
+  // Close: voice/audio فوراً بند، progress محفوظ، پھر window/tab بند کرنے کی ہر ممکن کوشش۔
   stopVoice();
   try{ if("speechSynthesis" in window) speechSynthesis.cancel(); }catch(e){}
   if(!resetMode) saveLocalProgress();
 
-  // اگر یہ window script سے کھلی ہے تو اسے بند کرنے کی کوشش کریں۔
+  // پہلے اسی window کو بند کرنے کی کوشش کریں۔
+  try{ window.open("", "_self"); }catch(e){}
   try{ window.close(); }catch(e){}
 
-  // عام browser tab میں window.close اجازت نہیں ہوتی، اس لیے home page پر واپس جائیں۔
+  // کچھ WebView/PWA ماحول میں یہ close command کام کرتی ہے۔
   setTimeout(()=>{
-    if(document.visibilityState !== "hidden") window.location.href="index.html";
-  },100);
+    try{ window.open("about:blank", "_self"); }catch(e){}
+    try{ window.close(); }catch(e){}
+  },120);
+
+  // اگر browser security کی وجہ سے normal tab بند نہ ہو سکے تو index پر واپس جائیں۔
+  setTimeout(()=>{
+    if(document.visibilityState !== "hidden" && location.href.indexOf("about:blank")===-1){
+      if(history.length>1) history.back();
+      else window.location.href="index.html";
+    }
+  },350);
 };
 $("start").onclick=()=>keep?stopVoice():startVoice();
 $("listen").onclick=speakCurrent;
