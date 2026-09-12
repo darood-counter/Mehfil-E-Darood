@@ -49,7 +49,7 @@ body{font-family:Tahoma,"Noto Naskh Arabic","Amiri",serif;color:#174b39}
  border:4px solid #c59e36;border-radius:27px;padding:7px 24px;
  font-size:25px;font-weight:900;box-shadow:0 4px 0 #8e6c1e;text-align:center;direction:rtl
 }
-.backBar{direction:ltr;position:fixed;left:0;right:0;bottom:52px;z-index:10001;display:flex;justify-content:center;gap:7px;padding:6px 8px;background:rgba(255,253,241,.98);border-top:2px solid #c49b34;box-shadow:0 -3px 10px rgba(0,0,0,.10);box-sizing:border-box}
+.backBar{direction:ltr;position:relative;z-index:20;display:flex;justify-content:center;gap:7px;padding:6px 8px;background:rgba(255,253,241,.98);border-top:2px solid #c49b34;box-shadow:0 -3px 10px rgba(0,0,0,.10);box-sizing:border-box}
 .backBar .backBtn,.backBar .navBtn{pointer-events:auto;flex:1;max-width:190px;min-width:0}
 .backBtn,.navBtn{background:#fffdf5;color:#174b39;border:2px solid #b38a24;border-radius:15px;padding:7px 10px;font-size:15px;font-weight:900;box-shadow:0 2px 0 #8f6c1e;box-sizing:border-box;white-space:nowrap}
 .card{
@@ -61,12 +61,12 @@ body{font-family:Tahoma,"Noto Naskh Arabic","Amiri",serif;color:#174b39}
 .card:before{content:"✦";right:16px}.card:after{content:"✦";left:16px}
 .zikrHeader{
  position:relative;
- display:flex;flex-direction:column;align-items:center;justify-content:center;
- gap:8px;margin:0 auto 16px;text-align:center
+ display:flex;flex-direction:row;align-items:center;justify-content:center;
+ gap:14px;margin:0 auto 16px;text-align:center
 }
-.miniListen{position:absolute;left:8px;top:50%;transform:translateY(-50%);width:34px;height:34px;padding:0;border-radius:50%;background:#075b43;color:#fff;border:2px solid #c49c34;font-size:16px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 0 #8e6c1e;z-index:2}
+.miniListen{position:relative;left:auto;top:auto;transform:none;flex:0 0 auto;width:36px;height:36px;padding:0;border-radius:50%;background:#f0dfa0;color:#075b43;border:2px solid #c49c34;font-size:17px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 0 #8e6c1e;z-index:2}
 .kind{
- width:max-content;margin:0 auto;padding:6px 30px;background:#075b43;color:#fff;
+ width:max-content;margin:0 auto;padding:6px 38px;background:#075b43;color:#fff;
  border:3px solid #c49c34;border-radius:20px;font-size:20px;font-weight:900;
  box-shadow:0 3px 0 #8e6c1e
 }
@@ -103,22 +103,22 @@ button:disabled{opacity:.45}
  border:3px solid #c49c34;border-radius:18px;font-size:14px;font-weight:bold
 }
 @media(max-width:600px){
- html,body{width:100%;height:100%;min-height:100%;overflow:hidden;background:#fff9e9}
+ html,body{width:100%;height:100%;min-height:100%;overflow-x:hidden;overflow-y:auto;background:#fff9e9}
  .page{width:100%;max-width:none;height:100dvh;margin:0}
- .sheet{width:100%;height:100dvh;min-height:100dvh;border-left:4px solid #b88d25;border-right:4px solid #b88d25;display:flex;flex-direction:column;overflow:hidden}
+ .sheet{width:100%;min-height:100dvh;border-left:4px solid #b88d25;border-right:4px solid #b88d25;display:flex;flex-direction:column;overflow:visible}
  .top{height:72px;min-height:72px;flex:none}
  .top:after{right:15px;top:5px;font-size:34px}
  .top:before{bottom:-42px;height:82px}
  .mosques{font-size:48px;letter-spacing:-12px}
  .mainTitle{font-size:19px;margin:-8px 12% 0;padding:7px 12px;border-width:3px;border-radius:24px;line-height:1.2;flex:none;box-shadow:0 3px 0 #8d6b1d}
  .subTitle{font-size:12px;margin:5px auto 6px;padding:3px 13px;border-width:2px;border-radius:15px;line-height:1.25;flex:none}
- .card{flex:1;min-height:0;height:auto;margin:0 5px;padding:9px 7px 7px;border-width:2px;border-radius:22px;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-start}
+ .card{flex:none;min-height:60vh;height:auto;margin:0 12px;padding:18px 12px 14px;border-width:3px;border-radius:28px;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-start}
  .card:before,.card:after{top:5px;font-size:18px}
- .zikrHeader{gap:3px;margin:0 auto 5px;flex:none}
- .miniListen{left:3px;width:30px;height:30px;font-size:14px}
- .kind{font-size:15px;padding:3px 22px;border-width:2px;border-radius:15px;box-shadow:0 2px 0 #8e6c1e}
+ .zikrHeader{gap:12px;margin:0 auto 12px;flex:none}
+ .miniListen{left:auto;width:34px;height:34px;font-size:15px;margin-right:2px}
+ .kind{font-size:17px;padding:4px 24px;border-width:2px;border-radius:16px;box-shadow:0 2px 0 #8e6c1e}
  .countBox{font-size:17px;padding:4px 15px;margin:0;line-height:1.15;border-width:2px;border-radius:18px;box-shadow:0 2px 0 #8e6c1e}
- #doneCount{font-size:12px!important;line-height:1.1}
+ #doneCount{display:none!important}
  .arabic{font-size:clamp(25px,6.3vw,31px);line-height:1.45;padding:2px 5px 7px;flex:0 1 auto;max-height:43%;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
   .arabic.duroodOnly{font-size:clamp(19px,4.8vw,24px);line-height:1.55;}
   .arabic.ayatOnly{font-size:clamp(16px,4.15vw,21px);line-height:1.32;padding:1px 4px 5px;max-height:none;overflow:visible;}
@@ -127,8 +127,7 @@ button:disabled{opacity:.45}
  .status{display:none!important}
  .buttons{grid-template-columns:1fr 1fr;gap:6px;padding:0 5px 4px;flex:none}
  button{font-size:14px;padding:7px 8px;border-radius:14px;border-width:2px;line-height:1.2;box-shadow:0 2px 0 #8f6c1e}
- .backBar{padding:1px 5px 6px;flex:none}
- .backBar{direction:ltr;bottom:52px;padding:5px 6px;gap:6px}.backBtn,.navBtn{font-size:13px;padding:6px 7px;border-radius:13px}
+ .backBar{padding:5px 6px 6px;flex:none;gap:6px}.backBtn,.navBtn{font-size:13px;padding:6px 7px;border-radius:13px}
 }
 </style>
 <style>
@@ -145,8 +144,8 @@ button:disabled{opacity:.45}
 
 
 <style>
-/* Bottom leaderboard tab — ہمیشہ screen کے سب سے نیچے */
-.leaderboardTab{position:fixed;left:0;right:0;bottom:0;z-index:9999;margin:0 auto;width:min(100%,600px);border:2px solid #c49b34;border-bottom:0;border-radius:18px 18px 0 0;background:#fffdf1;overflow:hidden;box-shadow:0 -3px 14px rgba(0,0,0,.15)}
+/* Leaderboard ہمیشہ buttons کے نیچے رہے */
+.leaderboardTab{position:relative;z-index:20;margin:4px auto 0;width:min(100%,600px);border:2px solid #c49b34;border-bottom:0;border-radius:18px 18px 0 0;background:#fffdf1;overflow:hidden;box-shadow:0 -3px 14px rgba(0,0,0,.15)}
 .leaderTabBtn{width:100%;border:0;border-radius:0;background:#075a43;color:#fff;font-weight:900;font-size:16px;padding:10px 12px;box-shadow:none;cursor:pointer}
 .leaderTabBtn:active{transform:none}
 .leaderTabBody{display:none;padding:9px 12px 12px;max-height:45vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
@@ -275,7 +274,7 @@ if(!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const auth=firebase.auth();
 const db=firebase.database();
 
-const ITEMS=[{"type": "ذکر", "no": 1, "arabic": "سُبْحَانَ اللَّهِ وَبِحَمْدِهِ سُبْحَانَ اللَّهِ الْعَظِيمِ", "translation": "اللہ پاک ہے اور اسی کی حمد ہے، اللہ بہت پاک ہے۔", "target": 5}, {"type": "ذکر", "no": 2, "arabic": "سُبْحَانَ اللَّهِ، وَالْحَمْدُ لِلَّهِ، وَاللَّهُ أَكْبَرُ", "translation": "اللہ پاک ہے، تمام تعریفیں اللہ کے لیے ہیں، اور اللہ سب سے بڑا ہے۔", "target": 5}, {"type": "ذکر", "no": 3, "arabic": "لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ الْعَلِيِّ الْعَظِيمِ", "translation": "کوئی طاقت اور قوت نہیں اللہ کے سوا، جو بلند اور بہت بڑا ہے۔", "target": 5}, {"type": "ذکر", "no": 4, "arabic": "لَا إِلٰهَ إِلَّا أَنْتَ سُبْحَانَكَ إِنِّي كُنْتُ مِنَ الظَّالِمِينَ", "translation": "اے اللہ کے سوا کوئی معبود نہیں، تو پاک ہے، میں واقعی ظالموں میں سے ہوں۔", "target": 5}, {"type": "ذکر", "no": 5, "arabic": "حَسْبُنَا اللَّهُ وَنِعْمَ الْوَكِيلُ", "translation": "اللہ ہمارے لیے کافی ہے، اور وہ بہترین کارساز ہے۔", "target": 5}, {"type": "ذکر", "no": 6, "arabic": "يَا حَيُّ يَا قَيُّومُ بِرَحْمَتِكَ أَسْتَغِيثُ", "translation": "اے ہمیشہ زندہ اور قائم رہنے والے! میں تیری رحمت کا طلبگار ہوں۔", "target": 5}, {"type": "ذکر", "no": 7, "arabic": "أَسْتَغْفِرُ اللَّهَ رَبِّي مِنْ كُلِّ ذَنْبٍ وَأَتُوبُ إِلَيْهِ", "translation": "میں اپنے رب اللہ سے ہر گناہ کی بخشش مانگتا ہوں اور اس کی طرف رجوع کرتا ہوں۔", "target": 5}, {"type": "ذکر", "no": 8, "arabic": "سُبْحَانَ اللَّهِ وَبِحَمْدِهِ، عَدَدَ خَلْقِهِ، وَرِضَا نَفْسِهِ، وَزِنَةَ عَرْشِهِ، وَمِدَادَ كَلِمَاتِهِ", "translation": "اللہ پاک ہے اور اسی کی حمد ہے، اس کی مخلوق کی گنتی کے برابر، اس کی رضا کے برابر، اس کے عرش کے وزن کے برابر، اور اس کے کلمات کی سیاہی کے برابر۔", "target": 5}, {"type": "ذکر", "no": 9, "arabic": "لَا إِلٰهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، وَهُوَ عَلَىٰ كُلِّ شَيْءٍ قَدِيرٌ", "translation": "اللہ کے سوا کوئی معبود نہیں، وہ اکیلا ہے، اس کا کوئی شریک نہیں، اس کا بادشاہت ہے، اس کی حمد ہے، اور وہ ہر چیز پر قادر ہے۔", "target": 5}, {"type": "ذکر", "no": 10, "arabic": "اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ كَمَا صَلَّيْتَ عَلَى إِبْرَاهِيمَ وَعَلَى آلِ إِبْرَاهِيمَ إِنَّكَ حَمِيدٌ مَجِيدٌ اللَّهُمَّ بَارِكْ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ كَمَا بَارَكْتَ عَلَى إِبْرَاهِيمَ وَعَلَى آلِ إِبْرَاهِيمَ إِنَّكَ حَمِيدٌ مَجِيدٌ", "translation": "اے اللہ! محمد ﷺ اور ان کی آل پر رحمت نازل فرما، جیسے تو نے ابراہیمؑ اور ان کی آل پر رحمت نازل فرمائی، بے شک تو حمد و مجد والا ہے۔ اے اللہ! محمد ﷺ اور ان کی آل پر برکت نازل فرما، جیسے تو نے ابراہیمؑ اور ان کی آل پر برکت نازل فرمائی، بے شک تو حمد و مجد والا ہے۔", "target": 5}, {"type": "آیت الکرسی", "no": 1, "arabic": "اللَّهُ لَا إِلٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ  لَهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الْأَرْضِ مَنْ ذَا الَّذِي يَشْفَعُ عِنْدَهُ إِلَّا بِإِذْنِهِ يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ وَلَا يُحِيطُونَ بِشَيْءٍ مِنْ عِلْمِهِ إِلَّا بِمَا شَاءَ وَسِعَ كُرْسِيُّهُ السَّمَاوَاتِ وَالْأَرْضَ وَلَا يَئُودُهُ حِفْظُهُمَا وَهُوَ الْعَلِيُّ الْعَظِيمُ", "translation": "اللہ، اس کے سوا کوئی معبود نہیں، وہ زندہ اور سب کو قائم رکھنے والا ہے۔ اسے نہ اونگھ آتی ہے نہ نیند۔ جو کچھ آسمانوں اور زمین میں ہے سب اسی کا ہے۔ کون ہے جو اس کے پاس اس کی اجازت کے بغیر سفارش کرے؟ وہ جانتا ہے جو ان کے آگے اور پیچھے ہے، اور وہ اس کے علم میں سے اتنا ہی جان سکتے ہیں جتنا وہ چاہے۔ اس کی کرسی آسمانوں اور زمین کو گھیرے ہوئے ہے، اور ان دونوں کی حفاظت اسے نہیں تھکاتی، اور وہ بلند، عظمت والا ہے۔", "target": 1}];
+const ITEMS=[{"type": "ذکر", "no": 1, "arabic": "سُبْحَانَ اللَّهِ وَبِحَمْدِهِ سُبْحَانَ اللَّهِ الْعَظِيمِ", "translation": "اللہ پاک ہے اور اسی کی حمد ہے، اللہ بہت پاک ہے۔", "target": 5}, {"type": "ذکر", "no": 2, "arabic": "سُبْحَانَ اللَّهِ، وَالْحَمْدُ لِلَّهِ، وَاللَّهُ أَكْبَرُ", "translation": "اللہ پاک ہے، تمام تعریفیں اللہ کے لیے ہیں، اور اللہ سب سے بڑا ہے۔", "target": 5}, {"type": "ذکر", "no": 3, "arabic": "لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ الْعَلِيِّ الْعَظِيمِ", "translation": "کوئی طاقت اور قوت نہیں اللہ کے سوا، جو بلند اور بہت بڑا ہے۔", "target": 5}, {"type": "ذکر", "no": 4, "arabic": "لَا إِلٰهَ إِلَّا أَنْتَ سُبْحَانَكَ إِنِّي كُنْتُ مِنَ الظَّالِمِينَ", "translation": "اے اللہ کے سوا کوئی معبود نہیں، تو پاک ہے، میں واقعی ظالموں میں سے ہوں۔", "target": 5}, {"type": "ذکر", "no": 5, "arabic": "حَسْبُنَا اللَّهُ وَنِعْمَ الْوَكِيلُ", "translation": "اللہ ہمارے لیے کافی ہے، اور وہ بہترین کارساز ہے۔", "target": 5}, {"type": "ذکر", "no": 6, "arabic": "يَا حَيُّ يَا قَيُّومُ بِرَحْمَتِكَ أَسْتَغِيثُ", "translation": "اے ہمیشہ زندہ اور قائم رہنے والے! میں تیری رحمت کا طلبگار ہوں۔", "target": 5}, {"type": "ذکر", "no": 7, "arabic": "أَسْتَغْفِرُ اللَّهَ رَبِّي مِنْ كُلِّ ذَنْبٍ وَأَتُوبُ إِلَيْهِ", "translation": "میں اپنے رب اللہ سے ہر گناہ کی بخشش مانگتا ہوں اور اس کی طرف رجوع کرتا ہوں۔", "target": 5}, {"type": "ذکر", "no": 8, "arabic": "سُبْحَانَ اللَّهِ وَبِحَمْدِهِ، عَدَدَ خَلْقِهِ، وَرِضَا نَفْسِهِ، وَزِنَةَ عَرْشِهِ، وَمِدَادَ كَلِمَاتِهِ", "translation": "اللہ پاک ہے اور اسی کی حمد ہے، اس کی مخلوق کی گنتی کے برابر، اس کی رضا کے برابر، اس کے عرش کے وزن کے برابر، اور اس کے کلمات کی سیاہی کے برابر۔", "target": 5}, {"type": "ذکر", "no": 9, "arabic": "لَا إِلٰهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، وَهُوَ عَلَىٰ كُلِّ شَيْءٍ قَدِيرٌ", "translation": "اللہ کے سوا کوئی معبود نہیں، وہ اکیلا ہے، اس کا کوئی شریک نہیں، اس کا بادشاہت ہے، اس کی حمد ہے، اور وہ ہر چیز پر قادر ہے۔", "target": 5}, {"type": "ذکر", "no": 10, "arabic": "اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ كَمَا صَلَّيْتَ عَلَى إِبْرَاهِيمَ وَعَلَى آلِ إِبْرَاهِيمَ إِنَّكَ حَمِيدٌ مَجِيدٌ اللَّهُمَّ بَارِكْ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ كَمَا بَارَكْتَ عَلَى إِبْرَاهِيمَ وَعَلَى آلِ إِبْرَاهِيمَ إِنَّكَ حَمِيدٌ مَجِيدٌ", "translation": "اے اللہ! محمد ﷺ اور ان کی آل پر رحمت نازل فرما، جیسے تو نے ابراہیمؑ اور ان کی آل پر رحمت نازل فرمائی، بے شک تو حمد و مجد والا ہے۔ اے اللہ! محمد ﷺ اور ان کی آل پر برکت نازل فرما، جیسے تو نے ابراہیمؑ اور ان کی آل پر برکت نازل فرمائی، بے شک تو حمد و مجد والا ہے۔", "target": 5}, {"type": "آیت الکرسی", "no": 11, "arabic": "اللَّهُ لَا إِلٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ  لَهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الْأَرْضِ مَنْ ذَا الَّذِي يَشْفَعُ عِنْدَهُ إِلَّا بِإِذْنِهِ يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ وَلَا يُحِيطُونَ بِشَيْءٍ مِنْ عِلْمِهِ إِلَّا بِمَا شَاءَ وَسِعَ كُرْسِيُّهُ السَّمَاوَاتِ وَالْأَرْضَ وَلَا يَئُودُهُ حِفْظُهُمَا وَهُوَ الْعَلِيُّ الْعَظِيمُ", "translation": "اللہ، اس کے سوا کوئی معبود نہیں، وہ زندہ اور سب کو قائم رکھنے والا ہے۔ اسے نہ اونگھ آتی ہے نہ نیند۔ جو کچھ آسمانوں اور زمین میں ہے سب اسی کا ہے۔ کون ہے جو اس کے پاس اس کی اجازت کے بغیر سفارش کرے؟ وہ جانتا ہے جو ان کے آگے اور پیچھے ہے، اور وہ اس کے علم میں سے اتنا ہی جان سکتے ہیں جتنا وہ چاہے۔ اس کی کرسی آسمانوں اور زمین کو گھیرے ہوئے ہے، اور ان دونوں کی حفاظت اسے نہیں تھکاتی، اور وہ بلند، عظمت والا ہے۔", "target": 1}];
 let current=0;
 let counts=ITEMS.map(()=>0);
 let keep=false,rec=null,locked=false,pos=0,words=[];
