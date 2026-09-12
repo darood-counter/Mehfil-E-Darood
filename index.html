@@ -3207,37 +3207,34 @@ function switchBottomTab(tabName) {
       if (spoken === target) return true;
 
       const aliases = {
-        "اللهم": ["اللهم", "اللهمم", "الهم", "اللھم", "اللّهُم", "اللهُم", "اللهمّ"],
-        "صلی": ["صلی", "صلي", "صل", "صلّ"],
+        "اللهم": ["اللهم", "اللهمم", "الهم", "اللھم"],
+        "صلی": ["صلی", "صلي", "صل"],
         "علی": ["علی", "علي", "على"],
-        "محمد": ["محمد", "محمدا", "محمدٍ"],
-        "وعلی": ["وعلی", "وعلي", "و علی", "وعلى", "وّعلی"],
-        "اٰل": ["اٰل", "آل", "ال", "اٰلِ"],
+        "محمد": ["محمد", "محمدا"],
+        "وعلی": ["وعلی", "وعلي", "و علی", "وعلى"],
+        "ال": ["ال", "اٰل", "آل", "آل"],
         "کما": ["کما", "كما"],
-        "صلیت": ["صلیت", "صليت", "صلیتَ", "صليتَ"],
-        "ابراہیم": ["ابراہیم", "ابراهيم", "ابراھیم", "إبراهيم", "اِبْرَاھِیْمَ"],
-        "بارک": ["بارک", "بارك", "بارِک", "بارِك", "بَارِکْ", "بَارِكْ"],
-        "بارکت": ["بارکت", "بارکتَ", "باركت", "باركتَ", "بارَکت", "بارَكت", "بَارَکْتَ", "بَارَكْتَ"],
-        "انک": ["انک", "إنك", "انك", "اِنَّکَ", "اِنَّكَ"],
-        "حمید": ["حمید", "حميد", "حَمِیْدٌ", "حَمِيدٌ"],
-        "مجید": ["مجید", "مجيد", "مَّجِیْدٌ", "مَّجِيدٌ"]
+        "صلیت": ["صلیت", "صليت"],
+        "ابراہیم": ["ابراہیم", "ابراهيم", "ابراھیم", "ابراهیم", "إبراهيم"],
+        "بارک": ["بارک", "بارك", "بارِک", "بارِك"],
+        "بارکت": ["بارکت", "باركت", "بارَکت", "بارَكت"],
+        "انک": ["انک", "إنك", "انك"],
+        "حمید": ["حمید", "حميد"],
+        "مجید": ["مجید", "مجيد"]
       };
 
       const options = aliases[target] || [target];
       if (options.some(x => normalizeArabicGlobal(x) === spoken)) return true;
 
-      // Allow only a very small recognition error so an almost-correct
-      // recognized word can still turn green.
+      // Small recognition tolerance.
       if (spoken.length >= 4 && target.length >= 4) {
         let prev = Array.from({length: target.length + 1}, (_, i) => i);
-        const a = Array.from(spoken);
-        const b = Array.from(target);
+        const a = Array.from(spoken), b = Array.from(target);
         for (let i = 1; i <= a.length; i++) {
           const cur = [i];
           for (let j = 1; j <= b.length; j++) {
             cur[j] = Math.min(
-              cur[j - 1] + 1,
-              prev[j] + 1,
+              cur[j - 1] + 1, prev[j] + 1,
               prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)
             );
           }
@@ -3248,48 +3245,15 @@ function switchBottomTab(tabName) {
       return false;
     }
 
-    // Green highlighting is now the Tasbeeh verification source of truth.
-    // The count is allowed ONLY after every displayed Darood word is green.
-    // Turn recognition text into individual Darood words.
-    // Some Android speech engines return phrases such as "اللهمبارك"
-    // as one token; split those combined tokens so BOTH words can turn green.
+    // Convert speech into clean Arabic tokens.
     function tokenizeDaroodSpeech(spokenText) {
-      let text = normalizeArabicGlobal(spokenText);
-      if (!text) return [];
-
-      const container = document.getElementById('daroodArabicText');
-      const targets = container
-        ? Array.from(container.querySelectorAll('.darood-word'))
-            .map(el => normalizeArabicGlobal(el.textContent))
-            .filter(Boolean)
-        : [];
-
-      // Also include common recognition spellings.
-      const extras = [
-        'اللهم', 'اللهمم', 'الهم',
-        'بارک', 'بارك', 'بارکت', 'باركت',
-        'ابراہیم', 'ابراهيم', 'ابراھیم', 'ابراهیم', 'إبراهيم',
-        'صلی', 'صلي', 'علی', 'علي', 'على', 'محمد',
-        'وعلی', 'وعلي', 'وعلى', 'اٰل', 'آل', 'ال',
-        'کما', 'كما', 'صلیت', 'صليت', 'انک', 'إنك', 'انك',
-        'حمید', 'حميد', 'مجید', 'مجيد'
-      ].map(normalizeArabicGlobal).filter(Boolean);
-
-      const patterns = Array.from(new Set(targets.concat(extras)))
-        .sort((a,b) => b.length - a.length);
-
-      // Put spaces around known words even when the speech engine joined them.
-      for (const word of patterns) {
-        if (word.length >= 2) {
-          text = text.split(word).join(' ' + word + ' ');
-        }
-      }
-
-      return text.split(/\s+/).filter(Boolean);
+      return normalizeArabicGlobal(spokenText).split(/\s+/).filter(Boolean);
     }
 
-    // Green highlighting is the Tasbeeh verification source of truth.
-    // The count is allowed ONLY after every displayed Darood word is green.
+    // IMPORTANT:
+    // Match against the WHOLE accumulated transcript in order.
+    // This prevents "اللهم بارك" from getting stuck when Android returns
+    // several words in one speech segment or changes spacing.
     function updateDaroodWordHighlight(spokenText) {
       const container = document.getElementById('daroodArabicText');
       if (!container) return false;
@@ -3298,39 +3262,79 @@ function switchBottomTab(tabName) {
       const spokenWords = tokenizeDaroodSpeech(spokenText);
       if (!spokenWords.length) return isEntireDaroodGreen();
 
+      const aliasMap = {
+        "اللهم": ["اللهم", "اللهمم", "الهم"],
+        "صلی": ["صلی", "صلي", "صل"],
+        "علی": ["علی", "علي", "على"],
+        "محمد": ["محمد", "محمدا"],
+        "وعلی": ["وعلی", "وعلي", "وعلى"],
+        "ال": ["ال", "اٰل", "آل"],
+        "کما": ["کما", "كما"],
+        "صلیت": ["صلیت", "صليت"],
+        "ابراہیم": ["ابراہیم", "ابراهيم", "ابراھیم", "ابراهیم", "إبراهيم"],
+        "بارک": ["بارک", "بارك"],
+        "بارکت": ["بارکت", "باركت"],
+        "انک": ["انک", "إنك", "انك"],
+        "حمید": ["حمید", "حميد"],
+        "مجید": ["مجید", "مجيد"]
+      };
+
+      const acceptedForms = (target) => {
+        const t = normalizeArabicGlobal(target);
+        return Array.from(new Set([t].concat(aliasMap[t] || []).map(normalizeArabicGlobal).filter(Boolean)));
+      };
+
+      // First try normal word-by-word matching.
       let si = 0;
       for (const el of wordEls) {
-        const target = normalizeArabicGlobal(el.textContent);
-        if (!target || el.classList.contains('read')) {
-          continue;
-        }
+        if (el.classList.contains('read')) continue;
 
-        // Search forward for the next matching spoken word.
-        let matchedAt = -1;
-        for (let look = si; look < Math.min(spokenWords.length, si + 6); look++) {
-          if (daroodHighlightWordMatch(spokenWords[look], target)) {
-            matchedAt = look;
+        const target = normalizeArabicGlobal(el.textContent);
+        if (!target) continue;
+        const forms = acceptedForms(target);
+        let found = -1;
+
+        for (let i = si; i < spokenWords.length; i++) {
+          if (forms.includes(spokenWords[i])) {
+            found = i;
             break;
           }
         }
 
-        if (matchedAt !== -1) {
+        if (found !== -1) {
           el.classList.add('read');
-          // Do not let an already-green earlier word consume the new token.
-          si = matchedAt + 1;
-          continue;
+          si = found + 1;
+        }
+      }
+
+      // Second pass: handle Android speech engines that join words together,
+      // e.g. "اللهمبارك", "اللهمباركعلى", etc.
+      const compact = spokenWords.join('');
+      let cursor = 0;
+
+      for (const el of wordEls) {
+        if (el.classList.contains('read')) continue;
+
+        const target = normalizeArabicGlobal(el.textContent);
+        if (!target) continue;
+
+        const forms = acceptedForms(target)
+          .sort((a,b) => b.length - a.length);
+
+        let foundAt = -1;
+        let matchedForm = '';
+
+        for (const form of forms) {
+          const at = compact.indexOf(form, cursor);
+          if (at !== -1 && (foundAt === -1 || at < foundAt)) {
+            foundAt = at;
+            matchedForm = form;
+          }
         }
 
-        // Small fallback for a recognition token containing this word.
-        for (let look = si; look < Math.min(spokenWords.length, si + 4); look++) {
-          const spoken = spokenWords[look];
-          if (spoken && (spoken.includes(target) || target.includes(spoken))) {
-            if (spoken.length >= target.length || target.length - spoken.length <= 1) {
-              el.classList.add('read');
-              si = look + 1;
-              break;
-            }
-          }
+        if (foundAt !== -1) {
+          el.classList.add('read');
+          cursor = foundAt + matchedForm.length;
         }
       }
 
@@ -3350,7 +3354,7 @@ function switchBottomTab(tabName) {
         .replace(/ئ/g, 'ی')
         .replace(/ؤ/g, 'و')
         .replace(/[ةهھہ]/g, 'ه')
-        .replace(/[کك]/g, 'ك')
+        .replace(/[کك]/g, 'ک')
         .replace(/ـ/g, '')
         .replace(/[^\u0600-\u06FF\s]/g, ' ')
         .replace(/\s+/g, ' ')
@@ -3601,7 +3605,7 @@ function switchBottomTab(tabName) {
             statusEl.innerText = "بولیں، میں سن رہا ہوں";
           } else {
             statusEl.style.color = "#d97706";
-            statusEl.innerText = "✓ درود شریف شمار ہو گیا!";
+            statusEl.innerText = "✓ آپ نے صحیح پڑھا ہے — درود شریف شمار ہو گیا!";
           }
           playSuccessSound();
           triggerVibration();
@@ -3614,12 +3618,15 @@ function switchBottomTab(tabName) {
           btn.classList.remove("listening");
           activeTasbeehRecognition = null;
           // Successful count: automatically begin the next Darood round.
+          // Show the result first, then clear the green words and start
+          // a completely fresh listening round.
           tasbeehAutoRestartTimer = setTimeout(() => {
             tasbeehAutoRestartTimer = null;
+            resetDaroodWordHighlight();
             if (tasbeehListeningActive) {
               startVoiceRecognition('countBtn', 'statusMsg', false);
             }
-          }, 350);
+          }, 1200);
         } else {
           btn.classList.remove("listening");
         }
