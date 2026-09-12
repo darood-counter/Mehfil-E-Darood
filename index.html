@@ -3198,8 +3198,15 @@ function switchBottomTab(tabName) {
       document.querySelectorAll('#daroodArabicText .darood-word').forEach(el => el.classList.remove('read'));
     }
 
-    // Highlight Darood words as the user recites.
-    // This is UI-only; the existing verification/counting system is unchanged.
+    // ===== DAROOD TASBEEH: 34-WORD SEQUENTIAL VOICE MATCH =====
+    // The displayed Darood contains exactly 34 separate words. Each word is
+    // highlighted green in order. Recognition mistakes/Arabic spelling
+    // variants are tolerated; the count is made only when all 34 are green.
+    const DAROOD_34_WORDS = [
+      "اَللّٰھُمَّ","صَلِّ","عَلٰی","مُحَمَّدٍ","وَّعَلٰی","اٰلِ","مُحَمَّدٍ","کَمَا","صَلَّیْتَ","عَلٰی","اِبْرَاھِیْمَ","وَعَلٰی","اٰلِ","اِبْرَاھِیْمَ","اِنَّکَ","حَمِیْدٌ","مَّجِیْدٌ۔",
+      "اَللّٰھُمَّ","بَارِکْ","عَلٰی","مُحَمَّدٍ","وَّعَلٰی","اٰلِ","مُحَمَّدٍ","کَمَا","بَارَکْتَ","عَلٰی","اِبْرَاھِیْمَ","وَعَلٰی","اٰلِ","اِبْرَاھِیْمَ","اِنَّکَ","حَمِیْدٌ","مَّجِیْدٌ"
+    ];
+
     function daroodHighlightWordMatch(spoken, target) {
       spoken = normalizeArabicGlobal(spoken);
       target = normalizeArabicGlobal(target);
@@ -3207,134 +3214,152 @@ function switchBottomTab(tabName) {
       if (spoken === target) return true;
 
       const aliases = {
-        "اللهم": ["اللهم", "اللهمم", "الهم", "اللھم"],
-        "صلی": ["صلی", "صلي", "صل"],
-        "علی": ["علی", "علي", "على"],
-        "محمد": ["محمد", "محمدا"],
-        "وعلی": ["وعلی", "وعلي", "و علی", "وعلى"],
-        "ال": ["ال", "اٰل", "آل", "آل"],
-        "کما": ["کما", "كما"],
-        "صلیت": ["صلیت", "صليت"],
-        "ابراہیم": ["ابراہیم", "ابراهيم", "ابراھیم", "ابراهیم", "إبراهيم"],
-        "بارک": ["بارک", "بارك", "بارِک", "بارِك"],
-        "بارکت": ["بارکت", "باركت", "بارَکت", "بارَكت"],
-        "انک": ["انک", "إنك", "انك"],
-        "حمید": ["حمید", "حميد"],
-        "مجید": ["مجید", "مجيد"]
+        "اللهم": ["اللهم","اللهمم","الهم","اللھم","اللهُم","اللّهُم"],
+        "صلی": ["صلی","صلي","صل","صلى"],
+        "علی": ["علی","علي","على","علا"],
+        "محمد": ["محمد","محمدا","محمدن"],
+        "وعلی": ["وعلی","وعلي","وعلى","وعلا","و علی","وعلی"],
+        "ال": ["ال","آل","الِ","اٰل"],
+        "کما": ["کما","كما","کما"],
+        "صلیت": ["صلیت","صليت","صليته","صلیتہ"],
+        "ابراہیم": ["ابراہیم","ابراهيم","ابراھیم","ابراهیم","إبراهيم","ابراہیم"],
+        "بارک": ["بارک","بارك","بارِک","بارِك","بارک"],
+        "بارکت": ["بارکت","باركت","بارَکت","بارَكت","بارکۃ","بارکتہ"],
+        "انک": ["انک","إنك","انك","انکَ","انك"],
+        "حمید": ["حمید","حميد","حمیدا"],
+        "مجید": ["مجید","مجيد","مجیدا"]
       };
 
-      const options = aliases[target] || [target];
-      if (options.some(x => normalizeArabicGlobal(x) === spoken)) return true;
+      const options = Array.from(new Set([target].concat(aliases[target] || [])))
+        .map(normalizeArabicGlobal).filter(Boolean);
+      if (options.includes(spoken)) return true;
 
-      // Small recognition tolerance.
-      if (spoken.length >= 4 && target.length >= 4) {
-        let prev = Array.from({length: target.length + 1}, (_, i) => i);
-        const a = Array.from(spoken), b = Array.from(target);
-        for (let i = 1; i <= a.length; i++) {
+      // Generous recognition tolerance for Arabic speech engines.
+      const distance = (a, b) => {
+        const A = Array.from(a), B = Array.from(b);
+        const prev = Array.from({length: B.length + 1}, (_, i) => i);
+        for (let i = 1; i <= A.length; i++) {
           const cur = [i];
-          for (let j = 1; j <= b.length; j++) {
+          for (let j = 1; j <= B.length; j++) {
             cur[j] = Math.min(
-              cur[j - 1] + 1, prev[j] + 1,
-              prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)
+              cur[j - 1] + 1,
+              prev[j] + 1,
+              prev[j - 1] + (A[i - 1] === B[j - 1] ? 0 : 1)
             );
           }
-          prev = cur;
+          prev.splice(0, prev.length, ...cur);
         }
-        if (prev[b.length] <= 1) return true;
+        return prev[B.length];
+      };
+
+      // Very short word "ال" is matched only by its real form.
+      if (target === "ال") return spoken === "ال" || spoken === "آل";
+
+      let best = Infinity;
+      for (const form of options) {
+        const d = distance(spoken, form);
+        best = Math.min(best, d);
       }
-      return false;
+      const limit = target.length <= 3 ? 1 : Math.max(1, Math.ceil(target.length * 0.40));
+      return best <= limit;
     }
 
-    // Convert speech into clean Arabic tokens.
     function tokenizeDaroodSpeech(spokenText) {
       return normalizeArabicGlobal(spokenText).split(/\s+/).filter(Boolean);
     }
 
-    // IMPORTANT:
-    // Match against the WHOLE accumulated transcript in order.
-    // This prevents "اللهم بارك" from getting stuck when Android returns
-    // several words in one speech segment or changes spacing.
     function updateDaroodWordHighlight(spokenText) {
       const container = document.getElementById('daroodArabicText');
       if (!container) return false;
 
       const wordEls = Array.from(container.querySelectorAll('.darood-word'));
+      if (wordEls.length !== 34) {
+        // Keep the UI safe if the HTML is edited later.
+        return false;
+      }
+
       const spokenWords = tokenizeDaroodSpeech(spokenText);
       if (!spokenWords.length) return isEntireDaroodGreen();
 
-      const aliasMap = {
-        "اللهم": ["اللهم", "اللهمم", "الهم"],
-        "صلی": ["صلی", "صلي", "صل"],
-        "علی": ["علی", "علي", "على"],
-        "محمد": ["محمد", "محمدا"],
-        "وعلی": ["وعلی", "وعلي", "وعلى"],
-        "ال": ["ال", "اٰل", "آل"],
-        "کما": ["کما", "كما"],
-        "صلیت": ["صلیت", "صليت"],
-        "ابراہیم": ["ابراہیم", "ابراهيم", "ابراھیم", "ابراهیم", "إبراهيم"],
-        "بارک": ["بارک", "بارك"],
-        "بارکت": ["بارکت", "باركت"],
-        "انک": ["انک", "إنك", "انك"],
-        "حمید": ["حمید", "حميد"],
-        "مجید": ["مجید", "مجيد"]
-      };
-
-      const acceptedForms = (target) => {
-        const t = normalizeArabicGlobal(target);
-        return Array.from(new Set([t].concat(aliasMap[t] || []).map(normalizeArabicGlobal).filter(Boolean)));
-      };
-
-      // First try normal word-by-word matching.
-      let si = 0;
-      for (const el of wordEls) {
-        if (el.classList.contains('read')) continue;
-
-        const target = normalizeArabicGlobal(el.textContent);
-        if (!target) continue;
-        const forms = acceptedForms(target);
-        let found = -1;
-
-        for (let i = si; i < spokenWords.length; i++) {
-          if (forms.includes(spokenWords[i])) {
-            found = i;
-            break;
-          }
-        }
-
-        if (found !== -1) {
-          el.classList.add('read');
-          si = found + 1;
-        }
-      }
-
-      // Second pass: handle Android speech engines that join words together,
-      // e.g. "اللهمبارك", "اللهمباركعلى", etc.
       const compact = spokenWords.join('');
       let cursor = 0;
 
-      for (const el of wordEls) {
-        if (el.classList.contains('read')) continue;
+      // Match each of the 34 displayed words strictly in sequence.
+      for (let index = 0; index < wordEls.length; index++) {
+        const el = wordEls[index];
+        const alreadyGreen = el.classList.contains('read');
 
-        const target = normalizeArabicGlobal(el.textContent);
-        if (!target) continue;
-
-        const forms = acceptedForms(target)
-          .sort((a,b) => b.length - a.length);
+        const target = normalizeArabicGlobal(DAROOD_34_WORDS[index] || el.textContent);
+        const aliases = {
+          "اللهم": ["اللهم","اللهمم","الهم","اللھم","اللهُم","اللّهُم"],
+          "صلی": ["صلی","صلي","صل","صلى"],
+          "علی": ["علی","علي","على","علا"],
+          "محمد": ["محمد","محمدا","محمدن"],
+          "وعلی": ["وعلی","وعلي","وعلى","وعلا","و علی"],
+          "ال": ["ال","آل","اٰل"],
+          "کما": ["کما","كما"],
+          "صلیت": ["صلیت","صليت","صليتہ"],
+          "ابراہیم": ["ابراہیم","ابراهيم","ابراھیم","ابراهیم","إبراهيم"],
+          "بارک": ["بارک","بارك","بارِک","بارِك"],
+          "بارکت": ["بارکت","باركت","بارَکت","بارَكت","بارکۃ"],
+          "انک": ["انک","إنك","انك","انکَ"],
+          "حمید": ["حمید","حميد","حمیدا"],
+          "مجید": ["مجید","مجيد","مجیدا"]
+        };
+        const forms = Array.from(new Set([target].concat(aliases[target] || [])))
+          .map(normalizeArabicGlobal).filter(Boolean).sort((a,b) => b.length-a.length);
 
         let foundAt = -1;
-        let matchedForm = '';
+        let foundLen = 0;
 
+        // 1) Exact/alias substring. This handles joined recognition such as
+        // "اللهمبارك" without getting stuck at the previous word.
         for (const form of forms) {
           const at = compact.indexOf(form, cursor);
           if (at !== -1 && (foundAt === -1 || at < foundAt)) {
             foundAt = at;
-            matchedForm = form;
+            foundLen = form.length;
           }
         }
 
+        // 2) Fuzzy substring for recognition mistakes. Search only a small
+        // window so the words remain in the correct Darood order.
+        if (foundAt === -1 && target !== "ال") {
+          const maxSkip = Math.min(compact.length, cursor + Math.max(12, target.length + 7));
+          let bestScore = Infinity;
+          let bestAt = -1;
+          let bestLen = 0;
+          const levenshtein = (a,b) => {
+            const A=Array.from(a), B=Array.from(b);
+            let prev=Array.from({length:B.length+1},(_,i)=>i);
+            for(let i=1;i<=A.length;i++){
+              const cur=[i];
+              for(let j=1;j<=B.length;j++) cur[j]=Math.min(cur[j-1]+1,prev[j]+1,prev[j-1]+(A[i-1]===B[j-1]?0:1));
+              prev=cur;
+            }
+            return prev[B.length];
+          };
+          for (let at = cursor; at < maxSkip; at++) {
+            for (const form of forms) {
+              for (let len = Math.max(2, form.length-1); len <= Math.min(compact.length-at, form.length+2); len++) {
+                const piece = compact.slice(at, at+len);
+                const d = levenshtein(piece, form);
+                const limit = form.length <= 3 ? 1 : Math.max(1, Math.ceil(form.length*0.40));
+                if (d <= limit && d < bestScore) {
+                  bestScore=d; bestAt=at; bestLen=len;
+                }
+              }
+            }
+          }
+          if (bestAt !== -1) { foundAt=bestAt; foundLen=bestLen; }
+        }
+
         if (foundAt !== -1) {
-          el.classList.add('read');
-          cursor = foundAt + matchedForm.length;
+          if (!alreadyGreen) el.classList.add('read');
+          cursor = foundAt + foundLen;
+        } else {
+          // Stop here: later words cannot turn green until this word is heard.
+          break;
         }
       }
 
@@ -3343,7 +3368,7 @@ function switchBottomTab(tabName) {
 
     function isEntireDaroodGreen() {
       const words = Array.from(document.querySelectorAll('#daroodArabicText .darood-word'));
-      return words.length > 0 && words.every(el => el.classList.contains('read'));
+      return words.length === 34 && words.every(el => el.classList.contains('read'));
     }
 
     function normalizeArabicGlobal(value) {
@@ -3356,6 +3381,7 @@ function switchBottomTab(tabName) {
         .replace(/[ةهھہ]/g, 'ه')
         .replace(/[کك]/g, 'ک')
         .replace(/ـ/g, '')
+        .replace(/[۔،,:;!?]/g, '')
         .replace(/[^\u0600-\u06FF\s]/g, ' ')
         .replace(/\s+/g, ' ')
         .trim();
