@@ -49,7 +49,7 @@ body{font-family:Tahoma,"Noto Naskh Arabic","Amiri",serif;color:#174b39}
  border:4px solid #c59e36;border-radius:27px;padding:7px 24px;
  font-size:25px;font-weight:900;box-shadow:0 4px 0 #8e6c1e;text-align:center;direction:rtl
 }
-.backBar{direction:ltr;position:relative;z-index:20;display:flex;justify-content:center;gap:7px;padding:6px 8px;background:rgba(255,253,241,.98);border-top:2px solid #c49b34;box-shadow:0 -3px 10px rgba(0,0,0,.10);box-sizing:border-box}
+.backBar{direction:ltr;position:relative;z-index:20;display:flex;justify-content:center;gap:7px;padding:6px 8px 0;background:rgba(255,253,241,.98);border-top:2px solid #c49b34;box-shadow:0 -3px 10px rgba(0,0,0,.10);box-sizing:border-box}
 .backBar .backBtn,.backBar .navBtn{pointer-events:auto;flex:1;max-width:190px;min-width:0}
 .backBtn,.navBtn{background:#fffdf5;color:#174b39;border:2px solid #b38a24;border-radius:15px;padding:7px 10px;font-size:15px;font-weight:900;box-shadow:0 2px 0 #8f6c1e;box-sizing:border-box;white-space:nowrap}
 .card{
@@ -104,8 +104,8 @@ button:disabled{opacity:.45}
 }
 @media(max-width:600px){
  html,body{width:100%;height:100%;min-height:100%;overflow-x:hidden;overflow-y:auto;background:#fff9e9}
- .page{width:100%;max-width:none;height:100dvh;margin:0}
- .sheet{width:100%;min-height:100dvh;border-left:4px solid #b88d25;border-right:4px solid #b88d25;display:flex;flex-direction:column;overflow:visible}
+ .page{width:100%;max-width:none;height:auto;min-height:100dvh;margin:0}
+ .sheet{width:100%;min-height:0;height:auto;border-left:4px solid #b88d25;border-right:4px solid #b88d25;display:flex;flex-direction:column;overflow:visible}
  .top{height:72px;min-height:72px;flex:none}
  .top:after{right:15px;top:5px;font-size:34px}
  .top:before{bottom:-42px;height:82px}
@@ -127,7 +127,7 @@ button:disabled{opacity:.45}
  .status{display:none!important}
  .buttons{grid-template-columns:1fr 1fr;gap:6px;padding:0 5px 4px;flex:none}
  button{font-size:14px;padding:7px 8px;border-radius:14px;border-width:2px;line-height:1.2;box-shadow:0 2px 0 #8f6c1e}
- .backBar{padding:5px 6px 6px;flex:none;gap:6px}.backBtn,.navBtn{font-size:13px;padding:6px 7px;border-radius:13px}
+ .backBar{padding:5px 6px 0;flex:none;gap:6px}.backBtn,.navBtn{font-size:13px;padding:6px 7px;border-radius:13px}
 }
 </style>
 <style>
@@ -145,7 +145,7 @@ button:disabled{opacity:.45}
 
 <style>
 /* Leaderboard ہمیشہ buttons کے نیچے رہے */
-.leaderboardTab{position:relative;z-index:20;margin:4px auto 0;width:min(100%,600px);border:2px solid #c49b34;border-bottom:0;border-radius:18px 18px 0 0;background:#fffdf1;overflow:hidden;box-shadow:0 -3px 14px rgba(0,0,0,.15)}
+.leaderboardTab{position:relative;z-index:20;margin:6px auto 0;width:min(100%,600px);border:2px solid #c49b34;border-bottom:0;border-radius:18px 18px 0 0;background:#fffdf1;overflow:hidden;box-shadow:0 -3px 14px rgba(0,0,0,.15)}
 .leaderTabBtn{width:100%;border:0;border-radius:0;background:#075a43;color:#fff;font-weight:900;font-size:16px;padding:10px 12px;box-shadow:none;cursor:pointer}
 .leaderTabBtn:active{transform:none}
 .leaderTabBody{display:none;padding:9px 12px 12px;max-height:45vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
@@ -180,9 +180,8 @@ button:disabled{opacity:.45}
     <button class="navBtn" id="prev">⬅ پچھلا ذکر</button>
     <button class="navBtn" id="next">اگلا ➜</button>
   </div>
-</div></div>
 
-<div class="leaderboardTab" id="leaderboardTab">
+  <div class="leaderboardTab" id="leaderboardTab">
   <button class="leaderTabBtn" id="leaderTabBtn">🏆 Leaderboard ▼</button>
   <div class="leaderTabBody">
     <div class="leaderMine"><span>میرا مکمل اذکار کاؤنٹ</span><span class="leaderMineCount" id="myFullCount">0</span></div>
@@ -190,7 +189,7 @@ button:disabled{opacity:.45}
     <div class="leaderboard" id="leaderboard"><div style="font-size:12px;color:#68756e">Leaderboard لوڈ ہو رہا ہے…</div></div>
     <div class="cloudHint">ہر صارف کے پورے اذکار کا ایک مکمل چکر ختم ہونے پر اس کے اکاؤنٹ میں +1 شمار ہوگا۔</div>
   </div>
-</div>
+</div></div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
