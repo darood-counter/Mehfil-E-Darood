@@ -1239,17 +1239,13 @@
 
         <div class="mic-circle-wrapper">
           <div class="circle-progress"></div>
-          <button class="mic-btn" id="countBtn">
+          <button class="mic-btn" id="countBtn" type="button" aria-label="تسبیح Voice Start Stop">
+            <span id="tasbeehVoiceControlIcon" style="display:block;font-size:18px;font-weight:800;color:var(--primary-color);line-height:1.1;margin-bottom:4px;">▶️ شروع</span>
             <span style="font-size: 32px; font-weight: bold; color: var(--primary-color);" id="userTotal">0</span>
             <span style="font-size: 12px; color: var(--text-muted); font-weight: normal;">آپ کے آج کے درود</span>
           </button>
         </div>
         <div id="statusMsg" class="status-msg" style="color: var(--primary-color);"></div>
-
-        <div style="display:flex; flex-direction:column; gap:6px; justify-content:center; align-items:center; margin-top:15px;">
-          <div style="font-size:12px; font-weight:800; color:var(--primary-color);">🎙️ Listening Control — Start / Stop</div>
-          <button id="tasbeehStartStopBtn" type="button" aria-label="Listening Start Stop" style="background:#0d3b22; color:white; border:none; padding:10px 24px; border-radius:12px; font-family:inherit; font-size:14px; font-weight:bold; cursor:pointer;">▶️ شروع کریں</button>
-        </div>
 
         <h3 style="color:var(--primary-color); margin-top: 25px; font-size: 16px; text-align: right;">🏆 لائیو Leaderboard</h3>
         <table>
@@ -3238,7 +3234,9 @@ function switchBottomTab(tabName) {
       const btn = document.getElementById('tasbeehStartStopBtn');
       const status = document.getElementById('statusMsg');
       const countBtn = document.getElementById('countBtn');
-      if (btn) { btn.disabled = false; btn.innerText = '▶️ شروع کریں'; }
+      if (btn) { btn.disabled = false; }
+      const voiceIcon = document.getElementById('tasbeehVoiceControlIcon');
+      if (voiceIcon) voiceIcon.innerText = '▶️ شروع';
       if (countBtn) countBtn.classList.remove('listening');
       if (status) { status.style.color = 'var(--primary-color)'; status.innerText = 'سننا بند ہے۔ دوبارہ شروع کرنے کے لیے بٹن دبائیں۔'; }
       releaseScreenWakeLock();
@@ -3259,8 +3257,10 @@ function switchBottomTab(tabName) {
       if (!isComp) {
         tasbeehListeningActive = true;
         activeTasbeehRecognition = null;
-        const control = document.getElementById('tasbeehStartStopBtn');
-        if (control) { control.disabled = false; control.innerText = '⏹️ بند کریں'; }
+        const control = document.getElementById('countBtn');
+        if (control) control.disabled = false;
+        const voiceIcon = document.getElementById('tasbeehVoiceControlIcon');
+        if (voiceIcon) voiceIcon.innerText = '⏹️ بند';
         resetDaroodWordHighlight();
       } else {
         btn.disabled = true;
@@ -3594,14 +3594,6 @@ function switchBottomTab(tabName) {
       if (tasbeehListeningActive) stopTasbeehListening();
       else startVoiceRecognition('countBtn', 'statusMsg', false);
     };
-
-    const tasbeehStartStopBtn = document.getElementById('tasbeehStartStopBtn');
-    if (tasbeehStartStopBtn) {
-      tasbeehStartStopBtn.onclick = function() {
-        if (tasbeehListeningActive) stopTasbeehListening();
-        else startVoiceRecognition('countBtn', 'statusMsg', false);
-      };
-    }
 
     document.addEventListener('visibilitychange', () => {
       if (document.hidden && tasbeehListeningActive) stopTasbeehListening();
