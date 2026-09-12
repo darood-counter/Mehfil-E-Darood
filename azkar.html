@@ -136,6 +136,18 @@ button:disabled{opacity:.45}
 .cloudHint{font-size:11px;color:#68756e;margin-top:6px}
 </style>
 
+
+<style>
+/* Bottom leaderboard tab */
+.leaderboardTab{margin:10px 13px 16px;border:2px solid #c49b34;border-radius:18px;background:#fffdf1;overflow:hidden;box-shadow:0 3px 10px rgba(0,0,0,.08)}
+.leaderTabBtn{width:100%;border:0;border-radius:0;background:#075a43;color:#fff;font-weight:900;font-size:16px;padding:11px 12px;box-shadow:none;cursor:pointer}
+.leaderTabBtn:active{transform:none}
+.leaderTabBody{display:none;padding:10px 12px 12px}
+.leaderboardTab.open .leaderTabBody{display:block}
+.leaderMine{display:flex;justify-content:space-between;align-items:center;gap:8px;background:#f5e9c5;border:1px solid #d4bd76;border-radius:12px;padding:8px 10px;margin-bottom:9px;font-weight:900;color:#174b39}
+.leaderMineCount{font-size:18px;color:#075a43}
+</style>
+
 </head>
 <body>
 <div class="page"><div class="sheet">
@@ -163,6 +175,15 @@ button:disabled{opacity:.45}
   <div class="backBar"><button class="backBtn" id="backBtn">✕ بند کریں</button></div>
 </div></div>
 
+<div class="leaderboardTab" id="leaderboardTab">
+  <button class="leaderTabBtn" id="leaderTabBtn">🏆 Leaderboard ▼</button>
+  <div class="leaderTabBody">
+    <div class="leaderMine"><span>میرا مکمل اذکار کاؤنٹ</span><span class="leaderMineCount" id="myFullCount">0</span></div>
+    <div class="leaderTitle">🏆 مکمل اذکار Leaderboard</div>
+    <div class="leaderboard" id="leaderboard"><div style="font-size:12px;color:#68756e">Leaderboard لوڈ ہو رہا ہے…</div></div>
+    <div class="cloudHint">ہر صارف کے پورے اذکار کا ایک مکمل چکر ختم ہونے پر اس کے اکاؤنٹ میں +1 شمار ہوگا۔</div>
+  </div>
+</div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
@@ -257,6 +278,7 @@ let currentUser=null;
 let myLifetimeTotal=0;
 let fullAzkarCompleted=0;
 let leaderListener=null;
+let fullCycleListener=null;
 
 function norm(s){
  return s.replace(/[ًٌٍَُِّْـ]/g,"").replace(/[إأآٱ]/g,"ا").replace(/ى/g,"ی").replace(/ة/g,"ه").replace(/ؤ/g,"و").replace(/ئ/g,"ی").replace(/[^\u0600-\u06FF\s]/g," ").replace(/\s+/g," ").trim();
@@ -337,44 +359,65 @@ function updateMyTotal(){
 }
 
 function loadMyStats(){
- if(!currentUser){
-   myLifetimeTotal=0;updateMyTotal();return;
- }
- db.ref("azkarStats/"+currentUser.uid+"/totalReadings").once("value")
-   .then(s=>{myLifetimeTotal=Number(s.val()||0);updateMyTotal()})
-   .catch(()=>updateMyTotal());
+  const el=$("myFullCount");
+  if(!currentUser){
+    myLifetimeTotal=0;
+    if(el) el.textContent="0";
+    return;
+  }
+  db.ref("azkarStats/"+currentUser.uid+"/totalReadings").once("value")
+    .then(s=>{myLifetimeTotal=Number(s.val()||0);updateMyTotal()})
+    .catch(()=>updateMyTotal());
+  db.ref("azkarStats/"+currentUser.uid+"/fullAzkarCompleted").once("value")
+    .then(s=>{if(el)el.textContent=Number(s.val()||0);})
+    .catch(()=>{if(el)el.textContent="0";});
 }
 
-function loadLeaderboard(){
- const box=$("leaderboard");
- if(!box)return;
- if(leaderListener){leaderListener();leaderListener=null;}
- const ref=db.ref("azkarStats");
- const handler=snap=>{
-   const rows=[];
-   snap.forEach(u=>{
-     const v=u.val()||{};
-     const total=Number(v.totalReadings||0);
-     if(total>0){
-       rows.push({
-         name:(v.profile&&v.profile.name)||"صارف",
-         total
-       });
-     }
-   });
-   rows.sort((a,b)=>b.total-a.total);
-   const top=rows.slice(0,10);
-   if(!top.length){
-     box.innerHTML='<div style="font-size:12px;color:#68756e">ابھی کوئی reading محفوظ نہیں ہوئی۔</div>';
-     return;
-   }
-   box.innerHTML=top.map((r,i)=>
-     `<div class="leaderRow"><span class="leaderName">${i+1}. ${escapeHtml(r.name)}</span><span class="leaderCount">${r.total} مرتبہ</span></div>`
-   ).join("");
- };
- ref.on("value",handler,()=>{box.innerHTML='<div style="font-size:12px;color:#a33">Leaderboard لوڈ نہیں ہو سکا۔</div>';});
- leaderListener=()=>ref.off("value",handler);
+function saveFullAzkarCompletion(){
+  if(!currentUser)return Promise.resolve();
+  const uid=String(currentUser.uid);
+  const root=db.ref("azkarStats/"+uid);
+  return root.update({
+    "profile/name":currentUser.displayName||currentUser.email||"صارف",
+    "profile/email":currentUser.email||"",
+    "fullAzkarCompleted":firebase.database.ServerValue.increment(1),
+    "lastFullAzkarCompletedAt":firebase.database.ServerValue.TIMESTAMP
+  }).then(()=>{
+    const el=$("myFullCount");
+    if(el)el.textContent=Number(el.textContent||0)+1;
+  }).catch(err=>console.warn("Firebase full-cycle save failed",err));
 }
+
+
+function loadLeaderboard(){
+  const box=$("leaderboard");
+  if(!box)return;
+  if(leaderListener){leaderListener();leaderListener=null;}
+  const ref=db.ref("azkarStats");
+  const handler=snap=>{
+    const rows=[];
+    snap.forEach(u=>{
+      const v=u.val()||{};
+      const total=Number(v.fullAzkarCompleted||0);
+      if(total>0){
+        rows.push({name:(v.profile&&v.profile.name)||"صارف",total});
+      }
+    });
+    rows.sort((a,b)=>b.total-a.total);
+    const top=rows.slice(0,10);
+    if(!top.length){
+      box.innerHTML='<div style="font-size:12px;color:#68756e">ابھی کسی صارف نے پورا اذکار مکمل نہیں کیا۔</div>';
+      return;
+    }
+    box.innerHTML=top.map((r,i)=>{
+      const medal=i===0?"🥇":i===1?"🥈":i===2?"🥉":"🏆";
+      return `<div class="leaderRow"><span class="leaderName">${medal} ${i+1}. ${escapeHtml(r.name)}</span><span class="leaderCount">${r.total} چکر</span></div>`;
+    }).join("");
+  };
+  ref.on("value",handler,()=>{box.innerHTML='<div style="font-size:12px;color:#a33">Leaderboard لوڈ نہیں ہو سکا۔</div>';});
+  leaderListener=()=>ref.off("value",handler);
+}
+
 
 function playCompletionFeedback(){
  try{
@@ -455,6 +498,7 @@ function complete(){
         }else{
           // آخری ذکر (آیت الکرسی) مکمل ہونے پر پورا اذکار کا ایک چکر مکمل ہوا۔
           fullAzkarCompleted++;
+          saveFullAzkarCompletion();
           current=0;
           render();
           $("doneCount").textContent="آپ نے پورے اذکار "+fullAzkarCompleted+" مرتبہ مکمل کیے";
@@ -631,6 +675,12 @@ $("next").onclick=()=>{
     $("status").textContent="🔄 تمام اذکار مکمل — دوبارہ نمبر 1 سے شروع ہو رہا ہے";
     setTimeout(()=>startVoice(),120);
   }
+};
+
+$("leaderTabBtn").onclick=()=>{
+  $("leaderboardTab").classList.toggle("open");
+  const open=$("leaderboardTab").classList.contains("open");
+  $("leaderTabBtn").textContent=open?"🏆 Leaderboard ▲":"🏆 Leaderboard ▼";
 };
 
 auth.onAuthStateChanged(user=>{
