@@ -3248,13 +3248,15 @@ function switchBottomTab(tabName) {
       return false;
     }
 
+    // Green highlighting is now the Tasbeeh verification source of truth.
+    // The count is allowed ONLY after every displayed Darood word is green.
     function updateDaroodWordHighlight(spokenText) {
       const container = document.getElementById('daroodArabicText');
-      if (!container) return;
+      if (!container) return false;
 
       const wordEls = Array.from(container.querySelectorAll('.darood-word'));
       const spokenWords = normalizeArabicGlobal(spokenText).split(' ').filter(Boolean);
-      if (!spokenWords.length) return;
+      if (!spokenWords.length) return false;
 
       let si = 0;
       for (const el of wordEls) {
@@ -3291,6 +3293,12 @@ function switchBottomTab(tabName) {
           }
         }
       }
+      return isEntireDaroodGreen();
+    }
+
+    function isEntireDaroodGreen() {
+      const words = Array.from(document.querySelectorAll('#daroodArabicText .darood-word'));
+      return words.length > 0 && words.every(el => el.classList.contains('read'));
     }
 
     function normalizeArabicGlobal(value) {
@@ -3436,8 +3444,10 @@ function switchBottomTab(tabName) {
         return verificationGroups.every(group => verificationWordFound(words, group));
       };
 
+      // Tasbeeh: the visible green words are the final verification.
+      // Competition keeps its separate three-word verification rule.
       const maybeFinishOnCompleteDarood = () => {
-        if (!isComp && !finished && isCompleteDarood(collectedSpeech.join(" "))) {
+        if (!isComp && !finished && isEntireDaroodGreen()) {
           finishListening();
           return true;
         }
@@ -3456,9 +3466,10 @@ function switchBottomTab(tabName) {
 
         try { recognition.stop(); } catch (e) {}
 
-        // Verification starts as soon as the complete Darood has been detected.
+        // Competition uses its existing verification rule. Tasbeeh counts only
+        // when every displayed Darood word has turned green.
         const finalText = collectedSpeech.join(" ");
-        const valid = isCompleteDarood(finalText);
+        const valid = isComp ? isCompleteDarood(finalText) : isEntireDaroodGreen();
 
         if (!valid) {
           const resultBar = document.getElementById("compResultBar");
@@ -3594,16 +3605,18 @@ function switchBottomTab(tabName) {
           let bestTranscript = result[0]?.transcript || "";
           let segmentComplete = false;
 
-          // Prefer an alternative that completes the Darood, otherwise collect
-          // the best available transcript from this recognition result.
+          // For competition, prefer an alternative that passes its existing
+          // verification. Tasbeeh progress is determined only by green words.
           for (let j = 0; j < result.length; j++) {
             const candidate = result[j]?.transcript || "";
             if (candidate) {
               bestTranscript = candidate;
-              const candidateWithPrevious = collectedSpeech.concat(candidate).join(" ");
-              if (isCompleteDarood(candidateWithPrevious)) {
-                segmentComplete = true;
-                break;
+              if (isComp) {
+                const candidateWithPrevious = collectedSpeech.concat(candidate).join(" ");
+                if (isCompleteDarood(candidateWithPrevious)) {
+                  segmentComplete = true;
+                  break;
+                }
               }
             }
           }
@@ -3613,7 +3626,9 @@ function switchBottomTab(tabName) {
             if (!isComp) updateDaroodWordHighlight(collectedSpeech.join(' '));
           }
 
-          if (!isComp && (segmentComplete || maybeFinishOnCompleteDarood())) {
+          // IMPORTANT: Tasbeeh +1 is triggered only after ALL displayed words
+          // are green. The old three-word trigger cannot finish Tasbeeh early.
+          if (!isComp && maybeFinishOnCompleteDarood()) {
             return;
           }
 
