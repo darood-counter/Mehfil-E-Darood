@@ -3435,15 +3435,8 @@ function switchBottomTab(tabName) {
         return true;
       };
 
-      // Tasbeeh verification: every displayed Darood word must be verified/green.
-      const isAllDaroodWordsRead = () => {
-        if (isComp) return false;
-        const wordEls = Array.from(document.querySelectorAll('#daroodArabicText .darood-word'));
-        return wordEls.length > 0 && wordEls.every(el => el.classList.contains('read'));
-      };
-
       const maybeFinishOnCompleteDarood = () => {
-        if (!isComp && !finished && isAllDaroodWordsRead()) {
+        if (!isComp && !finished && isCompleteDarood(collectedSpeech.join(" "))) {
           finishListening();
           return true;
         }
@@ -3462,10 +3455,9 @@ function switchBottomTab(tabName) {
 
         try { recognition.stop(); } catch (e) {}
 
-        // Tasbeeh: the green word-by-word verification is the source of truth.
-        // Competition keeps its existing keyword verification.
+        // Verification starts as soon as the complete Darood has been detected.
         const finalText = collectedSpeech.join(" ");
-        const valid = isComp ? isCompleteDarood(finalText) : isAllDaroodWordsRead();
+        const valid = isCompleteDarood(finalText);
 
         if (!valid) {
           const resultBar = document.getElementById("compResultBar");
@@ -3520,7 +3512,7 @@ function switchBottomTab(tabName) {
                 email: currentUser.email
               };
               return {
-                count: Number(current.count || 0) + 1,
+                count: (current.count || 0) + 1,
                 name: currentUser.displayName || currentUser.email,
                 email: currentUser.email,
                 accName: current.accName || '',
@@ -3529,29 +3521,6 @@ function switchBottomTab(tabName) {
                 savedCity: current.savedCity || '',
                 savedCountry: current.savedCountry || ''
               };
-            }).then(result => {
-              if (!result || !result.committed) throw new Error("Firebase transaction not committed");
-
-              statusEl.style.color = "#15803d";
-              statusEl.innerText = "✓ درود شریف شمار ہو گیا!";
-              playSuccessSound();
-              triggerVibration();
-
-              if (tasbeehListeningActive) {
-                btn.classList.remove("listening");
-                activeTasbeehRecognition = null;
-                tasbeehAutoRestartTimer = setTimeout(() => {
-                  tasbeehAutoRestartTimer = null;
-                  if (tasbeehListeningActive) startVoiceRecognition('countBtn', 'statusMsg', false);
-                }, 350);
-              } else {
-                btn.classList.remove("listening");
-              }
-            }).catch(error => {
-              console.error("Tasbeeh count update failed:", error);
-              btn.classList.remove("listening");
-              statusEl.style.color = "#dc2626";
-              statusEl.innerText = "⚠️ شمار محفوظ نہیں ہوا، دوبارہ کوشش کریں۔";
             });
           }
 
@@ -3567,16 +3536,27 @@ function switchBottomTab(tabName) {
             statusEl.style.color = "#15803d";
             statusEl.innerText = "بولیں، میں سن رہا ہوں";
           } else {
-            // Tasbeeh success/restart is handled only after Firebase confirms the write.
+            statusEl.style.color = "#d97706";
+            statusEl.innerText = "✓ درود شریف شمار ہو گیا!";
           }
-          if (isComp) {
-            playSuccessSound();
-            triggerVibration();
-          }
+          playSuccessSound();
+          triggerVibration();
         }
 
         if (isComp) {
           btn.disabled = false;
+          btn.classList.remove("listening");
+        } else if (tasbeehListeningActive) {
+          btn.classList.remove("listening");
+          activeTasbeehRecognition = null;
+          // Successful count: automatically begin the next Darood round.
+          tasbeehAutoRestartTimer = setTimeout(() => {
+            tasbeehAutoRestartTimer = null;
+            if (tasbeehListeningActive) {
+              startVoiceRecognition('countBtn', 'statusMsg', false);
+            }
+          }, 350);
+        } else {
           btn.classList.remove("listening");
         }
       };
