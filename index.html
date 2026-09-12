@@ -3250,49 +3250,90 @@ function switchBottomTab(tabName) {
 
     // Green highlighting is now the Tasbeeh verification source of truth.
     // The count is allowed ONLY after every displayed Darood word is green.
+    // Turn recognition text into individual Darood words.
+    // Some Android speech engines return phrases such as "اللهمبارك"
+    // as one token; split those combined tokens so BOTH words can turn green.
+    function tokenizeDaroodSpeech(spokenText) {
+      let text = normalizeArabicGlobal(spokenText);
+      if (!text) return [];
+
+      const container = document.getElementById('daroodArabicText');
+      const targets = container
+        ? Array.from(container.querySelectorAll('.darood-word'))
+            .map(el => normalizeArabicGlobal(el.textContent))
+            .filter(Boolean)
+        : [];
+
+      // Also include common recognition spellings.
+      const extras = [
+        'اللهم', 'اللهمم', 'الهم',
+        'بارک', 'بارك', 'بارکت', 'باركت',
+        'ابراہیم', 'ابراهيم', 'ابراھیم', 'ابراهیم', 'إبراهيم',
+        'صلی', 'صلي', 'علی', 'علي', 'على', 'محمد',
+        'وعلی', 'وعلي', 'وعلى', 'اٰل', 'آل', 'ال',
+        'کما', 'كما', 'صلیت', 'صليت', 'انک', 'إنك', 'انك',
+        'حمید', 'حميد', 'مجید', 'مجيد'
+      ].map(normalizeArabicGlobal).filter(Boolean);
+
+      const patterns = Array.from(new Set(targets.concat(extras)))
+        .sort((a,b) => b.length - a.length);
+
+      // Put spaces around known words even when the speech engine joined them.
+      for (const word of patterns) {
+        if (word.length >= 2) {
+          text = text.split(word).join(' ' + word + ' ');
+        }
+      }
+
+      return text.split(/\s+/).filter(Boolean);
+    }
+
+    // Green highlighting is the Tasbeeh verification source of truth.
+    // The count is allowed ONLY after every displayed Darood word is green.
     function updateDaroodWordHighlight(spokenText) {
       const container = document.getElementById('daroodArabicText');
       if (!container) return false;
 
       const wordEls = Array.from(container.querySelectorAll('.darood-word'));
-      const spokenWords = normalizeArabicGlobal(spokenText).split(' ').filter(Boolean);
-      if (!spokenWords.length) return false;
+      const spokenWords = tokenizeDaroodSpeech(spokenText);
+      if (!spokenWords.length) return isEntireDaroodGreen();
 
       let si = 0;
       for (const el of wordEls) {
-        if (si >= spokenWords.length) break;
-
         const target = normalizeArabicGlobal(el.textContent);
-        if (!target) continue;
-
-        if (daroodHighlightWordMatch(spokenWords[si], target)) {
-          el.classList.add('read');
-          si++;
+        if (!target || el.classList.contains('read')) {
           continue;
         }
 
-        // Recognition can occasionally skip a word or split/combine words.
-        let matched = false;
-        for (let look = 1; look <= 4 && si + look < spokenWords.length; look++) {
-          if (daroodHighlightWordMatch(spokenWords[si + look], target)) {
-            el.classList.add('read');
-            si += look + 1;
-            matched = true;
+        // Search forward for the next matching spoken word.
+        let matchedAt = -1;
+        for (let look = si; look < Math.min(spokenWords.length, si + 6); look++) {
+          if (daroodHighlightWordMatch(spokenWords[look], target)) {
+            matchedAt = look;
             break;
           }
         }
-        if (matched) continue;
 
-        for (let look = si; look < Math.min(spokenWords.length, si + 3); look++) {
+        if (matchedAt !== -1) {
+          el.classList.add('read');
+          // Do not let an already-green earlier word consume the new token.
+          si = matchedAt + 1;
+          continue;
+        }
+
+        // Small fallback for a recognition token containing this word.
+        for (let look = si; look < Math.min(spokenWords.length, si + 4); look++) {
           const spoken = spokenWords[look];
-          if (spoken.length > target.length + 1 &&
-              (spoken.includes(target) || target.includes(spoken))) {
-            el.classList.add('read');
-            si = look + 1;
-            break;
+          if (spoken && (spoken.includes(target) || target.includes(spoken))) {
+            if (spoken.length >= target.length || target.length - spoken.length <= 1) {
+              el.classList.add('read');
+              si = look + 1;
+              break;
+            }
           }
         }
       }
+
       return isEntireDaroodGreen();
     }
 
