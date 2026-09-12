@@ -114,7 +114,7 @@ button:disabled{opacity:.45}
  #doneCount{font-size:12px!important;line-height:1.1}
  .arabic{font-size:clamp(25px,6.3vw,31px);line-height:1.45;padding:2px 5px 7px;flex:0 1 auto;max-height:43%;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
   .arabic.duroodOnly{font-size:clamp(19px,4.8vw,24px);line-height:1.55;}
-  .arabic.ayatOnly{font-size:clamp(21px,5.4vw,27px);line-height:1.42;}
+  .arabic.ayatOnly{font-size:clamp(16px,4.15vw,21px);line-height:1.32;padding:1px 4px 5px;max-height:none;overflow:visible;}
  .translation{font-size:14px;line-height:1.5;padding:6px 5px 0;min-height:0;overflow:hidden;flex:0 1 auto}
  .translation:before{font-size:12px;padding:2px 12px;margin-bottom:4px;border-width:1px;border-radius:13px}
  .status{min-height:27px;height:27px;padding:4px 5px;font-size:13px;line-height:1.35;flex:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -158,9 +158,9 @@ button:disabled{opacity:.45}
     <button class="start" id="start">🎙️ بول کر پڑھیں</button>
     <button class="listen" id="listen">🔊 سنیں</button>
     <button class="next" id="next">اگلا ➜</button>
-    <button id="reset">↻ ری سیٹ</button>
+    <button class="next" id="prev">⬅ پچھلا ذکر</button>
   </div>
-  <div class="backBar"><button class="backBtn" id="backBtn">← واپس</button></div>
+  <div class="backBar"><button class="backBtn" id="backBtn">✕ بند کریں</button></div>
 </div></div>
 
 
@@ -399,29 +399,6 @@ function playCompletionFeedback(){
  }catch(e){}
 }
 
-function playCompletionFeedback(){
- try{
-   if(navigator.vibrate) navigator.vibrate([45,35,45]);
- }catch(e){}
- try{
-   const AC=window.AudioContext||window.webkitAudioContext;
-   if(!AC)return;
-   const ctx=window.__azkarAudioCtx||(window.__azkarAudioCtx=new AC());
-   if(ctx.state==='suspended')ctx.resume().catch(()=>{});
-   const now=ctx.currentTime;
-   const osc=ctx.createOscillator();
-   const gain=ctx.createGain();
-   osc.type='sine';
-   osc.frequency.setValueAtTime(720,now);
-   osc.frequency.setValueAtTime(880,now+0.07);
-   gain.gain.setValueAtTime(0.0001,now);
-   gain.gain.exponentialRampToValueAtTime(0.055,now+0.012);
-   gain.gain.exponentialRampToValueAtTime(0.0001,now+0.16);
-   osc.connect(gain); gain.connect(ctx.destination);
-   osc.start(now); osc.stop(now+0.17);
- }catch(e){}
-}
-
 function saveLocalProgress(){
   try{
     localStorage.setItem("azkarProgress_v2",JSON.stringify({current,counts}));
@@ -481,7 +458,7 @@ function complete(){
           current=0;
           render();
           $("doneCount").textContent="آپ نے پورے اذکار "+fullAzkarCompleted+" مرتبہ مکمل کیے";
-          $("status").textContent="🎉 پورا ایک چکر مکمل — دوبارہ شروع ہو رہا ہے";
+          $("status").textContent="🎉 پورا ایک چکر مکمل — دوبارہ نمبر 1 سے شروع ہو رہا ہے";
           setTimeout(()=>startVoice(),120);
         }
       }
@@ -624,26 +601,36 @@ $("backBtn").onclick=()=>{
 };
 $("start").onclick=()=>keep?stopVoice():startVoice();
 $("listen").onclick=speakCurrent;
-$("next").onclick=()=>{
- if(current<ITEMS.length-1){
-   current++;saveLocalProgress();resetMode=false;render();
-   $("status").textContent="🎙️ اگلا ذکر سن رہا ہوں… اب پڑھیں";
-   setTimeout(()=>startVoice(),120);
- }
+
+$("prev").onclick=()=>{
+  stopVoice();
+  if(current>0){
+    current--;
+    saveLocalProgress();
+    resetMode=false;
+    render();
+    $("status").textContent="⬅️ پچھلا ذکر کھول دیا گیا — اب پڑھیں";
+    setTimeout(()=>startVoice(),120);
+  }
 };
-$("reset").onclick=()=>{
- stopVoice();
- if(countTimer)clearTimeout(countTimer);
- speechBuffer="";
- // Reset only the current screen/session. Do NOT overwrite the last
- // saved progress, so the user's already-read amount can be resumed later.
- counts=ITEMS.map(()=>0);
- current=0;
- locked=false;
- pos=0;
- resetMode=true;
- render();
- $("status").textContent="↻ شروع سے — پچھلی محفوظ progress برقرار ہے۔";
+
+$("next").onclick=()=>{
+  stopVoice();
+  if(current<ITEMS.length-1){
+    current++;
+    saveLocalProgress();
+    resetMode=false;
+    render();
+    $("status").textContent="🎙️ اگلا ذکر سن رہا ہوں… اب پڑھیں";
+    setTimeout(()=>startVoice(),120);
+  }else{
+    current=0;
+    saveLocalProgress();
+    resetMode=false;
+    render();
+    $("status").textContent="🔄 تمام اذکار مکمل — دوبارہ نمبر 1 سے شروع ہو رہا ہے";
+    setTimeout(()=>startVoice(),120);
+  }
 };
 
 auth.onAuthStateChanged(user=>{
