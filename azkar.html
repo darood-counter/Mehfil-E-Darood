@@ -613,6 +613,7 @@ function startVoice(){
 
 function stopVoice(){
  keep=false;
+ try{ if("speechSynthesis" in window) speechSynthesis.cancel(); }catch(e){}
   // Do NOT release screen-awake protection: the page must stay awake even when not speaking.
  if(countTimer)clearTimeout(countTimer);
  if(recognitionRestartTimer)clearTimeout(recognitionRestartTimer);
@@ -639,9 +640,18 @@ function speakCurrent(){
 }
 
 $("backBtn").onclick=()=>{
+  // Close button: فوراً voice recognition اور spoken audio بند کریں۔
   stopVoice();
+  try{ if("speechSynthesis" in window) speechSynthesis.cancel(); }catch(e){}
   if(!resetMode) saveLocalProgress();
-  window.location.href="index.html";
+
+  // اگر یہ window script سے کھلی ہے تو اسے بند کرنے کی کوشش کریں۔
+  try{ window.close(); }catch(e){}
+
+  // عام browser tab میں window.close اجازت نہیں ہوتی، اس لیے home page پر واپس جائیں۔
+  setTimeout(()=>{
+    if(document.visibilityState !== "hidden") window.location.href="index.html";
+  },100);
 };
 $("start").onclick=()=>keep?stopVoice():startVoice();
 $("listen").onclick=speakCurrent;
