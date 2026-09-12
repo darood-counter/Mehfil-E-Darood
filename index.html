@@ -1246,8 +1246,9 @@
         </div>
         <div id="statusMsg" class="status-msg" style="color: var(--primary-color);"></div>
 
-        <div style="display:flex; gap:8px; justify-content:center; align-items:center; margin-top:15px; flex-wrap:wrap;">
-          <button id="tasbeehStartStopBtn" type="button" style="background:#0d3b22; color:white; border:none; padding:10px 24px; border-radius:12px; font-family:inherit; font-size:14px; font-weight:bold; cursor:pointer;">▶️ شروع کریں</button>
+        <div style="display:flex; flex-direction:column; gap:6px; justify-content:center; align-items:center; margin-top:15px;">
+          <div style="font-size:12px; font-weight:800; color:var(--primary-color);">🎙️ Listening Control — Start / Stop</div>
+          <button id="tasbeehStartStopBtn" type="button" aria-label="Listening Start Stop" style="background:#0d3b22; color:white; border:none; padding:10px 24px; border-radius:12px; font-family:inherit; font-size:14px; font-weight:bold; cursor:pointer;">▶️ شروع کریں</button>
         </div>
 
         <h3 style="color:var(--primary-color); margin-top: 25px; font-size: 16px; text-align: right;">🏆 لائیو Leaderboard</h3>
@@ -2093,6 +2094,8 @@ function initChatSystem(){
 /* ================= END CHAT SYSTEM ================= */
 
 function switchBottomTab(tabName) {
+      // Remember the last internal page so a refresh returns the user to the same page.
+      try { localStorage.setItem('last_active_tab', tabName); } catch(e) {}
       if (typeof stopTasbeehListening === 'function' && tabName !== 'reward') stopTasbeehListening();
       document.getElementById("mainTab").classList.add("hidden");
       document.getElementById("compTab").classList.add("hidden");
@@ -2283,6 +2286,18 @@ function switchBottomTab(tabName) {
           }
         });
         initChatSystem();
+
+        // Restore the page/tab that was open before refresh. Tasbeeh will also
+        // resume its normal auto-listening when that page is restored.
+        setTimeout(() => {
+          const savedTab = localStorage.getItem('last_active_tab');
+          const allowedTabs = ['home','reward','competition','chat','about','profile'];
+          if (allowedTabs.includes(savedTab)) {
+            switchBottomTab(savedTab);
+          } else {
+            switchBottomTab('home');
+          }
+        }, 150);
       } else {
         if (currentUser) db.ref("status/" + currentUser.uid).remove();
         currentUser = null;
