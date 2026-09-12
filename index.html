@@ -3435,9 +3435,7 @@ function switchBottomTab(tabName) {
         return true;
       };
 
-      // Tasbeeh verification must happen AFTER every Darood word on screen
-      // has turned green. This prevents the old 3-keyword check from ending
-      // verification too early and leaving the count unchanged.
+      // Tasbeeh verification: every displayed Darood word must be verified/green.
       const isAllDaroodWordsRead = () => {
         if (isComp) return false;
         const wordEls = Array.from(document.querySelectorAll('#daroodArabicText .darood-word'));
@@ -3464,11 +3462,9 @@ function switchBottomTab(tabName) {
 
         try { recognition.stop(); } catch (e) {}
 
-        // Verification starts as soon as the complete Darood has been detected.
-        const finalText = collectedSpeech.join(" ");
-        // For Tasbeeh, the visual word-by-word verification is the source of
-        // truth: if every Darood word is green, the recitation is verified.
+        // Tasbeeh: the green word-by-word verification is the source of truth.
         // Competition keeps its existing keyword verification.
+        const finalText = collectedSpeech.join(" ");
         const valid = isComp ? isCompleteDarood(finalText) : isAllDaroodWordsRead();
 
         if (!valid) {
@@ -3524,7 +3520,7 @@ function switchBottomTab(tabName) {
                 email: currentUser.email
               };
               return {
-                count: (current.count || 0) + 1,
+                count: Number(current.count || 0) + 1,
                 name: currentUser.displayName || currentUser.email,
                 email: currentUser.email,
                 accName: current.accName || '',
@@ -3533,19 +3529,29 @@ function switchBottomTab(tabName) {
                 savedCity: current.savedCity || '',
                 savedCountry: current.savedCountry || ''
               };
-            }).then(() => {
-              // Firebase has accepted the +1. The users listener updates
-              // #userTotal automatically; keep the success message here.
-              if (!isComp) {
-                statusEl.style.color = "#15803d";
-                statusEl.innerText = "✓ درود شریف شمار ہو گیا!";
+            }).then(result => {
+              if (!result || !result.committed) throw new Error("Firebase transaction not committed");
+
+              statusEl.style.color = "#15803d";
+              statusEl.innerText = "✓ درود شریف شمار ہو گیا!";
+              playSuccessSound();
+              triggerVibration();
+
+              if (tasbeehListeningActive) {
+                btn.classList.remove("listening");
+                activeTasbeehRecognition = null;
+                tasbeehAutoRestartTimer = setTimeout(() => {
+                  tasbeehAutoRestartTimer = null;
+                  if (tasbeehListeningActive) startVoiceRecognition('countBtn', 'statusMsg', false);
+                }, 350);
+              } else {
+                btn.classList.remove("listening");
               }
-            }).catch((error) => {
+            }).catch(error => {
               console.error("Tasbeeh count update failed:", error);
-              if (!isComp) {
-                statusEl.style.color = "#dc2626";
-                statusEl.innerText = "⚠️ شمار محفوظ نہیں ہو سکا، دوبارہ کوشش کریں۔";
-              }
+              btn.classList.remove("listening");
+              statusEl.style.color = "#dc2626";
+              statusEl.innerText = "⚠️ شمار محفوظ نہیں ہوا، دوبارہ کوشش کریں۔";
             });
           }
 
@@ -3561,27 +3567,16 @@ function switchBottomTab(tabName) {
             statusEl.style.color = "#15803d";
             statusEl.innerText = "بولیں، میں سن رہا ہوں";
           } else {
-            statusEl.style.color = "#d97706";
-            statusEl.innerText = "✓ درود شریف شمار ہو گیا!";
+            // Tasbeeh success/restart is handled only after Firebase confirms the write.
           }
-          playSuccessSound();
-          triggerVibration();
+          if (isComp) {
+            playSuccessSound();
+            triggerVibration();
+          }
         }
 
         if (isComp) {
           btn.disabled = false;
-          btn.classList.remove("listening");
-        } else if (tasbeehListeningActive) {
-          btn.classList.remove("listening");
-          activeTasbeehRecognition = null;
-          // Successful count: automatically begin the next Darood round.
-          tasbeehAutoRestartTimer = setTimeout(() => {
-            tasbeehAutoRestartTimer = null;
-            if (tasbeehListeningActive) {
-              startVoiceRecognition('countBtn', 'statusMsg', false);
-            }
-          }, 350);
-        } else {
           btn.classList.remove("listening");
         }
       };
